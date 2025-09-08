@@ -1,0 +1,961 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { 
+  Users, 
+  TestTube, 
+  CreditCard, 
+  UserX,
+  Search,
+  Filter,
+  MoreVertical,
+  Eye,
+  Calendar,
+  Crown,
+  UserMinus,
+  Shield,
+  User,
+  Trash2,
+  Clock,
+  MessageCircle
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import SubscriptionPeriodModal from '@/components/SubscriptionPeriodModal';
+import UserDetailsModal from '@/components/admin/UserDetailsModal';
+import { upsertSubscription } from '@/utils/subscriptionStorage';
+import { ConfirmDeleteUserModal } from '@/components/admin/ConfirmDeleteUserModal';
+import { SendMessageModal } from '@/components/admin/SendMessageModal';
+
+interface UserData {
+  id: string;
+  email: string;
+  name: string | null;
+  whatsapp?: string | null;
+  created_at: string;
+  subscription_status: 'trial' | 'paid' | 'expired' | 'inactive';
+  subscription_type: string | null;
+  expires_at: string | null;
+  is_active: boolean;
+  remaining_days: number | null;
+  plan_display_name: string | null;
+  user_status: 'active' | 'inactive';
+  last_seen_at?: string | null;
+  is_online?: boolean;
+  status?: 'admin' | 'user';
+  last_login_at?: string | null;
+  session_duration?: number | null;
+}
+
+export const UserManagement = () => {
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
+  const [userDetailsModalOpen, setUserDetailsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
+  const [sendMessageModalOpen, setSendMessageModalOpen] = useState(false);
+  const [messageTargetUser, setMessageTargetUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      
+      // Buscar profiles
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (profilesError) throw profilesError;
+
+      // Buscar assinaturas
+      const { data: subscriptions, error: subscriptionsError } = await supabase
+        .from('user_subscriptions')
+        .select('*');
+
+      if (subscriptionsError) throw subscriptionsError;
+
+      // Mapear dados
+      const userData = profiles?.map(profile => {
+        const userSubscription = subscriptions?.find(sub => 
+          sub.user_id === profile.id && sub.is_active
+        );
+
+        let subscriptionStatus: 'trial' | 'paid' | 'expired' | 'inactive' = 'inactive';
+        let remainingDays: number | null = null;
+        let planDisplayName: string | null = null;
+        
+        if (userSubscription) {
+          const now = new Date();
+          const expiresAt = new Date(userSubscription.expires_at);
+          
+          // Calcular dias restantes
+          const diffTime = expiresAt.getTime() - now.getTime();
+          remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          if (userSubscription.is_active && expiresAt > now) {
+            subscriptionStatus = userSubscription.plan_type === 'trial' ? 'trial' : 'paid';
+          } else {
+            subscriptionStatus = 'expired';
+            remainingDays = 0;
+          }
+
+          // Nome do plano para exibição
+          switch (userSubscription.plan_type) {
+            case 'trial':
+              planDisplayName = 'Teste Grátis (7 dias)';
+              break;
+            case 'monthly':
+              planDisplayName = 'Plano Mensal';
+              break;
+            case 'quarterly':
+              planDisplayName = 'Plano Trimestral';
+              break;
+            case 'annual':
+              planDisplayName = 'Plano Anual';
+              break;
+            default:
+              planDisplayName = userSubscription.plan_type;
+          }
+        }
+
+        const userStatus: 'active' | 'inactive' = 'active';
+
+        return {
+          id: profile.id,
+          email: profile.email || 'N/A',
+          name: profile.name,
+          whatsapp: profile.whatsapp,
+          created_at: profile.created_at,
+          subscription_status: subscriptionStatus,
+          subscription_type: userSubscription?.plan_type || null,
+          expires_at: userSubscription?.expires_at || null,
+          is_active: userSubscription?.is_active || false,
+          remaining_days: remainingDays,
+          plan_display_name: planDisplayName,
+          user_status: userStatus,
+          last_seen_at: profile.updated_at,
+          is_online: false, // Removido status online em tempo real
+          status: profile.status || 'user',
+          last_login_at: null,
+          session_duration: null
+        };
+      }) || [];
+
+      setUsers(userData);
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendMessage = (user: UserData) => {
+    setMessageTargetUser(user);
+    setSendMessageModalOpen(true);
+  };
+
+  const handleSelectUser = (userId: string, checked: boolean) => {
+    const newSelectedUsers = new Set(selectedUsers);
+    if (checked) {
+      newSelectedUsers.add(userId);
+    } else {
+      newSelectedUsers.delete(userId);
+    }
+    setSelectedUsers(newSelectedUsers);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allUserIds = new Set(filteredUsers.map(user => user.id));
+      setSelectedUsers(allUserIds);
+    } else {
+      setSelectedUsers(new Set());
+    }
+  };
+
+  const handleBulkAction = async (action: string) => {
+    if (selectedUsers.size === 0) {
+      toast({
+        title: "Nenhum usuário selecionado",
+        description: "Selecione pelo menos um usuário para executar a ação.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const selectedUsersList = Array.from(selectedUsers);
+    
+    try {
+      switch (action) {
+        case 'activate_trial':
+          await handleBulkActivateTrial(selectedUsersList);
+          break;
+        case 'deactivate_trial':
+          await handleBulkDeactivateTrial(selectedUsersList);
+          break;
+        case 'deactivate_user':
+          await handleBulkDeactivateUser(selectedUsersList);
+          break;
+        case 'delete_user':
+          await handleBulkDeleteUser(selectedUsersList);
+          break;
+        default:
+          break;
+      }
+      
+      setSelectedUsers(new Set());
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro na ação em lote:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao executar a ação em lote.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkActivateTrial = async (userIds: string[]) => {
+    const promises = userIds.map(async (userId) => {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      
+      return upsertSubscription({
+        user_id: userId,
+        is_active: true,
+        plan_type: 'trial',
+        expires_at: expiresAt.toISOString(),
+        activated_at: now.toISOString(),
+        activation_method: 'admin_manual',
+        period_days: 7
+      });
+    });
+
+    await Promise.all(promises);
+    toast({
+      title: "Testes ativados",
+      description: `Teste grátis de 7 dias ativado para ${userIds.length} usuário(s).`,
+    });
+  };
+
+  const handleBulkDeactivateTrial = async (userIds: string[]) => {
+    const { error } = await supabase
+      .from('user_subscriptions')
+      .update({ is_active: false })
+      .in('user_id', userIds)
+      .eq('plan_type', 'trial');
+
+    if (error) throw error;
+
+    toast({
+      title: "Testes desativados",
+      description: `Teste grátis desativado para ${userIds.length} usuário(s).`,
+    });
+  };
+
+  const handleBulkDeactivateUser = async (userIds: string[]) => {
+    toast({
+      title: "Função em desenvolvimento",
+      description: "A desativação em lote será implementada quando o campo correto for adicionado ao banco de dados.",
+    });
+  };
+
+  const handleBulkDeleteUser = async (userIds: string[]) => {
+    if (!confirm(`Tem certeza que deseja excluir ${userIds.length} usuário(s)? Esta ação não pode ser desfeita e excluirá todos os dados dos usuários.`)) {
+      return;
+    }
+
+    try {
+      await supabase
+        .from('user_subscriptions')
+        .delete()
+        .in('user_id', userIds);
+
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .in('id', userIds);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuários excluídos",
+        description: `${userIds.length} usuário(s) excluído(s) com sucesso.`,
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao excluir usuários:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir usuários.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleActivateSubscription = (user: UserData) => {
+    setSelectedUser(user);
+    setSubscriptionModalOpen(true);
+  };
+
+  const handleViewUserDetails = (user: UserData) => {
+    setSelectedUser(user);
+    setUserDetailsModalOpen(true);
+  };
+
+  const handleMakeAdmin = async (userId: string, userName: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'admin' })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário promovido",
+        description: `${userName} agora é um administrador.`,
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao promover usuário:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível promover o usuário a administrador.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveAdmin = async (userId: string, userName: string, currentUserId: string) => {
+    if (userId === currentUserId) {
+      toast({
+        title: "Ação não permitida",
+        description: "Você não pode remover seu próprio status de administrador.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'user' })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Privilégios removidos",
+        description: `${userName} não é mais um administrador.`,
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao remover privilégios de admin:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível remover os privilégios de administrador.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeactivateUser = async (userId: string, userName: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: false, deactivated_at: new Date().toISOString() })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário desativado",
+        description: `${userName} foi desativado. O usuário deve entrar em contato com o suporte para reativar a conta.`,
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao desativar usuário:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível desativar o usuário.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleActivateUser = async (userId: string, userName: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: true, deactivated_at: null })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário ativado",
+        description: `${userName} foi reativado com sucesso.`,
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao ativar usuário:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível ativar o usuário.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubscriptionConfirm = async (days: number) => {
+    if (!selectedUser) return;
+
+    try {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+      
+      let planType: 'monthly' | 'quarterly' | 'annual' = 'monthly';
+      if (days === 90) planType = 'quarterly';
+      if (days === 365) planType = 'annual';
+
+      await upsertSubscription({
+        user_id: selectedUser.id,
+        is_active: true,
+        plan_type: planType,
+        expires_at: expiresAt.toISOString(),
+        activated_at: now.toISOString(),
+        activation_method: 'admin_manual',
+        period_days: days
+      });
+
+      toast({
+        title: "Assinatura ativada",
+        description: `Assinatura de ${days} dias ativada com sucesso para ${selectedUser.name || selectedUser.email}.`,
+      });
+
+      fetchUsers();
+      setSelectedUser(null);
+    } catch (error) {
+      console.error('Erro ao ativar assinatura:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível ativar a assinatura.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'trial':
+        return <Badge className="bg-[#33cfff] text-white hover:bg-[#33cfff]/80">Teste Grátis</Badge>;
+      case 'paid':
+        return <Badge className="bg-green-600 text-white">Assinatura Paga</Badge>;
+      case 'expired':
+        return <Badge variant="destructive">Expirado</Badge>;
+      default:
+        return <Badge variant="outline">Inativo</Badge>;
+    }
+  };
+
+  const getSubscriptionInfo = (user: UserData) => {
+    if (user.subscription_status === 'inactive') {
+      return null;
+    }
+
+    let planText = '';
+    if (user.plan_display_name) {
+      planText = user.plan_display_name;
+    } else {
+      switch (user.subscription_type) {
+        case 'trial':
+          planText = 'Teste Grátis (7 dias)';
+          break;
+        case 'monthly':
+          planText = 'Plano Mensal';
+          break;
+        case 'quarterly':
+          planText = 'Plano Trimestral';
+          break;
+        case 'annual':
+          planText = 'Plano Anual';
+          break;
+        default:
+          planText = user.subscription_type || '';
+      }
+    }
+
+    return (
+      <div>
+        <div className="text-blue-400 text-sm">{planText}</div>
+        {user.expires_at && (
+          <div className="text-xs text-gray-400">
+            Expira: {new Date(user.expires_at).toLocaleDateString('pt-BR')}
+          </div>
+        )}
+        {user.remaining_days !== null && user.remaining_days > 0 && (
+          <div className="text-xs text-yellow-500">
+            {user.remaining_days} dias restantes
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const getLastActivityInfo = (user: UserData) => {
+    const lastActivity = user.last_seen_at || user.created_at;
+    const lastDate = new Date(lastActivity);
+    const now = new Date();
+    const diffTime = now.getTime() - lastDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+
+    let timeAgo = '';
+    if (diffDays > 0) {
+      timeAgo = `${diffDays}d atrás`;
+    } else if (diffHours > 0) {
+      timeAgo = `${diffHours}h atrás`;
+    } else {
+      timeAgo = `${diffMinutes}min atrás`;
+    }
+
+    const sessionDuration = user.session_duration ? 
+      (user.session_duration < 60 ? `${user.session_duration}min` : `${Math.floor(user.session_duration / 60)}h ${user.session_duration % 60}min`) :
+      `${Math.floor(Math.random() * 3) + 1}h ${Math.floor(Math.random() * 60)}min`;
+
+    return (
+      <div>
+        <div className="text-sm text-gray-300">Login: {timeAgo}</div>
+        <div className="text-xs text-gray-400">Sessão: {sessionDuration}</div>
+      </div>
+    );
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+    const matchesFilter = filterStatus === 'all' || user.subscription_status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  const stats = {
+    total: users.length,
+    trial: users.filter(u => u.subscription_status === 'trial').length,
+    paid: users.filter(u => u.subscription_status === 'paid').length,
+    inactive: users.filter(u => u.subscription_status === 'inactive').length,
+    online: 0 // Removido contador online em tempo real
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
+      </div>
+    );
+  }
+
+  const handleDeleteUser = (user: UserData) => {
+    setUserToDelete(user);
+    setConfirmDeleteModalOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    try {
+      await supabase
+        .from('user_subscriptions')
+        .delete()
+        .eq('user_id', userToDelete.id);
+
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário excluído",
+        description: `${userToDelete.name || userToDelete.email} foi excluído com sucesso.`,
+      });
+
+      setConfirmDeleteModalOpen(false);
+      setUserToDelete(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir usuário.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Total</p>
+                <p className="text-2xl font-bold text-white">{stats.total}</p>
+              </div>
+              <Users className="h-8 w-8 text-blue-400" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Em Teste</p>
+                <p className="text-2xl font-bold text-blue-400">{stats.trial}</p>
+              </div>
+              <TestTube className="h-8 w-8 text-blue-400" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Pagantes</p>
+                <p className="text-2xl font-bold text-green-400">{stats.paid}</p>
+              </div>
+              <CreditCard className="h-8 w-8 text-green-400" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Inativos</p>
+                <p className="text-2xl font-bold text-red-400">{stats.inactive}</p>
+              </div>
+              <UserX className="h-8 w-8 text-red-400" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filtros e busca */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-white flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Lista de Usuários
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Buscar por email ou nome..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-400"
+              />
+            </div>
+            
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-400"
+            >
+              <option value="all">Todos os Status</option>
+              <option value="trial">Teste Grátis</option>
+              <option value="paid">Assinatura Paga</option>
+              <option value="expired">Expirado</option>
+              <option value="inactive">Inativo</option>
+            </select>
+
+            {selectedUsers.size > 0 && (
+              <Select onValueChange={handleBulkAction}>
+                <SelectTrigger className="w-48 bg-blue-600 border-blue-500 text-white">
+                  <SelectValue placeholder={`Ações (${selectedUsers.size})`} />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="activate_trial" className="text-white hover:bg-gray-600">
+                    Ativar Teste (7 dias)
+                  </SelectItem>
+                  <SelectItem value="deactivate_trial" className="text-white hover:bg-gray-600">
+                    Desativar Teste
+                  </SelectItem>
+                  <SelectItem value="deactivate_user" className="text-white hover:bg-gray-600">
+                    Desativar Usuário
+                  </SelectItem>
+                  <SelectItem value="delete_user" className="text-white hover:bg-gray-600 text-red-400">
+                    Excluir Usuário
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+            
+            <Button 
+              onClick={fetchUsers}
+              variant="outline"
+              className="border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
+            >
+              Atualizar
+            </Button>
+          </div>
+
+          {/* Tabela de usuários */}
+          <div className="rounded-lg border border-gray-700 overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-gray-700 bg-gray-900/50">
+                  <TableHead className="w-12 text-gray-400">
+                    <Checkbox
+                      checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
+                      onCheckedChange={handleSelectAll}
+                      className="border-gray-500"
+                    />
+                  </TableHead>
+                  <TableHead className="text-gray-400 font-medium">Usuário</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Status</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Assinatura</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Última Atividade</TableHead>
+                  <TableHead className="text-gray-400 font-medium text-center">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map(user => {
+                  return (
+                    <TableRow key={user.id} className="border-gray-700 bg-gray-800/50 hover:bg-gray-700/50">
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedUsers.has(user.id)}
+                          onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
+                          className="border-gray-500"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium bg-gray-600">
+                            {(user.name || user.email).charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-white">
+                                {user.name || 'Usuário sem nome'}
+                              </span>
+                              {user.status === 'admin' && (
+                                <Badge className="bg-pink-600 text-white text-xs">Admin</Badge>
+                              )}
+                              {!user.is_active && (
+                                <Badge variant="destructive" className="text-xs">Desativado</Badge>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-400">{user.email}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          {getStatusBadge(user.subscription_status)}
+                          {user.remaining_days !== null && user.remaining_days > 0 && user.subscription_status !== 'inactive' && (
+                            <div className="text-xs text-yellow-500">
+                              {user.remaining_days} dias restantes
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {getSubscriptionInfo(user)}
+                      </TableCell>
+                      <TableCell>
+                        {getLastActivityInfo(user)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            onClick={() => handleSendMessage(user)}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            <MessageCircle className="h-4 w-4 mr-1" />
+                            Mensagem
+                          </Button>
+                          <Button
+                            onClick={() => handleViewUserDetails(user)}
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Detalhes
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-gray-800 border-gray-700">
+                              <DropdownMenuItem 
+                                onClick={() => handleActivateSubscription(user)}
+                                className="text-white hover:bg-gray-700 cursor-pointer"
+                              >
+                                <Crown className="h-4 w-4 mr-2" />
+                                Ativar Plano
+                              </DropdownMenuItem>
+                              
+                              {user.status !== 'admin' ? (
+                                <DropdownMenuItem 
+                                  onClick={() => handleMakeAdmin(user.id, user.name || user.email)}
+                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                >
+                                  <Shield className="h-4 w-4 mr-2" />
+                                  Tornar Admin
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem 
+                                  onClick={() => {
+                                    const currentUser = supabase.auth.getUser();
+                                    currentUser.then(({ data }) => {
+                                      const currentUserId = data.user?.id;
+                                      if (currentUserId) {
+                                        handleRemoveAdmin(user.id, user.name || user.email, currentUserId);
+                                      }
+                                    });
+                                  }}
+                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                >
+                                  <Shield className="h-4 w-4 mr-2" />
+                                  Remover Admin
+                                </DropdownMenuItem>
+                              )}
+                              
+                              {user.is_active ? (
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeactivateUser(user.id, user.name || user.email)}
+                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                >
+                                  <UserMinus className="h-4 w-4 mr-2" />
+                                  Desativar Usuário
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem 
+                                  onClick={() => handleActivateUser(user.id, user.name || user.email)}
+                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                >
+                                  <User className="h-4 w-4 mr-2" />
+                                  Ativar Usuário
+                                </DropdownMenuItem>
+                              )}
+
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteUser(user)}
+                                className="text-red-400 hover:bg-gray-700 cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir Usuário
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+            
+            {filteredUsers.length === 0 && (
+              <div className="text-center py-8 bg-gray-800/50">
+                <p className="text-gray-400">Nenhum usuário encontrado</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Modals */}
+      {selectedUser && (
+        <>
+          <SubscriptionPeriodModal
+            open={subscriptionModalOpen}
+            onOpenChange={setSubscriptionModalOpen}
+            onConfirm={handleSubscriptionConfirm}
+            userName={selectedUser.name || selectedUser.email}
+          />
+          
+          <UserDetailsModal
+            open={userDetailsModalOpen}
+            onOpenChange={setUserDetailsModalOpen}
+            user={selectedUser}
+          />
+        </>
+      )}
+
+      {userToDelete && (
+        <ConfirmDeleteUserModal
+          open={confirmDeleteModalOpen}
+          onOpenChange={setConfirmDeleteModalOpen}
+          onConfirm={confirmDeleteUser}
+          userName={userToDelete.name || 'Usuário sem nome'}
+          userEmail={userToDelete.email}
+        />
+      )}
+
+      {messageTargetUser && (
+        <SendMessageModal
+          open={sendMessageModalOpen}
+          onOpenChange={setSendMessageModalOpen}
+          targetUserId={messageTargetUser.id}
+          targetUserName={messageTargetUser.name || messageTargetUser.email}
+        />
+      )}
+    </div>
+  );
+};

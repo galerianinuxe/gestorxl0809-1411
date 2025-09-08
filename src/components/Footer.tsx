@@ -1,0 +1,298 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import CashRegisterClosingModal from './CashRegisterClosingModal';
+import CashRegisterAddFundsModal from './CashRegisterAddFundsModal';
+import ExpenseModal from './ExpenseModal';
+import PasswordPromptModal from './PasswordPromptModal';
+import CalculatorModal from './CalculatorModal';
+import BalanceProtection from './BalanceProtection';
+import { getActiveCashRegister } from '../utils/supabaseStorage';
+import { validateSupabaseConnection } from '../utils/connectionValidator';
+import { CashRegister } from '../types/pdv';
+import { DollarSign, Receipt, X, Calendar, Clock, Calculator, Menu, ChevronUp, ChevronDown, Wifi, Server } from 'lucide-react';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+interface FooterProps {
+  onMenuClick?: () => void;
+  currentBalance?: number;
+  onBalanceUpdate?: () => Promise<void>;
+}
+const Footer: React.FC<FooterProps> = ({
+  onMenuClick,
+  currentBalance = 0,
+  onBalanceUpdate
+}) => {
+  const navigate = useNavigate();
+  const [showClosingModal, setShowClosingModal] = useState(false);
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showCalculatorModal, setShowCalculatorModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isInternetOnline, setIsInternetOnline] = useState(navigator.onLine);
+  const [isServerOnline, setIsServerOnline] = useState(true);
+  const [isButtonsExpanded, setIsButtonsExpanded] = useState(true);
+
+  // Hooks de responsividade
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isMobileOrTablet = isMobile || isTablet;
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Monitor internet connection status with faster updates for mobile/tablet
+  useEffect(() => {
+    const handleOnline = () => setIsInternetOnline(true);
+    const handleOffline = () => setIsInternetOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // For mobile/tablet, check connection status more frequently
+    let intervalId: NodeJS.Timeout | null = null;
+    if (isMobileOrTablet) {
+      intervalId = setInterval(() => {
+        setIsInternetOnline(navigator.onLine);
+      }, 1000); // Check every second for mobile/tablet
+    }
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isMobileOrTablet]);
+
+  // Monitor server connection status with faster updates for mobile/tablet
+  useEffect(() => {
+    const checkServerConnection = async () => {
+      try {
+        const connectionStatus = await validateSupabaseConnection(3000);
+        setIsServerOnline(connectionStatus.isConnected);
+      } catch (error) {
+        console.error('Erro ao verificar conexão do servidor:', error);
+        setIsServerOnline(false);
+      }
+    };
+
+    // Check server connection on mount
+    checkServerConnection();
+
+    // For mobile/tablet, check server connection more frequently
+    const serverCheckInterval = setInterval(checkServerConnection, isMobileOrTablet ? 5000 : 30000 // Every 5 seconds for mobile/tablet, 30 seconds for desktop
+    );
+    return () => clearInterval(serverCheckInterval);
+  }, [isMobileOrTablet]);
+  const handleExpenseClick = () => {
+    setShowExpenseModal(true);
+  };
+  const handleCloseDayClick = () => {
+    setPendingAction('closeDay');
+    setShowPasswordModal(true);
+  };
+  const handleAddFundsClick = () => {
+    setPendingAction('addFunds');
+    setShowPasswordModal(true);
+  };
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
+  };
+  const handleMenuClick = () => {
+    setPendingAction('menu');
+    setShowPasswordModal(true);
+  };
+  const handleCalculatorClick = () => {
+    setShowCalculatorModal(true);
+  };
+  const handlePasswordAuthenticated = () => {
+    if (pendingAction === 'expense') {
+      setShowExpenseModal(true);
+    } else if (pendingAction === 'closeDay') {
+      setShowClosingModal(true);
+    } else if (pendingAction === 'addFunds') {
+      setShowAddFundsModal(true);
+    } else if (pendingAction === 'dashboard') {
+      navigate('/dashboard');
+    } else if (pendingAction === 'menu') {
+      console.log('Menu button authenticated, navigating to dashboard');
+      navigate('/dashboard');
+    }
+    setPendingAction(null);
+  };
+  const handleClosingComplete = () => {
+    window.location.reload();
+  };
+  const handleAddFundsModalClose = async () => {
+    setShowAddFundsModal(false);
+    if (onBalanceUpdate) {
+      await onBalanceUpdate();
+    }
+  };
+  const handleExpenseModalClose = async () => {
+    setShowExpenseModal(false);
+    if (onBalanceUpdate) {
+      await onBalanceUpdate();
+    }
+  };
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  // Layout específico para mobile e tablet baseado na imagem
+  if (isMobileOrTablet) {
+    return <>
+        <footer className="bg-pdv-dark text-white border-t border-gray-700">
+          {/* Primeira linha - Status e informações */}
+          <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700">
+            <div className="flex items-center space-x-4">
+              {/* Status de conexão com ícones apenas */}
+              <div className="flex items-center gap-2">
+                <div title={isServerOnline ? 'Servidor Online' : 'Servidor Offline'}>
+                  <Server className={`h-4 w-4 ${isServerOnline ? 'text-green-500' : 'text-red-500'}`} />
+                </div>
+                <div title={isInternetOnline ? 'Internet Online' : 'Internet Offline'}>
+                  <Wifi className={`h-4 w-4 ${isInternetOnline ? 'text-green-500' : 'text-red-500'}`} />
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4 text-gray-400" />
+                <span className="text-gray-300 text-xs">{formatTime(currentTime)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <BalanceProtection balance={currentBalance} />
+              <button onClick={() => setIsButtonsExpanded(!isButtonsExpanded)} className="p-1 hover:bg-gray-800 rounded transition-colors bg-emerald-500 hover:bg-emerald-600">
+                {isButtonsExpanded ? <ChevronDown className="h-4 w-4 text-white" /> : <ChevronUp className="h-4 w-4 text-white" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Segunda linha - Botões principais (expansível) */}
+          {isButtonsExpanded && <div className="flex justify-between items-center px-2 py-3">
+              <button onClick={handleCloseDayClick} className="flex flex-col items-center justify-center p-2 text-red-500 hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+                <X className="h-5 w-5 mb-1" />
+                <span className="text-xs font-medium">Fechar</span>
+              </button>
+              
+              <button onClick={handleAddFundsClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+                <DollarSign className="h-5 w-5 mb-1" />
+                <span className="text-xs text-center">Saldo</span>
+              </button>
+              
+              <button onClick={handleExpenseClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+                <Receipt className="h-5 w-5 mb-1" />
+                <span className="text-xs text-center">Despesa</span>
+              </button>
+              
+              <button onClick={handleCalculatorClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+                <Calculator className="h-5 w-5 mb-1" />
+                <span className="text-xs text-center">Calc</span>
+              </button>
+              
+              <button onClick={handleMenuClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+                <Menu className="h-5 w-5 mb-1" />
+                <span className="text-xs text-center">Menu</span>
+              </button>
+            </div>}
+        </footer>
+
+        {/* Modals */}
+        <CashRegisterClosingModal open={showClosingModal} onOpenChange={setShowClosingModal} onComplete={handleClosingComplete} />
+        
+        <CashRegisterAddFundsModal open={showAddFundsModal} onOpenChange={handleAddFundsModalClose} onComplete={handleAddFundsModalClose} />
+        
+        <ExpenseModal open={showExpenseModal} onOpenChange={handleExpenseModalClose} />
+
+        <CalculatorModal open={showCalculatorModal} onOpenChange={setShowCalculatorModal} />
+
+        <PasswordPromptModal open={showPasswordModal} onOpenChange={setShowPasswordModal} onAuthenticated={handlePasswordAuthenticated} title={pendingAction === 'expense' ? "Adicionar Despesa" : pendingAction === 'closeDay' ? "Fechar Dia" : pendingAction === 'addFunds' ? "Adicionar Saldo" : pendingAction === 'dashboard' ? "Acessar Dashboard" : pendingAction === 'menu' ? "Acessar Menu" : "Autenticação"} description={`Digite sua senha para ${pendingAction === 'expense' ? 'adicionar uma despesa' : pendingAction === 'closeDay' ? 'fechar o dia' : pendingAction === 'addFunds' ? 'adicionar saldo ao caixa' : pendingAction === 'dashboard' ? 'acessar o dashboard' : pendingAction === 'menu' ? 'acessar o menu' : 'continuar'}`} />
+      </>;
+  }
+
+  // Layout original para desktop
+  return <>
+      <footer className="bg-pdv-dark text-white p-3 border-t border-gray-700">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            {/* Fechar Dia button with special styling */}
+            <button onClick={handleCloseDayClick} className="border border-red-500 hover:bg-red-500 hover:border-red-500 text-red-500 hover:text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+              <X className="h-4 w-4" />
+              Fechar Dia
+            </button>
+            
+            <button onClick={handleAddFundsClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Adicionar Saldo
+            </button>
+            
+            <button onClick={handleExpenseClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+              <Receipt className="h-4 w-4" />
+              Adicionar Despesa
+            </button>
+            
+            <button onClick={handleCalculatorClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+              <Calculator className="h-4 w-4" />
+              Calculadora
+            </button>
+            
+            <button onClick={handleMenuClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+              ≡ Menu
+            </button>
+            
+            {/* Status do Sistema com ícones apenas para desktop */}
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="flex items-center gap-2">
+                <div title={isServerOnline ? 'Servidor Online' : 'Servidor Offline'}>
+                  <Server className={`h-4 w-4 ${isServerOnline ? 'text-green-500' : 'text-red-500'}`} />
+                </div>
+                <div title={isInternetOnline ? 'Internet Online' : 'Internet Offline'}>
+                  <Wifi className={`h-4 w-4 ${isInternetOnline ? 'text-green-500' : 'text-red-500'}`} />
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4 text-gray-400" />
+                <span className="text-gray-300">{formatDate(currentTime)}</span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4 text-gray-400" />
+                <span className="text-gray-300">{formatTime(currentTime)}</span>
+              </div>
+            </div>
+
+            <BalanceProtection balance={currentBalance} />
+          </div>
+        </div>
+      </footer>
+
+      {/* Modals */}
+      <CashRegisterClosingModal open={showClosingModal} onOpenChange={setShowClosingModal} onComplete={handleClosingComplete} />
+      
+      <CashRegisterAddFundsModal open={showAddFundsModal} onOpenChange={handleAddFundsModalClose} onComplete={handleAddFundsModalClose} />
+      
+      <ExpenseModal open={showExpenseModal} onOpenChange={handleExpenseModalClose} />
+
+      <CalculatorModal open={showCalculatorModal} onOpenChange={setShowCalculatorModal} />
+
+      <PasswordPromptModal open={showPasswordModal} onOpenChange={setShowPasswordModal} onAuthenticated={handlePasswordAuthenticated} title={pendingAction === 'expense' ? "Adicionar Despesa" : pendingAction === 'closeDay' ? "Fechar Dia" : pendingAction === 'addFunds' ? "Adicionar Saldo" : pendingAction === 'dashboard' ? "Acessar Dashboard" : pendingAction === 'menu' ? "Acessar Menu" : "Autenticação"} description={`Digite sua senha para ${pendingAction === 'expense' ? 'adicionar uma despesa' : pendingAction === 'closeDay' ? 'fechar o dia' : pendingAction === 'addFunds' ? 'adicionar saldo ao caixa' : pendingAction === 'dashboard' ? 'acessar o dashboard' : pendingAction === 'menu' ? 'acessar o menu' : 'continuar'}`} />
+    </>;
+};
+export default Footer;

@@ -1,0 +1,403 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    --pdv-dark: #171717;
+    --pdv-green: #00B517;
+    --pdv-red: #E53935;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    --pdv-dark: #171717;
+    --pdv-green: #00B517;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-pdv text-foreground;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  #root {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.numpad-btn {
+  @apply flex items-center justify-center h-full bg-pdv-dark hover:bg-opacity-70 text-white text-3xl font-bold m-[1px] transition-all border border-white;
+  /* Enhanced hover and click effects */
+  cursor: pointer;
+  user-select: none;
+}
+
+.numpad-btn:hover {
+  @apply bg-gray-600 shadow-lg;
+  transform: translateY(-1px);
+}
+
+.numpad-btn:active {
+  @apply bg-gray-500;
+  transform: scale(0.95) translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.calc-btn {
+  @apply flex items-center justify-center h-full bg-gray-800 hover:bg-gray-700 text-white text-3xl font-bold transition-all;
+}
+
+.clear-btn {
+  @apply bg-pdv-dark hover:bg-opacity-70 text-[#fc0000] border border-[#fc0000];
+}
+
+.zero-scale-btn {
+  @apply bg-pdv-dark hover:bg-opacity-70 text-[#fcce03] border border-[#fcce03];
+}
+
+.zero-scale-btn:hover {
+  @apply bg-yellow-600 shadow-lg;
+  transform: translateY(-1px);
+}
+
+.zero-scale-btn:active {
+  @apply bg-yellow-500;
+  transform: scale(0.95) translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.material-btn {
+  @apply flex flex-col items-center justify-center bg-pdv-green hover:bg-opacity-70 text-white p-2 rounded-none transition-all;
+}
+
+/* Botões de material quando modo venda está ativado */
+.material-btn-sale-mode {
+  @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
+  background-color: #dbac1d !important;
+}
+
+.material-btn-sale-mode:hover {
+  background-color: #c49a1a !important;
+}
+
+.insert-manually-btn {
+  @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
+  background-color: #40F597 !important;
+}
+
+.insert-manually-btn:hover {
+  background-color: #2DD881 !important;
+}
+
+.text-zerar-scale {
+  @apply text-[calc(1em*1.2)];
+}
+
+/* Custom styling for alert modals */
+.alert-modal {
+  @apply bg-pdv-dark text-white border-gray-700;
+}
+
+.alert-modal-title {
+  @apply text-2xl font-bold text-center text-red-500;
+}
+
+.alert-modal-description {
+  @apply text-lg text-center text-white;
+}
+
+.alert-modal-button {
+  @apply w-full bg-pdv-green hover:bg-pdv-green/90 text-white text-lg py-3;
+}
+
+/* Remover hover na tabela de itens */
+.no-hover {
+  @apply hover:bg-transparent !important;
+}
+
+/* Estilos para o Modal Material */
+.modal-material-title {
+  @apply text-center;
+}
+
+.modal-value-text {
+  @apply text-[calc(1em*1.2)];
+}
+
+/* Corrigir posicionamento dos botões nos modais */
+.dialog-footer-buttons {
+  @apply flex justify-end space-x-2 !important;
+}
+
+/* Certifique-se de que os modais são exibidos corretamente */
+.modal-overlay {
+  @apply z-50;
+}
+
+/* Estilos para os botões nos modais */
+.modal-button {
+  @apply px-6 py-3;
+}
+
+/* Estilo específico para o botão Voltar */
+.back-button {
+  @apply text-black !important;
+}
+
+/* Estilo específico para o botão Sair */
+.exit-button {
+  @apply bg-transparent border-2 border-transparent text-white transition-all duration-200;
+}
+
+.exit-button:hover {
+  @apply border-white;
+}
+
+/* Efeitos hover para cards de alerta */
+.alert-card {
+  @apply transition-all duration-300 cursor-pointer;
+}
+
+.alert-card:hover {
+  @apply transform scale-105 shadow-2xl;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.alert-card-critical:hover {
+  @apply shadow-red-500/20;
+  box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
+}
+
+.alert-card-high:hover {
+  @apply shadow-orange-500/20;
+  box-shadow: 0 20px 40px rgba(249, 115, 22, 0.3);
+}
+
+.alert-card-emergency:hover {
+  @apply shadow-red-600/30;
+  box-shadow: 0 20px 40px rgba(220, 38, 38, 0.4);
+}
+
+/* Dropdown selection background color - Updated for green theme */
+[data-radix-select-content] [data-highlighted],
+[data-radix-select-item][data-highlighted],
+.select-content [data-highlighted],
+[role="option"][data-highlighted] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* For shadcn select components - Updated for green theme */
+[data-radix-select-item] {
+  cursor: pointer;
+}
+
+[data-radix-select-item]:hover,
+[data-radix-select-item][data-highlighted] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* General dropdown hover styles - Updated for green theme */
+.dropdown-item:hover,
+.select-item:hover {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* Period dropdown specific styling */
+[data-radix-select-content] [data-radix-select-item]:hover,
+[data-radix-select-content] [data-radix-select-item][data-state="checked"] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* Remover border amarelo dos botões */
+.no-yellow-border {
+  @apply border-transparent !important;
+}
+
+/* Botão Assinar Pro */
+.pro-button {
+  @apply bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg;
+}
+
+/* Responsive adjustments for mobile devices */
+@media (max-width: 768px) {
+  .material-btn,
+  .material-btn-sale-mode {
+    @apply text-xs p-1 min-h-[60px];
+    line-height: 1.2;
+  }
+  
+  .numpad-btn {
+    @apply text-2xl;
+    min-height: 50px;
+  }
+  
+  .material-btn span,
+  .material-btn-sale-mode span {
+    @apply leading-tight;
+  }
+  
+  /* Adjust order list for mobile */
+  .order-list-mobile {
+    @apply text-sm;
+  }
+  
+  /* Compact order details for mobile */
+  .order-details-mobile {
+    @apply text-sm;
+  }
+  
+  .order-details-mobile .order-total {
+    @apply text-xl;
+  }
+}
+
+/* Tablet specific adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .material-btn,
+  .material-btn-sale-mode {
+    @apply text-sm p-1.5 min-h-[70px];
+  }
+  
+  .numpad-btn {
+    @apply text-2xl;
+    min-height: 55px;
+  }
+}
+
+/* Desktop keeps original styles */
+@media (min-width: 1024px) {
+  .material-btn,
+  .material-btn-sale-mode {
+    @apply p-2 min-h-[80px];
+  }
+}
+
+/* Responsive table styles for mobile and tablet */
+@media (max-width: 1023px) {
+  .table-responsive {
+    @apply text-xs;
+  }
+  
+  .table-responsive thead th {
+    @apply p-2 text-xs;
+  }
+  
+  .table-responsive tbody td {
+    @apply p-2 text-xs;
+  }
+  
+  /* Hide less important columns on mobile */
+  .table-hide-mobile {
+    @apply hidden md:table-cell;
+  }
+  
+  /* Compact table cells for small screens */
+  .table-compact td,
+  .table-compact th {
+    @apply px-2 py-1;
+  }
+}
+
+/* Card responsive adjustments */
+@media (max-width: 768px) {
+  .card-mobile {
+    @apply p-3;
+  }
+  
+  .card-mobile .card-header {
+    @apply pb-2;
+  }
+  
+  .card-mobile .card-title {
+    @apply text-sm;
+  }
+}

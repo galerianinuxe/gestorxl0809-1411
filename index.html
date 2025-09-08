@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XLata.site - Sistema para Ferro Velho e Sucata</title>
+
+    <!-- SEO Básico -->
+    <meta name="description" content="XLata Sistema para Ferro Velho e Sucata é a solução completa para depósitos: PDV, Impressão de Comprovantes, Controle de Estoque, Relatórios, Compras e Vendas no mesmo lugar." />
+    <meta name="author" content="Rick Costa - XLata Gestor" />
+    <meta name="keywords" content="sistema para ferro velho, programa para ferro velho, sistema de compra, gestão de compra, projeção de lucro, sistema pdv, ferro velho, reciclagem, depósito de sucata, xlata" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://xlata.site" />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="XLata.site - Sistema de Compra para Sucata, Ferro Velho e Reciclagem" />
+    <meta property="og:description" content="XLata Sistema para Ferro Velho e Sucata é a solução completa para depósitos: PDV, Impressão de Comprovantes, Controle de Estoque, Relatórios, Compras e Vendas no mesmo lugar." />
+    <meta property="og:image" content="https://i.ibb.co/5hnw49gg/CAPAXLATA.png" />
+    <meta property="og:url" content="https://xlata.site" />
+    <meta property="og:site_name" content="XLata.site" />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="XLata.site - Sistema de Compra para Sucata, Ferro Velho e Reciclagem" />
+    <meta name="twitter:description" content="XLata Sistema para Ferro Velho e Sucata é a solução completa para depósitos: PDV, Impressão de Comprovantes, Controle de Estoque, Relatórios, Compras e Vendas no mesmo lugar." />
+    <meta name="twitter:image" content="https://i.ibb.co/5hnw49gg/CAPAXLATA.png" />
+
+    <!-- PWA / Mobile / Cor do Navegador -->
+    <meta name="theme-color" content="#10B981" />
+    <meta name="application-name" content="XLata Sistema para Ferro Velho" />
+    <meta name="apple-mobile-web-app-title" content="XLata.site" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="/lovable-uploads/xlata.site_logotipo.png" type="image/png">
+
+    <!-- Impressora Térmica -->
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
+
+    <!-- Google Ads Tag Global -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17214693640"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'AW-17214693640');
+
+      // Chamada opcional para conversão dinâmica
+      window.triggerXlataConversion = function () {
+        gtag('event', 'conversion', {
+          send_to: 'AW-17214693640/EQVvCOyWq4oZEK6n0rsq',
+          event_callback: () => console.log("🔁 Conversão registrada (Google Ads)")
+        });
+      };
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!-- Scripts principais -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Proteções Básicas -->
+    <!-- <script>
+      // Bloqueia botão direito
+      document.addEventListener('contextmenu', e => e.preventDefault());
+
+      // Bloqueia F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S
+      document.addEventListener('keydown', function (e) {
+        const key = e.key.toLowerCase();
+        if (
+          e.key === 'F12' ||
+          (e.ctrlKey && key === 'u') ||
+          (e.ctrlKey && key === 's') ||
+          (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(key))
+        ) {
+          e.preventDefault();
+        }
+      });
+
+      // Bloqueia clique com botão do meio e direito
+      document.addEventListener('mousedown', function (e) {
+        if (e.button === 1 || e.button === 2) e.preventDefault();
+      });
+    </script> -->
+  </body>
+</html>
