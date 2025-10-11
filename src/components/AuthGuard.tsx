@@ -12,14 +12,11 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [showSubscriptionBlocker, setShowSubscriptionBlocker] = useState(false);
   const [subscriptionCheckTrigger, setSubscriptionCheckTrigger] = useState(0);
-
-  // Check if user is admin - now based on profile status being 'admin'
-  const isAdmin = profile?.status === 'admin';
 
   useEffect(() => {
     if (user && !loading) {
@@ -73,30 +70,31 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       // Fetching user data (dev only)
       if (import.meta.env.DEV) console.log('🔍 Fetching user data for:', user.email);
       
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (profileData) {
-        setProfile(profileData);
-        // Profile loaded (dev only)
-        if (import.meta.env.DEV) console.log('👤 Profile loaded:', profileData);
+      // SEGURANÇA: Verificar se é admin via RPC (SECURITY DEFINER)
+      const { data: adminCheck, error: adminError } = await supabase
+        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      
+      if (!adminError && adminCheck !== null) {
+        setIsAdmin(adminCheck);
+        if (import.meta.env.DEV) console.log('🔐 Admin check via RPC:', adminCheck);
       }
 
-      // Check subscription status
-      const subscriptionActive = checkActiveSubscriptionImproved(user.id);
-      setIsSubscriptionActive(subscriptionActive);
+      // SEGURANÇA: Verificar assinatura ativa via RPC (SECURITY DEFINER)
+      const { data: subscriptionActive, error: subError } = await supabase
+        .rpc('is_subscription_active', { target_user_id: user.id });
+      
+      if (!subError && subscriptionActive !== null) {
+        setIsSubscriptionActive(subscriptionActive);
+        if (import.meta.env.DEV) console.log('🔐 Subscription check via RPC:', subscriptionActive);
+      }
 
       // Subscription check result (dev only)
       if (import.meta.env.DEV) {
-        console.log('🔍 Subscription check result:', {
+        console.log('🔍 Security check results:', {
           userId: user.id,
           email: user.email,
-          isActive: subscriptionActive,
-          isAdmin: (profileData as any)?.status === 'admin'
+          isAdmin: adminCheck,
+          isSubscriptionActive: subscriptionActive
         });
       }
 
@@ -107,70 +105,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     }
   };
 
-  const checkActiveSubscriptionImproved = (userId: string): boolean => {
-    // Checking active subscription (dev only)
-    if (import.meta.env.DEV) console.log('🔍 Verificando assinatura ativa para usuário:', userId);
-    
-    // 1. PRIMEIRA PRIORIDADE: Assinatura ativada pelo admin
-    const adminSubscription = localStorage.getItem(`subscription_${userId}`);
-    if (adminSubscription) {
-      try {
-        const sub = JSON.parse(adminSubscription);
-        if (import.meta.env.DEV) console.log('📋 Admin subscription found:', sub);
-        if (sub.is_active && new Date(sub.expires_at) > new Date()) {
-          if (import.meta.env.DEV) console.log('✅ Admin subscription is active');
-          return true;
-        } else {
-          if (import.meta.env.DEV) console.log('⚠️ Admin subscription found but expired or inactive');
-          localStorage.removeItem(`subscription_${userId}`);
-        }
-      } catch (error) {
-        console.error('❌ Error parsing admin subscription:', error);
-        localStorage.removeItem(`subscription_${userId}`);
-      }
-    }
-    
-    // 2. SEGUNDA PRIORIDADE: Dados de usuário
-    const userSubscription = localStorage.getItem(`user_subscription_${userId}`);
-    if (userSubscription) {
-      try {
-        const sub = JSON.parse(userSubscription);
-        if (import.meta.env.DEV) console.log('📋 User subscription found:', sub);
-        if (sub.hasActiveSubscription && new Date(sub.expiresAt) > new Date()) {
-          if (import.meta.env.DEV) console.log('✅ User subscription is active');
-          return true;
-        } else {
-          if (import.meta.env.DEV) console.log('⚠️ User subscription found but expired or inactive');
-          localStorage.removeItem(`user_subscription_${userId}`);
-        }
-      } catch (error) {
-        console.error('❌ Error parsing user subscription:', error);
-        localStorage.removeItem(`user_subscription_${userId}`);
-      }
-    }
-    
-    // 3. TERCEIRA PRIORIDADE: Status global
-    const subscriptionStatus = localStorage.getItem(`subscription_status_${userId}`);
-    if (subscriptionStatus) {
-      try {
-        const status = JSON.parse(subscriptionStatus);
-        if (import.meta.env.DEV) console.log('📋 Subscription status found:', status);
-        if (status.isActive && new Date(status.expiresAt) > new Date()) {
-          if (import.meta.env.DEV) console.log('✅ Subscription status is active');
-          return true;
-        } else {
-          if (import.meta.env.DEV) console.log('⚠️ Subscription status found but expired or inactive');
-          localStorage.removeItem(`subscription_status_${userId}`);
-        }
-      } catch (error) {
-        console.error('❌ Error parsing subscription status:', error);
-        localStorage.removeItem(`subscription_status_${userId}`);
-      }
-    }
-    
-    if (import.meta.env.DEV) console.log('❌ No active subscription found');
-    return false;
-  };
+  // REMOVIDA: Verificação de assinatura agora é feita via RPC no fetchUserData()
+  // A função foi eliminada para seguir as melhores práticas de segurança
 
   useEffect(() => {
     if (loading || dataLoading) return;
@@ -234,30 +170,12 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         return;
       }
       
-      // Re-verify subscription in real-time for protected routes
-      const realtimeSubscriptionCheck = checkActiveSubscriptionImproved(user.id);
-      
-      // Real-time subscription check (logs only in dev)
-      if (import.meta.env.DEV) {
-        console.log('🔄 Real-time subscription check for protected route:', {
-          route: location.pathname,
-          isActive: realtimeSubscriptionCheck
-        });
-      }
-      
-      // For regular users: check subscription first
-      if (!realtimeSubscriptionCheck) {
+      // For regular users: check subscription via state (já verificado via RPC)
+      if (!isSubscriptionActive) {
         // User without subscription (dev only)
         if (import.meta.env.DEV) console.log('❌ User without active subscription, redirecting to home');
         navigate('/');
         return;
-      }
-      
-      // Update state if real-time verification is different
-      if (realtimeSubscriptionCheck !== isSubscriptionActive) {
-        // Updating subscription status (dev only)
-        if (import.meta.env.DEV) console.log('🔄 Updating subscription status based on real-time check');
-        setIsSubscriptionActive(realtimeSubscriptionCheck);
       }
       
       // User has active subscription (dev only)
@@ -288,11 +206,11 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
-  // Show subscription blocker for users without subscription
+  // Show subscription blocker for users without subscription (usando verificação segura via RPC)
   if (showSubscriptionBlocker && user && !isAdmin && !isSubscriptionActive) {
     return (
       <NoSubscriptionBlocker 
-        userName={profile?.name} 
+        userName={user.email} 
         onTrialActivated={async () => {
           console.log('🎯 Trial activation callback triggered');
           setShowSubscriptionBlocker(false);
