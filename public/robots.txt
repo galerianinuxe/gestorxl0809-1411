@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://xlata.lovable.app/sitemap.xml
+Sitemap: https://xlata.site/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
