@@ -380,16 +380,13 @@ const Index: React.FC = () => {
     const peso = parseWeight(pesoInput);
     console.log('🔍 Validando peso no início:', { pesoInput, peso, isValid: peso > 0 });
 
-    if (peso <= 0) {
-      console.warn('⚠️ Peso inválido detectado. Exibindo alerta.');
-      setShowWeightAlert(true);
-      return; // Para a execução se o peso for inválido
-    }
+    
 
     // A partir daqui, o peso é considerado válido.
     let orderToUse = activeOrder;
     let customerToUse = currentCustomer;
-
+    
+    
     // 2. Cria um pedido automaticamente se não houver um ativo
     if (!customerToUse || !orderToUse) {
       console.log('Nenhum pedido ativo. Criando um novo automaticamente...');
@@ -443,7 +440,11 @@ const Index: React.FC = () => {
         return; // Para a execução em caso de falha
       }
     }
-
+    if (peso <= 0) {
+      console.warn('⚠️ Peso inválido detectado. Exibindo alerta.');
+      setShowWeightAlert(true);
+      return; // Para a execução se o peso for inválido
+    }
     // 3. Verifica a compatibilidade do tipo de operação (compra/venda)
     if (orderToUse.items.length > 0) {
       const existingType = orderToUse.type;
