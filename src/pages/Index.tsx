@@ -425,11 +425,7 @@ const Index: React.FC = () => {
 
         await autoSaveSessionData(newCustomer, newOrder);
         console.log('Pedido automático criado com sucesso.');
-if (peso <= 0) {
-      console.warn('⚠️ Peso inválido detectado. Exibindo alerta.');
-      setShowWeightAlert(true);
-      return; // Para a execução se o peso for inválido
-    }
+
       } catch (error) {
         console.error('Erro ao criar pedido automaticamente:', error);
         toast({
