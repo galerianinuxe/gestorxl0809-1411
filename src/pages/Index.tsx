@@ -380,12 +380,6 @@ const Index: React.FC = () => {
     const peso = parseWeight(pesoInput);
     console.log('🔍 Validando peso no início:', { pesoInput, peso, isValid: peso > 0 });
 
-    if (peso <= 0) {
-      console.warn('⚠️ Peso inválido detectado. Exibindo alerta.');
-      setShowWeightAlert(true);
-      return; // Para a execução se o peso for inválido
-    }
-
     // A partir daqui, o peso é considerado válido.
     let orderToUse = activeOrder;
     let customerToUse = currentCustomer;
@@ -418,7 +412,7 @@ const Index: React.FC = () => {
         // Salva e atualiza o estado
         await saveCustomer(newCustomer);
         await saveOrder(newOrder);
-        
+
         setCustomers(prev => [...prev, newCustomer]);
         setCurrentCustomer(newCustomer);
         setCurrentOrder(newOrder);
@@ -431,7 +425,11 @@ const Index: React.FC = () => {
 
         await autoSaveSessionData(newCustomer, newOrder);
         console.log('Pedido automático criado com sucesso.');
-
+if (peso <= 0) {
+      console.warn('⚠️ Peso inválido detectado. Exibindo alerta.');
+      setShowWeightAlert(true);
+      return; // Para a execução se o peso for inválido
+    }
       } catch (error) {
         console.error('Erro ao criar pedido automaticamente:', error);
         toast({
