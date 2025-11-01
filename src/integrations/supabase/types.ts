@@ -245,7 +245,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          ip_address: unknown
+          ip_address: unknown | null
           new_data: Json | null
           old_data: Json | null
           operation: string
@@ -256,7 +256,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
-          ip_address?: unknown
+          ip_address?: unknown | null
           new_data?: Json | null
           old_data?: Json | null
           operation: string
@@ -267,7 +267,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
-          ip_address?: unknown
+          ip_address?: unknown | null
           new_data?: Json | null
           old_data?: Json | null
           operation?: string
@@ -1341,7 +1341,6 @@ export type Database = {
           created_at: string | null
           deactivated_at: string | null
           email: string | null
-          first_login_completed: boolean | null
           id: string
           indicador_id: string | null
           is_active: boolean | null
@@ -1357,7 +1356,6 @@ export type Database = {
           created_at?: string | null
           deactivated_at?: string | null
           email?: string | null
-          first_login_completed?: boolean | null
           id: string
           indicador_id?: string | null
           is_active?: boolean | null
@@ -1373,7 +1371,6 @@ export type Database = {
           created_at?: string | null
           deactivated_at?: string | null
           email?: string | null
-          first_login_completed?: boolean | null
           id?: string
           indicador_id?: string | null
           is_active?: boolean | null
@@ -1773,7 +1770,7 @@ export type Database = {
           created_at: string
           device_info: string | null
           id: string
-          ip_address: unknown
+          ip_address: unknown | null
           is_active: boolean
           last_activity: string
           session_token: string
@@ -1784,7 +1781,7 @@ export type Database = {
           created_at?: string
           device_info?: string | null
           id?: string
-          ip_address?: unknown
+          ip_address?: unknown | null
           is_active?: boolean
           last_activity?: string
           session_token: string
@@ -1795,7 +1792,7 @@ export type Database = {
           created_at?: string
           device_info?: string | null
           id?: string
-          ip_address?: unknown
+          ip_address?: unknown | null
           is_active?: boolean
           last_activity?: string
           session_token?: string
@@ -1898,7 +1895,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown
+          ip_address: unknown | null
           user_agent: string | null
           user_id: string | null
         }
@@ -1907,7 +1904,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown
+          ip_address?: unknown | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -1916,7 +1913,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown
+          ip_address?: unknown | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -2101,13 +2098,22 @@ export type Database = {
         Args: { password_hash: string }
         Returns: boolean
       }
-      cleanup_inactive_unidade_sessions: { Args: never; Returns: undefined }
-      cleanup_old_presence: { Args: never; Returns: undefined }
+      cleanup_inactive_unidade_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_presence: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       deactivate_unidade_session: {
         Args: { unidade_uuid: string }
         Returns: undefined
       }
-      generate_ref_key: { Args: { user_name: string }; Returns: string }
+      generate_ref_key: {
+        Args: { user_name: string }
+        Returns: string
+      }
       get_dashboard_summary: {
         Args: {
           filter_end?: string
@@ -2117,15 +2123,18 @@ export type Database = {
         Returns: Json
       }
       get_online_users: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           last_seen_at: string
           user_id: string
         }[]
       }
-      get_system_stats: { Args: never; Returns: Json }
+      get_system_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_unread_admin_messages: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
           id: string
@@ -2135,7 +2144,7 @@ export type Database = {
         }[]
       }
       get_unread_direct_messages: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
           id: string
@@ -2145,7 +2154,7 @@ export type Database = {
         }[]
       }
       get_unread_error_reports: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
           error_description: string
@@ -2156,7 +2165,7 @@ export type Database = {
         }[]
       }
       get_unread_global_notifications: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
           id: string
@@ -2166,7 +2175,7 @@ export type Database = {
         }[]
       }
       get_unread_realtime_messages: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
           id: string
@@ -2189,12 +2198,6 @@ export type Database = {
           unidade_id: string | null
           user_id: string
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "cash_registers"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       get_user_cash_registers: {
         Args: { target_user_id: string }
@@ -2210,12 +2213,6 @@ export type Database = {
           unidade_id: string | null
           user_id: string
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "cash_registers"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       get_user_materials: {
         Args: { target_user_id: string }
@@ -2230,12 +2227,6 @@ export type Database = {
           updated_at: string | null
           user_id: string
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "materials"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       get_user_orders: {
         Args: { target_user_id: string }
@@ -2258,12 +2249,6 @@ export type Database = {
           updated_at: string | null
           user_id: string
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "orders"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       get_user_referrals: {
         Args: { user_uuid: string }
@@ -2278,7 +2263,7 @@ export type Database = {
         }[]
       }
       get_user_role: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_status"]
       }
       get_user_roles: {
@@ -2286,7 +2271,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"][]
       }
       get_user_status: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_status"]
       }
       has_role: {
@@ -2296,19 +2281,46 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: { Args: never; Returns: boolean }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_subscription_active: {
         Args: { target_user_id: string }
         Returns: boolean
       }
-      is_unidade_available: { Args: { unidade_uuid: string }; Returns: boolean }
-      regenerate_all_ref_keys: { Args: never; Returns: number }
-      sanitize_input: { Args: { input_text: string }; Returns: string }
-      sanitize_text_input: { Args: { input_text: string }; Returns: string }
-      schedule_presence_cleanup: { Args: never; Returns: undefined }
-      validate_customer_name: { Args: { name_input: string }; Returns: string }
-      validate_email: { Args: { email_input: string }; Returns: string }
-      validate_material_name: { Args: { name_input: string }; Returns: string }
+      is_unidade_available: {
+        Args: { unidade_uuid: string }
+        Returns: boolean
+      }
+      regenerate_all_ref_keys: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      sanitize_input: {
+        Args: { input_text: string }
+        Returns: string
+      }
+      sanitize_text_input: {
+        Args: { input_text: string }
+        Returns: string
+      }
+      schedule_presence_cleanup: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      validate_customer_name: {
+        Args: { name_input: string }
+        Returns: string
+      }
+      validate_email: {
+        Args: { email_input: string }
+        Returns: string
+      }
+      validate_material_name: {
+        Args: { name_input: string }
+        Returns: string
+      }
       validate_subscription_access: {
         Args: { required_feature?: string; target_user_id: string }
         Returns: boolean
@@ -2331,7 +2343,10 @@ export type Database = {
         }
         Returns: boolean
       }
-      validate_user_input: { Args: { input_text: string }; Returns: string }
+      validate_user_input: {
+        Args: { input_text: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
