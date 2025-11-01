@@ -1268,7 +1268,15 @@ const Index: React.FC = () => {
         setShowMaterialsPrintModal(false);
         // Retornar automaticamente ao PDV após impressão
       }} />}
+      
+          {/* First Login Welcome Modal */}
+          <FirstLoginModal
+            open={showFirstLoginModal}
+            onClose={() => setShowFirstLoginModal(false)}
+            userName={userName}
+          />
         </> : null}
     </div>;
 };
 export default Index;
+

@@ -40,7 +40,9 @@ import {
   User,
   Trash2,
   Clock,
-  MessageCircle
+  MessageCircle,
+  Key,
+  Copy
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -49,6 +51,7 @@ import UserDetailsModal from '@/components/admin/UserDetailsModal';
 import { upsertSubscription } from '@/utils/subscriptionStorage';
 import { ConfirmDeleteUserModal } from '@/components/admin/ConfirmDeleteUserModal';
 import { SendMessageModal } from '@/components/admin/SendMessageModal';
+import { PasswordResetModal } from '@/components/admin/PasswordResetModal';
 
 interface UserData {
   id: string;
@@ -83,6 +86,8 @@ export const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
   const [sendMessageModalOpen, setSendMessageModalOpen] = useState(false);
   const [messageTargetUser, setMessageTargetUser] = useState<UserData | null>(null);
+  const [passwordResetModalOpen, setPasswordResetModalOpen] = useState(false);
+  const [resetPasswordData, setResetPasswordData] = useState<{ email: string; password: string } | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -220,6 +225,9 @@ export const UserManagement = () => {
     
     try {
       switch (action) {
+        case 'copy_data':
+          await handleCopyUsersData(selectedUsersList);
+          break;
         case 'activate_trial':
           await handleBulkActivateTrial(selectedUsersList);
           break;
@@ -326,6 +334,87 @@ export const UserManagement = () => {
       });
     }
   };
+
+  const handleCopyUsersData = async (userIds: string[]) => {
+    try {
+      const selectedUsersData = users.filter(user => userIds.includes(user.id));
+      
+      let copyText = '';
+      
+      selectedUsersData.forEach((user, index) => {
+        const firstName = user.name?.split(' ')[0] || 'Cliente';
+        const whatsappNumber = user.whatsapp ? user.whatsapp.replace(/\D/g, '') : '';
+        const whatsappLink = whatsappNumber 
+          ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Oii, ${firstName} eu sou o Rick, responsável pelo sistema de Gestão XLata. Vi que você se cadastrou mas acredito que você não conseguiu usar nosso sistema como deveria, posso te ajudar com isso?`)}`
+          : 'WhatsApp não cadastrado';
+        
+        copyText += `Nome cliente: ${user.name || 'Não informado'};\n`;
+        copyText += `Email Cliente: ${user.email};\n`;
+        copyText += `WhatsApp: ${whatsappLink};\n`;
+        
+        if (index < selectedUsersData.length - 1) {
+          copyText += '\n';
+        }
+      });
+      
+      await navigator.clipboard.writeText(copyText);
+      
+      toast({
+        title: "Dados copiados com sucesso!",
+        description: `Dados de ${selectedUsersData.length} usuário(s) copiados para a área de transferência.`,
+      });
+    } catch (error) {
+      console.error('Erro ao copiar dados:', error);
+      toast({
+        title: "Erro ao copiar dados",
+        description: "Não foi possível copiar os dados dos usuários.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateRandomPassword = (): string => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+    for (let i = 0; i < 10; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
+
+  const handleResetPassword = async (userId: string, userEmail: string) => {
+    try {
+      const newPassword = generateRandomPassword();
+      
+      // Update password using Supabase Admin API
+      const { error } = await supabase.auth.admin.updateUserById(
+        userId,
+        { password: newPassword }
+      );
+      
+      if (error) throw error;
+      
+      // Show modal with new password
+      setResetPasswordData({
+        email: userEmail,
+        password: newPassword
+      });
+      setPasswordResetModalOpen(true);
+      
+      toast({
+        title: "Senha resetada com sucesso",
+        description: `Nova senha gerada para ${userEmail}`,
+      });
+    } catch (error) {
+      console.error('Erro ao resetar senha:', error);
+      toast({
+        title: "Erro ao resetar senha",
+        description: "Não foi possível resetar a senha do usuário.",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   const handleActivateSubscription = (user: UserData) => {
     setSelectedUser(user);
@@ -725,6 +814,10 @@ export const UserManagement = () => {
                   <SelectValue placeholder={`Ações (${selectedUsers.size})`} />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="copy_data" className="text-white hover:bg-gray-600">
+                    <Copy className="h-4 w-4 inline mr-2" />
+                    Copiar Dados
+                  </SelectItem>
                   <SelectItem value="activate_trial" className="text-white hover:bg-gray-600">
                     Ativar Teste (7 dias)
                   </SelectItem>
@@ -850,6 +943,14 @@ export const UserManagement = () => {
                                 Ativar Plano
                               </DropdownMenuItem>
                               
+                              <DropdownMenuItem 
+                                onClick={() => handleResetPassword(user.id, user.email)}
+                                className="text-white hover:bg-gray-700 cursor-pointer"
+                              >
+                                <Key className="h-4 w-4 mr-2" />
+                                Resetar Senha
+                              </DropdownMenuItem>
+                              
                               {user.status !== 'admin' ? (
                                 <DropdownMenuItem 
                                   onClick={() => handleMakeAdmin(user.id, user.name || user.email)}
@@ -928,6 +1029,7 @@ export const UserManagement = () => {
             onOpenChange={setSubscriptionModalOpen}
             onConfirm={handleSubscriptionConfirm}
             userName={selectedUser.name || selectedUser.email}
+            userId={selectedUser.id}
           />
           
           <UserDetailsModal
@@ -954,6 +1056,15 @@ export const UserManagement = () => {
           onOpenChange={setSendMessageModalOpen}
           targetUserId={messageTargetUser.id}
           targetUserName={messageTargetUser.name || messageTargetUser.email}
+        />
+      )}
+      
+      {resetPasswordData && (
+        <PasswordResetModal
+          open={passwordResetModalOpen}
+          onOpenChange={setPasswordResetModalOpen}
+          email={resetPasswordData.email}
+          password={resetPasswordData.password}
         />
       )}
     </div>
