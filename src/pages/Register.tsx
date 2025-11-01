@@ -244,7 +244,8 @@ const Register: React.FC = () => {
           <LoginLogo />
           <h1 className="text-2xl font-bold text-white">Crie sua conta</h1>
           <p className="text-gray-400">
-            {referralInfo ? `🎉 Indicado por ${referralInfo.name}! ` : ''}Comece seu teste grátis de 7 dias
+            {referralInfo ? `🎉 Indicado por ${referralInfo.name}! ` : ''}
+            Teste grátis de 7 dias ativado automaticamente após confirmação de email
           </p>
           
           {/* Status de conexão REAL com Supabase */}
