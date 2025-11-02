@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { createLogger } from '@/utils/logger';
+import PasswordPromptModal from '@/components/PasswordPromptModal';
 
 const logger = createLogger('[OrderHistory]');
 
@@ -41,6 +42,8 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
   const [showDeleteEmptyConfirm, setShowDeleteEmptyConfirm] = useState(false);
   const [showDeleteAllOpenConfirm, setShowDeleteAllOpenConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -200,6 +203,14 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
 
   // Função para ver detalhes do pedido
   const handleViewOrder = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setShowPasswordModal(true);
+  };
+
+  // Função chamada após autenticação bem-sucedida
+  const handlePasswordAuthenticated = () => {
+    setShowPasswordModal(false);
+    setSelectedOrderId(null);
     onClose();
     navigate('/transactions');
   };
@@ -689,7 +700,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
                 disabled={currentPage === 1}
                 variant="outline"
                 size="sm"
-                className="text-white border border-white bg-transparent hover:bg-transparent disabled:opacity-50"
+                className="bg-white text-gray-900 border-white hover:bg-gray-100 disabled:opacity-50"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -717,7 +728,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
                       className={
                         currentPage === pageNum 
                           ? "bg-pdv-green text-white hover:bg-pdv-green/90 border-pdv-green" 
-                          : "text-white border border-white bg-transparent hover:bg-transparent"
+                          : "bg-white text-gray-900 border-white hover:bg-gray-100"
                       }
                     >
                       {pageNum}
@@ -731,7 +742,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
                 disabled={currentPage === totalPages}
                 variant="outline"
                 size="sm"
-                className="text-white border border-white bg-transparent hover:bg-transparent disabled:opacity-50"
+                className="bg-white text-gray-900 border-white hover:bg-gray-100 disabled:opacity-50"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -811,6 +822,20 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Modal de Senha para Ver Pedido */}
+      <PasswordPromptModal
+        open={showPasswordModal}
+        onOpenChange={(open) => {
+          setShowPasswordModal(open);
+          if (!open) {
+            setSelectedOrderId(null);
+          }
+        }}
+        onAuthenticated={handlePasswordAuthenticated}
+        title="Autenticação Necessária"
+        description="Digite sua senha para visualizar os detalhes do pedido."
+      />
     </Dialog>
   );
 };

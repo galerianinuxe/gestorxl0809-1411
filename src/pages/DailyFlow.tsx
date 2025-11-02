@@ -450,7 +450,7 @@ const DailyFlow = () => {
         </Card>
 
         {/* Resumo */}
-        <div className="grid grid-cols-1 gap-3 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
           <Card className="bg-green-900 border-green-700">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-green-100">
