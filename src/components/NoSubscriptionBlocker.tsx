@@ -93,7 +93,7 @@ const NoSubscriptionBlocker: React.FC<NoSubscriptionBlockerProps> = ({
           <CardContent className="text-center space-y-6">
             {/* Botão de Ativação do Teste */}
             <div className="py-4">
-              <Card className="bg-gradient-to-r from-gray-100/40 to-green-300/40 border-green-600">
+              <Card className="bg-gradient-to-r from-black-300/40 to-green-300/40 border-green-600">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-center mb-4">
                     <div className="w-16 h-16 bg-gradient-to-br rounded-full flex items-center justify-center">
