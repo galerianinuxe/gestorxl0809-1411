@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Play, CheckCircle } from 'lucide-react';
+import { BookOpen, Loader2, CheckCircle, Sparkles } from 'lucide-react';
+import { useTrialActivation } from '@/utils/trialActivation';
+import { toast } from '@/hooks/use-toast';
 
 interface FirstLoginModalProps {
   open: boolean;
@@ -17,9 +19,51 @@ export const FirstLoginModal: React.FC<FirstLoginModalProps> = ({
   userName
 }) => {
   const navigate = useNavigate();
+  const [isActivating, setIsActivating] = useState(false);
+  const [trialActivated, setTrialActivated] = useState(false);
+  const { activateUserTrial } = useTrialActivation();
   
-  const handleGoToGuide = () => {
-    navigate('/guia-completo');
+  const handleActivateTrial = async () => {
+    setIsActivating(true);
+    
+    try {
+      const result = await activateUserTrial();
+      
+      if (result.success) {
+        setTrialActivated(true);
+        toast({
+          title: "✅ Teste Grátis Ativado!",
+          description: result.message,
+        });
+        
+        // Aguardar 1.5s para usuário ver o sucesso, então redirecionar
+        setTimeout(() => {
+          navigate('/guia-completo');
+          onClose();
+        }, 1500);
+      } else {
+        toast({
+          title: "❌ Erro na Ativação",
+          description: result.message,
+          variant: "destructive",
+        });
+        setIsActivating(false);
+      }
+    } catch (error) {
+      toast({
+        title: "❌ Erro Inesperado",
+        description: "Ocorreu um erro ao ativar o teste. Tente novamente.",
+        variant: "destructive",
+      });
+      setIsActivating(false);
+    }
+  };
+  
+  const handleActivateLater = () => {
+    toast({
+      title: "📌 Lembrete",
+      description: "Você pode ativar seu teste grátis a qualquer momento através das configurações.",
+    });
     onClose();
   };
   
@@ -45,40 +89,40 @@ export const FirstLoginModal: React.FC<FirstLoginModalProps> = ({
           {/* Mensagem de boas-vindas */}
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold text-green-400">
-              Sua conta foi ativada com sucesso! 🚀
+              Sua conta foi criada com sucesso! 🚀
             </h2>
             <p className="text-gray-300 text-lg">
-              Você agora tem acesso ao <strong>teste grátis de 7 dias</strong> com todos os recursos do sistema.
+              Ative agora seu <strong>teste grátis de 7 dias</strong> com todos os recursos do sistema.
             </p>
           </div>
           
-          {/* Card de instruções */}
-          <Card className="bg-gray-700/50 border-gray-600">
+          {/* Card de benefícios do teste */}
+          <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 border-green-600">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="h-6 w-6 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-green-800 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-white font-bold text-lg mb-2">
-                    Não sabe por onde começar?
+                    O que você ganha com o teste grátis?
                   </h3>
-                  <p className="text-gray-300 mb-4">
-                    Criamos um <strong>Guia Completo em Vídeo</strong> para você aprender a usar 
-                    todas as funcionalidades do sistema de forma rápida e fácil.
-                  </p>
                   <ul className="space-y-2 text-gray-300 text-sm">
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-400" />
-                      Tutoriais passo a passo em vídeo
+                      7 dias com acesso total ao sistema
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-400" />
-                      Aprenda no seu ritmo
+                      Guias completos em vídeo para aprender
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-400" />
-                      Acesso vitalício ao guia completo
+                      Todos os recursos disponíveis
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-400" />
+                      Sem necessidade de cartão de crédito
                     </li>
                   </ul>
                 </div>
@@ -87,27 +131,46 @@ export const FirstLoginModal: React.FC<FirstLoginModalProps> = ({
           </Card>
           
           {/* Botões de ação */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col gap-3 pt-4">
             <Button
-              onClick={handleGoToGuide}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-bold text-lg py-6"
+              onClick={handleActivateTrial}
+              disabled={isActivating || trialActivated}
+              className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white font-bold text-lg py-6 disabled:opacity-70"
             >
-              <Play className="h-5 w-5 mr-2" />
-              COMO USAR O SISTEMA
+              {isActivating ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  ATIVANDO...
+                </>
+              ) : trialActivated ? (
+                <>
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  ATIVADO! REDIRECIONANDO...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5 mr-2" />
+                  ATIVAR TESTE GRÁTIS DE 7 DIAS
+                </>
+              )}
             </Button>
             
             <Button
-              onClick={onClose}
+              onClick={handleActivateLater}
+              disabled={isActivating || trialActivated}
               variant="outline"
-              className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+              className="w-full bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
             >
-              Explorar Sozinho
+              Ativar Depois
             </Button>
           </div>
           
-          <p className="text-center text-gray-400 text-sm">
-            Você pode acessar o guia completo a qualquer momento através do menu
-          </p>
+          <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-3 mt-2">
+            <p className="text-center text-purple-300 text-sm flex items-center justify-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Após ativar, você será direcionado ao guia completo com tutoriais em vídeo
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

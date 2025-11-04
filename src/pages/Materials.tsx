@@ -399,7 +399,7 @@ const Materials = () => {
           <ScrollArea className="h-[calc(100vh-280px)] sm:h-[calc(100vh-250px)]">
             {loading ? <div className="flex justify-center items-center h-32">
                 <div className="text-white">Carregando materiais...</div>
-              </div> : <div className="grid grid-cols-3 lg:grid-cols-10 gap-0.25 p-2">
+              </div> : <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-0.25 p-2">
                 {filteredMaterials.map(material => <Card key={material.id} className="bg-pdv-green border-gray-600 relative group rounded-none hover:bg-pdv-green/40 cursor-pointer" onClick={e => handleCardClick(material, e)}>
                     <div className="absolute top-2 right-2 z-10 opacity-100">
                       <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-red-500 hover:text-white hover:bg-red-800" onClick={e => {
