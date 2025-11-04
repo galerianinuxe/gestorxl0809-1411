@@ -13,9 +13,7 @@ import { isGreaterThanOrEqual, formatWeight } from '@/utils/numericComparison';
 import { cleanMaterialName } from '@/utils/materialNameCleaner';
 import { saveOrderToLocalHistory } from '../components/OrderHistoryModal';
 import { setupAutoCleanup } from '../utils/cleanupEmptyOrders';
-import { FirstLoginModal } from '../components/FirstLoginModal';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 
 // Importações otimizadas com lazy loading para componentes pesados
 const OrderList = React.lazy(() => import('../components/OrderList'));
@@ -106,9 +104,6 @@ const Index: React.FC = () => {
     current: number;
     missing: number;
   } | null>(null);
-  const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
-  const [userName, setUserName] = useState('');
-  
   const { user } = useAuth();
 
   // Memoized calculations para melhor performance
@@ -207,37 +202,6 @@ const Index: React.FC = () => {
     }
   }, []);
   
-  // Check first login
-  useEffect(() => {
-    const checkFirstLogin = async () => {
-      if (!user) return;
-      
-      try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('first_login_completed, name')
-          .eq('id', user.id)
-          .single();
-        
-        if (error) throw error;
-        
-        if (profile && !profile.first_login_completed) {
-          setUserName(profile.name || 'Usuário');
-          setShowFirstLoginModal(true);
-          
-          // Mark as completed
-          await supabase
-            .from('profiles')
-            .update({ first_login_completed: true })
-            .eq('id', user.id);
-        }
-      } catch (error) {
-        console.error('Error checking first login:', error);
-      }
-    };
-    
-    checkFirstLogin();
-  }, [user]);
 
   // Função para abrir o modal de novo pedido quando não há pedido ativo
   const handleNewOrderRequest = useCallback(() => {
@@ -1268,13 +1232,6 @@ const Index: React.FC = () => {
         setShowMaterialsPrintModal(false);
         // Retornar automaticamente ao PDV após impressão
       }} />}
-      
-          {/* First Login Welcome Modal */}
-          <FirstLoginModal
-            open={showFirstLoginModal}
-            onClose={() => setShowFirstLoginModal(false)}
-            userName={userName}
-          />
         </> : null}
     </div>;
 };

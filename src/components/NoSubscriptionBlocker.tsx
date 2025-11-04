@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, BookOpen, Crown, ArrowRight } from 'lucide-react';
+import { Shield, BookOpen, Crown, ArrowRight, Sparkles, Loader2, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import TrialActivationButton from './TrialActivationButton';
 import SystemLogo from './SystemLogo';
+import { useTrialActivation } from '@/utils/trialActivation';
+import { toast } from '@/hooks/use-toast';
 
 interface NoSubscriptionBlockerProps {
   userName?: string;
@@ -16,6 +17,49 @@ const NoSubscriptionBlocker: React.FC<NoSubscriptionBlockerProps> = ({
   onTrialActivated 
 }) => {
   const navigate = useNavigate();
+  const [isActivating, setIsActivating] = useState(false);
+  const [trialActivated, setTrialActivated] = useState(false);
+  const { activateUserTrial } = useTrialActivation();
+
+  const handleActivateTrial = async () => {
+    setIsActivating(true);
+    
+    try {
+      const result = await activateUserTrial();
+      
+      if (result.success) {
+        setTrialActivated(true);
+        toast({
+          title: "✅ Teste Grátis Ativado!",
+          description: result.message,
+        });
+        
+        // Call callback if provided
+        if (onTrialActivated) {
+          onTrialActivated();
+        }
+        
+        // Redirect to guide after 1.5s
+        setTimeout(() => {
+          navigate('/guia-completo');
+        }, 1500);
+      } else {
+        toast({
+          title: "❌ Erro na Ativação",
+          description: result.message,
+          variant: "destructive",
+        });
+        setIsActivating(false);
+      }
+    } catch (error) {
+      toast({
+        title: "❌ Erro Inesperado",
+        description: "Ocorreu um erro ao ativar o teste. Tente novamente.",
+        variant: "destructive",
+      });
+      setIsActivating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -49,13 +93,59 @@ const NoSubscriptionBlocker: React.FC<NoSubscriptionBlockerProps> = ({
           <CardContent className="text-center space-y-6">
             {/* Botão de Ativação do Teste */}
             <div className="py-4">
-              <TrialActivationButton onTrialActivated={onTrialActivated} />
+              <Card className="bg-gradient-to-r from-yellow-900/40 to-orange-900/40 border-yellow-600">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center">
+                      <Sparkles className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Ative seu Teste Grátis
+                  </h3>
+                  <p className="text-gray-300 mb-4">
+                    Para ativar seu teste grátis de 7 dias, acesse as configurações do sistema 
+                    ou aguarde o modal de primeiro login.
+                  </p>
+                  <Button
+                    onClick={handleActivateTrial}
+                    disabled={isActivating || trialActivated}
+                    className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white font-bold py-6 disabled:opacity-70"
+                  >
+                    {isActivating ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        ATIVANDO...
+                      </>
+                    ) : trialActivated ? (
+                      <>
+                        <CheckCircle className="h-5 w-5 mr-2" />
+                        ATIVADO! REDIRECIONANDO...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-5 w-5 mr-2" />
+                        ATIVAR TESTE GRÁTIS DE 7 DIAS
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
             
             <div className="text-sm text-gray-400">
-              <p>✅ Acesso completo por 7 dias</p>
-              <p>✅ Todas as funcionalidades liberadas</p>
-              <p>✅ Sem compromisso</p>
+              <p className="flex items-center justify-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+                Acesso completo por 7 dias
+              </p>
+              <p className="flex items-center justify-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+                Todas as funcionalidades liberadas
+              </p>
+              <p className="flex items-center justify-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+                Sem compromisso
+              </p>
             </div>
           </CardContent>
         </Card>
