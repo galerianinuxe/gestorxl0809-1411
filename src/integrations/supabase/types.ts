@@ -2127,6 +2127,7 @@ export type Database = {
       }
       get_storage_usage: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
+      get_table_count: { Args: never; Returns: Json }
       get_unread_admin_messages: {
         Args: never
         Returns: {
