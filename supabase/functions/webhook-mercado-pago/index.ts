@@ -126,60 +126,135 @@ serve(async (req) => {
 
     // If payment is approved, activate user subscription
     if (paymentData.status === 'approved') {
-      console.log(`Payment approved! Activating subscription for payment ending in ...${paymentId.toString().substring(paymentId.toString().length - 4)}`)
+      console.log(`✅ Payment approved!`, {
+        payment_id: paymentId,
+        external_reference: paymentData.external_reference,
+        amount: paymentData.transaction_amount,
+        payer: sanitizeForLog({ email: paymentData.payer.email })
+      })
       
       // Extract plan info from external_reference (format: plan_<id>_<timestamp>)
       const externalRef = paymentData.external_reference
       if (externalRef?.startsWith('plan_')) {
         const planId = externalRef.split('_')[1]
+        console.log(`📦 Processing plan activation:`, { plan_id: planId })
         
         // Get payment record to find user email
-        const { data: paymentRecord } = await supabase
+        const { data: paymentRecord, error: paymentError } = await supabase
           .from('mercado_pago_payments')
           .select('payer_email')
           .eq('payment_id', paymentId)
           .single()
         
+        if (paymentError) {
+          console.error(`❌ Failed to fetch payment record:`, paymentError)
+          throw paymentError
+        }
+        
         if (paymentRecord?.payer_email) {
-          // Find user by email
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('email', paymentRecord.payer_email)
+          console.log(`👤 Looking for user:`, { email: sanitizeForLog({ email: paymentRecord.payer_email }) })
+          
+          // Find user by email via auth.users (using Service Role)
+          const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers()
+          
+          if (authError) {
+            console.error(`❌ Failed to list auth users:`, authError)
+            throw authError
+          }
+          
+          const user = authUsers?.users.find(u => u.email === paymentRecord.payer_email)
+          
+          if (!user?.id) {
+            console.error(`❌ User not found for email:`, sanitizeForLog({ email: paymentRecord.payer_email }))
+            throw new Error('User not found')
+          }
+          
+          console.log(`✅ User found:`, { user_id: user.id })
+          
+          // Fetch plan data from subscription_plans
+          const { data: planData, error: planError } = await supabase
+            .from('subscription_plans')
+            .select('period, plan_id')
+            .eq('plan_id', planId)
             .single()
           
-          if (profile?.id) {
-            // Determine subscription period based on plan
-            let periodDays = 30 // default monthly
-            let planType = 'monthly'
-            
-            if (planId === 'quarterly') {
+          // Determine subscription period based on plan
+          let periodDays = 30 // default monthly
+          let planType = 'monthly'
+          
+          if (planData && !planError) {
+            // Extract days from period field ('/30 dias', '/3 meses', '/1 ano')
+            if (planData.period.includes('30 dias')) {
+              periodDays = 30
+              planType = 'monthly'
+            } else if (planData.period.includes('3 meses')) {
               periodDays = 90
               planType = 'quarterly'
-            } else if (planId === 'annual') {
+            } else if (planData.period.includes('1 ano')) {
               periodDays = 365
               planType = 'annual'
             }
+            console.log(`📅 Plan details:`, { plan_id: planId, period: planData.period, period_days: periodDays, plan_type: planType })
+          } else {
+            console.warn(`⚠️ Plan not found in database, using defaults:`, { plan_id: planId, period_days: periodDays })
+          }
+          
+          // Check for existing active subscription
+          const { data: existingSub } = await supabase
+            .from('user_subscriptions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('is_active', true)
+            .single()
+          
+          let expiresAt = new Date()
+          let activatedAt = new Date()
+          
+          if (existingSub && new Date(existingSub.expires_at) > new Date()) {
+            // JÁ TEM ASSINATURA ATIVA - SOMAR DIAS
+            expiresAt = new Date(existingSub.expires_at)
+            expiresAt.setDate(expiresAt.getDate() + periodDays)
+            activatedAt = new Date(existingSub.activated_at)
             
-            // Create or update user subscription
-            const expiresAt = new Date()
+            console.log(`➕ Extending existing subscription from ${existingSub.expires_at} to ${expiresAt.toISOString()}`)
+          } else {
+            // NOVA ASSINATURA - CONTAR A PARTIR DE HOJE
             expiresAt.setDate(expiresAt.getDate() + periodDays)
             
-            const { error: subError } = await supabase
-              .from('user_subscriptions')
-              .upsert({
-                user_id: profile.id,
-                plan_type: planType,
-                is_active: true,
-                expires_at: expiresAt.toISOString(),
-                payment_reference: paymentId
-              })
-            
-            if (subError) {
-              console.error('Error activating subscription:', subError)
-            } else {
-              console.log(`Subscription activated successfully`)
-            }
+            console.log(`🆕 Creating new subscription until ${expiresAt.toISOString()}`)
+          }
+          
+          // Create or update user subscription
+          const { error: subError } = await supabase
+            .from('user_subscriptions')
+            .upsert({
+              user_id: user.id,
+              plan_type: planType,
+              is_active: true,
+              activated_at: activatedAt.toISOString(),
+              expires_at: expiresAt.toISOString(),
+              payment_reference: paymentId.toString(),
+              payment_method: 'mercadopago_pix'
+            }, {
+              onConflict: 'user_id'
+            })
+          
+          if (subError) {
+            console.error(`❌ Failed to activate subscription:`, {
+              error: subError,
+              user_id: user.id,
+              plan_type: planType,
+              expires_at: expiresAt.toISOString()
+            })
+            throw subError
+          } else {
+            console.log(`🎉 Subscription activated successfully!`, {
+              user_id: user.id,
+              plan_type: planType,
+              period_days: periodDays,
+              expires_at: expiresAt.toISOString(),
+              payment_ref: paymentId
+            })
           }
         }
       }

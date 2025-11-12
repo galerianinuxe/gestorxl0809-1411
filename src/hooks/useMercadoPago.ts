@@ -91,6 +91,22 @@ export const useMercadoPago = () => {
 
     const poll = async (): Promise<any> => {
       try {
+        // ✅ Consultar banco local PRIMEIRO (mais rápido que API)
+        const { data: localPayment } = await supabase
+          .from('mercado_pago_payments')
+          .select('status')
+          .eq('payment_id', paymentId)
+          .single()
+
+        if (localPayment?.status === 'approved') {
+          console.log('Payment approved via local database check');
+          if (onStatusChange) {
+            onStatusChange('approved');
+          }
+          return { status: 'approved' }
+        }
+
+        // Se ainda pending, consultar API MP
         const status = await checkPaymentStatus(paymentId);
         attempts++;
 
@@ -112,6 +128,11 @@ export const useMercadoPago = () => {
         return status;
       } catch (error) {
         console.error('Erro no polling:', error);
+        // ✅ Retry em caso de erro
+        if (attempts < 3) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return poll();
+        }
         throw error;
       }
     };

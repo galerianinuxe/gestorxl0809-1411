@@ -2060,6 +2060,8 @@ export type Database = {
           expires_at: string | null
           id: string
           is_active: boolean | null
+          payment_method: string | null
+          payment_reference: string | null
           plan_type: string
           user_id: string | null
         }
@@ -2069,6 +2071,8 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
+          payment_method?: string | null
+          payment_reference?: string | null
           plan_type?: string
           user_id?: string | null
         }
@@ -2078,6 +2082,8 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
+          payment_method?: string | null
+          payment_reference?: string | null
           plan_type?: string
           user_id?: string | null
         }

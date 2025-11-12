@@ -5,6 +5,7 @@ import { Copy, Check, QrCode, CheckCircle, AlertCircle } from 'lucide-react';
 import { PixPaymentResponse } from '@/types/mercadopago';
 import { useToast } from '@/hooks/use-toast';
 import { useMercadoPago } from '@/hooks/useMercadoPago';
+import { useSubscriptionSync } from '@/hooks/useSubscriptionSync';
 
 interface QRCodeDisplayProps {
   paymentData: PixPaymentResponse;
@@ -14,9 +15,10 @@ interface QRCodeDisplayProps {
 const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ paymentData, onPaymentComplete }) => {
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutos em segundos
+  const [timeLeft, setTimeLeft] = useState(600); // ✅ 10 minutos em segundos
   const { toast } = useToast();
   const { pollPaymentStatus } = useMercadoPago();
+  const { syncSubscriptionData } = useSubscriptionSync();
 
   // Timer countdown effect
   useEffect(() => {
@@ -28,7 +30,7 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ paymentData, onPaymentCom
           setPaymentStatus('expired');
           toast({
             title: "Pagamento expirado",
-            description: "O tempo limite de 5 minutos foi atingido. Gere um novo QR Code.",
+            description: "O tempo limite de 10 minutos foi atingido. Gere um novo QR Code.",
             variant: "destructive"
           });
           return 0;
@@ -43,15 +45,27 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ paymentData, onPaymentCom
   useEffect(() => {
     if (paymentData?.id && paymentStatus === 'pending' && timeLeft > 0) {
       // Iniciar polling do status do pagamento
-      pollPaymentStatus(paymentData.id, (status) => {
+      pollPaymentStatus(paymentData.id, async (status) => {
         setPaymentStatus(status);
         
         if (status === 'approved') {
           toast({
             title: "Pagamento aprovado!",
-            description: "Sua assinatura foi ativada com sucesso.",
+            description: "Sincronizando sua assinatura...",
+          });
+          
+          // ✅ Aguardar 2 segundos para webhook processar
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // ✅ Forçar sincronização imediata
+          await syncSubscriptionData();
+          
+          toast({
+            title: "Assinatura ativada!",
+            description: "Você já pode acessar o sistema completo.",
             variant: "default"
           });
+          
           onPaymentComplete?.();
         } else if (status === 'rejected' || status === 'cancelled') {
           toast({
@@ -64,7 +78,7 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ paymentData, onPaymentCom
         console.error('Erro no polling:', error);
       });
     }
-  }, [paymentData?.id, pollPaymentStatus, onPaymentComplete, toast, paymentStatus, timeLeft]);
+  }, [paymentData?.id, pollPaymentStatus, onPaymentComplete, toast, paymentStatus, timeLeft, syncSubscriptionData]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
