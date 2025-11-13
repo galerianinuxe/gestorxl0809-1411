@@ -27,11 +27,10 @@ import {
   Wifi,
   RefreshCw,
   Send,
-  Merge,
-  DollarSign
+  Merge
 } from 'lucide-react';
 
-type ActiveTab = 'dashboard' | 'usuarios' | 'assinaturas' | 'conteudo' | 'landing' | 'logs' | 'sistema' | 'online' | 'materials' | 'pix-payments';
+type ActiveTab = 'dashboard' | 'usuarios' | 'assinaturas' | 'conteudo' | 'landing' | 'logs' | 'sistema' | 'online' | 'materials';
 
 interface AdminSidebarProps {
   activeTab: ActiveTab;
@@ -58,11 +57,6 @@ const menuItems = [
     id: 'assinaturas' as ActiveTab,
     title: 'Assinaturas',
     icon: CreditCard,
-  },
-  {
-    id: 'pix-payments' as ActiveTab,
-    title: 'Pagamentos PIX',
-    icon: DollarSign,
   },
   {
     id: 'materials' as ActiveTab,
