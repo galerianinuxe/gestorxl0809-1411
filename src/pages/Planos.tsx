@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Calendar, CreditCard, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Check, Crown, Calendar, CreditCard, ArrowLeft, MessageSquare, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import MercadoPagoCheckout from '@/components/MercadoPagoCheckout';
+import SubscriptionManagementModal from '@/components/SubscriptionManagementModal';
 import { PlanData } from '@/types/mercadopago';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
@@ -16,6 +17,7 @@ const Planos = () => {
   const { user } = useAuth();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
+  const [managementModalOpen, setManagementModalOpen] = useState(false);
 
   const [plans, setPlans] = useState<any[]>([]);
 
@@ -174,6 +176,15 @@ const Planos = () => {
             </Button>
             <h1 className="text-2xl font-bold text-white">Planos de Assinatura</h1>
           </div>
+          {user && (
+            <Button
+              onClick={() => setManagementModalOpen(true)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Gerenciar Plano
+            </Button>
+          )}
         </div>
       </header>
 
@@ -293,6 +304,12 @@ const Planos = () => {
           selectedPlan={selectedPlan}
         />
       )}
+
+      {/* Subscription Management Modal */}
+      <SubscriptionManagementModal
+        open={managementModalOpen}
+        onClose={() => setManagementModalOpen(false)}
+      />
     </div>
   );
 };

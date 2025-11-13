@@ -11,6 +11,7 @@ import AuthGuard from "./components/AuthGuard";
 import WhatsAppSupportButton from "./components/WhatsAppSupportButton";
 import { RealtimeMessageModal } from "./components/RealtimeMessageModal";
 import { useRealtimeMessages } from "./hooks/useRealtimeMessages";
+import SubscriptionRenewalAlert from "./components/SubscriptionRenewalAlert";
 
 // Code splitting: lazy load de todas as páginas
 import { lazy, Suspense } from 'react';
@@ -94,6 +95,7 @@ const AppContent = () => {
 
   return (
     <>
+      <SubscriptionRenewalAlert />
       <Routes>
         {/* Rotas públicas - não precisam de autenticação */}
         <Route path="/landing" element={

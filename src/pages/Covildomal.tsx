@@ -36,8 +36,9 @@ import { useUserPresence } from '@/hooks/useUserPresence';
 import ErrorReportsModal from '@/components/admin/ErrorReportsModal';
 import { BroadcastNotificationModal } from '@/components/admin/BroadcastNotificationModal';
 import { supabase } from '@/integrations/supabase/client';
+import PixPaymentsDashboard from '@/pages/PixPaymentsDashboard';
 
-type ActiveTab = 'dashboard' | 'usuarios' | 'assinaturas' | 'conteudo' | 'landing' | 'logs' | 'sistema' | 'online';
+type ActiveTab = 'dashboard' | 'usuarios' | 'assinaturas' | 'conteudo' | 'landing' | 'logs' | 'sistema' | 'online' | 'pix-payments';
 
 const Covildomal = () => {
   const navigate = useNavigate();
@@ -127,6 +128,8 @@ const Covildomal = () => {
         return <UserManagement />;
       case 'assinaturas':
         return <SubscriptionManagement />;
+      case 'pix-payments':
+        return <PixPaymentsDashboard />;
       case 'conteudo':
         return (
           <Card className="bg-gray-800 border-gray-700">
