@@ -43,8 +43,8 @@ export const useUserPresence = () => {
       // Atualizar presença imediatamente
       updatePresence();
       
-      // Atualizar presença a cada 20 segundos (mais preciso)
-      presenceInterval = setInterval(updatePresence, 20000);
+      // Atualizar presença a cada 30 segundos para maior confiabilidade
+      presenceInterval = setInterval(updatePresence, 30000);
     };
 
     const stopPresenceTracking = async () => {

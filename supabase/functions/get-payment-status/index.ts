@@ -41,11 +41,11 @@ serve(async (req) => {
 
     // If status is still pending, check with Mercado Pago API
     if (data.status === 'pending') {
-      console.log(`Payment ${payment_id} is pending, checking with Mercado Pago API...`)
+      console.log(`[FALLBACK] Payment ${payment_id} is pending, checking with Mercado Pago API...`)
       
       const accessToken = Deno.env.get('MERCADOPAGO_ACCESS_TOKEN')
       if (!accessToken) {
-        console.error('MERCADOPAGO_ACCESS_TOKEN not configured')
+        console.error('[FALLBACK] MERCADOPAGO_ACCESS_TOKEN not configured')
         // Return current status from DB even if can't check API
         return new Response(
           JSON.stringify({
@@ -73,7 +73,7 @@ serve(async (req) => {
         const newStatus = paymentData.status
         const newStatusDetail = paymentData.status_detail
 
-        console.log(`Mercado Pago API response - Status: ${newStatus}, Detail: ${newStatusDetail}`)
+        console.log(`[FALLBACK] Mercado Pago API response - Status: ${newStatus}, Detail: ${newStatusDetail}`)
 
         // Update payment status in database
         await supabase
@@ -84,6 +84,8 @@ serve(async (req) => {
             updated_at: new Date().toISOString()
           })
           .eq('payment_id', payment_id)
+
+        console.log(`[FALLBACK] Database updated with new status: ${newStatus}`)
 
         // If approved, activate subscription
         if (newStatus === 'approved') {

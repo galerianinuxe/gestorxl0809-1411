@@ -6,6 +6,8 @@ import { PixPaymentResponse } from '@/types/mercadopago';
 import { useToast } from '@/hooks/use-toast';
 import { useMercadoPago } from '@/hooks/useMercadoPago';
 import { useSubscriptionSync } from '@/hooks/useSubscriptionSync';
+import { PaymentSuccessModal } from './PaymentSuccessModal';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QRCodeDisplayProps {
   paymentData: PixPaymentResponse;
@@ -16,6 +18,9 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ paymentData, onPaymentCom
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [timeLeft, setTimeLeft] = useState(600); // ✅ 10 minutos em segundos
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [subscriptionActivated, setSubscriptionActivated] = useState(false);
+  const [activatedPlan, setActivatedPlan] = useState<{ name: string; expiresAt: string } | null>(null);
   const { toast } = useToast();
   const { pollPaymentStatus } = useMercadoPago();
   const { syncSubscriptionData } = useSubscriptionSync();
@@ -60,11 +65,28 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ paymentData, onPaymentCom
           // ✅ Forçar sincronização imediata
           await syncSubscriptionData();
           
-          toast({
-            title: "Assinatura ativada!",
-            description: "Você já pode acessar o sistema completo.",
-            variant: "default"
-          });
+          // Verificar se a assinatura foi ativada
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: subscription } = await supabase
+              .from('user_subscriptions')
+              .select('*, subscription_plans(name)')
+              .eq('user_id', user.id)
+              .eq('is_active', true)
+              .maybeSingle();
+            
+            if (subscription && new Date(subscription.expires_at) > new Date()) {
+              setSubscriptionActivated(true);
+              setActivatedPlan({
+                name: (subscription as any).subscription_plans?.name || 'Plano',
+                expiresAt: subscription.expires_at
+              });
+            } else {
+              setSubscriptionActivated(false);
+            }
+            
+            setShowSuccessModal(true);
+          }
           
           onPaymentComplete?.();
         } else if (status === 'rejected' || status === 'cancelled') {
@@ -193,6 +215,14 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ paymentData, onPaymentCom
           </div>
         </CardContent>
       </Card>
+      
+      <PaymentSuccessModal 
+        open={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        isActivated={subscriptionActivated}
+        planName={activatedPlan?.name}
+        expiresAt={activatedPlan?.expiresAt}
+      />
     </div>
   );
 };

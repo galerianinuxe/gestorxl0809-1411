@@ -12,6 +12,7 @@ import WhatsAppSupportButton from "./components/WhatsAppSupportButton";
 import { RealtimeMessageModal } from "./components/RealtimeMessageModal";
 import { useRealtimeMessages } from "./hooks/useRealtimeMessages";
 import SubscriptionRenewalAlert from "./components/SubscriptionRenewalAlert";
+import { useUserPresence } from "./hooks/useUserPresence";
 
 // Code splitting: lazy load de todas as páginas
 import { lazy, Suspense } from 'react';
@@ -53,11 +54,9 @@ const PageLoader = () => (
 );
 
 const AppContent = () => {
-  // SEO global
   useSEO();
-
-  // Hook para mensagens em tempo real
   const { currentMessage, dismissCurrentMessage } = useRealtimeMessages();
+  useUserPresence(); // Track user presence globally
 
   // Anti-debugging básico (devtools, F12, clique direito)
   // Temporariamente removido para o remix funcionar corretamente

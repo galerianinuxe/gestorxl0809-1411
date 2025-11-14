@@ -81,7 +81,7 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg mx-auto bg-background border-border rounded-xl">
+      <DialogContent className="w-[85vw] max-w-sm sm:max-w-md p-6 mx-auto bg-background border-border rounded-xl">
         <DialogHeader className="pb-4">
           <DialogTitle className="flex items-center gap-3 text-foreground text-xl font-semibold">
             {step === 'qrcode' && (
