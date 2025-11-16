@@ -8,8 +8,9 @@ export interface PaymentFormData {
 export interface PlanData {
   id: string;
   name: string;
-  price: string;
-  amount: number;
+  price: string;   // "R$ 97,90"
+  amount: number;  // 97.90
+  plan_type: string; // "monthly", "quarterly", "trial", etc.
 }
 
 export interface PixPaymentResponse {
