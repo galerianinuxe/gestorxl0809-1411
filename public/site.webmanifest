@@ -1,0 +1,16 @@
+{
+  "name": "XLata — Sistema para Reciclagem e Sucata",
+  "short_name": "XLata",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10B981",
+  "description": "Sistema completo para depósito de reciclagem e sucata: PDV, estoque, comprovantes e gestão.",
+  "icons": [
+    {
+      "src": "/lovable-uploads/xlata.site_logotipo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
