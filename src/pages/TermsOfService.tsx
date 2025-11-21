@@ -24,7 +24,7 @@ const TermsOfService: React.FC = () => {
           
           <div className="text-center mb-8">
             <img
-              src="/lovable-uploads/9a8f86b7-58a3-4b9c-a4e9-703c0ce729ae.png"
+              src="/lovable-uploads/xlata.site_logotipo.png"
               alt="XLATA.SITE"
               className="h-16 w-auto mx-auto mb-4"
             />
@@ -47,7 +47,7 @@ const TermsOfService: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">1. Aceitação dos Termos</h3>
                 <p>
-                  Ao acessar e usar o SISTEMA XLATA.SITE, você concorda em cumprir e estar vinculado aos seguintes termos e condições de uso. 
+                  Ao acessar e usar o <strong>SISTEMA XLATA.SITE</strong>, você concorda em cumprir e estar vinculado aos seguintes termos e condições de uso. 
                   Se você não concordar com qualquer parte destes termos, não deve usar nossos serviços.
                 </p>
               </div>
