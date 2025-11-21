@@ -50,19 +50,19 @@ const Landing: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
   const [contentSettings, setContentSettings] = useState<LandingContentSettings>({
     user_id: '',
-    hero_badge_text: 'EVOLUÇÃO NO SEU FERRO VELHO',
-    hero_main_title: 'Chega de Papel, Caneta e Calculadora!',
-    hero_subtitle: 'Saia da bolha e use a tecnologia a seu favor,',
-    hero_description: 'Ganhe tempo na balança e aumente seus lucros em até 300%',
+    hero_badge_text: 'EVOLUÇÃO NO SEU DEPÓSITO DE RECICLAGEM',
+    hero_main_title: 'Chega de papel, caneta e conta de cabeça',
+    hero_subtitle: 'Sistema online feito para depósitos de reciclagem, sucatas e ferros velhos que querem organização de verdade.',
+    hero_description: 'Ganhe velocidade na balança, controle total dos materiais e veja seu lucro em tempo real.',
     hero_button_text: 'TESTAR GRÁTIS AGORA',
     logo_url: '/lovable-uploads/xlata.site_logotipo.png',
     background_image_url: '/lovable-uploads/capa_xlata.jpg',
     company_name: 'XLata.site Gestor Completo',
     company_phone: '(11) 96351-2105',
     footer_text: '© 2025 XLata. Todos os direitos reservados.',
-    seo_title: 'Sistema para Ferro Velho e Reciclagem | XLata.site - PDV, Estoque e Lucros',
-    seo_description: 'Sistema para ferro velho, sucata e reciclagem. Controle de estoque, balança, clientes e lucros em um só lugar. Use grátis por 7 dias!',
-    seo_keywords: 'programa para ferro velho, sistema para ferro velho, software para sucata, controle de reciclagem, PDV ferro velho, xlata, sistema sucata, balança ferro velho',
+    seo_title: 'Sistema para Depósito de Reciclagem e Ferro Velho | XLata.site – Balança, Estoque e Lucro',
+    seo_description: 'Sistema online para depósito de reciclagem, sucata e ferro velho. Controle de pesagem, estoque, clientes, notas e lucros em um só lugar. Teste grátis 7 dias, sem cartão.',
+    seo_keywords: 'sistema para depósito de reciclagem, sistema para reciclagem, programa para ferro velho, software para sucata, controle de balança, controle de materiais recicláveis, sistema PDV reciclagem, xlata, sistema sucata',
     testimonials: []
   });
   const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
@@ -379,72 +379,72 @@ const Landing: React.FC = () => {
   const benefits = [
     {
       icon: Clock,
-      title: "Acabe com a Fila na Balança",
-      description: "Atenda 3x mais clientes por hora. Sistema automático elimina cálculos manuais e demora no atendimento.",
+      title: "Acabe com a fila na balança",
+      description: "Atenda muito mais caminhões e carroceiros por dia. O sistema calcula tudo sozinho e libera a balança em poucos minutos.",
       gradient: "from-blue-600 to-cyan-600",
-      impact: "300% mais produtividade"
+      impact: "Até 300% mais produtividade"
     },
     {
       icon: Calculator,
-      title: "Zero Erros, Zero Prejuízo",
-      description: "Chega de perder dinheiro com cálculos errados. Nosso sistema é mais preciso que qualquer calculadora.",
+      title: "Zero erros de pesagem e de preço",
+      description: "Nada de peso anotado errado, tipo de material trocado ou conta feita na pressa. O sistema soma tudo com precisão de centavos.",
       gradient: "from-purple-600 to-pink-600",
-      impact: "100% de precisão"
+      impact: "100% de precisão nos cálculos"
     },
     {
       icon: Shield,
-      title: "Cliente Confia e Volta Sempre",
-      description: "Comprovantes profissionais e transparência total. Seus clientes vão recomendar seu ferro velho.",
+      title: "Fornecedor confia e volta sempre",
+      description: "Comprovante profissional, pesagem transparente e histórico de cada carga. Quem vende pra você se sente seguro e volta com mais material.",
       gradient: "from-emerald-600 to-teal-600",
-      impact: "+200% fidelização"
+      impact: "Muito mais fidelização"
     }
   ];
 
   const problems = [
     { 
-      title: "Fila na Balança = Cliente Perdido", 
+      title: "Fila na balança = caminhão indo embora", 
       loss: "R$ 3.500/mês", 
-      description: "Clientes desistem da venda e vão para a concorrência por causa da demora",
+      description: "Caminhões e carroceiros cansam de esperar, desistem da descarga e vão vender no depósito do concorrente.",
       icon: Clock,
       color: "from-red-600 to-red-800",
       urgency: "CRÍTICO"
     },
     { 
-      title: "Erro de Cálculo = Prejuízo Direto", 
+      title: "Erro de cálculo e material = prejuízo direto", 
       loss: "R$ 2.800/mês", 
-      description: "Calculadora quebrada, conta errada, peso mal anotado - dinheiro indo embora",
+      description: "Peso anotado errado, tipo de material trocado, preço por kg confundido – cada erro é dinheiro saindo do seu caixa.",
       icon: XCircle,
       color: "from-orange-600 to-red-700",
       urgency: "ALTO"
     },
     { 
-      title: "Cliente Desconfiado Não Volta", 
+      title: "Fornecedor desconfiado não volta", 
       loss: "R$ 4.200/mês", 
-      description: "Papel rabiscado, sem comprovante - cliente acha que está sendo enganado",
+      description: "Papel rabiscado, conta confusa, sem comprovante claro – o fornecedor acha que perdeu dinheiro e procura outro depósito.",
       icon: AlertTriangle,
       color: "from-red-700 to-red-900",
       urgency: "CRÍTICO"
     },
     { 
-      title: "Papelada Bagunçada = Caos Total", 
+      title: "Papelada bagunçada = não sabe se lucrou", 
       loss: "R$ 2.100/mês", 
-      description: "Planilha perdida, anotação sumindo, não sabe se lucrou ou perdeu",
+      description: "Planilha perdida, caderninho rasgado, notas misturadas. Você não sabe quanto tem de cobre, alumínio, ferro ou plástico… nem quanto realmente ganhou.",
       icon: TrendingDown,
       color: "from-red-500 to-orange-700",
       urgency: "ALTO"
     },
     { 
-      title: "Fiscalização = Dor de Cabeça", 
+      title: "Fiscalização = multa e dor de cabeça", 
       loss: "R$ 5.000/mês", 
-      description: "Receita Federal chega, cadê os relatórios? Multa na certa!",
+      description: "Quando Receita ou fiscalização batem na porta, cadê relatório, cadastro, histórico e organização? Sem sistema, a chance de multa é enorme.",
       icon: BarChart3,
       color: "from-red-800 to-red-950",
       urgency: "CRÍTICO"
     },
     { 
-      title: "Concorrência Te Ultrapassando", 
+      title: "Concorrência organizada te ultrapassando", 
       loss: "R$ 6.800/mês", 
-      description: "Ferro velho do lado modernizou, seus clientes estão migrando",
+      description: "Depósito do lado já modernizou, gera comprovante, paga certinho e sabe quanto pode oferecer. Seus melhores fornecedores começam a migrar.",
       icon: Target,
       color: "from-red-600 to-red-900",
       urgency: "EMERGÊNCIA"
@@ -453,29 +453,29 @@ const Landing: React.FC = () => {
 
   const features = [
     {
-      title: "Controle Total dos Clientes",
-      description: "Histórico completo de cada cliente. Saiba quem compra mais, quando e quanto pagou na última vez.",
+      title: "Controle total de clientes e fornecedores",
+      description: "Histórico completo de quem vende e de quem compra. Veja quanto cada cliente já trouxe, o que trouxe, quando trouxe e quanto você pagou.",
       icon: User2,
       color: "from-purple-600 to-violet-600",
       badge: "Gestão inteligente"
     },
     {
-      title: "Saiba Exatamente Seu Lucro",
-      description: "Dashboard que mostra quanto você ganhou hoje, ontem, este mês. Nunca mais fique no escuro.",
+      title: "Lucro do depósito na palma da mão",
+      description: "Dashboard mostra quanto entrou hoje, ontem, na semana e no mês. Veja se o depósito está dando lucro ou só girando dinheiro.",
       icon: BarChart,
       color: "from-orange-600 to-amber-600",
       badge: "Controle financeiro"
     },
     {
-      title: "Mais de 130 Ferros Velhos Confiam",
-      description: "Do Norte ao Sul do Brasil, nossos clientes faturam mais e trabalham menos",
+      title: "Mais de 130 depósitos e ferros velhos",
+      description: "Do Norte ao Sul do Brasil, empresas de reciclagem usam o XLata.site para organizar o pátio e aumentar o faturamento.",
       icon: Users,
       color: "from-green-600 to-emerald-600",
       badge: "130+ clientes"
     },
     {
       title: "Suporte WhatsApp 24/7",
-      description: "Problema? Chama no WhatsApp! Nosso time resolve na hora",
+      description: "Travou, ficou com dúvida ou precisa ajustar algo? Chama no WhatsApp e nosso time te ajuda a resolver na hora.",
       icon: MessageSquare,
       color: "from-blue-600 to-cyan-600",
       badge: "Suporte 24h"
@@ -517,7 +517,7 @@ const Landing: React.FC = () => {
             </span>
             <br />
             <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-2xl">
-              {contentSettings.hero_main_title.split(',')[1] || 'Calculadora'}!
+              {contentSettings.hero_main_title.split(',')[1] || 'conta de cabeça'}!
             </span>
           </h1>
           
@@ -563,15 +563,15 @@ const Landing: React.FC = () => {
             <div className="flex justify-center mb-4 lg:mb-8">
               <Badge className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 text-xs sm:text-base lg:text-xl font-black shadow-2xl border-4 border-red-400/50">
                 <AlertTriangle className="h-4 w-4 sm:h-6 sm:w-6 lg:h-8 lg:w-8 mr-2 lg:mr-4" />
-                🚨 SEU FERRO VELHO ESTÁ PERDENDO DINHEIRO!
+                🚨 SEU DEPÓSITO DE RECICLAGEM ESTÁ PERDENDO DINHEIRO!
               </Badge>
             </div>
             
             <div className="max-w-5xl mx-auto bg-gradient-to-r from-red-900/80 to-red-800/80 rounded-2xl p-4 lg:p-8 border-4 border-red-500/50 backdrop-blur-sm">
               <p className="text-base sm:text-lg lg:text-2xl text-red-100 font-black mb-2 lg:mb-4 text-center">
-                <span className="text-red-400 text-lg sm:text-xl lg:text-3xl block mb-2">SEU DINHEIRO ESTÁ VAZANDO</span>
+                <span className="text-red-400 text-lg sm:text-xl lg:text-3xl block mb-2">SEU DINHEIRO ESTÁ VAZANDO NO PÁTIO</span>
                 <span className="block text-sm lg:text-lg font-bold">
-                  Veja os 6 LADRÕES que estão roubando seu sucesso todos os dias:
+                  Veja os 6 LADRÕES que roubam seu lucro todos os dias:
                 </span>
               </p>
             </div>
@@ -620,7 +620,7 @@ const Landing: React.FC = () => {
                 💸 TOTAL DE PERDAS ANUAIS: <span className="text-2xl sm:text-3xl lg:text-6xl text-red-300">R$ 292.800</span>
               </h3>
               <p className="text-base sm:text-lg lg:text-2xl text-gray-200 mb-4 lg:mb-8 font-bold">
-                Quase <span className="text-red-400 font-black text-lg sm:text-xl lg:text-3xl">TREZENTOS MIL REAIS</span> jogados no lixo!
+                Quase <span className="text-red-400 font-black text-lg sm:text-xl lg:text-3xl">TREZENTOS MIL REAIS</span> que poderiam virar lucro no seu depósito de reciclagem.
               </p>
               <Button
                 size="lg"
@@ -644,13 +644,13 @@ const Landing: React.FC = () => {
           <div className="text-center mb-8 lg:mb-20">
             <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3">
               <Rocket className="h-3 w-3 sm:h-4 sm:w-4 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
-              A SOLUÇÃO QUE VAI MUDAR SUA VIDA
+              A SOLUÇÃO QUE ORGANIZA SEU DEPÓSITO
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black mb-4 lg:mb-8 text-green-400 drop-shadow-xl px-2">
-              Transforme Cada Problema em LUCRO
+              Transforme o seu depósito em uma máquina de lucro previsível
             </h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              Sistema XLata.site: A tecnologia que mais de 130 ferros velhos usam para <span className="text-green-400 font-bold">DOMINAR o mercado</span>
+              XLata.site é o sistema que depósitos de reciclagem e ferros velhos usam para <span className="text-green-400 font-bold">acabar com o caos e dominar os números</span>.
             </p>
           </div>
           
@@ -697,11 +697,7 @@ const Landing: React.FC = () => {
 
       {/* ROI Section */}
       <section className="py-8 lg:py-20 px-3 lg:px-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-emerald-
-          
-          
-          
-          /10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-emerald-500/10"></div>
         
         <div className="container mx-auto relative z-10">
           <div className="text-center mb-6 lg:mb-16">
@@ -710,10 +706,10 @@ const Landing: React.FC = () => {
               RETORNO GARANTIDO EM 30 DIAS
             </Badge>
             <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 lg:mb-8 text-green-400 drop-shadow-xl px-2">
-              Nossos Clientes Recuperam o Investimento em Menos de 1 Mês
+              Depósitos de reciclagem recuperam o investimento em menos de 1 mês
             </h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              Veja os resultados REAIS de quem já usa o Sistema PDV XLata.site
+              Veja os resultados REAIS de quem já usa o Sistema PDV XLata.site no dia a dia do depósito.
             </p>
           </div>
           
@@ -724,8 +720,8 @@ const Landing: React.FC = () => {
                   <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-white" />
                 </div>
                 <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">+300%</CardTitle>
-                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Aumento na Produtividade</p>
-                <p className="text-green-400 font-semibold text-sm lg:text-base">Atenda 3x mais clientes</p>
+                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Aumento na produtividade</p>
+                <p className="text-green-400 font-semibold text-sm lg:text-base">Atenda muito mais cargas por dia</p>
               </CardHeader>
             </Card>
             <Card className="bg-gradient-to-br from-gray-800/80 to-gray-900/90 border-2 border-blue-500/50 text-center hover:border-blue-400 transition-all duration-300 transform hover:scale-110 shadow-2xl">
@@ -734,8 +730,8 @@ const Landing: React.FC = () => {
                   <Clock className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-white" />
                 </div>
                 <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">-80%</CardTitle>
-                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Redução no Tempo de Pesagem</p>
-                <p className="text-blue-400 font-semibold text-sm lg:text-base">De 15 para 3 minutos</p>
+                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Redução no tempo de pesagem</p>
+                <p className="text-blue-400 font-semibold text-sm lg:text-base">De 15 para cerca de 3 minutos</p>
               </CardHeader>
             </Card>
             <Card className="bg-gradient-to-br from-gray-800/80 to-gray-900/90 border-2 border-purple-500/50 text-center hover:border-purple-400 transition-all duration-300 transform hover:scale-110 shadow-2xl">
@@ -744,8 +740,8 @@ const Landing: React.FC = () => {
                   <Shield className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-white" />
                 </div>
                 <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">100%</CardTitle>
-                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Eliminação de Erros</p>
-                <p className="text-purple-400 font-semibold text-sm lg:text-base">Zero prejuízo por cálculo</p>
+                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Eliminação de erros de conta</p>
+                <p className="text-purple-400 font-semibold text-sm lg:text-base">Zero prejuízo por cálculo errado</p>
               </CardHeader>
             </Card>
           </div>
@@ -757,15 +753,15 @@ const Landing: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8 text-center">
               <div>
                 <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white mb-1 lg:mb-2">R$ 12.000</p>
-                <p className="text-base sm:text-lg lg:text-xl text-green-300 font-semibold">Lucro adicional/mês</p>
+                <p className="text-base sm:text-lg lg:text-xl text-green-300 font-semibold">Lucro adicional / mês</p>
               </div>
               <div>
                 <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white mb-1 lg:mb-2">28 dias</p>
-                <p className="text-base sm:text-lg lg:text-xl text-green-300 font-semibold">Para recuperar investimento</p>
+                <p className="text-base sm:text-lg lg:text-xl text-green-300 font-semibold">Para recuperar o investimento</p>
               </div>
               <div>
                 <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white mb-1 lg:mb-2">130+</p>
-                <p className="text-base sm:text-lg lg:text-xl text-green-300 font-semibold">Ferros velhos confiam</p>
+                <p className="text-base sm:text-lg lg:text-xl text-green-300 font-semibold">Depósitos e ferros velhos confiam</p>
               </div>
             </div>
           </div>
@@ -780,13 +776,13 @@ const Landing: React.FC = () => {
           <div className="text-center mb-6 lg:mb-16">
             <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3">
               <Star className="h-3 w-3 sm:h-4 sm:w-4 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
-              DEPOIMENTOS DE QUEM JÁ MUDOU DE VIDA
+              DEPOIMENTOS DE QUEM JÁ ORGANIZOU O DEPÓSITO
             </Badge>
             <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 lg:mb-8 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent px-2">
-              Mais de 130 Donos de Ferro Velho Aprovam
+              Mais de 130 donos de depósito e ferro velho aprovam
             </h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              Veja o que nossos clientes falam sobre os <span className="text-yellow-400 font-bold">RESULTADOS REAIS</span>
+              Veja o que nossos clientes falam sobre os <span className="text-yellow-400 font-bold">RESULTADOS REAIS</span> do XLata.site.
             </p>
           </div>
           
@@ -862,10 +858,10 @@ const Landing: React.FC = () => {
               ESCOLHA SEU PLANO
             </Badge>
             <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 lg:mb-8 text-white drop-shadow-xl px-2">
-              Invista no Futuro do Seu Negócio
+              Invista no futuro do seu depósito de reciclagem
             </h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              Todos os planos incluem acesso completo ao sistema PDV com <span className="text-pdv-green font-bold">todos os recursos</span>
+              Todos os planos incluem acesso completo ao sistema PDV com <span className="text-pdv-green font-bold">todos os recursos para depósitos e ferros velhos</span>.
             </p>
           </div>
           
@@ -917,11 +913,11 @@ const Landing: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="h-4 w-4 text-pdv-green" />
-                      <span className="text-gray-300 text-sm">Controle de estoque</span>
+                      <span className="text-gray-300 text-sm">Controle de estoque e materiais</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="h-4 w-4 text-pdv-green" />
-                      <span className="text-gray-300 text-sm">Relatórios detalhados</span>
+                      <span className="text-gray-300 text-sm">Relatórios detalhados para gestão e fiscalização</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="h-4 w-4 text-pdv-green" />
@@ -973,11 +969,11 @@ const Landing: React.FC = () => {
           </div>
           
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black mb-4 lg:mb-8 text-white drop-shadow-2xl px-2">
-            Pronto Para Acabar Com o Prejuízo?
+            Pronto para parar de perder dinheiro no seu depósito?
           </h2>
           <p className="text-base sm:text-lg lg:text-2xl mb-6 lg:mb-12 max-w-4xl mx-auto text-green-100 font-semibold px-2">
-            Teste GRÁTIS por 7 dias e veja seu ferro velho se transformar em uma 
-            <span className="text-yellow-300 font-black"> máquina de fazer dinheiro!</span>
+            Teste o XLata.site por 7 dias, sem cartão, e veja seu depósito de reciclagem se transformar em uma 
+            <span className="text-yellow-300 font-black"> operação organizada e lucrativa.</span>
           </p>
           
           <div className="flex flex-col gap-4 lg:gap-6 justify-center mb-6 lg:mb-12 px-2">
@@ -1012,9 +1008,6 @@ const Landing: React.FC = () => {
               alt={`${contentSettings.company_name} - Sistema PDV para Ferro Velho`}
               className="h-6 sm:h-8 lg:h-12 w-auto mx-auto mb-2 lg:mb-4"
             />*/}
-            
-            
-            
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-2 lg:gap-8 text-center">
@@ -1073,11 +1066,11 @@ const Landing: React.FC = () => {
             
             <div className="text-center">
               <p className="text-gray-400 text-sm lg:text-lg font-semibold mt-4">
-              © {new Date().getFullYear()} XLata.site. Todos os direitos reservados.
-            </p>
+                © {new Date().getFullYear()} XLata.site. Todos os direitos reservados.
+              </p>
               <p className="text-gray-500 text-xs lg:text-base mt-1 lg:mt-2">
-              Sistema XLata para Ferros Velhos e Depósitos de Reciclagem - Tecnologia que Gera Lucro
-            </p>
+                Sistema XLata para Depósitos de Reciclagem e Ferros Velhos – Tecnologia que Gera Lucro
+              </p>
             </div>
           </div>
         </div>
