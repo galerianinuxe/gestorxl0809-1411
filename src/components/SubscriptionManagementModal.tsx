@@ -67,7 +67,8 @@ const SubscriptionManagementModal: React.FC<SubscriptionManagementModalProps> = 
           : plan.period,
         amount: plan.is_promotional && plan.promotional_price 
           ? plan.promotional_price 
-          : plan.price
+          : plan.price,
+        plan_type: plan.plan_type || plan.plan_id
       })) || [];
 
       setPlans(formattedPlans);
@@ -159,7 +160,8 @@ const SubscriptionManagementModal: React.FC<SubscriptionManagementModalProps> = 
       id: plan.id,
       name: plan.name,
       price: plan.price,
-      amount: plan.amount
+      amount: plan.amount,
+      plan_type: plan.plan_type || plan.id
     };
 
     setSelectedPlan(planData);

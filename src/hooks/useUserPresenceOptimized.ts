@@ -281,17 +281,21 @@ export const useUserPresenceOptimized = () => {
       document.addEventListener(event, throttledTrackActivity, { passive: true });
     });
 
-    // Cleanup ao sair da página
-    const handleBeforeUnload = () => {
-      // Execução síncrona para garantir que execute antes da página fechar
-      navigator.sendBeacon(
-        `https://oxawvjcckmbevjztyfgp.supabase.co/rest/v1/user_presence`,
-        JSON.stringify({
-          user_id: sessionIdRef.current?.split('-')[0],
-          is_online: false,
-          last_seen_at: new Date().toISOString()
-        })
-      );
+    // Cleanup ao sair da página - usa o cliente Supabase para evitar expor API key
+    const handleBeforeUnload = async () => {
+      try {
+        const userId = sessionIdRef.current?.split('-')[0];
+        if (userId) {
+          // Usar o cliente Supabase ao invés de sendBeacon com URL exposta
+          await supabase
+            .from('user_presence')
+            .update({ is_online: false, last_seen_at: new Date().toISOString() })
+            .eq('user_id', userId);
+        }
+      } catch (error) {
+        // Silenciar erros no beforeunload
+        logger.error('Erro ao atualizar presença:', error);
+      }
     };
 
     const handleVisibilityChange = () => {

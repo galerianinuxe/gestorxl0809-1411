@@ -43,7 +43,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         id: plan.plan_id,
         name: plan.name,
         price: `R$ ${plan.price.toFixed(2).replace('.', ',')}`,
-        amount: plan.price
+        amount: plan.price,
+        plan_type: plan.plan_type || plan.plan_id
       }));
 
       setPlans(formattedPlans);

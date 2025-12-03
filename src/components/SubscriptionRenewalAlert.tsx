@@ -51,7 +51,8 @@ const SubscriptionRenewalAlert: React.FC = () => {
         amount: plan.is_promotional && plan.promotional_price 
           ? plan.promotional_price 
           : plan.price,
-        icon: plan.is_popular ? Crown : plan.is_promotional ? AlertTriangle : Calendar
+        icon: plan.is_popular ? Crown : plan.is_promotional ? AlertTriangle : Calendar,
+        plan_type: plan.plan_type || plan.plan_id
       })) || [];
 
       setPlans(formattedPlans);
@@ -111,7 +112,8 @@ const SubscriptionRenewalAlert: React.FC = () => {
       id: plan.id,
       name: plan.name,
       price: plan.price,
-      amount: plan.amount
+      amount: plan.amount,
+      plan_type: plan.plan_type || plan.id
     };
 
     setSelectedPlan(planData);

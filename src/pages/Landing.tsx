@@ -165,7 +165,8 @@ const Landing: React.FC = () => {
           : plan.savings,
         amount: plan.is_promotional && plan.promotional_price 
           ? plan.promotional_price 
-          : plan.amount
+          : plan.amount,
+        plan_type: plan.plan_type || plan.plan_id
       })) || [];
 
       setPlans(formattedPlans);
@@ -369,7 +370,8 @@ const Landing: React.FC = () => {
       id: plan.id,
       name: plan.name,
       price: plan.price,
-      amount: plan.amount
+      amount: plan.amount,
+      plan_type: plan.plan_type || plan.id
     };
 
     setSelectedPlan(planData);

@@ -1635,6 +1635,7 @@ export type Database = {
           name: string
           period: string
           plan_id: string
+          plan_type: string
           price: number
           promotional_description: string | null
           promotional_period: string | null
@@ -1654,6 +1655,7 @@ export type Database = {
           name: string
           period: string
           plan_id: string
+          plan_type?: string
           price: number
           promotional_description?: string | null
           promotional_period?: string | null
@@ -1673,6 +1675,7 @@ export type Database = {
           name?: string
           period?: string
           plan_id?: string
+          plan_type?: string
           price?: number
           promotional_description?: string | null
           promotional_period?: string | null
