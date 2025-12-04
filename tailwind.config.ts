@@ -20,7 +20,7 @@ export default {
 		},
 		extend: {
 			spacing: {
-				'0.25': '0.0625rem',
+				'0.25': '0.0625rem', // 1px in rem (assuming 16px base)
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -57,10 +57,11 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				pdv: {
-					DEFAULT: 'hsl(var(--pdv-dark))',
-					dark: 'hsl(var(--pdv-dark))',
-					green: 'hsl(var(--pdv-green))',
-					red: 'hsl(var(--pdv-red))',
+					DEFAULT: '#1A1F2C',
+					dark: '#141824',
+					green: '#10B981',
+					red: '#E11D48',
+					yellow: '#D97706',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -71,12 +72,6 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				},
-				dashboard: {
-					bg: 'hsl(var(--dashboard-bg))',
-					card: 'hsl(var(--dashboard-card))',
-					'card-hover': 'hsl(var(--dashboard-card-hover))',
-					border: 'hsl(var(--dashboard-border))',
 				}
 			},
 			borderRadius: {

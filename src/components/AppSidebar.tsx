@@ -1,6 +1,8 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
+  Home, 
+  User, 
   Settings, 
   BarChart3, 
   Archive, 
@@ -16,6 +18,7 @@ import {
   Wallet,
   ClipboardList,
   Users,
+  PhoneCall,
   AlertCircle,
   Crown,
   Zap
@@ -57,9 +60,11 @@ export function AppSidebar({
       const activeCashRegister = await getActiveCashRegister();
       
       if (activeCashRegister && activeCashRegister.status === 'open') {
+        // Se o caixa está aberto, navegar para o PDV
         console.log('✅ Caixa aberto, redirecionando para PDV');
         navigate('/');
       } else {
+        // Se o caixa está fechado, chamar a função de abertura
         console.log('❌ Caixa fechado, abrindo modal de abertura');
         if (onOpenCashRegister) {
           onOpenCashRegister();
@@ -67,6 +72,7 @@ export function AppSidebar({
       }
     } catch (error) {
       console.error('Erro ao verificar status do caixa:', error);
+      // Em caso de erro, tentar abrir o modal de abertura
       if (onOpenCashRegister) {
         onOpenCashRegister();
       }
@@ -78,35 +84,35 @@ export function AppSidebar({
       title: "Abrir Caixa", 
       icon: Plus, 
       action: handleCashRegisterAction,
-      color: "bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400",
+      color: "bg-green-600 hover:bg-green-700 text-white",
       show: true
     },
     { 
       title: "Dashboard", 
       icon: BarChart3, 
       href: "/dashboard",
-      color: "bg-blue-500/15 hover:bg-blue-500/25 text-blue-400",
+      color: "bg-blue-600 hover:bg-blue-700 text-white",
       show: true
     },
     { 
       title: "Estoque", 
       icon: Archive, 
       href: "/current-stock",
-      color: "bg-orange-500/15 hover:bg-orange-500/25 text-orange-400",
+      color: "bg-orange-600 hover:bg-orange-700 text-white",
       show: true
     },
     { 
       title: "Materiais", 
       icon: ClipboardList, 
       href: "/materiais",
-      color: "bg-purple-500/15 hover:bg-purple-500/25 text-purple-400",
+      color: "bg-purple-600 hover:bg-purple-700 text-white",
       show: true
     },
     { 
       title: "Configurações", 
       icon: Settings, 
       href: "/configuracoes",
-      color: "bg-slate-500/15 hover:bg-slate-500/25 text-slate-400",
+      color: "bg-gray-600 hover:bg-gray-700 text-white",
       show: true
     },
   ];
@@ -142,8 +148,8 @@ export function AppSidebar({
 
   const renderMenuItem = (item: any, isQuickAccess = false) => {
     const baseClass = isQuickAccess 
-      ? `${item.color} mb-1.5 rounded-lg p-3 w-full text-left transition-all duration-200`
-      : "text-slate-400 hover:text-slate-100 hover:bg-[hsl(220,16%,22%)] p-3 w-full text-left rounded-lg transition-colors";
+      ? `${item.color} mb-2 rounded-lg p-3 w-full text-left transition-all duration-200 hover:scale-105`
+      : "text-gray-300 hover:text-white hover:bg-gray-800 p-3 w-full text-left rounded-lg transition-colors";
 
     if (item.href) {
       return (
@@ -151,7 +157,7 @@ export function AppSidebar({
           key={item.title}
           to={item.href}
           className={({ isActive }) => 
-            `${baseClass} block no-underline ${isActive && !isQuickAccess ? 'bg-[hsl(220,16%,22%)] text-slate-100' : ''}`
+            `${baseClass} block no-underline ${isActive && !isQuickAccess ? 'bg-gray-800 text-white' : ''}`
           }
         >
           <div className="flex items-center gap-3">
@@ -177,24 +183,24 @@ export function AppSidebar({
   };
 
   return (
-    <Sidebar className={`${collapsed ? 'w-16' : 'w-64'} bg-[hsl(220,16%,16%)] border-r border-[hsl(220,13%,22%)]`}>
-      <SidebarContent className="bg-[hsl(220,16%,16%)]">
+    <Sidebar className={`${collapsed ? 'w-16' : 'w-64'} bg-gray-900 border-r border-gray-700`}>
+      <SidebarContent className="bg-gray-900">
         {/* Logo */}
-        <div className="p-4 border-b border-[hsl(220,13%,22%)]">
+        <div className="p-4 border-b border-gray-700">
           <div className="flex items-center gap-2">
             <SystemLogo size="sm" />
             {!collapsed && (
-              <span className="text-slate-100 font-semibold text-lg">Sistema PDV</span>
+              <span className="text-white font-bold text-lg">Sistema PDV</span>
             )}
           </div>
         </div>
 
         {/* Acesso Rápido */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider px-4 py-2">
+          <SidebarGroupLabel className="text-gray-400">
             {!collapsed && "Acesso Rápido"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
+          <SidebarGroupContent>
             <SidebarMenu>
               {quickAccessItems.filter(item => item.show).map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -207,10 +213,10 @@ export function AppSidebar({
 
         {/* Navegação Principal */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider px-4 py-2">
+          <SidebarGroupLabel className="text-gray-400">
             {!collapsed && "Navegação"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
+          <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -223,10 +229,10 @@ export function AppSidebar({
 
         {/* Sistema */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider px-4 py-2">
+          <SidebarGroupLabel className="text-gray-400">
             {!collapsed && "Sistema"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
+          <SidebarGroupContent>
             <SidebarMenu>
               {systemItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -240,10 +246,10 @@ export function AppSidebar({
         {/* Admin */}
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider px-4 py-2">
+            <SidebarGroupLabel className="text-gray-400">
               {!collapsed && "Administração"}
             </SidebarGroupLabel>
-            <SidebarGroupContent className="px-2">
+            <SidebarGroupContent>
               <SidebarMenu>
                 {adminItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
@@ -258,16 +264,16 @@ export function AppSidebar({
         {/* Subscription Status */}
         {subscription && !collapsed && (
           <SidebarGroup>
-            <SidebarGroupContent className="px-2">
-              <div className="p-3 bg-[hsl(220,16%,20%)] rounded-xl mx-2 mb-3 border border-[hsl(220,13%,26%)]">
+            <SidebarGroupContent>
+              <div className="p-3 bg-gray-800 rounded-lg mx-3 mb-3">
                 <div className="flex items-center justify-between mb-2">
-                  <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs">
+                  <Badge variant="outline" className="text-green-400 border-green-400">
                     {subscription.plan_type === 'trial' ? 'Teste' : 'Ativo'}
                   </Badge>
-                  <Zap className="h-4 w-4 text-emerald-400" />
+                  <Zap className="h-4 w-4 text-green-400" />
                 </div>
-                <p className="text-xs text-slate-400">
-                  Expira: {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
+                <p className="text-xs text-gray-400">
+                  Expira em: {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
                 </p>
               </div>
             </SidebarGroupContent>
@@ -275,11 +281,11 @@ export function AppSidebar({
         )}
 
         {/* Logout */}
-        <div className="mt-auto p-3 border-t border-[hsl(220,13%,22%)]">
+        <div className="mt-auto p-3 border-t border-gray-700">
           <Button
             variant="ghost"
             onClick={handleSignOut}
-            className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10 justify-start rounded-lg"
+            className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10 justify-start"
           >
             <LogOut className="h-5 w-5 mr-3" />
             {!collapsed && "Sair"}
