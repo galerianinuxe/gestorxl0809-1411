@@ -162,15 +162,15 @@ async function activateSubscription(supabase: any, data: any, payment_id: string
 
   console.log(`Extracted plan_id: ${planId}`)
 
-  // Get plan details using plan_id column
+  // Get plan details using plan_type column (external_reference uses plan_type like 'monthly')
   const { data: planData, error: planError } = await supabase
     .from('subscription_plans')
     .select('period, plan_type, plan_id')
-    .eq('plan_id', planId)
+    .eq('plan_type', planId)
     .single()
 
   if (planError || !planData) {
-    console.error('Plan not found with plan_id:', planId, planError)
+    console.error('Plan not found with plan_type:', planId, planError)
     return
   }
 
