@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from './AppSidebar';
 import { MainContent } from './MainContent';
-import { Button } from "@/components/ui/button";
-import { Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { hasUserUsedTrial } from '@/utils/subscriptionStorage';
 import { createLogger } from '@/utils/logger';
 
 const logger = createLogger('[HomeLayout]');
@@ -28,7 +25,6 @@ export function HomeLayout({ onOpenCashRegister }: HomeLayoutProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Check if user is admin
   const isAdmin = profile?.status === 'admin';
 
   useEffect(() => {
@@ -57,7 +53,6 @@ export function HomeLayout({ onOpenCashRegister }: HomeLayoutProps) {
     
     logger.debug('Fetching subscription for user:', user.email);
     
-    // Buscar assinatura do Supabase primeiro
     const { data: supabaseSubscription, error } = await supabase
       .from('user_subscriptions')
       .select('*')
@@ -73,7 +68,6 @@ export function HomeLayout({ onOpenCashRegister }: HomeLayoutProps) {
       return;
     }
 
-    // Verificar localStorage
     const adminActivatedSubscription = localStorage.getItem(`subscription_${user.id}`);
     if (adminActivatedSubscription) {
       try {
@@ -204,30 +198,26 @@ export function HomeLayout({ onOpenCashRegister }: HomeLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-900">
-        {/* Sidebar */}
+      <div className="min-h-screen flex w-full bg-[hsl(220,16%,13%)]">
         <AppSidebar
           isAdmin={isAdmin}
           subscription={subscription}
           onOpenCashRegister={onOpenCashRegister}
         />
 
-        {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
-          {/* Header with mobile menu trigger */}
-          <header className="bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between lg:hidden">
+          <header className="bg-[hsl(220,16%,16%)] border-b border-[hsl(220,13%,22%)] p-4 flex items-center justify-between lg:hidden">
             <div className="flex items-center gap-2">
-              <SidebarTrigger className="text-white hover:bg-gray-700" />
-              <h1 className="text-white font-bold text-lg">Sistema PDV</h1>
+              <SidebarTrigger className="text-slate-100 hover:bg-[hsl(220,16%,22%)]" />
+              <h1 className="text-slate-100 font-semibold text-lg">Sistema PDV</h1>
             </div>
             {profile?.name && (
-              <span className="text-gray-300 text-sm">
+              <span className="text-slate-400 text-sm">
                 Olá, {profile.name}!
               </span>
             )}
           </header>
 
-          {/* Main Content */}
           <MainContent
             profile={profile}
             subscription={subscription}

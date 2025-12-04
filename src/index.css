@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,88 +6,92 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 220 13% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 13% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 13% 18%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 13% 18%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 220 16% 22%;
+    --sidebar-foreground: 220 14% 96%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 28%;
+    --sidebar-accent-foreground: 220 14% 96%;
+    --sidebar-border: 220 13% 30%;
+    --sidebar-ring: 217 91% 60%;
     
-    --pdv-dark: #171717;
-    --pdv-green: #00B517;
-    --pdv-red: #E53935;
+    --pdv-dark: 220 16% 16%;
+    --pdv-green: 160 84% 39%;
+    --pdv-red: 0 84% 60%;
+
+    /* Dashboard specific */
+    --dashboard-bg: 220 16% 13%;
+    --dashboard-card: 220 16% 18%;
+    --dashboard-card-hover: 220 16% 22%;
+    --dashboard-border: 220 13% 26%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 16% 13%;
+    --foreground: 220 14% 96%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 16% 18%;
+    --card-foreground: 220 14% 96%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 16% 18%;
+    --popover-foreground: 220 14% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 16% 22%;
+    --secondary-foreground: 220 14% 96%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 16% 22%;
+    --muted-foreground: 220 9% 64%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 220 16% 22%;
+    --accent-foreground: 220 14% 96%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 220 13% 26%;
+    --input: 220 16% 22%;
+    --ring: 217 91% 60%;
     
-    --pdv-dark: #171717;
-    --pdv-green: #00B517;
+    --sidebar-background: 220 16% 16%;
+    --sidebar-foreground: 220 14% 96%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 16% 22%;
+    --sidebar-accent-foreground: 220 14% 96%;
+    --sidebar-border: 220 13% 22%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -97,10 +101,12 @@
   }
 
   body {
-    @apply bg-pdv text-foreground;
+    @apply bg-background text-foreground;
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   #root {
@@ -110,97 +116,169 @@
   }
 }
 
+/* Dashboard Layout */
+.dashboard-container {
+  @apply bg-[hsl(var(--dashboard-bg))] min-h-screen;
+}
+
+.dashboard-card {
+  @apply bg-[hsl(var(--dashboard-card))] border border-[hsl(var(--dashboard-border))] rounded-xl;
+  transition: all 0.2s ease;
+}
+
+.dashboard-card:hover {
+  @apply bg-[hsl(var(--dashboard-card-hover))] border-[hsl(var(--dashboard-border))];
+}
+
+.dashboard-card-static {
+  @apply bg-[hsl(var(--dashboard-card))] border border-[hsl(var(--dashboard-border))] rounded-xl;
+}
+
+/* Quick Access Cards */
+.quick-access-card {
+  @apply bg-[hsl(var(--dashboard-card))] border border-[hsl(var(--dashboard-border))] rounded-xl p-5;
+  transition: all 0.2s ease;
+}
+
+.quick-access-card:hover {
+  @apply border-primary/30;
+  transform: translateY(-2px);
+}
+
+/* Icon containers */
+.icon-container {
+  @apply w-11 h-11 rounded-lg flex items-center justify-center;
+}
+
+.icon-container-green {
+  @apply bg-emerald-500/15 text-emerald-400;
+}
+
+.icon-container-blue {
+  @apply bg-blue-500/15 text-blue-400;
+}
+
+.icon-container-orange {
+  @apply bg-orange-500/15 text-orange-400;
+}
+
+.icon-container-gray {
+  @apply bg-slate-500/15 text-slate-400;
+}
+
+.icon-container-purple {
+  @apply bg-purple-500/15 text-purple-400;
+}
+
+.icon-container-red {
+  @apply bg-red-500/15 text-red-400;
+}
+
+/* Action buttons */
+.action-btn {
+  @apply w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200;
+}
+
+.action-btn-green {
+  @apply bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25;
+}
+
+.action-btn-blue {
+  @apply bg-blue-500/15 text-blue-400 hover:bg-blue-500/25;
+}
+
+.action-btn-orange {
+  @apply bg-orange-500/15 text-orange-400 hover:bg-orange-500/25;
+}
+
+.action-btn-gray {
+  @apply bg-slate-500/15 text-slate-300 hover:bg-slate-500/25;
+}
+
+.action-btn-purple {
+  @apply bg-purple-500/15 text-purple-400 hover:bg-purple-500/25;
+}
+
+.action-btn-red {
+  @apply bg-red-500/15 text-red-400 hover:bg-red-500/25;
+}
+
+/* Numpad buttons */
 .numpad-btn {
-  @apply flex items-center justify-center h-full bg-pdv-dark hover:bg-opacity-70 text-white text-3xl font-bold m-[1px] transition-all border border-white;
-  /* Enhanced hover and click effects */
+  @apply flex items-center justify-center h-full bg-[hsl(var(--dashboard-card))] hover:bg-[hsl(var(--dashboard-card-hover))] text-foreground text-3xl font-bold m-[1px] transition-all border border-[hsl(var(--dashboard-border))];
   cursor: pointer;
   user-select: none;
 }
 
 .numpad-btn:hover {
-  @apply bg-gray-600 shadow-lg;
+  @apply shadow-lg;
   transform: translateY(-1px);
 }
 
 .numpad-btn:active {
-  @apply bg-gray-500;
   transform: scale(0.95) translateY(0);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .calc-btn {
-  @apply flex items-center justify-center h-full bg-gray-800 hover:bg-gray-700 text-white text-3xl font-bold transition-all;
+  @apply flex items-center justify-center h-full bg-secondary hover:bg-secondary/80 text-foreground text-3xl font-bold transition-all;
 }
 
 .clear-btn {
-  @apply bg-pdv-dark hover:bg-opacity-70 text-[#fc0000] border border-[#fc0000];
+  @apply bg-[hsl(var(--dashboard-card))] hover:bg-destructive/20 text-destructive border border-destructive/30;
 }
 
 .zero-scale-btn {
-  @apply bg-pdv-dark hover:bg-opacity-70 text-[#fcce03] border border-[#fcce03];
+  @apply bg-[hsl(var(--dashboard-card))] hover:bg-amber-500/20 text-amber-400 border border-amber-500/30;
 }
 
 .zero-scale-btn:hover {
-  @apply bg-yellow-600 shadow-lg;
+  @apply shadow-lg;
   transform: translateY(-1px);
 }
 
 .zero-scale-btn:active {
-  @apply bg-yellow-500;
   transform: scale(0.95) translateY(0);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .material-btn {
-  @apply flex flex-col items-center justify-center bg-pdv-green hover:bg-opacity-70 text-white p-2 rounded-none transition-all;
+  @apply flex flex-col items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg transition-all;
 }
 
-/* Botões de material quando modo venda está ativado */
 .material-btn-sale-mode {
-  @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
-  background-color: #dbac1d !important;
-}
-
-.material-btn-sale-mode:hover {
-  background-color: #c49a1a !important;
+  @apply flex flex-col items-center justify-center text-white p-2 rounded-lg transition-all bg-amber-500 hover:bg-amber-600;
 }
 
 .insert-manually-btn {
-  @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
-  background-color: #40F597 !important;
-}
-
-.insert-manually-btn:hover {
-  background-color: #2DD881 !important;
+  @apply flex flex-col items-center justify-center text-white p-2 rounded-lg transition-all bg-emerald-400 hover:bg-emerald-500;
 }
 
 .text-zerar-scale {
   @apply text-[calc(1em*1.2)];
 }
 
-/* Custom styling for alert modals */
+/* Alert modals */
 .alert-modal {
-  @apply bg-pdv-dark text-white border-gray-700;
+  @apply bg-[hsl(var(--dashboard-card))] text-foreground border-[hsl(var(--dashboard-border))];
 }
 
 .alert-modal-title {
-  @apply text-2xl font-bold text-center text-red-500;
+  @apply text-2xl font-bold text-center text-destructive;
 }
 
 .alert-modal-description {
-  @apply text-lg text-center text-white;
+  @apply text-lg text-center text-foreground;
 }
 
 .alert-modal-button {
-  @apply w-full bg-pdv-green hover:bg-pdv-green/90 text-white text-lg py-3;
+  @apply w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg py-3 rounded-lg;
 }
 
-/* Remover hover na tabela de itens */
 .no-hover {
   @apply hover:bg-transparent !important;
 }
 
-/* Estilos para o Modal Material */
 .modal-material-title {
   @apply text-center;
 }
@@ -209,36 +287,31 @@
   @apply text-[calc(1em*1.2)];
 }
 
-/* Corrigir posicionamento dos botões nos modais */
 .dialog-footer-buttons {
   @apply flex justify-end space-x-2 !important;
 }
 
-/* Certifique-se de que os modais são exibidos corretamente */
 .modal-overlay {
   @apply z-50;
 }
 
-/* Estilos para os botões nos modais */
 .modal-button {
   @apply px-6 py-3;
 }
 
-/* Estilo específico para o botão Voltar */
 .back-button {
-  @apply text-black !important;
+  @apply text-foreground !important;
 }
 
-/* Estilo específico para o botão Sair */
 .exit-button {
-  @apply bg-transparent border-2 border-transparent text-white transition-all duration-200;
+  @apply bg-transparent border-2 border-transparent text-foreground transition-all duration-200;
 }
 
 .exit-button:hover {
-  @apply border-white;
+  @apply border-border;
 }
 
-/* Efeitos hover para cards de alerta */
+/* Alert cards */
 .alert-card {
   @apply transition-all duration-300 cursor-pointer;
 }
@@ -249,65 +322,57 @@
 }
 
 .alert-card-critical:hover {
-  @apply shadow-red-500/20;
   box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
 }
 
 .alert-card-high:hover {
-  @apply shadow-orange-500/20;
   box-shadow: 0 20px 40px rgba(249, 115, 22, 0.3);
 }
 
 .alert-card-emergency:hover {
-  @apply shadow-red-600/30;
   box-shadow: 0 20px 40px rgba(220, 38, 38, 0.4);
 }
 
-/* Dropdown selection background color - Updated for green theme */
+/* Select components */
 [data-radix-select-content] [data-highlighted],
 [data-radix-select-item][data-highlighted],
 .select-content [data-highlighted],
 [role="option"][data-highlighted] {
-  background-color: #16a34a !important;
-  color: white !important;
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
 }
 
-/* For shadcn select components - Updated for green theme */
 [data-radix-select-item] {
   cursor: pointer;
 }
 
 [data-radix-select-item]:hover,
 [data-radix-select-item][data-highlighted] {
-  background-color: #16a34a !important;
-  color: white !important;
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
 }
 
-/* General dropdown hover styles - Updated for green theme */
 .dropdown-item:hover,
 .select-item:hover {
-  background-color: #16a34a !important;
-  color: white !important;
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
 }
 
-/* Period dropdown specific styling */
 [data-radix-select-content] [data-radix-select-item]:hover,
 [data-radix-select-content] [data-radix-select-item][data-state="checked"] {
-  background-color: #16a34a !important;
-  color: white !important;
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
 }
 
-/* Remover border amarelo dos botões */
 .no-yellow-border {
   @apply border-transparent !important;
 }
 
-/* Botão Assinar Pro */
 .pro-button {
   @apply bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg;
 }
 
-/* Responsive adjustments for mobile devices */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .material-btn,
   .material-btn-sale-mode {
@@ -325,12 +390,10 @@
     @apply leading-tight;
   }
   
-  /* Adjust order list for mobile */
   .order-list-mobile {
     @apply text-sm;
   }
   
-  /* Compact order details for mobile */
   .order-details-mobile {
     @apply text-sm;
   }
@@ -340,7 +403,6 @@
   }
 }
 
-/* Tablet specific adjustments */
 @media (min-width: 768px) and (max-width: 1024px) {
   .material-btn,
   .material-btn-sale-mode {
@@ -353,7 +415,6 @@
   }
 }
 
-/* Desktop keeps original styles */
 @media (min-width: 1024px) {
   .material-btn,
   .material-btn-sale-mode {
@@ -361,7 +422,6 @@
   }
 }
 
-/* Responsive table styles for mobile and tablet */
 @media (max-width: 1023px) {
   .table-responsive {
     @apply text-xs;
@@ -375,19 +435,16 @@
     @apply p-2 text-xs;
   }
   
-  /* Hide less important columns on mobile */
   .table-hide-mobile {
     @apply hidden md:table-cell;
   }
   
-  /* Compact table cells for small screens */
   .table-compact td,
   .table-compact th {
     @apply px-2 py-1;
   }
 }
 
-/* Card responsive adjustments */
 @media (max-width: 768px) {
   .card-mobile {
     @apply p-3;
