@@ -133,11 +133,20 @@ serve(async (req) => {
         payer: sanitizeForLog({ email: paymentData.payer.email })
       })
       
-      // Extract plan info from external_reference (format: plan_<id>_<timestamp>)
+      // Extract plan info from external_reference
+      // Format can be: user_<userId>_plan_<planType> OR plan_<id>_<timestamp>
       const externalRef = paymentData.external_reference
-      if (externalRef?.startsWith('plan_')) {
-        const planId = externalRef.split('_')[1]
-        console.log(`📦 Processing plan activation:`, { plan_id: planId })
+      let planType = 'monthly'
+      let periodDays = 30
+      
+      // Check for new format: user_xxx_plan_monthly
+      const planTypeMatch = externalRef?.match(/_plan_(.+)$/)
+      // Check for old format: plan_xxx_timestamp
+      const oldFormatMatch = externalRef?.match(/^plan_([^_]+)_/)
+      
+      if (planTypeMatch || oldFormatMatch) {
+        const extractedPlanId = planTypeMatch ? planTypeMatch[1] : oldFormatMatch?.[1]
+        console.log(`📦 Processing plan activation:`, { external_ref: externalRef, extracted_plan: extractedPlanId })
         
         // Get payment record to find user email
         const { data: paymentRecord, error: paymentError } = await supabase
@@ -171,32 +180,50 @@ serve(async (req) => {
           
           console.log(`✅ User found:`, { user_id: user.id })
           
-          // Fetch plan data from subscription_plans
-          const { data: planData, error: planError } = await supabase
+          // Fetch plan data from subscription_plans - try by plan_type first, then by plan_id
+          let planData = null
+          
+          // Try by plan_type (monthly, quarterly, annual)
+          const { data: planByType, error: planByTypeError } = await supabase
             .from('subscription_plans')
-            .select('period, plan_id')
-            .eq('plan_id', planId)
+            .select('period, plan_id, plan_type')
+            .eq('plan_type', extractedPlanId)
             .single()
           
-          // Determine subscription period based on plan
-          let periodDays = 30 // default monthly
-          let planType = 'monthly'
-          
-          if (planData && !planError) {
-            // Extract days from period field ('/30 dias', '/3 meses', '/1 ano')
-            if (planData.period.includes('30 dias')) {
-              periodDays = 30
-              planType = 'monthly'
-            } else if (planData.period.includes('3 meses')) {
-              periodDays = 90
-              planType = 'quarterly'
-            } else if (planData.period.includes('1 ano')) {
-              periodDays = 365
-              planType = 'annual'
-            }
-            console.log(`📅 Plan details:`, { plan_id: planId, period: planData.period, period_days: periodDays, plan_type: planType })
+          if (planByType && !planByTypeError) {
+            planData = planByType
           } else {
-            console.warn(`⚠️ Plan not found in database, using defaults:`, { plan_id: planId, period_days: periodDays })
+            // Fallback: try by plan_id (mensal, trimestral, anual)
+            const { data: planById, error: planByIdError } = await supabase
+              .from('subscription_plans')
+              .select('period, plan_id, plan_type')
+              .eq('plan_id', extractedPlanId)
+              .single()
+            
+            if (planById && !planByIdError) {
+              planData = planById
+            }
+          }
+          
+          if (planData) {
+            planType = planData.plan_type || 'monthly'
+            // Extract days from period field ('/30 dias', '/3 meses', '/1 ano')
+            if (planData.period?.includes('7 dias')) {
+              periodDays = 7
+            } else if (planData.period?.includes('30 dias')) {
+              periodDays = 30
+            } else if (planData.period?.includes('3 meses')) {
+              periodDays = 90
+            } else if (planData.period?.includes('6 meses')) {
+              periodDays = 180
+            } else if (planData.period?.includes('1 ano')) {
+              periodDays = 365
+            } else if (planData.period?.includes('3 anos') || planData.period?.includes('5 anos')) {
+              periodDays = 1095
+            }
+            console.log(`📅 Plan details:`, { plan_id: planData.plan_id, plan_type: planType, period: planData.period, period_days: periodDays })
+          } else {
+            console.warn(`⚠️ Plan not found in database, using defaults:`, { extracted_plan: extractedPlanId, period_days: periodDays })
           }
           
           // Check for existing active subscription
