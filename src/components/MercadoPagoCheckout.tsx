@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CreditCard, ArrowLeft } from 'lucide-react';
+import { Loader2, CreditCard, ArrowLeft, Shield, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +12,8 @@ import { useMercadoPago } from '@/hooks/useMercadoPago';
 import QRCodeDisplay from './QRCodeDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import CheckoutProgressBar, { CheckoutStep } from './checkout/CheckoutProgressBar';
 
 const formSchema = z.object({
   name: z.string()
@@ -41,7 +42,7 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
   onClose,
   selectedPlan
 }) => {
-  const [step, setStep] = useState<'form' | 'qrcode'>('form');
+  const [step, setStep] = useState<CheckoutStep>('form');
   const { toast } = useToast();
   const { user } = useAuth();
   const { loading, paymentData, createPixPayment, reset } = useMercadoPago();
@@ -49,10 +50,46 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    setValue,
+    watch
   } = useForm<PaymentFormData>({
     resolver: zodResolver(formSchema)
   });
+
+  // Auto-fill user data from profile
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name, phone, whatsapp, email')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          if (profile.name) setValue('name', profile.name);
+          const phoneNumber = profile.whatsapp || profile.phone;
+          if (phoneNumber) {
+            // Remove non-numeric characters
+            const cleanPhone = phoneNumber.replace(/\D/g, '');
+            setValue('phone', cleanPhone);
+          }
+          if (profile.email || user.email) {
+            setValue('email', profile.email || user.email || '');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar perfil:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadUserProfile();
+    }
+  }, [user, isOpen, setValue]);
 
   const onSubmit = async (data: PaymentFormData) => {
     if (!user) {
@@ -87,155 +124,192 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
     reset();
   };
 
+  const handlePaymentStatusChange = (status: string) => {
+    if (status === 'approved') {
+      setStep('approved');
+    } else if (status === 'rejected' || status === 'cancelled') {
+      setStep('rejected');
+    } else if (status === 'pending') {
+      setStep('qrcode');
+    }
+  };
+
+  const watchName = watch('name');
+  const watchPhone = watch('phone');
+  const watchEmail = watch('email');
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-[85vw] max-w-sm sm:max-w-md p-6 mx-auto bg-background border-border rounded-xl">
-        <DialogHeader className="pb-4">
-          <DialogTitle className="flex items-center gap-3 text-foreground text-xl font-semibold">
-            {step === 'qrcode' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBack}
-                className="p-2 h-auto hover:bg-muted rounded-lg"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            )}
-            <CreditCard className="h-5 w-5 text-primary" />
-            {step === 'form' ? 'Finalizar Assinatura' : 'Pagamento PIX'}
-          </DialogTitle>
-        </DialogHeader>
-
-        {step === 'form' ? (
-          <div className="space-y-6 px-1">
-            {/* Plan Summary */}
-            <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 rounded-xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg text-foreground font-medium">
-                  {selectedPlan.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground text-sm">Valor:</span>
-                  <span className="text-2xl font-bold text-primary">
-                    {selectedPlan.price}
-                  </span>
+      <DialogContent className="w-[90vw] max-w-lg p-0 mx-auto bg-background border-border rounded-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 border-b border-border">
+          <DialogHeader className="pb-0">
+            <div className="flex items-center gap-3">
+              {step !== 'form' && step !== 'approved' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBack}
+                  className="p-2 h-auto hover:bg-muted rounded-lg"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <CreditCard className="h-5 w-5 text-primary" />
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground font-medium text-sm">
-                  Nome Completo *
-                </Label>
-                <Input
-                  id="name"
-                  {...register('name')}
-                  placeholder="Digite seu nome completo"
-                  className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
-                />
-                {errors.name && (
-                  <p className="text-sm text-destructive flex items-center gap-1 mt-1">
-                    {errors.name.message}
+                <div>
+                  <DialogTitle className="text-foreground text-lg font-semibold">
+                    Checkout Seguro
+                  </DialogTitle>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                    <Lock className="h-3 w-3" />
+                    Pagamento via PIX
                   </p>
-                )}
+                </div>
               </div>
+            </div>
+          </DialogHeader>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-foreground font-medium text-sm">
-                  Telefone (WhatsApp) *
-                </Label>
-                <Input
-                  id="phone"
-                  {...register('phone')}
-                  placeholder="11999999999"
-                  type="tel"
-                  maxLength={11}
-                  className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
-                />
-                {errors.phone && (
-                  <p className="text-sm text-destructive flex items-center gap-1 mt-1">
-                    {errors.phone.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-medium text-sm">
-                  Email *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  placeholder="seu@email.com"
-                  className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive flex items-center gap-1 mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cpf" className="text-foreground font-medium text-sm">
-                  CPF *
-                </Label>
-                <Input
-                  id="cpf"
-                  {...register('cpf')}
-                  placeholder="12345678901"
-                  type="text"
-                  maxLength={11}
-                  className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
-                />
-                {errors.cpf && (
-                  <p className="text-sm text-destructive flex items-center gap-1 mt-1">
-                    {errors.cpf.message}
-                  </p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-base rounded-lg transition-all duration-200 hover:scale-[1.02] disabled:scale-100"
-                size="lg"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Gerando QR Code...
-                  </>
-                ) : (
-                  'Gerar QR Code PIX'
-                )}
-              </Button>
-
-              <p className="text-xs text-muted-foreground text-center mt-3">
-                Seus dados estão protegidos e são usados apenas para processar o pagamento
-              </p>
-            </form>
+          {/* Progress Bar */}
+          <div className="mt-4">
+            <CheckoutProgressBar currentStep={step} />
           </div>
-        ) : (
-          paymentData && (
-            <QRCodeDisplay
-              paymentData={paymentData}
-              onPaymentComplete={() => {
-                toast({
-                  title: "Pagamento aprovado!",
-                  description: "Sua assinatura foi ativada com sucesso."
-                });
-                handleClose();
-              }}
-            />
-          )
-        )}
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {step === 'form' ? (
+            <div className="space-y-5">
+              {/* Plan Summary Card */}
+              <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Plano selecionado</p>
+                    <p className="text-foreground font-semibold text-lg mt-0.5">
+                      {selectedPlan.name}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Valor</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {selectedPlan.price}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <Label htmlFor="name" className="text-foreground text-sm font-medium">
+                      Nome Completo
+                    </Label>
+                    <Input
+                      id="name"
+                      {...register('name')}
+                      placeholder="Seu nome completo"
+                      className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
+                    />
+                    {errors.name && (
+                      <p className="text-xs text-destructive mt-1">{errors.name.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="phone" className="text-foreground text-sm font-medium">
+                      WhatsApp
+                    </Label>
+                    <Input
+                      id="phone"
+                      {...register('phone')}
+                      placeholder="11999999999"
+                      type="tel"
+                      maxLength={11}
+                      className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
+                    />
+                    {errors.phone && (
+                      <p className="text-xs text-destructive mt-1">{errors.phone.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="cpf" className="text-foreground text-sm font-medium">
+                      CPF
+                    </Label>
+                    <Input
+                      id="cpf"
+                      {...register('cpf')}
+                      placeholder="00000000000"
+                      type="text"
+                      maxLength={11}
+                      className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
+                    />
+                    {errors.cpf && (
+                      <p className="text-xs text-destructive mt-1">{errors.cpf.message}</p>
+                    )}
+                  </div>
+
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <Label htmlFor="email" className="text-foreground text-sm font-medium">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      {...register('email')}
+                      placeholder="seu@email.com"
+                      className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
+                    />
+                    {errors.email && (
+                      <p className="text-xs text-destructive mt-1">{errors.email.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50"
+                  size="lg"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Gerando QR Code...
+                    </>
+                  ) : (
+                    'Gerar QR Code PIX'
+                  )}
+                </Button>
+
+                {/* Security Badge */}
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    Seus dados estão protegidos e criptografados
+                  </p>
+                </div>
+              </form>
+            </div>
+          ) : (
+            paymentData && (
+              <QRCodeDisplay
+                paymentData={paymentData}
+                onPaymentStatusChange={handlePaymentStatusChange}
+                onPaymentComplete={() => {
+                  toast({
+                    title: "Pagamento aprovado!",
+                    description: "Sua assinatura foi ativada com sucesso."
+                  });
+                  handleClose();
+                }}
+              />
+            )
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
