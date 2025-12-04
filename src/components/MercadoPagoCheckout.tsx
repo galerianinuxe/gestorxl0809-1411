@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CreditCard, ArrowLeft, Shield, Lock } from 'lucide-react';
+import { Loader2, CreditCard, ArrowLeft, Shield, Lock, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -134,15 +134,19 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
     }
   };
 
-  const watchName = watch('name');
-  const watchPhone = watch('phone');
-  const watchEmail = watch('email');
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-[90vw] max-w-lg p-0 mx-auto bg-background border-border rounded-2xl overflow-hidden">
+      <DialogContent className="w-[92vw] max-w-md p-0 mx-auto bg-card border-border rounded-2xl overflow-hidden gap-0">
+        {/* Close Button */}
+        <button
+          onClick={handleClose}
+          className="absolute right-4 top-4 rounded-full p-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors z-10"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 border-b border-border">
+        <div className="bg-card p-5 border-b border-border">
           <DialogHeader className="pb-0">
             <div className="flex items-center gap-3">
               {step !== 'form' && step !== 'approved' && (
@@ -150,7 +154,7 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={handleBack}
-                  className="p-2 h-auto hover:bg-muted rounded-lg"
+                  className="p-2 h-auto hover:bg-muted rounded-lg text-foreground"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -179,21 +183,21 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-5 bg-card max-h-[70vh] overflow-y-auto">
           {step === 'form' ? (
-            <div className="space-y-5">
+            <div className="space-y-4">
               {/* Plan Summary Card */}
-              <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20">
+              <div className="bg-muted/50 rounded-xl p-4 border border-border">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">Plano selecionado</p>
-                    <p className="text-foreground font-semibold text-lg mt-0.5">
+                    <p className="text-foreground font-semibold text-base mt-0.5">
                       {selectedPlan.name}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">Valor</p>
-                    <p className="text-2xl font-bold text-primary">
+                    <p className="text-xl font-bold text-primary">
                       {selectedPlan.price}
                     </p>
                   </div>
@@ -202,8 +206,8 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
 
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="sm:col-span-2 space-y-1.5">
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
                     <Label htmlFor="name" className="text-foreground text-sm font-medium">
                       Nome Completo
                     </Label>
@@ -218,41 +222,43 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
                     )}
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="phone" className="text-foreground text-sm font-medium">
-                      WhatsApp
-                    </Label>
-                    <Input
-                      id="phone"
-                      {...register('phone')}
-                      placeholder="11999999999"
-                      type="tel"
-                      maxLength={11}
-                      className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
-                    />
-                    {errors.phone && (
-                      <p className="text-xs text-destructive mt-1">{errors.phone.message}</p>
-                    )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone" className="text-foreground text-sm font-medium">
+                        WhatsApp
+                      </Label>
+                      <Input
+                        id="phone"
+                        {...register('phone')}
+                        placeholder="11999999999"
+                        type="tel"
+                        maxLength={11}
+                        className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
+                      />
+                      {errors.phone && (
+                        <p className="text-xs text-destructive mt-1">{errors.phone.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="cpf" className="text-foreground text-sm font-medium">
+                        CPF
+                      </Label>
+                      <Input
+                        id="cpf"
+                        {...register('cpf')}
+                        placeholder="00000000000"
+                        type="text"
+                        maxLength={11}
+                        className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
+                      />
+                      {errors.cpf && (
+                        <p className="text-xs text-destructive mt-1">{errors.cpf.message}</p>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="cpf" className="text-foreground text-sm font-medium">
-                      CPF
-                    </Label>
-                    <Input
-                      id="cpf"
-                      {...register('cpf')}
-                      placeholder="00000000000"
-                      type="text"
-                      maxLength={11}
-                      className="h-11 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary rounded-lg"
-                    />
-                    {errors.cpf && (
-                      <p className="text-xs text-destructive mt-1">{errors.cpf.message}</p>
-                    )}
-                  </div>
-
-                  <div className="sm:col-span-2 space-y-1.5">
                     <Label htmlFor="email" className="text-foreground text-sm font-medium">
                       Email
                     </Label>
@@ -286,7 +292,7 @@ const MercadoPagoCheckout: React.FC<MercadoPagoCheckoutProps> = ({
                 </Button>
 
                 {/* Security Badge */}
-                <div className="flex items-center justify-center gap-2 pt-2">
+                <div className="flex items-center justify-center gap-2 pt-1">
                   <Shield className="h-4 w-4 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
                     Seus dados estão protegidos e criptografados

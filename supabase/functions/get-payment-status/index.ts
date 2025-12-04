@@ -26,7 +26,7 @@ serve(async (req) => {
     // Get payment status from database
     const { data, error } = await supabase
       .from('mercado_pago_payments')
-      .select('payment_id, status, status_detail, payer_email, external_reference')
+      .select('payment_id, status, status_detail, payer_email, external_reference, transaction_amount')
       .eq('payment_id', payment_id)
       .single()
 
@@ -89,100 +89,7 @@ serve(async (req) => {
 
         // If approved, activate subscription
         if (newStatus === 'approved') {
-          console.log(`Payment ${payment_id} approved! Activating subscription...`)
-
-          // Extract plan ID from external_reference
-          const planId = data.external_reference
-          if (!planId) {
-            console.error('No external_reference (planId) found in payment')
-          } else {
-            // Get plan details
-            const { data: planData, error: planError } = await supabase
-              .from('subscription_plans')
-              .select('period')
-              .eq('id', planId)
-              .single()
-
-            if (planError || !planData) {
-              console.error('Plan not found:', planError)
-            } else {
-              // Determine period days and plan type
-              let periodDays = 30
-              let planType = 'monthly'
-
-              if (planData.period === '30 dias') {
-                periodDays = 30
-                planType = 'monthly'
-              } else if (planData.period === '3 meses') {
-                periodDays = 90
-                planType = 'quarterly'
-              } else if (planData.period === '1 ano') {
-                periodDays = 365
-                planType = 'annual'
-              }
-
-              console.log(`Plan details - Type: ${planType}, Days: ${periodDays}`)
-
-              // Find user by email
-              const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers()
-              
-              if (usersError) {
-                console.error('Error listing users:', usersError)
-              } else {
-                const user = users.find(u => u.email === data.payer_email)
-                
-                if (!user) {
-                  console.error(`User not found with email: ${data.payer_email}`)
-                } else {
-                  console.log(`User found: ${user.id} (${user.email})`)
-
-                  // Check for existing active subscription
-                  const { data: existingSubscription } = await supabase
-                    .from('user_subscriptions')
-                    .select('expires_at, is_active')
-                    .eq('user_id', user.id)
-                    .eq('is_active', true)
-                    .single()
-
-                  let expiresAt: Date
-                  const now = new Date()
-
-                  if (existingSubscription && new Date(existingSubscription.expires_at) > now) {
-                    // Extend existing subscription
-                    expiresAt = new Date(existingSubscription.expires_at)
-                    expiresAt.setDate(expiresAt.getDate() + periodDays)
-                    console.log(`Extending existing subscription to ${expiresAt.toISOString()}`)
-                  } else {
-                    // Create new subscription from today
-                    expiresAt = new Date()
-                    expiresAt.setDate(expiresAt.getDate() + periodDays)
-                    console.log(`Creating new subscription until ${expiresAt.toISOString()}`)
-                  }
-
-                  // Activate/update subscription
-                  const { error: subError } = await supabase
-                    .from('user_subscriptions')
-                    .upsert({
-                      user_id: user.id,
-                      plan_type: planType,
-                      is_active: true,
-                      activated_at: new Date().toISOString(),
-                      expires_at: expiresAt.toISOString(),
-                      payment_reference: payment_id,
-                      payment_method: 'mercadopago_pix'
-                    }, {
-                      onConflict: 'user_id'
-                    })
-
-                  if (subError) {
-                    console.error('Error activating subscription:', subError)
-                  } else {
-                    console.log('✅ Subscription activated successfully!')
-                  }
-                }
-              }
-            }
-          }
+          await activateSubscription(supabase, data, payment_id)
         }
 
         return new Response(
@@ -199,6 +106,12 @@ serve(async (req) => {
       } else {
         console.error(`Mercado Pago API error: ${mpResponse.status}`)
       }
+    }
+
+    // If payment is already approved but subscription might not be activated, try to activate
+    if (data.status === 'approved') {
+      console.log(`Payment ${payment_id} is approved, checking if subscription needs activation...`)
+      await activateSubscription(supabase, data, payment_id)
     }
 
     // Return current status from database
@@ -224,3 +137,151 @@ serve(async (req) => {
     )
   }
 })
+
+async function activateSubscription(supabase: any, data: any, payment_id: string) {
+  console.log(`Payment ${payment_id} approved! Activating subscription...`)
+
+  // Parse external_reference to extract plan_id
+  // Format: user_{userId}_plan_{planId}
+  const externalRef = data.external_reference
+  if (!externalRef) {
+    console.error('No external_reference found in payment')
+    return
+  }
+
+  console.log(`External reference: ${externalRef}`)
+
+  // Extract plan_id from external_reference
+  const planIdMatch = externalRef.match(/_plan_(.+)$/)
+  const planId = planIdMatch ? planIdMatch[1] : null
+
+  if (!planId) {
+    console.error('Could not extract plan_id from external_reference:', externalRef)
+    return
+  }
+
+  console.log(`Extracted plan_id: ${planId}`)
+
+  // Get plan details using plan_id column
+  const { data: planData, error: planError } = await supabase
+    .from('subscription_plans')
+    .select('period, plan_type, plan_id')
+    .eq('plan_id', planId)
+    .single()
+
+  if (planError || !planData) {
+    console.error('Plan not found with plan_id:', planId, planError)
+    return
+  }
+
+  // Determine period days
+  let periodDays = 30
+  const planType = planData.plan_type || 'monthly'
+
+  // Parse period from plan data
+  const period = planData.period || ''
+  if (period.includes('7 dias')) {
+    periodDays = 7
+  } else if (period.includes('30 dias')) {
+    periodDays = 30
+  } else if (period.includes('3 meses')) {
+    periodDays = 90
+  } else if (period.includes('6 meses')) {
+    periodDays = 180
+  } else if (period.includes('1 ano')) {
+    periodDays = 365
+  } else if (period.includes('3 anos') || period.includes('5 anos')) {
+    periodDays = 1095
+  }
+
+  console.log(`Plan details - Type: ${planType}, Days: ${periodDays}, Period: ${period}`)
+
+  // Find user by email
+  const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers()
+  
+  if (usersError) {
+    console.error('Error listing users:', usersError)
+    return
+  }
+
+  const user = users.find((u: any) => u.email === data.payer_email)
+  
+  if (!user) {
+    console.error(`User not found with email: ${data.payer_email}`)
+    return
+  }
+
+  console.log(`User found: ${user.id} (${user.email})`)
+
+  // Check if subscription already exists with this payment
+  const { data: existingPaymentSub } = await supabase
+    .from('user_subscriptions')
+    .select('id, payment_reference')
+    .eq('payment_reference', payment_id)
+    .single()
+
+  if (existingPaymentSub) {
+    console.log(`Subscription already activated for this payment: ${payment_id}`)
+    return
+  }
+
+  // Check for existing active subscription
+  const { data: existingSubscription } = await supabase
+    .from('user_subscriptions')
+    .select('id, expires_at, is_active')
+    .eq('user_id', user.id)
+    .eq('is_active', true)
+    .single()
+
+  let expiresAt: Date
+  const now = new Date()
+
+  if (existingSubscription && new Date(existingSubscription.expires_at) > now) {
+    // Extend existing subscription
+    expiresAt = new Date(existingSubscription.expires_at)
+    expiresAt.setDate(expiresAt.getDate() + periodDays)
+    console.log(`Extending existing subscription to ${expiresAt.toISOString()}`)
+    
+    // Update existing subscription
+    const { error: updateError } = await supabase
+      .from('user_subscriptions')
+      .update({
+        plan_type: planType,
+        is_active: true,
+        expires_at: expiresAt.toISOString(),
+        payment_reference: payment_id,
+        payment_method: 'mercadopago_pix'
+      })
+      .eq('id', existingSubscription.id)
+
+    if (updateError) {
+      console.error('Error updating subscription:', updateError)
+    } else {
+      console.log('✅ Subscription extended successfully!')
+    }
+  } else {
+    // Create new subscription from today
+    expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + periodDays)
+    console.log(`Creating new subscription until ${expiresAt.toISOString()}`)
+
+    // Insert new subscription
+    const { error: insertError } = await supabase
+      .from('user_subscriptions')
+      .insert({
+        user_id: user.id,
+        plan_type: planType,
+        is_active: true,
+        activated_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString(),
+        payment_reference: payment_id,
+        payment_method: 'mercadopago_pix'
+      })
+
+    if (insertError) {
+      console.error('Error inserting subscription:', insertError)
+    } else {
+      console.log('✅ Subscription activated successfully!')
+    }
+  }
+}

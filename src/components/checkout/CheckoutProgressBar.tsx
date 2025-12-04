@@ -50,7 +50,7 @@ export const CheckoutProgressBar: React.FC<CheckoutProgressBarProps> = ({ curren
                   isCompleted && "bg-primary border-primary text-primary-foreground",
                   isCurrent && !isRejected && "bg-primary border-primary text-primary-foreground ring-4 ring-primary/20",
                   isRejected && "bg-destructive border-destructive text-destructive-foreground ring-4 ring-destructive/20",
-                  !isCompleted && !isCurrent && "bg-background border-muted text-muted-foreground"
+                  !isCompleted && !isCurrent && "bg-muted border-border text-muted-foreground"
                 )}
               >
                 {isCompleted ? (
