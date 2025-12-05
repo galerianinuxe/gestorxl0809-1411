@@ -122,11 +122,11 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     });
 
     // Public routes that don't require authentication
-    const publicRoutes = ['/landing', '/login', '/register', '/planos'];
+    const publicRoutes = ['/', '/landing', '/login', '/register', '/planos'];
     const isPublicRoute = publicRoutes.includes(location.pathname);
     
     // Routes that require authentication but NOT subscription
-    const authOnlyRoutes = ['/', '/guia-completo'];
+    const authOnlyRoutes = ['/home', '/guia-completo'];
     const isAuthOnlyRoute = authOnlyRoutes.includes(location.pathname);
     
     // Protected routes that require both authentication AND active subscription
@@ -140,12 +140,12 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       // User not authenticated and trying to access protected content
       // Redirect to landing (silent in production)
       setTimeout(() => {
-        navigate('/landing', { replace: true });
+        navigate('/', { replace: true });
       }, 10);
-    } else if (user && isPublicRoute && location.pathname !== '/planos' && location.pathname !== '/landing') {
+    } else if (user && isPublicRoute && location.pathname !== '/planos' && location.pathname !== '/' && location.pathname !== '/landing') {
       if (!isAdmin) {
         logger.debug('User authenticated, redirecting from public page to home');
-        navigate('/');
+        navigate('/home');
       } else {
         logger.debug('Admin has free access to all pages including landing');
       }
@@ -164,13 +164,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       
       if (!isSubscriptionActive) {
         logger.debug('User without active subscription, redirecting to home');
-        navigate('/');
+        navigate('/home');
         return;
       }
       
       logger.debug('User has active subscription, accessing protected route');
     } else if (user && isAuthOnlyRoute) {
-      if (location.pathname === '/' && !isAdmin && !isSubscriptionActive) {
+      if (location.pathname === '/home' && !isAdmin && !isSubscriptionActive) {
         logger.debug('User on home page without subscription, showing subscription blocker');
         setShowSubscriptionBlocker(true);
         return;
