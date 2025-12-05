@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./hooks/useAuth";
 import { SubscriptionSyncProvider } from "./components/SubscriptionSyncProvider";
 import { useSEO } from "./hooks/useSEO";
 import AuthGuard from "./components/AuthGuard";
@@ -53,32 +53,6 @@ const PageLoader = () => (
   </div>
 );
 
-// Componente que decide entre Landing ou Home baseado no estado de autenticação
-const LandingOrHome: React.FC = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    if (!loading && user) {
-      navigate('/home', { replace: true });
-    }
-  }, [user, loading, navigate]);
-  
-  if (loading) {
-    return <PageLoader />;
-  }
-  
-  if (user) {
-    return <PageLoader />;
-  }
-  
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <Landing />
-    </Suspense>
-  );
-};
-
 const AppContent = () => {
   useSEO();
   const { currentMessage, dismissCurrentMessage } = useRealtimeMessages();
@@ -122,12 +96,7 @@ const AppContent = () => {
     <>
       <SubscriptionRenewalAlert />
       <Routes>
-        {/* Landing page na raiz para usuários não logados */}
-        <Route path="/" element={
-          <Suspense fallback={<PageLoader />}>
-            <LandingOrHome />
-          </Suspense>
-        } />
+        {/* Rotas públicas - não precisam de autenticação */}
         <Route path="/landing" element={
           <Suspense fallback={<PageLoader />}>
             <Landing />
@@ -149,11 +118,9 @@ const AppContent = () => {
           </Suspense>
         } />
         <Route path="/guia-completo" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <GuiaCompleto />
-            </Suspense>
-          </AuthGuard>
+          <Suspense fallback={<PageLoader />}>
+            <GuiaCompleto />
+          </Suspense>
         } />
         <Route path="/planos" element={
           <Suspense fallback={<PageLoader />}>
@@ -161,15 +128,13 @@ const AppContent = () => {
           </Suspense>
         } />
         <Route path="/covildomal" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <Covildomal />
-            </Suspense>
-          </AuthGuard>
+          <Suspense fallback={<PageLoader />}>
+            <Covildomal />
+          </Suspense>
         } />
         
         {/* Rotas protegidas - precisam passar pelo AuthGuard */}
-        <Route path="/home" element={
+        <Route path="/" element={
           <Suspense fallback={<PageLoader />}>
             <AuthGuard>
               <Index />
