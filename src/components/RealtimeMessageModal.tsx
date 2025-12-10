@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,6 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, X } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 interface RealtimeMessageModalProps {
   open: boolean;
@@ -96,7 +96,12 @@ export const RealtimeMessageModal = ({
           <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
             <div 
               className="text-gray-300 text-center leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: message }}
+              dangerouslySetInnerHTML={{ 
+                __html: DOMPurify.sanitize(message, {
+                  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p', 'span'],
+                  ALLOWED_ATTR: ['class']
+                })
+              }}
               style={{
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap'

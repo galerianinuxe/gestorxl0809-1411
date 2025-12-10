@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { validateSupabaseConnection } from '@/utils/connectionValidator';
 import LoginLogo from '@/components/LoginLogo';
+import { useRateLimit } from '@/hooks/useRateLimit';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +20,13 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  
+  // Rate limiting for login attempts
+  const { checkRateLimit, recordAttempt, resetRateLimit } = useRateLimit('login', {
+    maxAttempts: 5,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    blockDurationMs: 30 * 60 * 1000, // 30 minutes block
+  });
 
   // Redirecionar usuários logados
   useEffect(() => {
@@ -42,6 +49,18 @@ const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check rate limit before attempting login
+    const rateLimitStatus = checkRateLimit();
+    if (!rateLimitStatus.allowed) {
+      toast({
+        title: "🚫 Muitas tentativas",
+        description: `Aguarde ${rateLimitStatus.remainingTime} minutos antes de tentar novamente.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -63,13 +82,30 @@ const Login: React.FC = () => {
       const { data, error } = await signIn(email, password);
       
       if (error) {
+        // Record failed attempt
+        const attemptResult = recordAttempt();
+        
         console.error('❌ Erro no login:', error);
+        
+        let description = error.message || "Erro inesperado. Tente novamente.";
+        if (attemptResult.blocked) {
+          description = `Muitas tentativas falhas. Aguarde ${attemptResult.remainingTime} minutos.`;
+        } else {
+          const remaining = checkRateLimit().attemptsLeft;
+          if (remaining <= 2) {
+            description += ` (${remaining} tentativas restantes)`;
+          }
+        }
+        
         toast({
           title: "❌ Erro no login",
-          description: error.message || "Erro inesperado. Tente novamente.",
+          description,
           variant: "destructive"
         });
       } else if (data?.session) {
+        // Reset rate limit on successful login
+        resetRateLimit();
+        
         console.log('✅ Login realizado com sucesso');
         toast({
           title: "✅ Login realizado com sucesso!",

@@ -1,6 +1,24 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'https://xlata.site',
+  'https://www.xlata.site',
+  'https://oxawvjcckmbevjztyfgp.supabase.co',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+};
+
 // Sanitize data for logging (remove sensitive information)
 const sanitizeForLog = (data: any): any => {
   if (!data) return data;
@@ -26,12 +44,10 @@ const sanitizeForLog = (data: any): any => {
   return sanitized;
 };
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -52,6 +68,12 @@ serve(async (req) => {
 
     if (!payer.name || !payer.email || !payer.phone || !payer.identification) {
       throw new Error('Missing required payer fields: name, email, phone, identification')
+    }
+
+    // Validate transaction amount (prevent negative or zero values)
+    const amount = parseFloat(transaction_amount);
+    if (isNaN(amount) || amount <= 0 || amount > 100000) {
+      throw new Error('Invalid transaction amount: must be between 0.01 and 100000')
     }
 
     // Get Mercado Pago Access Token from Supabase secrets  
@@ -80,7 +102,7 @@ serve(async (req) => {
 
     // Create payment on Mercado Pago
     const paymentData = {
-      transaction_amount: parseFloat(transaction_amount),
+      transaction_amount: amount,
       description,
       payment_method_id,
       external_reference,
@@ -172,10 +194,11 @@ serve(async (req) => {
     )
   } catch (error) {
     console.error('Error creating PIX payment:', error)
+    const origin = req.headers.get('origin');
     return new Response(
       JSON.stringify({ error: error.message }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
         status: 400,
       }
     )

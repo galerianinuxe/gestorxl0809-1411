@@ -1,5 +1,24 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts";
+
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'https://xlata.site',
+  'https://www.xlata.site',
+  'https://oxawvjcckmbevjztyfgp.supabase.co',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-signature, x-request-id',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+};
 
 // Sanitize webhook data for logging
 const sanitizeForLog = (data: any): any => {
@@ -13,53 +32,83 @@ const sanitizeForLog = (data: any): any => {
   return sanitized;
 };
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-// Validate webhook signature
-const validateWebhookSignature = (
+// Validate webhook signature using HMAC-SHA256
+const validateWebhookSignature = async (
   xSignature: string,
   xRequestId: string,
   dataId: string
-): boolean => {
+): Promise<boolean> => {
   try {
     const secret = Deno.env.get('MERCADOPAGO_WEBHOOK_SECRET');
     if (!secret) {
-      console.error('MERCADOPAGO_WEBHOOK_SECRET not configured');
-      return false; // Allow in development
+      console.warn('⚠️ MERCADOPAGO_WEBHOOK_SECRET not configured - webhook validation skipped');
+      // In development, allow without secret
+      return Deno.env.get('ENVIRONMENT') !== 'production';
     }
 
     const parts = xSignature.split(',');
     const ts = parts.find(p => p.startsWith('ts='))?.substring(3);
     const hash = parts.find(p => p.startsWith('v1='))?.substring(3);
     
-    if (!ts || !hash) return false;
-
-    // Validate timestamp (não aceitar webhooks com mais de 5 minutos)
-    const timestampMs = parseInt(ts) * 1000;
-    const now = Date.now();
-    if (Math.abs(now - timestampMs) > 5 * 60 * 1000) {
-      console.error('Webhook timestamp too old');
+    if (!ts || !hash) {
+      console.error('❌ Invalid signature format - missing ts or hash');
       return false;
     }
 
+    // Validate timestamp (reject webhooks older than 5 minutes)
+    const timestampMs = parseInt(ts) * 1000;
+    const now = Date.now();
+    if (Math.abs(now - timestampMs) > 5 * 60 * 1000) {
+      console.error('❌ Webhook timestamp too old or in future:', { 
+        webhook_ts: new Date(timestampMs).toISOString(), 
+        now: new Date(now).toISOString() 
+      });
+      return false;
+    }
+
+    // Create manifest string according to Mercado Pago docs
     const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+    
+    // Generate HMAC-SHA256
     const encoder = new TextEncoder();
     const keyData = encoder.encode(secret);
     const messageData = encoder.encode(manifest);
     
-    // Note: Deno's crypto API doesn't support HMAC in the same way as Node
-    // For production, consider using a proper HMAC library
-    return true; // Simplified for now
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    
+    const signature = await crypto.subtle.sign("HMAC", cryptoKey, messageData);
+    const computedHash = Array.from(new Uint8Array(signature))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
+    const isValid = computedHash === hash;
+    
+    if (!isValid) {
+      console.error('❌ Webhook signature mismatch:', { 
+        computed: computedHash.substring(0, 10) + '...', 
+        received: hash.substring(0, 10) + '...' 
+      });
+    } else {
+      console.log('✅ Webhook signature validated successfully');
+    }
+    
+    return isValid;
   } catch (error) {
-    console.error('Error validating signature:', error);
+    console.error('❌ Error validating webhook signature:', error);
     return false;
   }
 };
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -72,20 +121,28 @@ serve(async (req) => {
     const webhookData = await req.json()
     
     if (xSignature && xRequestId && webhookData.data?.id) {
-      const isValid = validateWebhookSignature(xSignature, xRequestId, webhookData.data.id);
-      if (!isValid && Deno.env.get('ENVIRONMENT') === 'production') {
+      const isValid = await validateWebhookSignature(xSignature, xRequestId, webhookData.data.id);
+      if (!isValid) {
+        console.error('❌ Invalid webhook signature - rejecting request');
         return new Response(
           JSON.stringify({ error: 'Invalid webhook signature' }),
-          { status: 401, headers: corsHeaders }
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+    } else if (Deno.env.get('ENVIRONMENT') === 'production') {
+      // In production, require signature headers
+      console.error('❌ Missing signature headers in production');
+      return new Response(
+        JSON.stringify({ error: 'Missing signature headers' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
-    console.log('Webhook received (sanitized):', sanitizeForLog(webhookData))
+    console.log('📥 Webhook received (sanitized):', sanitizeForLog(webhookData))
 
     // Only process payment notifications
     if (webhookData.type !== 'payment') {
-      return new Response('ok', { status: 200 })
+      return new Response('ok', { status: 200, headers: corsHeaders })
     }
 
     const paymentId = webhookData.data.id
@@ -293,10 +350,11 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('Webhook error:', error)
+    const origin = req.headers.get('origin');
     return new Response(
       JSON.stringify({ error: error.message }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
         status: 500,
       }
     )
