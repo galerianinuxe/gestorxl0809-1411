@@ -273,27 +273,36 @@ async function activateSubscription(supabase: any, data: any, payment_id: string
 
   console.log(`📅 Final period days: ${periodDays}`)
 
-  // FIRST: Deactivate ALL active subscriptions for this user
-  const { error: deactivateError } = await supabase
+  // Get existing active subscription to calculate remaining days BEFORE any changes
+  const { data: existingActiveSub } = await supabase
     .from('user_subscriptions')
-    .update({ is_active: false })
+    .select('id, expires_at, is_active')
     .eq('user_id', userId)
     .eq('is_active', true)
+    .order('expires_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
-  if (deactivateError) {
-    console.error('⚠️ Error deactivating existing subscriptions:', deactivateError)
-  } else {
-    console.log(`🔄 Deactivated all existing active subscriptions for user ${userId}`)
+  // Calculate base date for new subscription
+  const now = new Date()
+  let baseDate = now
+
+  // If user has an active subscription with future expiration, accumulate from that date
+  if (existingActiveSub?.expires_at) {
+    const existingExpires = new Date(existingActiveSub.expires_at)
+    if (existingExpires > now) {
+      baseDate = existingExpires
+      console.log(`📅 User has ${Math.ceil((existingExpires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))} days remaining, accumulating from: ${existingExpires.toISOString()}`)
+    }
   }
 
-  // Calculate expiration date - ALWAYS from today, never accumulate from old dates
-  const now = new Date()
-  const expiresAt = new Date(now)
+  // Calculate expiration date first
+  const expiresAt = new Date(baseDate)
   expiresAt.setDate(expiresAt.getDate() + periodDays)
 
-  console.log(`📅 Creating subscription: ${now.toISOString()} + ${periodDays} days = ${expiresAt.toISOString()}`)
+  console.log(`📅 Creating subscription: ${baseDate.toISOString()} + ${periodDays} days = ${expiresAt.toISOString()}`)
 
-  // Insert new subscription with unique payment_reference
+  // Insert new subscription with unique payment_reference - this will be the active one
   const { data: newSub, error: insertError } = await supabase
     .from('user_subscriptions')
     .insert({
@@ -315,8 +324,23 @@ async function activateSubscription(supabase: any, data: any, payment_id: string
       return
     }
     console.error('❌ Error inserting subscription:', insertError)
+    return
+  }
+
+  console.log(`✅ Subscription created! ID: ${newSub.id}, Expires: ${expiresAt.toISOString()}, Days: ${periodDays}`)
+
+  // NOW deactivate all OTHER active subscriptions (after successful insert)
+  const { error: deactivateError } = await supabase
+    .from('user_subscriptions')
+    .update({ is_active: false })
+    .eq('user_id', userId)
+    .eq('is_active', true)
+    .neq('id', newSub.id) // Don't deactivate the one we just created!
+
+  if (deactivateError) {
+    console.error('⚠️ Error deactivating old subscriptions:', deactivateError)
   } else {
-    console.log(`✅ Subscription activated! ID: ${newSub.id}, Expires: ${expiresAt.toISOString()}, Days: ${periodDays}`)
+    console.log(`🔄 Deactivated other active subscriptions for user ${userId}`)
   }
 }
 
