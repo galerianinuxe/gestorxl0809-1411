@@ -42,7 +42,6 @@ const validateWebhookSignature = async (
     const secret = Deno.env.get('MERCADOPAGO_WEBHOOK_SECRET');
     if (!secret) {
       console.warn('⚠️ MERCADOPAGO_WEBHOOK_SECRET not configured - webhook validation skipped');
-      // In development, allow without secret
       return Deno.env.get('ENVIRONMENT') !== 'production';
     }
 
@@ -130,7 +129,6 @@ serve(async (req) => {
         );
       }
     } else if (Deno.env.get('ENVIRONMENT') === 'production') {
-      // In production, require signature headers
       console.error('❌ Missing signature headers in production');
       return new Response(
         JSON.stringify({ error: 'Missing signature headers' }),
@@ -148,6 +146,23 @@ serve(async (req) => {
     const paymentId = webhookData.data.id
     const MERCADO_PAGO_ACCESS_TOKEN = Deno.env.get('MERCADOPAGO_ACCESS_TOKEN')
 
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    // IDEMPOTENCY CHECK FIRST - Check if subscription already exists for this payment
+    const { data: existingPaymentSub } = await supabase
+      .from('user_subscriptions')
+      .select('id')
+      .eq('payment_reference', paymentId.toString())
+      .maybeSingle()
+
+    if (existingPaymentSub) {
+      console.log(`ℹ️ Subscription already exists for payment ${paymentId} - webhook idempotent return`)
+      return new Response('ok', { status: 200, headers: corsHeaders })
+    }
+
     // Get payment details from Mercado Pago
     const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: {
@@ -164,11 +179,6 @@ serve(async (req) => {
     console.log(`📋 Payment from MP: status=${paymentData.status}, external_reference=${paymentData.external_reference}`)
 
     // Update payment status in database
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
     const { error } = await supabase
       .from('mercado_pago_payments')
       .update({
@@ -217,6 +227,18 @@ serve(async (req) => {
 async function activateSubscription(supabase: any, payment: any) {
   console.log(`🔑 Processing subscription activation for payment ${payment.payment_id}`)
 
+  // CRITICAL: Check idempotency FIRST before any other operations
+  const { data: existingPaymentSub } = await supabase
+    .from('user_subscriptions')
+    .select('id, payment_reference')
+    .eq('payment_reference', payment.payment_id)
+    .maybeSingle()
+
+  if (existingPaymentSub) {
+    console.log(`ℹ️ Subscription already activated for payment ${payment.payment_id}, skipping...`)
+    return
+  }
+
   const externalRef = payment.external_reference
   if (!externalRef) {
     console.error('❌ No external_reference found in payment')
@@ -237,18 +259,6 @@ async function activateSubscription(supabase: any, payment: any) {
 
   console.log(`👤 User ID: ${userId}, Plan Type from ref: ${planTypeFromRef}`)
 
-  // Check idempotency - subscription already exists for this payment?
-  const { data: existingPaymentSub } = await supabase
-    .from('user_subscriptions')
-    .select('id, payment_reference')
-    .eq('payment_reference', payment.payment_id)
-    .maybeSingle()
-
-  if (existingPaymentSub) {
-    console.log(`ℹ️ Subscription already activated for payment ${payment.payment_id}, skipping...`)
-    return
-  }
-
   // Verify user exists
   const { data: userProfile, error: userError } = await supabase
     .from('profiles')
@@ -263,13 +273,11 @@ async function activateSubscription(supabase: any, payment: any) {
 
   console.log(`👤 Found user: ${userProfile.name || userProfile.email}`)
 
-  // Get plan details - USE period_days column as source of truth
+  // Get plan details
   let planData = null
-  let periodDays = 30 // Default fallback
+  let periodDays = 30
 
-  // Strategy 1: Search by plan_type + is_active
-  console.log(`🔍 Strategy 1: Looking for plan with plan_type='${planTypeFromRef}' and is_active=true`)
-  const { data: planByType, error: planByTypeError } = await supabase
+  const { data: planByType } = await supabase
     .from('subscription_plans')
     .select('*, period_days')
     .eq('plan_type', planTypeFromRef)
@@ -277,13 +285,11 @@ async function activateSubscription(supabase: any, payment: any) {
     .limit(1)
     .maybeSingle()
 
-  if (planByType && !planByTypeError) {
+  if (planByType) {
     planData = planByType
-    console.log(`✅ Found plan by plan_type: ${planData.name}, period: ${planData.period}, period_days: ${planData.period_days}`)
+    console.log(`✅ Found plan: ${planData.name}, period_days: ${planData.period_days}`)
   } else {
-    // Strategy 2: Search by plan_id
-    console.log(`🔍 Strategy 2: Looking for plan with plan_id='${planTypeFromRef}'`)
-    const { data: planById, error: planByIdError } = await supabase
+    const { data: planById } = await supabase
       .from('subscription_plans')
       .select('*, period_days')
       .eq('plan_id', planTypeFromRef)
@@ -291,31 +297,22 @@ async function activateSubscription(supabase: any, payment: any) {
       .limit(1)
       .maybeSingle()
 
-    if (planById && !planByIdError) {
+    if (planById) {
       planData = planById
-      console.log(`✅ Found plan by plan_id: ${planData.name}, period: ${planData.period}, period_days: ${planData.period_days}`)
+      console.log(`✅ Found plan by plan_id: ${planData.name}, period_days: ${planData.period_days}`)
     }
   }
 
-  // Get period days - PRIORITIZE period_days column
-  if (planData) {
-    // Use period_days column if available (source of truth)
-    if (planData.period_days && planData.period_days > 0) {
-      periodDays = planData.period_days
-      console.log(`📅 Using period_days column: ${periodDays} days`)
-    } else {
-      // Fallback to parsing period string or plan_type
-      periodDays = calculatePeriodDays(planData.period, planData.plan_type)
-      console.log(`📅 Calculated period days from string: ${periodDays} days`)
-    }
-    console.log(`📅 Plan details - Name: ${planData.name}, Period: ${planData.period}, Final Days: ${periodDays}`)
+  // Get period days
+  if (planData?.period_days && planData.period_days > 0) {
+    periodDays = planData.period_days
   } else {
-    // No plan found - use fallback based on plan_type from external_reference
     periodDays = getPeriodDaysByType(planTypeFromRef)
-    console.log(`⚠️ No plan found in DB, using fallback: ${periodDays} days for type: ${planTypeFromRef}`)
   }
 
-  // FIRST: Deactivate ALL active subscriptions for this user to ensure clean state
+  console.log(`📅 Final period days: ${periodDays}`)
+
+  // Deactivate ALL active subscriptions for this user
   const { error: deactivateError } = await supabase
     .from('user_subscriptions')
     .update({ is_active: false })
@@ -328,30 +325,12 @@ async function activateSubscription(supabase: any, payment: any) {
     console.log(`🔄 Deactivated all existing active subscriptions for user ${userId}`)
   }
 
-  // Check for the most recent subscription to potentially extend it
-  const { data: existingSubscription } = await supabase
-    .from('user_subscriptions')
-    .select('id, expires_at')
-    .eq('user_id', userId)
-    .order('expires_at', { ascending: false })
-    .limit(1)
-
-  const existingSub = existingSubscription?.[0]
-
-  let expiresAt: Date
+  // Calculate expiration date - ALWAYS from today
   const now = new Date()
+  const expiresAt = new Date(now)
+  expiresAt.setDate(expiresAt.getDate() + periodDays)
 
-  if (existingSub && new Date(existingSub.expires_at) > now) {
-    // Extend from the existing expiration date
-    expiresAt = new Date(existingSub.expires_at)
-    expiresAt.setDate(expiresAt.getDate() + periodDays)
-    console.log(`📅 Extending from existing expiration: ${existingSub.expires_at} + ${periodDays} days = ${expiresAt.toISOString()}`)
-  } else {
-    // Create new subscription from today
-    expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + periodDays)
-    console.log(`📅 Creating new subscription: ${now.toISOString()} + ${periodDays} days = ${expiresAt.toISOString()}`)
-  }
+  console.log(`📅 Creating subscription: ${now.toISOString()} + ${periodDays} days = ${expiresAt.toISOString()}`)
 
   // Insert new subscription
   const { data: newSub, error: insertError } = await supabase
@@ -360,7 +339,7 @@ async function activateSubscription(supabase: any, payment: any) {
       user_id: userId,
       plan_type: planData?.plan_type || planTypeFromRef,
       is_active: true,
-      activated_at: new Date().toISOString(),
+      activated_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
       payment_reference: payment.payment_id,
       payment_method: 'mercadopago_pix'
@@ -369,39 +348,16 @@ async function activateSubscription(supabase: any, payment: any) {
     .single()
 
   if (insertError) {
+    if (insertError.code === '23505') {
+      console.log(`ℹ️ Subscription already inserted by another process for payment ${payment.payment_id}`)
+      return
+    }
     console.error('❌ Error inserting subscription:', insertError)
   } else {
-    console.log(`✅ Subscription activated successfully! ID: ${newSub.id}, Expires: ${expiresAt.toISOString()}, Period: ${periodDays} days`)
+    console.log(`✅ Subscription activated! ID: ${newSub.id}, Expires: ${expiresAt.toISOString()}, Days: ${periodDays}`)
   }
 }
 
-// Fallback function to parse period string
-function calculatePeriodDays(period: string, planType: string): number {
-  const periodLower = period?.toLowerCase() || ''
-
-  if (periodLower.includes('7 dias') || periodLower.includes('semanal') || periodLower.includes('semana')) {
-    return 7
-  }
-  if (periodLower.includes('30 dias') || periodLower.includes('mensal') || periodLower.includes('mês') || periodLower.includes('mes') || periodLower.includes('/30')) {
-    return 30
-  }
-  if (periodLower.includes('90 dias') || periodLower.includes('trimestral') || periodLower.includes('3 meses') || periodLower.includes('/3')) {
-    return 90
-  }
-  if (periodLower.includes('180 dias') || periodLower.includes('semestral') || periodLower.includes('6 meses') || periodLower.includes('/6')) {
-    return 180
-  }
-  if (periodLower.includes('365 dias') || periodLower.includes('anual') || periodLower.includes('12 meses') || periodLower.includes('1 ano') || periodLower.includes('/1 ano') || periodLower.includes('/12')) {
-    return 365
-  }
-  if (periodLower.includes('1095 dias') || periodLower.includes('trienal') || periodLower.includes('3 anos')) {
-    return 1095
-  }
-
-  return getPeriodDaysByType(planType)
-}
-
-// Fallback function based on plan_type string
 function getPeriodDaysByType(planType: string): number {
   const typeLower = planType?.toLowerCase() || ''
 
