@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Crown, Calendar, CreditCard, ArrowLeft, RefreshCw, User, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import MercadoPagoCheckout from '@/components/MercadoPagoCheckout';
+import CheckoutPage from '@/components/checkout/CheckoutPage';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +15,9 @@ interface SelectedPlan {
   price: string;
   amount: number;
   plan_type: string;
+  period?: string;
+  description?: string;
+  period_days?: number;
 }
 
 const Planos = () => {
@@ -493,16 +496,17 @@ const Planos = () => {
         )}
       </div>
 
-      {selectedPlan && (
-        <MercadoPagoCheckout
-          isOpen={checkoutOpen}
-          selectedPlan={selectedPlan}
-          onClose={() => {
-            setCheckoutOpen(false);
-            setSelectedPlan(null);
-            if (user) loadSubscriptionData();
-          }}
-        />
+      {selectedPlan && checkoutOpen && (
+        <div className="fixed inset-0 z-50 bg-background">
+          <CheckoutPage
+            selectedPlan={selectedPlan}
+            onClose={() => {
+              setCheckoutOpen(false);
+              setSelectedPlan(null);
+              if (user) loadSubscriptionData();
+            }}
+          />
+        </div>
       )}
     </div>
   );

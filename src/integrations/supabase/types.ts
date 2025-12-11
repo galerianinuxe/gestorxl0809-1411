@@ -1634,6 +1634,7 @@ export type Database = {
           is_promotional: boolean | null
           name: string
           period: string
+          period_days: number | null
           plan_id: string
           plan_type: string
           price: number
@@ -1654,6 +1655,7 @@ export type Database = {
           is_promotional?: boolean | null
           name: string
           period: string
+          period_days?: number | null
           plan_id: string
           plan_type?: string
           price: number
@@ -1674,6 +1676,7 @@ export type Database = {
           is_promotional?: boolean | null
           name?: string
           period?: string
+          period_days?: number | null
           plan_id?: string
           plan_type?: string
           price?: number

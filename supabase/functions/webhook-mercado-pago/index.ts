@@ -263,15 +263,15 @@ async function activateSubscription(supabase: any, payment: any) {
 
   console.log(`👤 Found user: ${userProfile.name || userProfile.email}`)
 
-  // Get plan details with multiple strategies (resilient to duplicates)
+  // Get plan details - USE period_days column as source of truth
   let planData = null
-  let periodDays = 30
+  let periodDays = 30 // Default fallback
 
   // Strategy 1: Search by plan_type + is_active
   console.log(`🔍 Strategy 1: Looking for plan with plan_type='${planTypeFromRef}' and is_active=true`)
   const { data: planByType, error: planByTypeError } = await supabase
     .from('subscription_plans')
-    .select('*')
+    .select('*, period_days')
     .eq('plan_type', planTypeFromRef)
     .eq('is_active', true)
     .limit(1)
@@ -279,13 +279,13 @@ async function activateSubscription(supabase: any, payment: any) {
 
   if (planByType && !planByTypeError) {
     planData = planByType
-    console.log(`✅ Found plan by plan_type: ${planData.name}, period: ${planData.period}`)
+    console.log(`✅ Found plan by plan_type: ${planData.name}, period: ${planData.period}, period_days: ${planData.period_days}`)
   } else {
     // Strategy 2: Search by plan_id
     console.log(`🔍 Strategy 2: Looking for plan with plan_id='${planTypeFromRef}'`)
     const { data: planById, error: planByIdError } = await supabase
       .from('subscription_plans')
-      .select('*')
+      .select('*, period_days')
       .eq('plan_id', planTypeFromRef)
       .eq('is_active', true)
       .limit(1)
@@ -293,15 +293,24 @@ async function activateSubscription(supabase: any, payment: any) {
 
     if (planById && !planByIdError) {
       planData = planById
-      console.log(`✅ Found plan by plan_id: ${planData.name}, period: ${planData.period}`)
+      console.log(`✅ Found plan by plan_id: ${planData.name}, period: ${planData.period}, period_days: ${planData.period_days}`)
     }
   }
 
-  // Calculate period days
+  // Get period days - PRIORITIZE period_days column
   if (planData) {
-    periodDays = calculatePeriodDays(planData.period, planData.plan_type)
-    console.log(`📅 Plan details - Name: ${planData.name}, Period: ${planData.period}, Days: ${periodDays}`)
+    // Use period_days column if available (source of truth)
+    if (planData.period_days && planData.period_days > 0) {
+      periodDays = planData.period_days
+      console.log(`📅 Using period_days column: ${periodDays} days`)
+    } else {
+      // Fallback to parsing period string or plan_type
+      periodDays = calculatePeriodDays(planData.period, planData.plan_type)
+      console.log(`📅 Calculated period days from string: ${periodDays} days`)
+    }
+    console.log(`📅 Plan details - Name: ${planData.name}, Period: ${planData.period}, Final Days: ${periodDays}`)
   } else {
+    // No plan found - use fallback based on plan_type from external_reference
     periodDays = getPeriodDaysByType(planTypeFromRef)
     console.log(`⚠️ No plan found in DB, using fallback: ${periodDays} days for type: ${planTypeFromRef}`)
   }
@@ -355,26 +364,27 @@ async function activateSubscription(supabase: any, payment: any) {
   if (insertError) {
     console.error('❌ Error inserting subscription:', insertError)
   } else {
-    console.log(`✅ Subscription activated successfully! ID: ${newSub.id}, Expires: ${expiresAt.toISOString()}`)
+    console.log(`✅ Subscription activated successfully! ID: ${newSub.id}, Expires: ${expiresAt.toISOString()}, Period: ${periodDays} days`)
   }
 }
 
+// Fallback function to parse period string
 function calculatePeriodDays(period: string, planType: string): number {
   const periodLower = period?.toLowerCase() || ''
 
   if (periodLower.includes('7 dias') || periodLower.includes('semanal') || periodLower.includes('semana')) {
     return 7
   }
-  if (periodLower.includes('30 dias') || periodLower.includes('mensal') || periodLower.includes('mês') || periodLower.includes('mes')) {
+  if (periodLower.includes('30 dias') || periodLower.includes('mensal') || periodLower.includes('mês') || periodLower.includes('mes') || periodLower.includes('/30')) {
     return 30
   }
-  if (periodLower.includes('90 dias') || periodLower.includes('trimestral') || periodLower.includes('3 meses')) {
+  if (periodLower.includes('90 dias') || periodLower.includes('trimestral') || periodLower.includes('3 meses') || periodLower.includes('/3')) {
     return 90
   }
-  if (periodLower.includes('180 dias') || periodLower.includes('semestral') || periodLower.includes('6 meses')) {
+  if (periodLower.includes('180 dias') || periodLower.includes('semestral') || periodLower.includes('6 meses') || periodLower.includes('/6')) {
     return 180
   }
-  if (periodLower.includes('365 dias') || periodLower.includes('anual') || periodLower.includes('12 meses') || periodLower.includes('1 ano')) {
+  if (periodLower.includes('365 dias') || periodLower.includes('anual') || periodLower.includes('12 meses') || periodLower.includes('1 ano') || periodLower.includes('/1 ano') || periodLower.includes('/12')) {
     return 365
   }
   if (periodLower.includes('1095 dias') || periodLower.includes('trienal') || periodLower.includes('3 anos')) {
@@ -384,6 +394,7 @@ function calculatePeriodDays(period: string, planType: string): number {
   return getPeriodDaysByType(planType)
 }
 
+// Fallback function based on plan_type string
 function getPeriodDaysByType(planType: string): number {
   const typeLower = planType?.toLowerCase() || ''
 
@@ -406,5 +417,6 @@ function getPeriodDaysByType(planType: string): number {
     return 1095
   }
 
+  console.warn(`⚠️ Unknown plan type '${planType}', defaulting to 30 days`)
   return 30
 }
