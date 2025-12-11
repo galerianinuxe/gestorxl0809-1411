@@ -124,12 +124,17 @@ serve(async (req) => {
 
     console.log('Payment data prepared (sanitized):', sanitizeForLog(paymentData))
 
+    // Generate unique idempotency key for each payment request
+    // This ensures a NEW payment is created each time, even for the same user/plan
+    const idempotencyKey = `${external_reference}_${Date.now()}_${crypto.randomUUID()}`;
+    console.log('Using idempotency key:', idempotencyKey);
+
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`,
         'Content-Type': 'application/json',
-        'X-Idempotency-Key': external_reference
+        'X-Idempotency-Key': idempotencyKey
       },
       body: JSON.stringify(paymentData)
     })
