@@ -159,12 +159,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
         const { data: { user: currentUser } } = await supabase.auth.getUser();
         if (currentUser) {
-          const { data: subscription } = await supabase
+          // Use .order().limit(1) instead of .maybeSingle() to handle multiple active subscriptions
+          const { data: subscriptions } = await supabase
             .from('user_subscriptions')
             .select('*, subscription_plans(name)')
             .eq('user_id', currentUser.id)
             .eq('is_active', true)
-            .maybeSingle();
+            .order('expires_at', { ascending: false })
+            .limit(1);
+
+          const subscription = subscriptions?.[0];
 
           if (subscription && new Date(subscription.expires_at) > new Date()) {
             setSubscriptionActivated(true);

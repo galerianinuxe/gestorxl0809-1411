@@ -261,30 +261,37 @@ async function activateSubscription(supabase: any, data: any, payment_id: string
     console.log(`⚠️ No plan found in DB, using fallback: ${periodDays} days for type: ${planTypeFromRef}`)
   }
 
-  // Check for existing active subscription
-  const { data: existingSubscription } = await supabase
+  // FIRST: Deactivate ALL active subscriptions for this user to ensure clean state
+  const { error: deactivateError } = await supabase
     .from('user_subscriptions')
-    .select('id, expires_at, is_active')
+    .update({ is_active: false })
     .eq('user_id', userId)
     .eq('is_active', true)
+
+  if (deactivateError) {
+    console.error('⚠️ Error deactivating existing subscriptions:', deactivateError)
+  } else {
+    console.log(`🔄 Deactivated all existing active subscriptions for user ${userId}`)
+  }
+
+  // Check for the most recent subscription to potentially extend it
+  const { data: existingSubscription } = await supabase
+    .from('user_subscriptions')
+    .select('id, expires_at')
+    .eq('user_id', userId)
     .order('expires_at', { ascending: false })
     .limit(1)
-    .maybeSingle()
+
+  const existingSub = existingSubscription?.[0]
 
   let expiresAt: Date
   const now = new Date()
 
-  if (existingSubscription && new Date(existingSubscription.expires_at) > now) {
-    // Extend existing subscription
-    expiresAt = new Date(existingSubscription.expires_at)
+  if (existingSub && new Date(existingSub.expires_at) > now) {
+    // Extend from the existing expiration date
+    expiresAt = new Date(existingSub.expires_at)
     expiresAt.setDate(expiresAt.getDate() + periodDays)
-    console.log(`📅 Extending existing subscription: ${existingSubscription.expires_at} + ${periodDays} days = ${expiresAt.toISOString()}`)
-    
-    // Deactivate old subscription
-    await supabase
-      .from('user_subscriptions')
-      .update({ is_active: false })
-      .eq('id', existingSubscription.id)
+    console.log(`📅 Extending from existing expiration: ${existingSub.expires_at} + ${periodDays} days = ${expiresAt.toISOString()}`)
   } else {
     // Create new subscription from today
     expiresAt = new Date()

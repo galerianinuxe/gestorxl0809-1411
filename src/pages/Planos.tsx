@@ -95,14 +95,16 @@ const Planos = () => {
     try {
       setLoading(true);
 
-      const { data: subscription } = await supabase
+      // Use .order().limit(1) instead of .maybeSingle() to handle multiple active subscriptions
+      const { data: subscriptions } = await supabase
         .from('user_subscriptions')
         .select('*')
         .eq('user_id', user!.id)
         .eq('is_active', true)
-        .maybeSingle();
+        .order('expires_at', { ascending: false })
+        .limit(1);
 
-      setCurrentSubscription(subscription);
+      setCurrentSubscription(subscriptions?.[0] || null);
 
       const { data: renewals } = await supabase
         .from('user_subscriptions')
