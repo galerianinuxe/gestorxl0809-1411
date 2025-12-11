@@ -26,11 +26,20 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
   useEffect(() => {
+    // Timeout de segurança para evitar loading infinito
+    const timeoutId = setTimeout(() => {
+      if (dataLoading) {
+        setDataLoading(false);
+      }
+    }, 5000);
+
     if (user && !loading) {
       fetchUserData();
     } else if (!loading) {
       setDataLoading(false);
     }
+
+    return () => clearTimeout(timeoutId);
   }, [user, loading, subscriptionCheckTrigger]);
 
   // Listen for subscription events

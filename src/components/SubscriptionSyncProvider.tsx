@@ -13,50 +13,37 @@ export const SubscriptionSyncProvider: React.FC<SubscriptionSyncProviderProps> =
   const { syncSubscriptionData } = useSubscriptionSync();
 
   useEffect(() => {
-    if (user) {
-      // Sincronização inicial imediata
-      syncSubscriptionData();
-      
-      // Escutar mudanças em tempo real do Supabase 
-      const channel = supabase
-        .channel('subscription-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'user_subscriptions',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            // Sincronizar dados imediatamente após mudança
-            syncSubscriptionData();
-          }
-        )
-        .subscribe();
+    if (!user) return;
 
-      // Escutar eventos personalizados de outras partes da aplicação
-      const handleSubscriptionUpdate = () => {
-        syncSubscriptionData();
-      };
-
-      // Escutar mudanças de foco da página para re-sincronizar
-      const handleVisibilityChange = () => {
-        if (!document.hidden) {
+    // Sincronização inicial (apenas uma vez)
+    syncSubscriptionData();
+    
+    // Canal Realtime único para mudanças de assinatura
+    const channel = supabase
+      .channel(`subscription-sync-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_subscriptions',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
           syncSubscriptionData();
         }
-      };
+      )
+      .subscribe();
 
-      window.addEventListener('subscriptionUpdate', handleSubscriptionUpdate);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+    // Evento de atualização manual
+    const handleSubscriptionUpdate = () => syncSubscriptionData();
+    window.addEventListener('subscriptionUpdate', handleSubscriptionUpdate);
 
-      return () => {
-        supabase.removeChannel(channel);
-        window.removeEventListener('subscriptionUpdate', handleSubscriptionUpdate);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      };
-    }
-  }, [user, syncSubscriptionData]);
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener('subscriptionUpdate', handleSubscriptionUpdate);
+    };
+  }, [user?.id]); // Usar user?.id em vez de user para evitar re-runs desnecessários
 
   return <>{children}</>;
 };

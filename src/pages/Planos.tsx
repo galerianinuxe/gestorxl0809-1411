@@ -33,19 +33,34 @@ const Planos = () => {
   const [renewalsHistory, setRenewalsHistory] = useState<any[]>([]);
 
   useEffect(() => {
-    loadPlans();
-    if (user) {
-      loadSubscriptionData();
-    } else {
-      setLoading(false);
-    }
+    // Carregar planos e dados do usuário em paralelo
+    const loadData = async () => {
+      // Timeout de segurança para evitar loading infinito
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+      }, 5000);
+
+      try {
+        if (user) {
+          // Carregar tudo em paralelo
+          await Promise.all([loadPlans(), loadSubscriptionData()]);
+        } else {
+          await loadPlans();
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, [user]);
 
   const loadPlans = async () => {
     try {
       const { data, error } = await supabase
         .from('subscription_plans')
-        .select('*')
+        .select('id, name, price, period, description, is_popular, is_promotional, promotional_price, promotional_period, promotional_description, savings, plan_type')
         .eq('is_active', true)
         .order('display_order', { ascending: true });
 
@@ -92,37 +107,36 @@ const Planos = () => {
   };
 
   const loadSubscriptionData = async () => {
+    if (!user) return;
+    
     try {
-      setLoading(true);
+      // Buscar assinatura ativa, histórico e perfil em paralelo
+      const [subscriptionResult, renewalsResult, profileResult] = await Promise.all([
+        supabase
+          .from('user_subscriptions')
+          .select('id, plan_type, is_active, expires_at, activated_at')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .order('expires_at', { ascending: false })
+          .limit(1),
+        supabase
+          .from('user_subscriptions')
+          .select('id, plan_type, is_active, expires_at, activated_at')
+          .eq('user_id', user.id)
+          .order('activated_at', { ascending: false })
+          .limit(10),
+        supabase
+          .from('profiles')
+          .select('created_at')
+          .eq('id', user.id)
+          .single()
+      ]);
 
-      // Use .order().limit(1) instead of .maybeSingle() to handle multiple active subscriptions
-      const { data: subscriptions } = await supabase
-        .from('user_subscriptions')
-        .select('*')
-        .eq('user_id', user!.id)
-        .eq('is_active', true)
-        .order('expires_at', { ascending: false })
-        .limit(1);
+      setCurrentSubscription(subscriptionResult.data?.[0] || null);
+      setRenewalsHistory(renewalsResult.data || []);
 
-      setCurrentSubscription(subscriptions?.[0] || null);
-
-      const { data: renewals } = await supabase
-        .from('user_subscriptions')
-        .select('*')
-        .eq('user_id', user!.id)
-        .order('activated_at', { ascending: false })
-        .limit(10);
-
-      setRenewalsHistory(renewals || []);
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('created_at')
-        .eq('id', user!.id)
-        .single();
-
-      if (profile?.created_at) {
-        const created = new Date(profile.created_at);
+      if (profileResult.data?.created_at) {
+        const created = new Date(profileResult.data.created_at);
         const now = new Date();
         const diffDays = Math.floor(
           (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24)
@@ -145,8 +159,6 @@ const Planos = () => {
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

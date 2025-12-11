@@ -99,64 +99,39 @@ export const SubscriptionManagement = () => {
     try {
       setDeletingExpired(true);
       
-      // Buscar todas as assinaturas
-      const { data: allSubs, error: fetchError } = await supabase
+      const now = new Date().toISOString();
+      
+      // Buscar diretamente assinaturas expiradas (is_active=false OU expires_at <= now)
+      const { data: expiredSubs, error: fetchError } = await supabase
         .from('user_subscriptions')
-        .select('id, user_id, expires_at, is_active');
+        .select('id')
+        .or(`is_active.eq.false,expires_at.lte.${now}`);
 
       if (fetchError) throw fetchError;
 
-      // Buscar profiles para identificar usuários N/A
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, email, name');
-
-      if (profilesError) throw profilesError;
-
-      // Filtrar assinaturas expiradas de usuários N/A
-      const now = new Date().toISOString();
-      const subscriptionsToDelete = allSubs?.filter(sub => {
-        const user = profiles?.find(p => p.id === sub.user_id);
-        const isUserNA = !user || user.email === 'N/A' || !user.email || !user.name;
-        const isExpired = new Date(sub.expires_at) <= new Date(now) || !sub.is_active;
-        
-        console.log('Verificando assinatura:', {
-          subId: sub.id,
-          userId: sub.user_id,
-          userEmail: user?.email,
-          isUserNA,
-          isExpired,
-          shouldDelete: isUserNA && isExpired
-        });
-        
-        return isUserNA && isExpired;
-      });
-
-      console.log('Assinaturas encontradas para exclusão:', subscriptionsToDelete);
-
-      if (!subscriptionsToDelete || subscriptionsToDelete.length === 0) {
+      if (!expiredSubs || expiredSubs.length === 0) {
         toast({
-          title: "Nenhuma assinatura encontrada",
-          description: "Não foram encontradas assinaturas expiradas de usuários N/A para excluir.",
+          title: "Nenhuma assinatura expirada",
+          description: "Não foram encontradas assinaturas expiradas para excluir.",
           variant: "default",
         });
         return;
       }
 
-      // Excluir as assinaturas
+      // Excluir as assinaturas expiradas
       const { error: deleteError } = await supabase
         .from('user_subscriptions')
         .delete()
-        .in('id', subscriptionsToDelete.map(sub => sub.id));
+        .in('id', expiredSubs.map(sub => sub.id));
 
       if (deleteError) throw deleteError;
 
       toast({
         title: "Assinaturas excluídas",
-        description: `${subscriptionsToDelete.length} assinaturas expiradas foram excluídas com sucesso.`,
+        description: `${expiredSubs.length} assinaturas expiradas foram excluídas com sucesso.`,
       });
 
-      // Atualizar a lista imediatamente
+      // Atualizar a lista
       await fetchSubscriptions();
 
     } catch (error) {
@@ -327,7 +302,7 @@ export const SubscriptionManagement = () => {
                 className="bg-red-600 hover:bg-red-700"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                {deletingExpired ? 'Excluindo...' : 'Excluir Expiradas N/A'}
+                {deletingExpired ? 'Excluindo...' : 'Excluir Expiradas'}
               </Button>
               
               <select
