@@ -7,13 +7,23 @@ const ALLOWED_ORIGINS = [
   'https://www.xlata.site',
   'https://oxawvjcckmbevjztyfgp.supabase.co',
   'http://localhost:5173',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://lovable.dev',
+  'https://id-preview--xxxxxxxx.lovable.app'
 ];
 
+// Allow any lovable.app or lovable.dev preview domain
+const isAllowedOrigin = (origin: string | null): boolean => {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (origin.endsWith('.lovable.app') || origin.endsWith('.lovable.dev')) return true;
+  return false;
+};
+
 const getCorsHeaders = (origin: string | null) => {
-  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
-    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Origin': allowedOrigin!,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
   };
