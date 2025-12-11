@@ -73,6 +73,7 @@ const PixPaymentsDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -81,11 +82,19 @@ const PixPaymentsDashboard = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
 
       // Get current session for auth header
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('[PixPayments] Session error:', sessionError);
+        setError("Erro ao verificar sessão: " + sessionError.message);
+        return;
+      }
       
       if (!session) {
+        setError("Você precisa estar logado para acessar esta página.");
         toast({
           title: "Erro",
           description: "Você precisa estar logado.",
@@ -94,18 +103,45 @@ const PixPaymentsDashboard = () => {
         return;
       }
 
+      console.log('[PixPayments] Calling get-admin-payments function...');
+
       // Call edge function to get all payments (admin only)
-      const { data, error } = await supabase.functions.invoke('get-admin-payments', {
+      const { data, error: funcError } = await supabase.functions.invoke('get-admin-payments', {
         headers: {
           Authorization: `Bearer ${session.access_token}`
         }
       });
 
-      if (error) throw error;
+      if (funcError) {
+        console.error('[PixPayments] Edge function error:', funcError);
+        setError("Erro ao carregar dados: " + (funcError.message || "Falha na comunicação com o servidor"));
+        toast({
+          title: "Erro",
+          description: funcError.message || "Erro ao carregar dados de pagamentos.",
+          variant: "destructive"
+        });
+        return;
+      }
 
-      setPayments(data.payments || []);
-      setSubscriptions(data.subscriptions || []);
-      setStats(data.stats || {
+      if (data?.error) {
+        console.error('[PixPayments] API error:', data.error);
+        setError(data.error);
+        toast({
+          title: "Erro",
+          description: data.error,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('[PixPayments] Data loaded successfully:', {
+        payments: data?.payments?.length || 0,
+        subscriptions: data?.subscriptions?.length || 0
+      });
+
+      setPayments(data?.payments || []);
+      setSubscriptions(data?.subscriptions || []);
+      setStats(data?.stats || {
         total: 0,
         approved: 0,
         pending: 0,
@@ -113,11 +149,13 @@ const PixPaymentsDashboard = () => {
         totalRevenue: 0
       });
 
-    } catch (error: any) {
-      console.error('Erro ao carregar dados:', error);
+    } catch (err: any) {
+      console.error('[PixPayments] Unexpected error:', err);
+      const errorMessage = err?.message || "Erro desconhecido ao carregar dados.";
+      setError(errorMessage);
       toast({
         title: "Erro",
-        description: error.message || "Erro ao carregar dados de pagamentos.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -201,6 +239,40 @@ const PixPaymentsDashboard = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-foreground text-lg">Carregando dados...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error && payments.length === 0) {
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Dashboard de Pagamentos PIX</h1>
+            <p className="text-muted-foreground mt-1">Gerencie todos os pagamentos via PIX do sistema</p>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Tentar Novamente
+          </Button>
+        </div>
+        <Card className="bg-card border-border">
+          <CardContent className="p-8">
+            <div className="text-center py-8">
+              <XCircle className="h-16 w-16 mx-auto mb-4 text-destructive" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">Erro ao carregar dados</h3>
+              <p className="text-muted-foreground mb-4">{error}</p>
+              <Button onClick={handleRefresh} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Tentar Novamente
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
