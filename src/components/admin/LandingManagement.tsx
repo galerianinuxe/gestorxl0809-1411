@@ -28,7 +28,8 @@ import {
   Star,
   Plus,
   Trash2,
-  User
+  User,
+  Video
 } from 'lucide-react';
 
 interface Testimonial {
@@ -60,6 +61,12 @@ interface LandingSettings {
   seo_description: string;
   seo_keywords: string;
   testimonials?: string | Testimonial[];
+  video_enabled?: boolean;
+  video_title?: string;
+  video_subtitle?: string;
+  video_url?: string;
+  video_poster_url?: string;
+  video_bullets?: string;
 }
 
 const LandingManagement: React.FC = () => {
@@ -536,29 +543,33 @@ const LandingManagement: React.FC = () => {
       </div>
 
       <Tabs defaultValue="hero" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-gray-800 border-gray-700">
-          <TabsTrigger value="hero" className="text-gray-300 data-[state=active]:text-white">
-            <Type className="h-4 w-4 mr-2" />
-            Hero Section
+        <TabsList className="grid w-full grid-cols-7 bg-gray-800 border-gray-700">
+          <TabsTrigger value="hero" className="text-gray-300 data-[state=active]:text-white text-xs">
+            <Type className="h-4 w-4 mr-1" />
+            Hero
           </TabsTrigger>
-          <TabsTrigger value="branding" className="text-gray-300 data-[state=active]:text-white">
-            <Image className="h-4 w-4 mr-2" />
+          <TabsTrigger value="video" className="text-gray-300 data-[state=active]:text-white text-xs">
+            <Video className="h-4 w-4 mr-1" />
+            Vídeo
+          </TabsTrigger>
+          <TabsTrigger value="branding" className="text-gray-300 data-[state=active]:text-white text-xs">
+            <Image className="h-4 w-4 mr-1" />
             Branding
           </TabsTrigger>
-          <TabsTrigger value="testimonials" className="text-gray-300 data-[state=active]:text-white">
-            <Star className="h-4 w-4 mr-2" />
+          <TabsTrigger value="testimonials" className="text-gray-300 data-[state=active]:text-white text-xs">
+            <Star className="h-4 w-4 mr-1" />
             Depoimentos
           </TabsTrigger>
-          <TabsTrigger value="company" className="text-gray-300 data-[state=active]:text-white">
-            <Phone className="h-4 w-4 mr-2" />
+          <TabsTrigger value="company" className="text-gray-300 data-[state=active]:text-white text-xs">
+            <Phone className="h-4 w-4 mr-1" />
             Empresa
           </TabsTrigger>
-          <TabsTrigger value="footer" className="text-gray-300 data-[state=active]:text-white">
-            <FileText className="h-4 w-4 mr-2" />
+          <TabsTrigger value="footer" className="text-gray-300 data-[state=active]:text-white text-xs">
+            <FileText className="h-4 w-4 mr-1" />
             Footer
           </TabsTrigger>
-          <TabsTrigger value="seo" className="text-gray-300 data-[state=active]:text-white">
-            <Search className="h-4 w-4 mr-2" />
+          <TabsTrigger value="seo" className="text-gray-300 data-[state=active]:text-white text-xs">
+            <Search className="h-4 w-4 mr-1" />
             SEO
           </TabsTrigger>
         </TabsList>
@@ -627,6 +638,95 @@ const LandingManagement: React.FC = () => {
                   onChange={(e) => handleInputChange('hero_button_text', e.target.value)}
                   className="bg-gray-900 border-gray-600 text-white"
                   placeholder="TESTAR GRÁTIS 7 DIAS"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="video" className="space-y-6">
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Video className="h-5 w-5" />
+                Seção de Vídeo Demonstrativo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="video_enabled"
+                  checked={settings.video_enabled || false}
+                  onChange={(e) => setSettings(prev => ({ ...prev, video_enabled: e.target.checked }))}
+                  className="rounded border-gray-600"
+                />
+                <Label htmlFor="video_enabled" className="text-gray-300">Habilitar seção de vídeo na landing page</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="video_title" className="text-gray-300">Título da Seção</Label>
+                <Input
+                  id="video_title"
+                  value={settings.video_title || ''}
+                  onChange={(e) => setSettings(prev => ({ ...prev, video_title: e.target.value }))}
+                  className="bg-gray-900 border-gray-600 text-white"
+                  placeholder="Veja como funciona em 60 segundos"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="video_subtitle" className="text-gray-300">Subtítulo (opcional)</Label>
+                <Input
+                  id="video_subtitle"
+                  value={settings.video_subtitle || ''}
+                  onChange={(e) => setSettings(prev => ({ ...prev, video_subtitle: e.target.value }))}
+                  className="bg-gray-900 border-gray-600 text-white"
+                  placeholder="Assista a uma demonstração rápida do sistema"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="video_url" className="text-gray-300">URL do Vídeo (YouTube ou Vimeo)</Label>
+                <Input
+                  id="video_url"
+                  value={settings.video_url || ''}
+                  onChange={(e) => setSettings(prev => ({ ...prev, video_url: e.target.value }))}
+                  className="bg-gray-900 border-gray-600 text-white"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+                <p className="text-xs text-gray-500">Cole a URL completa do YouTube ou Vimeo</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="video_poster_url" className="text-gray-300">URL da Thumbnail (opcional)</Label>
+                <Input
+                  id="video_poster_url"
+                  value={settings.video_poster_url || ''}
+                  onChange={(e) => setSettings(prev => ({ ...prev, video_poster_url: e.target.value }))}
+                  className="bg-gray-900 border-gray-600 text-white"
+                  placeholder="https://..."
+                />
+                <p className="text-xs text-gray-500">Se vazio, será usada a thumbnail do YouTube automaticamente</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="video_bullets" className="text-gray-300">Bullets (um por linha, máx 5)</Label>
+                <Textarea
+                  id="video_bullets"
+                  value={(() => {
+                    try {
+                      const bullets = settings.video_bullets ? JSON.parse(settings.video_bullets) : [];
+                      return bullets.join('\n');
+                    } catch { return ''; }
+                  })()}
+                  onChange={(e) => {
+                    const lines = e.target.value.split('\n').slice(0, 5);
+                    setSettings(prev => ({ ...prev, video_bullets: JSON.stringify(lines) }));
+                  }}
+                  className="bg-gray-900 border-gray-600 text-white"
+                  rows={5}
+                  placeholder="Pesagem automática e precisa&#10;Controle total de materiais&#10;Relatórios financeiros"
                 />
               </div>
             </CardContent>

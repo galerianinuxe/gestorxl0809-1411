@@ -674,6 +674,12 @@ export type Database = {
           testimonials: string | null
           updated_at: string
           user_id: string | null
+          video_bullets: string | null
+          video_enabled: boolean | null
+          video_poster_url: string | null
+          video_subtitle: string | null
+          video_title: string | null
+          video_url: string | null
         }
         Insert: {
           background_image_url?: string | null
@@ -694,6 +700,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id?: string | null
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Update: {
           background_image_url?: string | null
@@ -714,6 +726,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id?: string | null
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -910,6 +928,12 @@ export type Database = {
           testimonials: string | null
           updated_at: string
           user_id: string
+          video_bullets: string | null
+          video_enabled: boolean | null
+          video_poster_url: string | null
+          video_subtitle: string | null
+          video_title: string | null
+          video_url: string | null
         }
         Insert: {
           background_image_url?: string | null
@@ -930,6 +954,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id: string
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Update: {
           background_image_url?: string | null
@@ -950,6 +980,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id?: string
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
