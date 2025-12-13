@@ -1,17 +1,31 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Allowed origins for CORS
+// Allowed origins for CORS - production and Lovable preview domains
 const ALLOWED_ORIGINS = [
   'https://xlata.site',
   'https://www.xlata.site',
   'https://oxawvjcckmbevjztyfgp.supabase.co',
+  'https://lovable.dev',
   'http://localhost:5173',
   'http://localhost:3000'
 ];
 
+// Check if origin is allowed (including Lovable preview domains)
+const isAllowedOrigin = (origin: string | null): boolean => {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  // Allow Lovable preview domains
+  if (origin.endsWith('.lovable.app') || 
+      origin.endsWith('.lovable.dev') || 
+      origin.endsWith('.lovableproject.com')) {
+    return true;
+  }
+  return false;
+};
+
 const getCorsHeaders = (origin: string | null) => {
-  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowedOrigin = isAllowedOrigin(origin) ? origin! : ALLOWED_ORIGINS[0];
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -53,13 +67,47 @@ serve(async (req) => {
   }
 
   try {
-    // Get auth header for user identification
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      throw new Error('No authorization header provided')
+    // SECURITY: Validate JWT authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('❌ Missing or invalid Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Missing authentication token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
     }
 
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Create Supabase client with user's token to validate authentication
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: `Bearer ${token}` } } }
+    );
+
+    // Validate token and get user
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    if (authError || !user) {
+      console.error('❌ Invalid token or user not found:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Invalid authentication token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    console.log(`🔐 Authenticated user: ${user.id}`);
+
     const { payer, transaction_amount, description, external_reference, payment_method_id } = await req.json()
+
+    // SECURITY: Validate that external_reference contains the authenticated user's ID
+    if (external_reference && !external_reference.includes(user.id)) {
+      console.error(`❌ User ${user.id} tried to create payment for different user: ${external_reference}`);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - Cannot create payment for another user' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
 
     // Validate required fields
     if (!payer || !transaction_amount || !description || !external_reference) {

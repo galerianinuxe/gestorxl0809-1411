@@ -4,13 +4,13 @@ project_id = "oxawvjcckmbevjztyfgp"
 verify_jwt = false
 
 [functions.create-pix-payment]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-payment-status]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-admin-payments]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-system-stats]
-verify_jwt = false
+verify_jwt = true
