@@ -8,6 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Printer, Download, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import DOMPurify from "dompurify";
+
+// Função para escapar HTML e prevenir XSS
+const escapeHtml = (text: string): string => {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+};
 
 interface CampaignClient {
   id: string;
@@ -90,13 +98,13 @@ export function CampaignVoucherGenerator({ periodSummary, onBack }: Props) {
         <!-- Dados do Cliente -->
         <div style="margin-bottom: 15px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
           <div style="font-size: ${formatSettings.customer_font_size}; font-weight: bold; margin-bottom: 4px;">
-            CLIENTE: ${periodSummary.client.name}
+            CLIENTE: ${escapeHtml(periodSummary.client.name)}
           </div>
           <div style="font-size: ${formatSettings.table_font_size}; color: #666;">
-            CPF: ${periodSummary.client.cpf}
+            CPF: ${escapeHtml(periodSummary.client.cpf)}
           </div>
           <div style="font-size: ${formatSettings.table_font_size}; color: #666;">
-            ID: ${periodSummary.client.id.substring(0, 8)}...
+            ID: ${escapeHtml(periodSummary.client.id.substring(0, 8))}...
           </div>
         </div>
 
@@ -117,8 +125,8 @@ export function CampaignVoucherGenerator({ periodSummary, onBack }: Props) {
           </div>
           ${periodSummary.deliveries.slice(0, 5).map(delivery => `
             <div style="display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #ccc; font-size: ${formatSettings.table_font_size};">
-              <span>${delivery.material_name} (${delivery.weight_kg}kg)</span>
-              <span>R$ ${delivery.total_value.toFixed(2)}</span>
+              <span>${escapeHtml(delivery.material_name)} (${Number(delivery.weight_kg).toFixed(2)}kg)</span>
+              <span>R$ ${Number(delivery.total_value).toFixed(2)}</span>
             </div>
           `).join('')}
           ${periodSummary.deliveries.length > 5 ? `
@@ -253,7 +261,7 @@ export function CampaignVoucherGenerator({ periodSummary, onBack }: Props) {
               <CardContent>
                 <div 
                   className="border rounded-lg p-4 bg-white"
-                  dangerouslySetInnerHTML={{ __html: generateVoucherHTML() }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(generateVoucherHTML()) }}
                 />
               </CardContent>
             </Card>
