@@ -11,6 +11,13 @@
     <priority>1.0</priority>
   </url>
 
+  <url>
+    <loc>https://www.xlata.site/landing</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
   <!-- Página de Login -->
   <url>
     <loc>https://www.xlata.site/login</loc>
@@ -25,14 +32,6 @@
     <lastmod>2025-11-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>
-
-  <!-- Dashboard do sistema (pública para indexação, acesso controlado no app) -->
-  <url>
-    <loc>https://www.xlata.site/dashboard</loc>
-    <lastmod>2025-11-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
   </url>
 
 </urlset>
