@@ -277,6 +277,126 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_featured: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_featured?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_featured?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          category_id: string | null
+          content_html: string | null
+          content_md: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          is_featured: boolean | null
+          og_image: string | null
+          pillar_page_slug: string | null
+          published_at: string | null
+          reading_time_minutes: number | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          tags: string[] | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          category_id?: string | null
+          content_html?: string | null
+          content_md?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_featured?: boolean | null
+          og_image?: string | null
+          pillar_page_slug?: string | null
+          published_at?: string | null
+          reading_time_minutes?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          category_id?: string | null
+          content_html?: string | null
+          content_md?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_featured?: boolean | null
+          og_image?: string | null
+          pillar_page_slug?: string | null
+          published_at?: string | null
+          reading_time_minutes?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_clients: {
         Row: {
           address: string
@@ -674,6 +794,12 @@ export type Database = {
           testimonials: string | null
           updated_at: string
           user_id: string | null
+          video_bullets: string | null
+          video_enabled: boolean | null
+          video_poster_url: string | null
+          video_subtitle: string | null
+          video_title: string | null
+          video_url: string | null
         }
         Insert: {
           background_image_url?: string | null
@@ -694,6 +820,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id?: string | null
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Update: {
           background_image_url?: string | null
@@ -714,6 +846,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id?: string | null
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -776,6 +914,57 @@ export type Database = {
           sender_id?: string
           sender_name?: string
           title?: string
+        }
+        Relationships: []
+      }
+      glossary_terms: {
+        Row: {
+          created_at: string
+          examples: string | null
+          id: string
+          long_definition: string | null
+          related_links: Json | null
+          related_terms: string[] | null
+          seo_description: string | null
+          seo_title: string | null
+          short_definition: string
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          term: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          examples?: string | null
+          id?: string
+          long_definition?: string | null
+          related_links?: Json | null
+          related_terms?: string[] | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_definition: string
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          term: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          examples?: string | null
+          id?: string
+          long_definition?: string | null
+          related_links?: Json | null
+          related_terms?: string[] | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_definition?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          term?: string
+          updated_at?: string
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -890,6 +1079,110 @@ export type Database = {
         }
         Relationships: []
       }
+      help_articles: {
+        Row: {
+          category_id: string | null
+          content_html: string | null
+          content_md: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          module: Database["public"]["Enums"]["system_module"] | null
+          og_image: string | null
+          reading_time_minutes: number | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          sort_order: number | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          content_html?: string | null
+          content_md?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          module?: Database["public"]["Enums"]["system_module"] | null
+          og_image?: string | null
+          reading_time_minutes?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          sort_order?: number | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          content_html?: string | null
+          content_md?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          module?: Database["public"]["Enums"]["system_module"] | null
+          og_image?: string | null
+          reading_time_minutes?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          sort_order?: number | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "help_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "help_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      help_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          module: Database["public"]["Enums"]["system_module"] | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          module?: Database["public"]["Enums"]["system_module"] | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          module?: Database["public"]["Enums"]["system_module"] | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       landing_page_settings: {
         Row: {
           background_image_url: string | null
@@ -910,6 +1203,12 @@ export type Database = {
           testimonials: string | null
           updated_at: string
           user_id: string
+          video_bullets: string | null
+          video_enabled: boolean | null
+          video_poster_url: string | null
+          video_subtitle: string | null
+          video_title: string | null
+          video_url: string | null
         }
         Insert: {
           background_image_url?: string | null
@@ -930,6 +1229,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id: string
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Update: {
           background_image_url?: string | null
@@ -950,6 +1255,12 @@ export type Database = {
           testimonials?: string | null
           updated_at?: string
           user_id?: string
+          video_bullets?: string | null
+          video_enabled?: boolean | null
+          video_poster_url?: string | null
+          video_subtitle?: string | null
+          video_title?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -1334,6 +1645,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pillar_pages: {
+        Row: {
+          benefits: Json | null
+          created_at: string
+          cta_primary_text: string | null
+          cta_primary_url: string | null
+          cta_secondary_text: string | null
+          cta_secondary_url: string | null
+          faq: Json | null
+          features: Json | null
+          headline: string
+          hero_image: string | null
+          how_it_works: Json | null
+          id: string
+          intro_text: string | null
+          og_image: string | null
+          sections: Json | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          subheadline: string | null
+          testimonials: Json | null
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          benefits?: Json | null
+          created_at?: string
+          cta_primary_text?: string | null
+          cta_primary_url?: string | null
+          cta_secondary_text?: string | null
+          cta_secondary_url?: string | null
+          faq?: Json | null
+          features?: Json | null
+          headline: string
+          hero_image?: string | null
+          how_it_works?: Json | null
+          id?: string
+          intro_text?: string | null
+          og_image?: string | null
+          sections?: Json | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          subheadline?: string | null
+          testimonials?: Json | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          benefits?: Json | null
+          created_at?: string
+          cta_primary_text?: string | null
+          cta_primary_url?: string | null
+          cta_secondary_text?: string | null
+          cta_secondary_url?: string | null
+          faq?: Json | null
+          features?: Json | null
+          headline?: string
+          hero_image?: string | null
+          how_it_works?: Json | null
+          id?: string
+          intro_text?: string | null
+          og_image?: string | null
+          sections?: Json | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          subheadline?: string | null
+          testimonials?: Json | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -2313,6 +2702,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_view_count: {
+        Args: { record_id: string; table_name: string }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
       is_subscription_active: {
         Args: { target_user_id: string }
@@ -2352,6 +2745,17 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      content_status: "draft" | "published"
+      system_module:
+        | "caixa"
+        | "despesas"
+        | "compra"
+        | "venda"
+        | "estoque"
+        | "relatorios"
+        | "transacoes"
+        | "assinatura"
+        | "geral"
       user_status: "user" | "admin"
     }
     CompositeTypes: {
@@ -2481,6 +2885,18 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      content_status: ["draft", "published"],
+      system_module: [
+        "caixa",
+        "despesas",
+        "compra",
+        "venda",
+        "estoque",
+        "relatorios",
+        "transacoes",
+        "assinatura",
+        "geral",
+      ],
       user_status: ["user", "admin"],
     },
   },
