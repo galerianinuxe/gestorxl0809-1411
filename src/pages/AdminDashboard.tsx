@@ -16,6 +16,7 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 import { PlansManagement } from '@/components/admin/PlansManagement';
 import { MaterialsConsolidation } from '@/components/admin/MaterialsConsolidation';
+import { ContentManagement } from '@/components/admin/ContentManagement';
 
 interface GuideVideo {
   id: string;
@@ -616,14 +617,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* Content Tab */}
           <TabsContent value="content" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gerenciar Conteúdo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">Funcionalidades de gerenciamento de conteúdo em desenvolvimento...</p>
-              </CardContent>
-            </Card>
+            <ContentManagement />
           </TabsContent>
 
           {/* Settings Tab */}
