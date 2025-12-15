@@ -13,6 +13,7 @@ import { RealtimeMessageModal } from "./components/RealtimeMessageModal";
 import { useRealtimeMessages } from "./hooks/useRealtimeMessages";
 import SubscriptionRenewalAlert from "./components/SubscriptionRenewalAlert";
 import { useUserPresence } from "./hooks/useUserPresence";
+import { MainLayout } from "./components/MainLayout";
 
 // Code splitting: lazy load de todas as páginas
 import { lazy, Suspense } from 'react';
@@ -139,6 +140,48 @@ const AppContent = () => {
         <Route path="/covildomal" element={
           <Suspense fallback={<PageLoader />}>
             <Covildomal />
+          </Suspense>
+        } />
+
+        {/* Portal de Conteúdo - Rotas públicas SEO */}
+        <Route path="/blog" element={
+          <Suspense fallback={<PageLoader />}>
+            <Blog />
+          </Suspense>
+        } />
+        <Route path="/blog/:slug" element={
+          <Suspense fallback={<PageLoader />}>
+            <BlogPost />
+          </Suspense>
+        } />
+        <Route path="/ajuda" element={
+          <Suspense fallback={<PageLoader />}>
+            <HelpCenter />
+          </Suspense>
+        } />
+        <Route path="/ajuda/artigo/:slug" element={
+          <Suspense fallback={<PageLoader />}>
+            <HelpArticle />
+          </Suspense>
+        } />
+        <Route path="/solucoes" element={
+          <Suspense fallback={<PageLoader />}>
+            <Solutions />
+          </Suspense>
+        } />
+        <Route path="/solucoes/:slug" element={
+          <Suspense fallback={<PageLoader />}>
+            <Solution />
+          </Suspense>
+        } />
+        <Route path="/glossario" element={
+          <Suspense fallback={<PageLoader />}>
+            <Glossary />
+          </Suspense>
+        } />
+        <Route path="/glossario/:slug" element={
+          <Suspense fallback={<PageLoader />}>
+            <GlossaryTerm />
           </Suspense>
         } />
         
