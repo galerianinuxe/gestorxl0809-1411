@@ -40,7 +40,16 @@ const Covildomal = lazy(() => import('./pages/Covildomal'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const ErrorReport = lazy(() => import('./pages/ErrorReport'));
 const ReferralSystemPage = lazy(() => import('./pages/ReferralSystem'));
-import { MainLayout } from './components/MainLayout';
+
+// Portal de Conteúdo (páginas públicas SEO)
+const Blog = lazy(() => import('./pages/portal/Blog'));
+const BlogPost = lazy(() => import('./pages/portal/BlogPost'));
+const HelpCenter = lazy(() => import('./pages/portal/HelpCenter'));
+const HelpArticle = lazy(() => import('./pages/portal/HelpArticle'));
+const Solutions = lazy(() => import('./pages/portal/Solutions'));
+const Solution = lazy(() => import('./pages/portal/Solution'));
+const Glossary = lazy(() => import('./pages/portal/Glossary'));
+const GlossaryTerm = lazy(() => import('./pages/portal/GlossaryTerm'));
 
 import { useEffect } from "react";
 
