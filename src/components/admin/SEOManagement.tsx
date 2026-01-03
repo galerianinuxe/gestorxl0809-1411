@@ -16,7 +16,12 @@ import {
   ExternalLink,
   CheckCircle,
   AlertTriangle,
-  Copy
+  Copy,
+  FileText,
+  BookOpen,
+  Layers,
+  HelpCircle,
+  BarChart3
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -35,10 +40,20 @@ interface SEOSettings {
   google_search_console_id: string;
 }
 
+interface ContentStats {
+  blogPosts: number;
+  helpArticles: number;
+  pillarPages: number;
+  glossaryTerms: number;
+  totalPages: number;
+}
+
 export const SEOManagement = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [regeneratingSitemap, setRegeneratingSitemap] = useState(false);
+  const [contentStats, setContentStats] = useState<ContentStats>({ blogPosts: 0, helpArticles: 0, pillarPages: 0, glossaryTerms: 0, totalPages: 0 });
   const [settings, setSettings] = useState<SEOSettings>({
     site_title: 'XLata - Sistema para Depósito de Reciclagem',
     site_description: 'Sistema completo de gestão para ferro velho e depósitos de reciclagem. Controle estoque, vendas e compras com facilidade.',
@@ -63,6 +78,7 @@ Sitemap: https://xlata.site/sitemap.xml`,
 
   useEffect(() => {
     loadSettings();
+    loadContentStats();
   }, [user]);
 
   const loadSettings = async () => {
@@ -88,11 +104,37 @@ Sitemap: https://xlata.site/sitemap.xml`,
     }
   };
 
+  const loadContentStats = async () => {
+    try {
+      const [blogResult, helpResult, pillarResult, glossaryResult] = await Promise.all([
+        supabase.from('blog_posts').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        supabase.from('help_articles').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        supabase.from('pillar_pages').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        supabase.from('glossary_terms').select('id', { count: 'exact', head: true }).eq('status', 'published')
+      ]);
+
+      const blogPosts = blogResult.count || 0;
+      const helpArticles = helpResult.count || 0;
+      const pillarPages = pillarResult.count || 0;
+      const glossaryTerms = glossaryResult.count || 0;
+      const staticPages = 10; // Landing, Login, Register, Planos, Termos, Blog, Ajuda, Soluções, Glossário, etc.
+
+      setContentStats({
+        blogPosts,
+        helpArticles,
+        pillarPages,
+        glossaryTerms,
+        totalPages: blogPosts + helpArticles + pillarPages + glossaryTerms + staticPages
+      });
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error);
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
     try {
-      // Check if record exists
       const { data: existing } = await supabase
         .from('system_settings')
         .select('id')
@@ -121,6 +163,24 @@ Sitemap: https://xlata.site/sitemap.xml`,
     }
   };
 
+  const handleRegenerateSitemap = async () => {
+    setRegeneratingSitemap(true);
+    try {
+      const response = await fetch('https://oxawvjcckmbevjztyfgp.supabase.co/functions/v1/generate-sitemap');
+      if (response.ok) {
+        toast({ title: "Sitemap Regenerado", description: "O sitemap foi atualizado com sucesso!" });
+        loadContentStats();
+      } else {
+        throw new Error('Falha ao regenerar sitemap');
+      }
+    } catch (error) {
+      console.error('Erro ao regenerar sitemap:', error);
+      toast({ title: "Erro", description: "Falha ao regenerar sitemap", variant: "destructive" });
+    } finally {
+      setRegeneratingSitemap(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copiado!", description: "Texto copiado para a área de transferência" });
@@ -140,15 +200,64 @@ Sitemap: https://xlata.site/sitemap.xml`,
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Content Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-4 w-4 text-emerald-400" />
+              <span className="text-gray-400 text-sm">Blog</span>
+            </div>
+            <p className="text-2xl font-bold text-white">{contentStats.blogPosts}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <HelpCircle className="h-4 w-4 text-blue-400" />
+              <span className="text-gray-400 text-sm">Ajuda</span>
+            </div>
+            <p className="text-2xl font-bold text-white">{contentStats.helpArticles}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Layers className="h-4 w-4 text-purple-400" />
+              <span className="text-gray-400 text-sm">Soluções</span>
+            </div>
+            <p className="text-2xl font-bold text-white">{contentStats.pillarPages}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="h-4 w-4 text-amber-400" />
+              <span className="text-gray-400 text-sm">Glossário</span>
+            </div>
+            <p className="text-2xl font-bold text-white">{contentStats.glossaryTerms}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BarChart3 className="h-4 w-4 text-cyan-400" />
+              <span className="text-gray-400 text-sm">Total URLs</span>
+            </div>
+            <p className="text-2xl font-bold text-emerald-400">{contentStats.totalPages}</p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* SEO Score Card */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -156,29 +265,35 @@ Sitemap: https://xlata.site/sitemap.xml`,
               <p className="text-gray-400 text-sm">Baseado nas configurações atuais</p>
             </div>
             <div className="flex items-center gap-4">
-              <div className={`text-4xl font-bold ${seoScore() >= 80 ? 'text-green-400' : seoScore() >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
+              <div className={`text-4xl font-bold ${seoScore() >= 80 ? 'text-emerald-400' : seoScore() >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
                 {seoScore()}%
               </div>
-              <Button onClick={handleSave} disabled={saving} className="bg-green-600 hover:bg-green-700">
-                {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                Salvar
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleRegenerateSitemap} disabled={regeneratingSitemap} variant="outline" className="border-[hsl(220,13%,26%)] text-white hover:bg-[hsl(220,13%,22%)]">
+                  {regeneratingSitemap ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Globe className="h-4 w-4 mr-2" />}
+                  Atualizar Sitemap
+                </Button>
+                <Button onClick={handleSave} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  Salvar
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
       <Tabs defaultValue="meta" className="w-full">
-        <TabsList className="bg-gray-800 border-gray-700">
-          <TabsTrigger value="meta" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+        <TabsList className="bg-[hsl(220,13%,18%)] border border-[hsl(220,13%,26%)]">
+          <TabsTrigger value="meta" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400">
             <Search className="h-4 w-4 mr-2" />
             Meta Tags
           </TabsTrigger>
-          <TabsTrigger value="social" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+          <TabsTrigger value="social" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400">
             <Globe className="h-4 w-4 mr-2" />
             Social
           </TabsTrigger>
-          <TabsTrigger value="technical" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+          <TabsTrigger value="technical" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400">
             <FileCode className="h-4 w-4 mr-2" />
             Técnico
           </TabsTrigger>
@@ -186,64 +301,64 @@ Sitemap: https://xlata.site/sitemap.xml`,
 
         {/* Meta Tags Tab */}
         <TabsContent value="meta" className="mt-4">
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Search className="h-5 w-5" />
+                <Search className="h-5 w-5 text-emerald-400" />
                 Meta Tags Principais
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label>Título do Site</Label>
-                  <Badge className={settings.site_title.length >= 30 && settings.site_title.length <= 60 ? 'bg-green-600' : 'bg-yellow-600'}>
+                  <Label className="text-gray-300">Título do Site</Label>
+                  <Badge className={settings.site_title.length >= 30 && settings.site_title.length <= 60 ? 'bg-emerald-600 text-white border-0' : 'bg-amber-600 text-white border-0'}>
                     {settings.site_title.length}/60 caracteres
                   </Badge>
                 </div>
                 <Input
                   value={settings.site_title}
                   onChange={(e) => setSettings({ ...settings, site_title: e.target.value })}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white"
                   placeholder="Título do site para SEO"
                 />
-                <p className="text-xs text-gray-400 mt-1">Recomendado: 30-60 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1">Recomendado: 30-60 caracteres</p>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label>Meta Descrição</Label>
-                  <Badge className={settings.site_description.length >= 120 && settings.site_description.length <= 160 ? 'bg-green-600' : 'bg-yellow-600'}>
+                  <Label className="text-gray-300">Meta Descrição</Label>
+                  <Badge className={settings.site_description.length >= 120 && settings.site_description.length <= 160 ? 'bg-emerald-600 text-white border-0' : 'bg-amber-600 text-white border-0'}>
                     {settings.site_description.length}/160 caracteres
                   </Badge>
                 </div>
                 <Textarea
                   value={settings.site_description}
                   onChange={(e) => setSettings({ ...settings, site_description: e.target.value })}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white"
                   rows={3}
                 />
-                <p className="text-xs text-gray-400 mt-1">Recomendado: 120-160 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1">Recomendado: 120-160 caracteres</p>
               </div>
 
               <div>
-                <Label>Palavras-chave</Label>
+                <Label className="text-gray-300">Palavras-chave</Label>
                 <Textarea
                   value={settings.site_keywords}
                   onChange={(e) => setSettings({ ...settings, site_keywords: e.target.value })}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white mt-2"
                   placeholder="palavra1, palavra2, palavra3"
                   rows={2}
                 />
-                <p className="text-xs text-gray-400 mt-1">Separe as palavras-chave por vírgula. Recomendado: 5-10 palavras-chave</p>
+                <p className="text-xs text-gray-500 mt-1">Separe as palavras-chave por vírgula. Recomendado: 5-10 palavras-chave</p>
               </div>
 
               {/* Preview */}
-              <div className="border border-gray-600 rounded-lg p-4 bg-gray-900">
-                <p className="text-xs text-gray-400 mb-2">Prévia no Google:</p>
+              <div className="border border-[hsl(220,13%,26%)] rounded-lg p-4 bg-[hsl(220,13%,13%)]">
+                <p className="text-xs text-gray-500 mb-2">Prévia no Google:</p>
                 <div className="space-y-1">
                   <p className="text-blue-400 text-lg hover:underline cursor-pointer">{settings.site_title || 'Título do Site'}</p>
-                  <p className="text-green-500 text-sm">https://xlata.site</p>
+                  <p className="text-emerald-500 text-sm">https://xlata.site</p>
                   <p className="text-gray-300 text-sm">{settings.site_description || 'Descrição do site aparecerá aqui...'}</p>
                 </div>
               </div>
@@ -253,46 +368,46 @@ Sitemap: https://xlata.site/sitemap.xml`,
 
         {/* Social Tab */}
         <TabsContent value="social" className="mt-4">
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Globe className="h-5 w-5" />
+                <Globe className="h-5 w-5 text-emerald-400" />
                 Open Graph & Social
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label>Imagem OG (Open Graph)</Label>
+                <Label className="text-gray-300">Imagem OG (Open Graph)</Label>
                 <Input
                   value={settings.og_image}
                   onChange={(e) => setSettings({ ...settings, og_image: e.target.value })}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white mt-2"
                   placeholder="URL da imagem para compartilhamento"
                 />
-                <p className="text-xs text-gray-400 mt-1">Tamanho recomendado: 1200x630 pixels</p>
+                <p className="text-xs text-gray-500 mt-1">Tamanho recomendado: 1200x630 pixels</p>
                 {settings.og_image && (
-                  <div className="mt-2 border border-gray-600 rounded p-2">
+                  <div className="mt-2 border border-[hsl(220,13%,26%)] rounded p-2">
                     <img src={settings.og_image} alt="OG Preview" className="max-h-32 object-cover rounded" />
                   </div>
                 )}
               </div>
 
               <div>
-                <Label>Twitter Handle</Label>
+                <Label className="text-gray-300">Twitter Handle</Label>
                 <Input
                   value={settings.twitter_handle}
                   onChange={(e) => setSettings({ ...settings, twitter_handle: e.target.value })}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white mt-2"
                   placeholder="@seuhandle"
                 />
               </div>
 
               <div>
-                <Label>Favicon URL</Label>
+                <Label className="text-gray-300">Favicon URL</Label>
                 <Input
                   value={settings.favicon_url}
                   onChange={(e) => setSettings({ ...settings, favicon_url: e.target.value })}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white mt-2"
                   placeholder="/favicon.ico"
                 />
               </div>
@@ -303,10 +418,10 @@ Sitemap: https://xlata.site/sitemap.xml`,
         {/* Technical Tab */}
         <TabsContent value="technical" className="mt-4">
           <div className="grid gap-6">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <FileCode className="h-5 w-5" />
+                  <FileCode className="h-5 w-5 text-emerald-400" />
                   robots.txt
                 </CardTitle>
               </CardHeader>
@@ -314,15 +429,15 @@ Sitemap: https://xlata.site/sitemap.xml`,
                 <Textarea
                   value={settings.robots_txt}
                   onChange={(e) => setSettings({ ...settings, robots_txt: e.target.value })}
-                  className="bg-gray-900 border-gray-600 text-green-400 font-mono text-sm"
+                  className="bg-[hsl(220,13%,13%)] border-[hsl(220,13%,26%)] text-emerald-400 font-mono text-sm"
                   rows={10}
                 />
                 <div className="flex gap-2 mt-3">
-                  <Button variant="outline" size="sm" onClick={() => copyToClipboard(settings.robots_txt)}>
+                  <Button variant="outline" size="sm" onClick={() => copyToClipboard(settings.robots_txt)} className="border-[hsl(220,13%,26%)] text-gray-300 hover:bg-[hsl(220,13%,22%)]">
                     <Copy className="h-4 w-4 mr-2" />
                     Copiar
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => window.open('/robots.txt', '_blank')}>
+                  <Button variant="outline" size="sm" onClick={() => window.open('/robots.txt', '_blank')} className="border-[hsl(220,13%,26%)] text-gray-300 hover:bg-[hsl(220,13%,22%)]">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Ver Atual
                   </Button>
@@ -330,54 +445,67 @@ Sitemap: https://xlata.site/sitemap.xml`,
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
+                  <Globe className="h-5 w-5 text-emerald-400" />
                   Sitemap
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>URL do Sitemap</Label>
+                  <Label className="text-gray-300">URL do Sitemap</Label>
                   <Input
                     value={settings.sitemap_url}
                     onChange={(e) => setSettings({ ...settings, sitemap_url: e.target.value })}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white mt-2"
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => window.open('/sitemap.xml', '_blank')}>
+                  <Button variant="outline" size="sm" onClick={() => window.open('https://oxawvjcckmbevjztyfgp.supabase.co/functions/v1/generate-sitemap', '_blank')} className="border-[hsl(220,13%,26%)] text-gray-300 hover:bg-[hsl(220,13%,22%)]">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Ver Sitemap
                   </Button>
+                  <Button variant="outline" size="sm" onClick={handleRegenerateSitemap} disabled={regeneratingSitemap} className="border-[hsl(220,13%,26%)] text-gray-300 hover:bg-[hsl(220,13%,22%)]">
+                    {regeneratingSitemap ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                    Regenerar
+                  </Button>
+                </div>
+                <div className="p-3 bg-[hsl(220,13%,13%)] rounded-lg border border-[hsl(220,13%,26%)]">
+                  <p className="text-sm text-gray-400 mb-2">
+                    <CheckCircle className="h-4 w-4 inline mr-2 text-emerald-400" />
+                    O sitemap é gerado automaticamente com todas as páginas publicadas.
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Inclui: {contentStats.blogPosts} posts do blog, {contentStats.helpArticles} artigos de ajuda, {contentStats.pillarPages} páginas de soluções e {contentStats.glossaryTerms} termos do glossário.
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Search className="h-5 w-5" />
+                  <Search className="h-5 w-5 text-emerald-400" />
                   Integrações
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>Google Analytics ID</Label>
+                  <Label className="text-gray-300">Google Analytics ID</Label>
                   <Input
                     value={settings.google_analytics_id}
                     onChange={(e) => setSettings({ ...settings, google_analytics_id: e.target.value })}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white mt-2"
                     placeholder="G-XXXXXXXXXX"
                   />
                 </div>
                 <div>
-                  <Label>Google Search Console ID</Label>
+                  <Label className="text-gray-300">Google Search Console ID</Label>
                   <Input
                     value={settings.google_search_console_id}
                     onChange={(e) => setSettings({ ...settings, google_search_console_id: e.target.value })}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-[hsl(220,13%,22%)] border-[hsl(220,13%,26%)] text-white mt-2"
                     placeholder="Código de verificação"
                   />
                 </div>
