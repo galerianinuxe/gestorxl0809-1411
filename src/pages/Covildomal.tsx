@@ -178,7 +178,7 @@ const Covildomal = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background dark">
         <AdminSidebar
           activeTab={activeTab}
           onTabClick={handleTabClick}
