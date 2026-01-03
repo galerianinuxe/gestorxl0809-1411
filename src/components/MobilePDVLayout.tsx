@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo, startTransition } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Bell, Printer, MessageSquare, DollarSign, Receipt, Calculator, X, Clock, Wifi, Server, ChevronRight, Settings, WifiOff, ServerOff } from 'lucide-react';
+import { Bell, Printer, MessageSquare, DollarSign, Receipt, X, Clock, Wifi, Server, ChevronRight, Settings, WifiOff, ServerOff } from 'lucide-react';
 import MobileBottomNav, { MobileTab } from './MobileBottomNav';
 import { Customer, Order, Material } from '@/types/pdv';
 import { useNavigate } from 'react-router-dom';
@@ -53,6 +53,8 @@ interface MobilePDVLayoutProps {
   // Menu Actions
   setShowAddFundsModal?: (show: boolean) => void;
   setShowMaterialsPrintModal?: (show: boolean) => void;
+  setShowExpenseModal?: (show: boolean) => void;
+  setShowClosingModal?: (show: boolean) => void;
   
   // Callback para quando precisar navegar para a balança
   onNavigateToScale?: () => void;
@@ -87,6 +89,8 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
   handleMenuClick,
   setShowAddFundsModal,
   setShowMaterialsPrintModal,
+  setShowExpenseModal,
+  setShowClosingModal,
   onNavigateToScale,
   setActiveTabRef
 }) => {
@@ -131,34 +135,25 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
     setShowPasswordModal(false);
     if (pendingAction === 'addFunds' && setShowAddFundsModal) {
       setShowAddFundsModal(true);
-    } else if (pendingAction === 'expense') {
-      // Use handleMenuClick for expense if no specific modal
-      handleMenuClick();
-    } else if (pendingAction === 'closeDay') {
-      // Use handleMenuClick for closeDay if no specific modal  
-      handleMenuClick();
+    } else if (pendingAction === 'expense' && setShowExpenseModal) {
+      setShowExpenseModal(true);
+    } else if (pendingAction === 'closeDay' && setShowClosingModal) {
+      setShowClosingModal(true);
+    } else if (pendingAction === 'settings') {
+      startTransition(() => {
+        navigate('/dashboard');
+      });
     }
     setPendingAction(null);
   };
 
   // Handle menu action with password
   const handleMenuAction = (action: string) => {
-    if (action === 'addFunds') {
+    if (action === 'addFunds' || action === 'expense' || action === 'closeDay' || action === 'settings') {
       setPendingAction(action);
       setShowPasswordModal(true);
-    } else if (action === 'expense' || action === 'closeDay') {
-      setPendingAction(action);
-      setShowPasswordModal(true);
-    } else if (action === 'calculator') {
-      // Calculator doesn't need password
-      handleMenuClick();
     } else if (action === 'print' && setShowMaterialsPrintModal) {
       setShowMaterialsPrintModal(true);
-    } else if (action === 'settings') {
-      // Use startTransition to avoid suspense error during navigation
-      startTransition(() => {
-        navigate('/settings');
-      });
     }
   };
 
@@ -370,26 +365,21 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
                     label="Adicionar Saldo"
                     onClick={() => handleMenuAction('addFunds')}
                   />
-                  <MenuItem 
-                    icon={<Receipt className="w-5 h-5" />}
-                    label="Adicionar Despesa"
-                    onClick={() => handleMenuAction('expense')}
-                  />
-                  <MenuItem 
-                    icon={<Calculator className="w-5 h-5" />}
-                    label="Calculadora"
-                    onClick={() => handleMenuAction('calculator')}
-                  />
-                  <MenuItem 
-                    icon={<Printer className="w-5 h-5" />}
-                    label="Imprimir Tabela"
-                    onClick={() => handleMenuAction('print')}
-                  />
-                  <MenuItem 
-                    icon={<Settings className="w-5 h-5" />}
-                    label="Configurações"
-                    onClick={() => handleMenuAction('settings')}
-                  />
+                <MenuItem 
+                  icon={<Receipt className="w-5 h-5" />}
+                  label="Adicionar Despesa"
+                  onClick={() => handleMenuAction('expense')}
+                />
+                <MenuItem 
+                  icon={<Printer className="w-5 h-5" />}
+                  label="Imprimir Tabela"
+                  onClick={() => handleMenuAction('print')}
+                />
+                <MenuItem 
+                  icon={<Settings className="w-5 h-5" />}
+                  label="Configurações"
+                  onClick={() => handleMenuAction('settings')}
+                />
                 </div>
 
                 {/* Fechar Dia */}

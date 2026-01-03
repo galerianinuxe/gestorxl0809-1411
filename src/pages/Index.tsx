@@ -28,6 +28,8 @@ const MaterialModal = React.lazy(() => import('../components/MaterialModal'));
 const AlertModal = React.lazy(() => import('../components/AlertModal'));
 const CashRegisterOpeningModal = React.lazy(() => import('../components/CashRegisterOpeningModal'));
 const CashRegisterAddFundsModal = React.lazy(() => import('../components/CashRegisterAddFundsModal'));
+const CashRegisterClosingModal = React.lazy(() => import('../components/CashRegisterClosingModal'));
+const ExpenseModal = React.lazy(() => import('../components/ExpenseModal'));
 const WelcomeScreen = React.lazy(() => import('../components/WelcomeScreen'));
 const PasswordPromptModal = React.lazy(() => import('@/components/PasswordPromptModal'));
 const ErrorReportModal = React.lazy(() => import('../components/ErrorReportModal'));
@@ -94,6 +96,8 @@ const Index: React.FC = () => {
   // Cash register states
   const [showCashRegisterOpeningModal, setShowCashRegisterOpeningModal] = useState(false);
   const [showCashRegisterAddFundsModal, setShowCashRegisterAddFundsModal] = useState(false);
+  const [showCashRegisterClosingModal, setShowCashRegisterClosingModal] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [isCashRegisterOpen, setIsCashRegisterOpen] = useState<boolean>(false);
   const [showWelcomeScreen, setShowWelcomeScreen] = useState<boolean>(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -977,6 +981,8 @@ const Index: React.FC = () => {
         handleMenuClick={handleMenuClick}
         setShowAddFundsModal={setShowCashRegisterAddFundsModal}
         setShowMaterialsPrintModal={setShowMaterialsPrintModal}
+        setShowExpenseModal={setShowExpenseModal}
+        setShowClosingModal={setShowCashRegisterClosingModal}
         setActiveTabRef={setMobileTabSetter}
       />
     </React.Suspense>
@@ -1136,6 +1142,22 @@ const Index: React.FC = () => {
         setShowMaterialsPrintModal(false);
         // Retornar automaticamente ao PDV após impressão
       }} />}
+
+          <React.Suspense fallback={null}>
+            {showCashRegisterClosingModal && <CashRegisterClosingModal open={showCashRegisterClosingModal} onOpenChange={setShowCashRegisterClosingModal} onComplete={() => {
+              setShowCashRegisterClosingModal(false);
+              window.location.reload();
+            }} />}
+          </React.Suspense>
+
+          <React.Suspense fallback={null}>
+            {showExpenseModal && <ExpenseModal open={showExpenseModal} onOpenChange={async (open) => {
+              setShowExpenseModal(open);
+              if (!open) {
+                await updateCashRegisterBalance();
+              }
+            }} />}
+          </React.Suspense>
         </> : null}
     </div>;
 };
