@@ -47,11 +47,9 @@ export type ActiveTab =
   | 'usuarios' 
   | 'financeiro'
   | 'assinaturas' 
-  | 'pix-payments' 
   | 'planos'
   | 'conteudo' 
   | 'landing' 
-  | 'blog'
   | 'seguranca'
   | 'access-logs'
   | 'audit-logs'
@@ -76,6 +74,7 @@ interface MenuItem {
   icon: React.ElementType;
   badge?: string | number;
   requiredRole?: AdminRole;
+  description?: string;
 }
 
 interface AdminSidebarProps {
@@ -95,8 +94,9 @@ const menuGroups: MenuGroup[] = [
     label: 'Visão Geral',
     icon: LayoutDashboard,
     items: [
-      { id: 'dashboard', title: 'Dashboard', icon: LayoutDashboard },
-      { id: 'online', title: 'Usuários Online', icon: Wifi },
+      { id: 'dashboard', title: 'Dashboard', icon: LayoutDashboard, description: 'Resumo do sistema' },
+      { id: 'online', title: 'Usuários Online', icon: Wifi, description: 'Monitorar sessões ativas' },
+      { id: 'analytics', title: 'Analytics', icon: BarChart3, description: 'Métricas e relatórios' },
     ]
   },
   {
@@ -104,7 +104,7 @@ const menuGroups: MenuGroup[] = [
     label: 'Usuários',
     icon: Users,
     items: [
-      { id: 'usuarios', title: 'Gerenciar Usuários', icon: Users },
+      { id: 'usuarios', title: 'Gerenciar Usuários', icon: Users, description: 'Cadastro e permissões' },
     ],
     requiredRole: 'suporte'
   },
@@ -113,9 +113,8 @@ const menuGroups: MenuGroup[] = [
     label: 'Financeiro',
     icon: DollarSign,
     items: [
-      { id: 'financeiro', title: 'Dashboard Financeiro', icon: DollarSign },
-      { id: 'assinaturas', title: 'Assinaturas', icon: CreditCard },
-      { id: 'planos', title: 'Configurar Planos', icon: Settings, requiredRole: 'admin_master' },
+      { id: 'financeiro', title: 'Dashboard Financeiro', icon: DollarSign, description: 'Receitas e pagamentos' },
+      { id: 'planos', title: 'Configurar Planos', icon: Settings, requiredRole: 'admin_master', description: 'Gerenciar planos' },
     ],
     requiredRole: 'admin_operacional'
   },
@@ -124,8 +123,8 @@ const menuGroups: MenuGroup[] = [
     label: 'Conteúdo',
     icon: FileText,
     items: [
-      { id: 'landing', title: 'Landing Page', icon: Image },
-      { id: 'conteudo', title: 'CMS / Blog', icon: FileText },
+      { id: 'landing', title: 'Landing Page', icon: Image, description: 'Editar página inicial' },
+      { id: 'conteudo', title: 'CMS / Blog', icon: FileText, description: 'Artigos e posts' },
     ],
     requiredRole: 'admin_operacional'
   },
@@ -134,10 +133,7 @@ const menuGroups: MenuGroup[] = [
     label: 'Segurança',
     icon: Shield,
     items: [
-      { id: 'seguranca', title: 'Painel de Segurança', icon: Shield },
-      { id: 'access-logs', title: 'Logs de Acesso', icon: Eye },
-      { id: 'audit-logs', title: 'Auditoria', icon: Clock },
-      { id: 'bloqueios', title: 'Bloqueios', icon: Lock },
+      { id: 'seguranca', title: 'Central de Segurança', icon: Shield, description: 'Logs, bloqueios e auditoria' },
     ],
     requiredRole: 'admin_master'
   },
@@ -146,20 +142,11 @@ const menuGroups: MenuGroup[] = [
     label: 'Sistema',
     icon: Server,
     items: [
-      { id: 'sistema', title: 'Configurações', icon: Settings },
-      { id: 'feature-flags', title: 'Feature Flags', icon: Flag },
-      { id: 'manutencao', title: 'Manutenção', icon: AlertTriangle },
+      { id: 'sistema', title: 'Configurações', icon: Settings, description: 'Configurações gerais' },
+      { id: 'feature-flags', title: 'Feature Flags', icon: Flag, description: 'Controle de recursos' },
+      { id: 'manutencao', title: 'Manutenção', icon: AlertTriangle, description: 'Backup e manutenção' },
     ],
     requiredRole: 'admin_master'
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: BarChart3,
-    items: [
-      { id: 'analytics', title: 'Dashboard Analytics', icon: BarChart3 },
-    ],
-    requiredRole: 'leitura'
   },
 ];
 
@@ -325,16 +312,29 @@ export const AdminSidebar = ({
                               onClick={() => onTabClick(item.id)}
                               isActive={activeTab === item.id}
                               className={cn(
-                                "w-full flex items-center gap-3 px-3 py-2 text-left transition-colors rounded-lg ml-2",
+                                "w-full flex items-center gap-3 px-3 py-2.5 text-left transition-all rounded-lg ml-2",
                                 activeTab === item.id
-                                  ? "bg-red-600 text-white"
-                                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                                  ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-600/20"
+                                  : "text-gray-300 hover:bg-gray-700/70 hover:text-white hover:translate-x-1"
                               )}
                             >
-                              <item.icon className="h-4 w-4" />
-                              <span className="text-sm">{item.title}</span>
+                              <item.icon className={cn(
+                                "h-4 w-4 flex-shrink-0",
+                                activeTab === item.id && "drop-shadow-glow"
+                              )} />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm font-medium block truncate">{item.title}</span>
+                                {item.description && (
+                                  <span className={cn(
+                                    "text-xs block truncate",
+                                    activeTab === item.id ? "text-red-200" : "text-gray-500"
+                                  )}>
+                                    {item.description}
+                                  </span>
+                                )}
+                              </div>
                               {item.badge && (
-                                <Badge variant="secondary" className="ml-auto text-xs">
+                                <Badge variant="secondary" className="ml-auto text-xs flex-shrink-0">
                                   {item.badge}
                                 </Badge>
                               )}
