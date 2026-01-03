@@ -51,18 +51,18 @@ const Landing: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
   const [contentSettings, setContentSettings] = useState<LandingContentSettings>({
     user_id: '',
-    hero_badge_text: 'EVOLUÇÃO NO SEU DEPÓSITO DE RECICLAGEM',
-    hero_main_title: 'Chega de papel, caneta e conta de cabeça',
-    hero_subtitle: 'Sistema online feito para depósitos de reciclagem, sucatas e ferros velhos que querem organização de verdade.',
-    hero_description: 'Ganhe velocidade na balança, controle total dos materiais e veja seu lucro em tempo real.',
-    hero_button_text: 'TESTAR GRÁTIS AGORA',
+    hero_badge_text: 'MAIS DE 130 DEPÓSITOS JÁ PARARAM DE PERDER DINHEIRO',
+    hero_main_title: 'Quanto dinheiro você perdeu essa semana, sem perceber?',
+    hero_subtitle: 'A cada pesagem no caderninho, você perde centavos. No final do mês, são milhares de reais escapando do seu bolso.',
+    hero_description: 'O XLata.site é o sistema que faz o dinheiro parar de vazar. Pesagem rápida, cálculo certo, fornecedor confiando — e você sabendo exatamente quanto ganhou.',
+    hero_button_text: 'PARAR DE PERDER DINHEIRO AGORA',
     logo_url: '/lovable-uploads/xlata.site_logotipo.png',
     background_image_url: '/lovable-uploads/capa_xlata.jpg',
     company_name: 'XLata.site Gestor Completo',
     company_phone: '(11) 96351-2105',
     footer_text: '© 2025 XLata. Todos os direitos reservados.',
-    seo_title: 'Sistema para Depósito de Reciclagem e Ferro Velho | XLata.site – Balança, Estoque e Lucro',
-    seo_description: 'Sistema online para depósito de reciclagem, sucata e ferro velho. Controle de pesagem, estoque, clientes, notas e lucros em um só lugar. Teste grátis 7 dias, sem cartão.',
+    seo_title: 'Sistema para Depósito de Reciclagem e Ferro Velho | Pare de Perder Dinheiro | XLata.site',
+    seo_description: 'O XLata.site é o sistema que para de perder dinheiro no seu depósito. Pesagem rápida, cálculo certo, fornecedor confiando. Teste grátis 7 dias, sem cartão.',
     seo_keywords: 'sistema para depósito de reciclagem, sistema para reciclagem, programa para ferro velho, software para sucata, controle de balança, controle de materiais recicláveis, sistema PDV reciclagem, xlata, sistema sucata',
     testimonials: []
   });
@@ -74,7 +74,7 @@ const Landing: React.FC = () => {
     company: "JMT Sucata",
     location: "São Bernardo do Campo - SP",
     rating: 5,
-    text: "Cara, triplicou minha produtividade! O que levava 15 minutos agora levo 5. Fila acabou!",
+    text: "Saí de 20 cargas por dia pra 65. O sistema se pagou na primeira semana. Fila acabou!",
     icon: "Rocket",
     revenue: "+R$ 8.000/mês",
     profileImage: "/lovable-uploads/clien01-xlata.png"
@@ -83,7 +83,7 @@ const Landing: React.FC = () => {
     company: "BH Sucatas",
     location: "Guarulhos - SP",
     rating: 5,
-    text: "Acabaram os erros de conta e as brigas com cliente. Sistema perfeito, recomendo!",
+    text: "Acabaram os erros de conta e as brigas com cliente. Cada centavo no lugar certo agora!",
     icon: "Award",
     revenue: "+R$ 12.000/mês",
     profileImage: "/lovable-uploads/clien02-xlata.png"
@@ -92,7 +92,7 @@ const Landing: React.FC = () => {
     company: "HJM Recicla",
     location: "Três Corações - MG",
     rating: 5,
-    text: "Paguei o sistema em 1 mês só com o que parei de perder. Melhor investimento da vida!",
+    text: "Descobri que tava perdendo R$ 800 por mês em erro de conta. Agora é tudo certo!",
     icon: "TrendingUp",
     revenue: "+R$ 15.000/mês",
     profileImage: "/lovable-uploads/clien03-xlata.png"
@@ -101,7 +101,7 @@ const Landing: React.FC = () => {
     company: "Ferro & Aço Nordeste",
     location: "Fortaleza - CE",
     rating: 5,
-    text: "Sistema revolucionou meu negócio! Agora controlo tudo pelo celular e o lucro aumentou muito.",
+    text: "Antes não sabia se dava lucro. Agora abro o celular e vejo exatamente quanto ganhei!",
     icon: "Star",
     revenue: "+R$ 10.500/mês",
     profileImage: "/lovable-uploads/clien04-xlata.png"
@@ -110,7 +110,7 @@ const Landing: React.FC = () => {
     company: "Recicla Sul",
     location: "Curitiba - PR",
     rating: 5,
-    text: "Antes perdia muito tempo com papelada. Hoje em dia é só pesar, apertar botão e pronto! Fantástico!",
+    text: "Fornecedor agora confia no peso e volta toda semana. Antes ia pro concorrente!",
     icon: "Award",
     revenue: "+R$ 9.200/mês",
     profileImage: "/lovable-uploads/clien05-xlata.jpg"
@@ -119,7 +119,7 @@ const Landing: React.FC = () => {
     company: "Metais do Centro-Oeste",
     location: "Campo Grande - MS",
     rating: 5,
-    text: "Meus clientes adoraram a agilidade no atendimento. Recomendo demais, vale cada centavo!",
+    text: "Fiscal bateu na porta e eu tinha tudo organizado. Sem multa, sem dor de cabeça!",
     icon: "TrendingUp",
     revenue: "+R$ 13.800/mês",
     profileImage: "/lovable-uploads/clien06-xlata.jpeg"
@@ -335,90 +335,90 @@ const Landing: React.FC = () => {
   };
   const benefits = [{
     icon: Clock,
-    title: "Acabe com a fila na balança",
-    description: "Atenda muito mais caminhões e carroceiros por dia. O sistema calcula tudo sozinho e libera a balança em poucos minutos.",
+    title: "Atenda 3x mais caminhões por dia",
+    description: "O caminhão chega, você pesa, o sistema calcula, imprime o comprovante e libera. Em 3 minutos. Sem caderno, sem conta de cabeça, sem discussão.",
     gradient: "from-blue-600 to-cyan-600",
-    impact: "Até 300% mais produtividade"
+    impact: "300% MAIS PRODUTIVIDADE"
   }, {
     icon: Calculator,
-    title: "Zero erros de pesagem e de preço",
-    description: "Nada de peso anotado errado, tipo de material trocado ou conta feita na pressa. O sistema soma tudo com precisão de centavos.",
+    title: "Cada centavo no lugar certo, sempre",
+    description: "O sistema soma peso, multiplica por preço, desconta tara e mostra o total exato. Você nunca mais paga a mais nem perde dinheiro por distração.",
     gradient: "from-purple-600 to-pink-600",
-    impact: "100% de precisão nos cálculos"
+    impact: "ZERO ERRO DE CÁLCULO"
   }, {
     icon: Shield,
-    title: "Fornecedor confia e volta sempre",
-    description: "Comprovante profissional, pesagem transparente e histórico de cada carga. Quem vende pra você se sente seguro e volta com mais material.",
+    title: "Fornecedor satisfeito traz mais carga",
+    description: "Comprovante profissional, histórico completo, peso transparente. Quem vende pra você confia no número e volta com mais material.",
     gradient: "from-emerald-600 to-teal-600",
-    impact: "Muito mais fidelização"
+    impact: "FIDELIZAÇÃO GARANTIDA"
   }];
   const problems = [{
-    title: "Fila na balança = caminhão indo embora",
+    title: "Caminhão na fila = caminhão no concorrente",
     loss: "R$ 3.500/mês",
-    description: "Caminhões e carroceiros cansam de esperar, desistem da descarga e vão vender no depósito do concorrente.",
+    description: "Caminhões e carroceiros cansam de esperar, desistem da descarga e vão vender no depósito do lado.",
     icon: Clock,
     color: "from-red-600 to-red-800",
     urgency: "CRÍTICO"
   }, {
-    title: "Erro de cálculo e material = prejuízo direto",
+    title: "Cada conta errada é dinheiro que sai do seu bolso",
     loss: "R$ 2.800/mês",
-    description: "Peso anotado errado, tipo de material trocado, preço por kg confundido – cada erro é dinheiro saindo do seu caixa.",
+    description: "Peso anotado errado, tipo de material trocado, preço por kg confundido – cada erro é dinheiro seu indo embora.",
     icon: XCircle,
     color: "from-orange-600 to-red-700",
     urgency: "ALTO"
   }, {
-    title: "Fornecedor desconfiado não volta",
+    title: "Fornecedor desconfiado vende pro vizinho",
     loss: "R$ 4.200/mês",
-    description: "Papel rabiscado, conta confusa, sem comprovante claro – o fornecedor acha que perdeu dinheiro e procura outro depósito.",
+    description: "Papel rabiscado, conta confusa, sem comprovante claro – o fornecedor acha que perdeu dinheiro e vai embora.",
     icon: AlertTriangle,
     color: "from-red-700 to-red-900",
     urgency: "CRÍTICO"
   }, {
-    title: "Papelada bagunçada = não sabe se lucrou",
+    title: "Você trabalha o mês inteiro e não sabe se deu lucro",
     loss: "R$ 2.100/mês",
-    description: "Planilha perdida, caderninho rasgado, notas misturadas. Você não sabe quanto tem de cobre, alumínio, ferro ou plástico… nem quanto realmente ganhou.",
+    description: "Planilha perdida, caderninho rasgado, notas misturadas. Você não sabe quanto tem nem quanto realmente ganhou.",
     icon: TrendingDown,
     color: "from-red-500 to-orange-700",
     urgency: "ALTO"
   }, {
-    title: "Fiscalização = multa e dor de cabeça",
+    title: "Fiscal bate na porta e cadê os papéis?",
     loss: "R$ 5.000/mês",
-    description: "Quando Receita ou fiscalização batem na porta, cadê relatório, cadastro, histórico e organização? Sem sistema, a chance de multa é enorme.",
+    description: "Quando Receita ou fiscalização aparecem, cadê relatório, cadastro, histórico? Sem sistema, a multa vem.",
     icon: BarChart3,
     color: "from-red-800 to-red-950",
     urgency: "CRÍTICO"
   }, {
-    title: "Concorrência organizada te ultrapassando",
+    title: "O depósito do lado já usa sistema. E seus fornecedores sabem.",
     loss: "R$ 6.800/mês",
-    description: "Depósito do lado já modernizou, gera comprovante, paga certinho e sabe quanto pode oferecer. Seus melhores fornecedores começam a migrar.",
+    description: "Concorrente modernizou, gera comprovante, paga certinho. Seus melhores fornecedores já estão olhando pra lá.",
     icon: Target,
     color: "from-red-600 to-red-900",
     urgency: "EMERGÊNCIA"
   }];
   const features = [{
-    title: "Controle total de clientes e fornecedores",
-    description: "Histórico completo de quem vende e de quem compra. Veja quanto cada cliente já trouxe, o que trouxe, quando trouxe e quanto você pagou.",
+    title: "Saiba quem te traz mais lucro e quem só dá trabalho",
+    description: "Histórico completo de cada fornecedor. Veja quanto cada um já trouxe, o que trouxe, quando trouxe e quanto você pagou.",
     icon: User2,
     color: "from-purple-600 to-violet-600",
     badge: "Gestão inteligente"
   }, {
-    title: "Lucro do depósito na palma da mão",
+    title: "Abra o celular e veja se hoje deu dinheiro ou prejuízo",
     description: "Dashboard mostra quanto entrou hoje, ontem, na semana e no mês. Veja se o depósito está dando lucro ou só girando dinheiro.",
     icon: BarChart,
     color: "from-orange-600 to-amber-600",
     badge: "Controle financeiro"
   }, {
-    title: "Mais de 130 depósitos e ferros velhos",
-    description: "Do Norte ao Sul do Brasil, empresas de reciclagem usam o XLata.site para organizar o pátio e aumentar o faturamento.",
+    title: "130 donos de depósito já pararam de perder. Você vai ser o 131?",
+    description: "Do Norte ao Sul do Brasil, empresas de reciclagem usam o XLata.site para organizar o pátio e parar de perder dinheiro.",
     icon: Users,
     color: "from-green-600 to-emerald-600",
-    badge: "130+ clientes"
+    badge: "130+ clientes satisfeitos"
   }, {
-    title: "Suporte WhatsApp 24/7",
-    description: "Travou, ficou com dúvida ou precisa ajustar algo? Chama no WhatsApp e nosso time te ajuda a resolver na hora.",
+    title: "Travou? Manda um zap e a gente resolve na hora",
+    description: "Ficou com dúvida ou precisa ajustar algo? Chama no WhatsApp e nosso time te ajuda a resolver em minutos.",
     icon: MessageSquare,
     color: "from-blue-600 to-cyan-600",
-    badge: "Suporte 24h"
+    badge: "Suporte humanizado"
   }];
   return <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-x-hidden">
       {/* New Responsive Header */}
@@ -479,8 +479,63 @@ const Landing: React.FC = () => {
         </div>
       </section>
 
-      {/* Problems Section */}
-      
+      {/* Problems Section - REATIVADO */}
+      <section className="py-8 lg:py-20 px-3 lg:px-4 bg-gradient-to-br from-red-950/50 via-gray-900 to-red-900/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-orange-500/10"></div>
+        
+        <div className="container mx-auto relative z-10">
+          <div className="text-center mb-8 lg:mb-16">
+            <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3">
+              <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
+              TODO DEPÓSITO PERDE DINHEIRO. A MAIORIA NEM SABE QUANTO.
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-4 lg:mb-8 text-red-400 drop-shadow-xl px-2">
+              Você está perdendo dinheiro todos os dias
+            </h2>
+            <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
+              Veja onde o dinheiro do seu depósito está <span className="text-red-400 font-bold">escorrendo pelo ralo</span> sem você perceber.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8 lg:mb-12">
+            {problems.map((problem, index) => (
+              <Card key={index} className={`bg-gradient-to-br ${problem.color} border-0 shadow-2xl transform hover:scale-105 transition-all duration-300`}>
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge className="bg-white/20 text-white font-bold text-xs">
+                      {problem.urgency}
+                    </Badge>
+                    <problem.icon className="h-6 w-6 lg:h-8 lg:w-8 text-white/80" />
+                  </div>
+                  <CardTitle className="text-white text-base sm:text-lg lg:text-xl font-bold mb-2">{problem.title}</CardTitle>
+                  <Badge className="bg-white text-red-600 font-black text-sm lg:text-lg px-3 py-1">
+                    Prejuízo: {problem.loss}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-white/90 text-xs sm:text-sm lg:text-base leading-relaxed">{problem.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <div className="bg-gradient-to-r from-red-800 to-red-900 rounded-2xl p-6 lg:p-8 border-2 border-red-500/50 max-w-3xl mx-auto mb-6 lg:mb-8">
+              <p className="text-xl sm:text-2xl lg:text-4xl font-black text-white mb-2">
+                SOMA: ATÉ <span className="text-yellow-400">R$ 24.400</span> POR MÊS
+              </p>
+              <p className="text-red-200 text-sm lg:text-lg font-semibold">
+                Escorrendo pelo ralo do seu depósito
+              </p>
+            </div>
+            <Button size="lg" onClick={() => navigate('/register')} className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-base sm:text-lg lg:text-xl px-6 sm:px-10 lg:px-12 py-4 sm:py-6 font-black shadow-2xl transform hover:scale-110 transition-all duration-300 border-4 border-green-400/30">
+              <Zap className="mr-2 lg:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
+              QUERO PARAR DE PERDER
+              <ArrowRight className="ml-2 lg:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Benefits Section */}
       <section className="py-8 lg:py-20 px-3 lg:px-4 relative overflow-hidden">
@@ -490,13 +545,13 @@ const Landing: React.FC = () => {
           <div className="text-center mb-8 lg:mb-20">
             <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3">
               <Rocket className="h-3 w-3 sm:h-4 sm:w-4 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
-              A SOLUÇÃO QUE ORGANIZA SEU DEPÓSITO
+              O XLATA COLOCA ESSE DINHEIRO DE VOLTA NO SEU BOLSO
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black mb-4 lg:mb-8 text-green-400 drop-shadow-xl px-2">
-              Transforme o seu depósito em uma máquina de lucro previsível
+              Pare de perder e comece a lucrar de verdade
             </h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              XLata.site é o sistema que depósitos de reciclagem e ferros velhos usam para <span className="text-green-400 font-bold">acabar com o caos e dominar os números</span>.
+              XLata.site é o sistema que depósitos de reciclagem e ferros velhos usam para <span className="text-green-400 font-bold">transformar sucata em lucro organizado</span>.
             </p>
           </div>
           
@@ -545,13 +600,13 @@ const Landing: React.FC = () => {
           <div className="text-center mb-6 lg:mb-16">
             <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3">
               <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
-              RETORNO GARANTIDO EM 30 DIAS
+              VOCÊ PAGA R$ 97 E PARA DE PERDER R$ 5.000
             </Badge>
             <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 lg:mb-8 text-green-400 drop-shadow-xl px-2">
-              Depósitos de reciclagem recuperam o investimento em menos de 1 mês
+              O sistema se paga no primeiro dia. O resto é lucro limpo.
             </h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              Veja os resultados REAIS de quem já usa o Sistema PDV XLata.site no dia a dia do depósito.
+              Veja os resultados REAIS de quem já usa o XLata.site no dia a dia do depósito.
             </p>
           </div>
           
@@ -562,8 +617,8 @@ const Landing: React.FC = () => {
                   <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-white" />
                 </div>
                 <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">+300%</CardTitle>
-                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Aumento na produtividade</p>
-                <p className="text-green-400 font-semibold text-sm lg:text-base">Atenda muito mais cargas por dia</p>
+                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Atenda o triplo de cargas por dia</p>
+                <p className="text-green-400 font-semibold text-sm lg:text-base">Fila acabou, caminhão não vai embora</p>
               </CardHeader>
             </Card>
             <Card className="bg-gradient-to-br from-gray-800/80 to-gray-900/90 border-2 border-blue-500/50 text-center hover:border-blue-400 transition-all duration-300 transform hover:scale-110 shadow-2xl">
@@ -571,9 +626,9 @@ const Landing: React.FC = () => {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-6 shadow-xl">
                   <Clock className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-white" />
                 </div>
-                <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">-80%</CardTitle>
-                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Redução no tempo de pesagem</p>
-                <p className="text-blue-400 font-semibold text-sm lg:text-base">De 15 para cerca de 3 minutos</p>
+                <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">3 min</CardTitle>
+                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">De 15 minutos pra 3 minutos cada descarga</p>
+                <p className="text-blue-400 font-semibold text-sm lg:text-base">Pesa, calcula, imprime e libera</p>
               </CardHeader>
             </Card>
             <Card className="bg-gradient-to-br from-gray-800/80 to-gray-900/90 border-2 border-purple-500/50 text-center hover:border-purple-400 transition-all duration-300 transform hover:scale-110 shadow-2xl">
@@ -581,9 +636,9 @@ const Landing: React.FC = () => {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-6 shadow-xl">
                   <Shield className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-white" />
                 </div>
-                <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">100%</CardTitle>
-                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Eliminação de erros de conta</p>
-                <p className="text-purple-400 font-semibold text-sm lg:text-base">Zero prejuízo por cálculo errado</p>
+                <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-black text-green-400 mb-1 lg:mb-2">0 erros</CardTitle>
+                <p className="text-gray-300 font-bold text-base sm:text-lg lg:text-xl">Nunca mais pague errado ou perca na conta</p>
+                <p className="text-purple-400 font-semibold text-sm lg:text-base">Sistema calcula tudo automaticamente</p>
               </CardHeader>
             </Card>
           </div>
@@ -600,11 +655,11 @@ const Landing: React.FC = () => {
           <div className="text-center mb-6 lg:mb-16">
             <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3">
               <Star className="h-3 w-3 sm:h-4 sm:w-4 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
-              DEPOIMENTOS DE QUEM JÁ ORGANIZOU O DEPÓSITO
+              ELES PARARAM DE PERDER DINHEIRO. VOCÊ TAMBÉM PODE.
             </Badge>
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 lg:mb-8 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent px-2">Mais de 130 donos de depósito de reciclagem e ferro velho aprovam o Sistema XLata</h2>
+            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 lg:mb-8 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent px-2">130 donos de depósito já organizaram o negócio</h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              Veja o que nossos clientes falam sobre os <span className="text-yellow-400 font-bold">RESULTADOS REAIS</span> do XLata.site.
+              Veja o que nossos clientes falam sobre os <span className="text-yellow-400 font-bold">RESULTADOS REAIS</span> que tiveram.
             </p>
           </div>
           
@@ -668,15 +723,15 @@ const Landing: React.FC = () => {
         
         <div className="container mx-auto relative z-10">
           <div className="text-center mb-6 lg:mb-16">
-            <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-pdv-green to-green-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3">
+            <Badge className="mb-3 lg:mb-6 bg-gradient-to-r from-pdv-green to-green-600 text-white font-bold text-xs sm:text-sm lg:text-lg px-3 sm:px-6 lg:px-8 py-2 lg:py-3 animate-pulse">
               <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 lg:h-6 lg:w-6 mr-2 lg:mr-3" />
-              ESCOLHA SEU PLANO
+              ESCOLHA QUANTO QUER PARAR DE PERDER
             </Badge>
             <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 lg:mb-8 text-white drop-shadow-xl px-2">
-              Invista no futuro do seu depósito de reciclagem
+              Todos os planos incluem tudo. Sem pegadinha, sem módulo extra.
             </h2>
             <p className="text-base sm:text-lg lg:text-2xl text-gray-300 max-w-4xl mx-auto font-semibold px-2">
-              Todos os planos incluem acesso completo ao sistema PDV com <span className="text-pdv-green font-bold">todos os recursos para depósitos e ferros velhos</span>.
+              Acesso completo ao sistema PDV com <span className="text-pdv-green font-bold">todos os recursos para parar de perder dinheiro</span>.
             </p>
           </div>
           
@@ -727,7 +782,7 @@ const Landing: React.FC = () => {
                   
                   <Button onClick={() => handleSelectPlan(plan.id)} className={`w-full ${plan.promotional ? 'bg-green-600 hover:bg-green-700 animate-pulse' : plan.popular ? 'bg-pdv-green hover:bg-green-600' : 'bg-gray-700 hover:bg-gray-600'} flex items-center gap-2`}>
                     <Crown className="h-4 w-4" />
-                    Assinar Plano
+                    Parar de perder agora
                   </Button>
                 </CardContent>
               </Card>)}
@@ -750,27 +805,27 @@ const Landing: React.FC = () => {
           </div>
           
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black mb-4 lg:mb-8 text-white drop-shadow-2xl px-2">
-            Pronto para parar de perder dinheiro no seu depósito?
+            ÚLTIMA PERGUNTA: QUANTO VOCÊ PERDEU HOJE?
           </h2>
           <p className="text-base sm:text-lg lg:text-2xl mb-6 lg:mb-12 max-w-4xl mx-auto text-green-100 font-semibold px-2">
-            Teste o XLata.site por 7 dias, sem cartão, e veja seu depósito de reciclagem se transformar em uma 
-            <span className="text-yellow-300 font-black"> operação organizada e lucrativa.</span>
+            Cada dia sem sistema é dinheiro jogado fora. Comece agora em 2 minutos e veja seu depósito se transformar em
+            <span className="text-yellow-300 font-black"> lucro organizado.</span>
           </p>
           
           <div className="flex flex-col gap-4 lg:gap-6 justify-center mb-6 lg:mb-12 px-2">
-            <Button size="lg" onClick={() => navigate('/register')} className="bg-white text-green-700 hover:bg-gray-100 text-base sm:text-lg lg:text-2xl px-6 sm:px-10 py-4 sm:py-6 lg:py-8 font-black shadow-2xl transform hover:scale-110 transition-all duration-300 border-4 w-full lg:w-auto border-green-400 lg:px-[6px]">
+            <Button size="lg" onClick={() => navigate('/register')} className="bg-white text-green-700 hover:bg-gray-100 text-base sm:text-lg lg:text-2xl px-6 sm:px-10 py-4 sm:py-6 lg:py-8 font-black shadow-2xl transform hover:scale-110 transition-all duration-300 border-4 w-full lg:w-auto border-green-400 lg:px-[6px] animate-pulse">
               <Zap className="mr-2 lg:mr-3 h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8" />
-              COMEÇAR TESTE GRÁTIS AGORA
+              QUERO PARAR DE PERDER DINHEIRO
               <ArrowRight className="ml-2 lg:ml-3 h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8" />
             </Button>
           </div>
           
           <div className="bg-white/10 rounded-2xl p-4 lg:p-8 backdrop-blur-sm max-w-4xl mx-auto">
             <p className="text-xs sm:text-sm lg:text-lg text-green-200 flex items-center justify-center gap-2 sm:gap-4 lg:gap-6 flex-wrap font-semibold">
-              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />7 dias grátis</span>
-              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />Sem cartão</span>
-              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />Suporte 24h</span>
-              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />Sem instalar</span>
+              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />7 dias grátis pra testar tudo</span>
+              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />Sem cartão, sem pegadinha</span>
+              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />Suporte no WhatsApp se travar</span>
+              <span className="flex items-center text-xs lg:text-base"><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-green-400" />Funciona no celular e computador</span>
             </p>
           </div>
         </div>

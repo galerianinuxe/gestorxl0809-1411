@@ -153,14 +153,14 @@ const Glossary = () => {
         <Card className="mt-12 bg-primary/5 border-primary/20">
           <CardContent className="p-6 text-center">
             <h3 className="font-semibold text-lg mb-2">
-              Quer aplicar esses conceitos no seu depósito?
+              Quer usar esses termos na prática?
             </h3>
             <p className="text-muted-foreground mb-4">
-              O XLata ajuda você a organizar compras, vendas e controle de caixa de forma simples.
+              O XLata.site organiza tara, pesagem, preço por kg e tudo mais automaticamente.
             </p>
             <Link to="/register">
               <Button>
-                Começar Teste Grátis de 7 Dias
+                Ver sistema funcionando
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </Link>

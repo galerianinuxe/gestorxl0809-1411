@@ -29,14 +29,14 @@ const Solutions = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            Soluções para seu Depósito de Reciclagem
+            Pare de Perder Dinheiro no Seu Depósito
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            O XLata oferece módulos completos para organizar todas as operações do seu depósito. Conheça cada solução em detalhes.
+            O XLata.site tem todas as ferramentas para você organizar o pátio, controlar o caixa e saber exatamente quanto está lucrando.
           </p>
           <Link to="/register">
             <Button size="lg" className="gap-2">
-              Começar Teste Grátis de 7 Dias
+              Quero organizar meu depósito
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -180,15 +180,15 @@ const Solutions = () => {
           <Card className="bg-primary text-primary-foreground">
             <CardContent className="p-8 md:p-12">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Pronto para Organizar seu Depósito?
+                Quanto você perdeu essa semana sem perceber?
               </h2>
               <p className="text-lg opacity-90 mb-6 max-w-2xl mx-auto">
-                Comece agora com 7 dias grátis. Sem cartão de crédito, sem compromisso.
+                Cada dia sem sistema é dinheiro jogado fora. Comece agora e pare de perder.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/register">
                   <Button size="lg" variant="secondary" className="gap-2">
-                    Começar Teste Grátis
+                    Parar de perder dinheiro agora
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>

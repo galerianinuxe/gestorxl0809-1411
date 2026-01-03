@@ -211,14 +211,14 @@ const Blog = () => {
             <Card className="bg-primary text-primary-foreground">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-lg mb-2">
-                  Quer automatizar tudo isso?
+                  Quer parar de perder dinheiro?
                 </h3>
                 <p className="text-sm opacity-90 mb-4">
-                  Use o XLata para organizar seu depósito de reciclagem em minutos.
+                  O XLata.site organiza seu depósito e coloca cada centavo no lugar certo.
                 </p>
                 <Link to="/register">
                   <Button variant="secondary" className="w-full">
-                    Teste Grátis 7 Dias
+                    Organizar meu depósito agora
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>

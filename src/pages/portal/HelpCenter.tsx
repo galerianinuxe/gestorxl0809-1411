@@ -207,10 +207,10 @@ const HelpCenter = () => {
         <Card className="mt-12 bg-primary/5 border-primary/20">
           <CardContent className="p-6 text-center">
             <h3 className="font-semibold text-lg mb-2">
-              Não encontrou o que procurava?
+              Travou em alguma coisa?
             </h3>
             <p className="text-muted-foreground mb-4">
-              Entre em contato conosco pelo WhatsApp para suporte personalizado.
+              O suporte do XLata resolve no WhatsApp. Manda um zap agora!
             </p>
             <a
               href="https://wa.me/5511963512105"
@@ -218,7 +218,7 @@ const HelpCenter = () => {
               rel="noopener noreferrer"
             >
               <Button>
-                Falar no WhatsApp
+                Preciso de ajuda agora
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </a>

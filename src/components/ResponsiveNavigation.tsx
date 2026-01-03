@@ -77,24 +77,24 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
 
   const features = [
     {
-      title: "+130 Clientes",
+      title: "+130 Depósitos",
       icon: Users,
-      description: "Ferros velhos em todo Brasil"
+      description: "Já pararam de perder dinheiro"
     },
     {
-      title: "Suporte 24/7",
+      title: "Suporte no Zap",
       icon: Phone,
-      description: "WhatsApp sempre disponível"
+      description: "Travou? A gente resolve"
     },
     {
       title: "100% Seguro",
       icon: Shield,
-      description: "Dados protegidos"
+      description: "Seus dados protegidos"
     },
     {
-      title: "Nota 5 Estrelas",
+      title: "5 Estrelas",
       icon: Star,
-      description: "Avaliação dos clientes"
+      description: "Nota dos clientes"
     }
   ];
 
@@ -191,7 +191,7 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
               className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold shadow-xl transform hover:scale-105 transition-all duration-300"
             >
               <Zap className="mr-2 h-4 w-4" />
-              Teste Grátis
+              Parar de Perder
             </Button>
           </div>
         </div>
@@ -232,7 +232,7 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
                       className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold shadow-xl"
                     >
                       <Zap className="mr-2 h-4 w-4" />
-                      Teste Grátis 7 Dias
+                      Começar a Lucrar
                     </Button>
                     <Button
                       onClick={() => handleNavigation('/login')}
@@ -240,7 +240,7 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
                       className="w-full bg-transparent border border-white text-white hover:bg-white/10 hover:text-white hover:border-white"
                     >
                       <LogIn className="mr-2 h-4 w-4" />
-                      Fazer Login
+                      Já tenho conta
                     </Button>
                   </div>
 
