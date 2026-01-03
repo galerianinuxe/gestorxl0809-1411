@@ -6,8 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { Printer, Bell } from 'lucide-react';
-import { NotificationModalOptimized } from '@/components/NotificationModalOptimized';
-import { useNotificationsOptimized } from '@/hooks/useNotificationsOptimized';
+import { NotificationModal } from '@/components/NotificationModal';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useStockCalculation } from '@/hooks/useStockCalculation';
 import { isGreaterThanOrEqual, formatWeight } from '@/utils/numericComparison';
 import { cleanMaterialName } from '@/utils/materialNameCleaner';
@@ -91,7 +91,7 @@ const Index: React.FC = () => {
   const [showMaterialsPrintModal, setShowMaterialsPrintModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   
-  const { unreadCount } = useNotificationsOptimized();
+  const { unreadCount } = useNotifications();
 
   // Cash register states
   const [showCashRegisterOpeningModal, setShowCashRegisterOpeningModal] = useState(false);
@@ -1128,7 +1128,7 @@ const Index: React.FC = () => {
             {showErrorReportModal && <ErrorReportModal open={showErrorReportModal} onClose={() => setShowErrorReportModal(false)} />}
           </React.Suspense>
 
-          <NotificationModalOptimized
+          <NotificationModal
             isOpen={showNotificationsModal}
             onClose={() => setShowNotificationsModal(false)}
           />

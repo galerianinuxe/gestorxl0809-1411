@@ -15,6 +15,7 @@ import { useRealtimeMessages } from "./hooks/useRealtimeMessages";
 import SubscriptionRenewalAlert from "./components/SubscriptionRenewalAlert";
 import { useUserPresence } from "./hooks/useUserPresence";
 import { MainLayout } from "./components/MainLayout";
+import { DirectMessageProvider } from "./components/DirectMessageProvider";
 
 // Code splitting: lazy load de todas as páginas
 import { lazy, Suspense } from 'react';
@@ -345,9 +346,11 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <SubscriptionSyncProvider>
-              <Toaster />
-              <Sonner position="top-center" richColors closeButton duration={0} />
-              <AppContent />
+              <DirectMessageProvider>
+                <Toaster />
+                <Sonner position="top-center" richColors closeButton duration={0} />
+                <AppContent />
+              </DirectMessageProvider>
             </SubscriptionSyncProvider>
           </AuthProvider>
         </BrowserRouter>

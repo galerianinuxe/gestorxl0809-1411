@@ -28,7 +28,7 @@ import { ActiveUsersList } from '@/components/admin/ActiveUsersList';
 import { useOnlineUsersFromDB } from '@/hooks/useOnlineUsersFromDB';
 import { useUserPresence } from '@/hooks/useUserPresence';
 import ErrorReportsModal from '@/components/admin/ErrorReportsModal';
-import { BroadcastNotificationModal } from '@/components/admin/BroadcastNotificationModal';
+import { UnifiedNotificationModal } from '@/components/admin/UnifiedNotificationModal';
 import { supabase } from '@/integrations/supabase/client';
 import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
 import { FeatureFlagsPanel } from '@/components/admin/FeatureFlagsPanel';
@@ -427,8 +427,8 @@ const Covildomal = () => {
         onCountUpdate={setUnreadErrorReports}
       />
 
-      {/* Broadcast Notification Modal */}
-      <BroadcastNotificationModal
+      {/* Unified Notification Modal */}
+      <UnifiedNotificationModal
         isOpen={showBroadcastModal}
         onClose={() => setShowBroadcastModal(false)}
       />
