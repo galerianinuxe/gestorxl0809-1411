@@ -34,6 +34,7 @@ import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
 import { FeatureFlagsPanel } from '@/components/admin/FeatureFlagsPanel';
 import { FinancialDashboard } from '@/components/admin/FinancialDashboard';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { MaintenanceDashboard } from '@/components/admin/MaintenanceDashboard';
 
 const Covildomal = () => {
   const navigate = useNavigate();
@@ -149,16 +150,7 @@ const Covildomal = () => {
       case 'feature-flags':
         return <FeatureFlagsPanel />;
       case 'manutencao':
-        return (
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">Modo Manutenção</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-400">Em desenvolvimento - Controle do modo manutenção e backup</p>
-            </CardContent>
-          </Card>
-        );
+        return <MaintenanceDashboard />;
       case 'analytics':
         return <AnalyticsDashboard />;
       case 'online':
