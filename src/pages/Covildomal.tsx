@@ -6,28 +6,22 @@ import { Button } from '@/components/ui/button';
 import { 
   Users, 
   CreditCard, 
-  TestTube, 
   AlertCircle, 
-  UserX, 
-  LogIn,
   Activity,
   Server,
   Database,
   Shield,
   Percent,
-  Clock,
   Settings,
   DollarSign,
-  TrendingUp,
   BarChart3,
-  RefreshCw,
   AlertTriangle
 } from 'lucide-react';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { SubscriptionManagement } from '@/components/admin/SubscriptionManagement';
 import { SystemManagement } from '@/components/admin/SystemManagement';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { AdminSidebar, ActiveTab } from '@/components/admin/AdminSidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import LandingManagement from '@/components/admin/LandingManagement';
 import { ActiveUsersList } from '@/components/admin/ActiveUsersList';
@@ -37,8 +31,11 @@ import ErrorReportsModal from '@/components/admin/ErrorReportsModal';
 import { BroadcastNotificationModal } from '@/components/admin/BroadcastNotificationModal';
 import { supabase } from '@/integrations/supabase/client';
 import PixPaymentsDashboard from '@/pages/PixPaymentsDashboard';
-
-type ActiveTab = 'dashboard' | 'usuarios' | 'assinaturas' | 'conteudo' | 'landing' | 'logs' | 'sistema' | 'online' | 'pix-payments';
+import { SecurityPanel } from '@/components/admin/SecurityPanel';
+import { AccessLogsPanel } from '@/components/admin/AccessLogsPanel';
+import { AuditLogsPanel } from '@/components/admin/AuditLogsPanel';
+import { SecurityBlocksPanel } from '@/components/admin/SecurityBlocksPanel';
+import { FeatureFlagsPanel } from '@/components/admin/FeatureFlagsPanel';
 
 const Covildomal = () => {
   const navigate = useNavigate();
@@ -119,7 +116,6 @@ const Covildomal = () => {
 
   const handleTabClick = (tab: ActiveTab) => {
     setActiveTab(tab);
-    console.log(`Navegando para aba: ${tab}`);
   };
 
   const renderTabContent = () => {
@@ -130,32 +126,64 @@ const Covildomal = () => {
         return <SubscriptionManagement />;
       case 'pix-payments':
         return <PixPaymentsDashboard />;
+      case 'planos':
+        return (
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Configuração de Planos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-400">Em desenvolvimento - Configuração de valores e períodos dos planos</p>
+            </CardContent>
+          </Card>
+        );
       case 'conteudo':
         return (
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
-              <CardTitle className="text-white">Gerenciamento de Conteúdo</CardTitle>
+              <CardTitle className="text-white">CMS / Blog</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-400">Em desenvolvimento - Controle de materiais e configurações</p>
+              <p className="text-gray-400">Em desenvolvimento - Gerenciamento de conteúdo e blog</p>
             </CardContent>
           </Card>
         );
       case 'landing':
         return <LandingManagement />;
-      case 'logs':
+      case 'seguranca':
+        return <SecurityPanel />;
+      case 'access-logs':
+        return <AccessLogsPanel />;
+      case 'audit-logs':
+        return <AuditLogsPanel />;
+      case 'bloqueios':
+        return <SecurityBlocksPanel />;
+      case 'sistema':
+        return <SystemManagement />;
+      case 'feature-flags':
+        return <FeatureFlagsPanel />;
+      case 'manutencao':
         return (
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
-              <CardTitle className="text-white">Logs do Sistema</CardTitle>
+              <CardTitle className="text-white">Modo Manutenção</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-400">Em desenvolvimento - Visualização de logs e atividades</p>
+              <p className="text-gray-400">Em desenvolvimento - Controle do modo manutenção e backup</p>
             </CardContent>
           </Card>
         );
-      case 'sistema':
-        return <SystemManagement />;
+      case 'analytics':
+        return (
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Dashboard Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-400">Em desenvolvimento - Métricas de uso e conversão</p>
+            </CardContent>
+          </Card>
+        );
       case 'online':
         return <ActiveUsersList />;
       default:
@@ -202,6 +230,7 @@ const Covildomal = () => {
           onRefresh={handleRefresh}
           systemVersion={systemStatus.systemVersion}
           onBroadcastNotification={() => setShowBroadcastModal(true)}
+          unreadErrorReports={unreadErrorReports}
         />
         
         <SidebarInset className="flex-1 bg-gray-800">
@@ -356,9 +385,9 @@ const Covildomal = () => {
                           <div className="flex items-center justify-between py-1">
                             <span className="text-sm text-gray-400 flex items-center gap-2">
                               <Shield className="h-3 w-3" />
-                              Backup
+                              Segurança
                             </span>
-                            <Badge variant="default" className="bg-green-600 text-xs">Ativo</Badge>
+                            <Badge variant="default" className="bg-green-600 text-xs">RBAC Ativo</Badge>
                           </div>
                         </div>
                       </div>
@@ -407,27 +436,18 @@ const Covildomal = () => {
                           
                           <div className="flex items-center justify-between py-1">
                             <span className="text-sm text-gray-400 flex items-center gap-2">
-                              <Clock className="h-3 w-3" />
-                              Atualização
+                              <Shield className="h-3 w-3" />
+                              Backup
                             </span>
-                            <span className="text-xs text-blue-400">{systemStatus.lastUpdate}</span>
+                            <Badge variant="default" className="bg-green-600 text-xs">Ativo</Badge>
                           </div>
-                        </div>
-                        
-                        <div className="mt-4 p-3 bg-gray-900 rounded-lg border border-gray-700">
-                          <div className="flex items-center gap-2 mb-2">
-                            <TrendingUp className="h-4 w-4 text-green-400" />
-                            <span className="text-xs font-semibold text-white">Receita</span>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-400">Mensal:</span>
-                              <span className="text-sm font-semibold text-green-400">{formatCurrency(stats.monthlyRevenue)}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-400">Anual:</span>
-                              <span className="text-xs text-green-400">{formatCurrency(stats.monthlyRevenue * 12)}</span>
-                            </div>
+                          
+                          <div className="flex items-center justify-between py-1">
+                            <span className="text-sm text-gray-400 flex items-center gap-2">
+                              <Activity className="h-3 w-3" />
+                              Última Atualização
+                            </span>
+                            <span className="text-sm text-gray-200">{systemStatus.lastUpdate}</span>
                           </div>
                         </div>
                       </div>
@@ -442,13 +462,15 @@ const Covildomal = () => {
         </SidebarInset>
       </div>
 
-      <ErrorReportsModal
-        open={showErrorReports}
+      {/* Error Reports Modal */}
+      <ErrorReportsModal 
+        open={showErrorReports} 
         onClose={() => setShowErrorReports(false)}
         unreadCount={unreadErrorReports}
         onCountUpdate={setUnreadErrorReports}
       />
 
+      {/* Broadcast Notification Modal */}
       <BroadcastNotificationModal
         isOpen={showBroadcastModal}
         onClose={() => setShowBroadcastModal(false)}
