@@ -28,14 +28,14 @@ const Solutions = () => {
 
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">
             Pare de Perder Dinheiro no Seu Depósito
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
             O XLata.site tem todas as ferramentas para você organizar o pátio, controlar o caixa e saber exatamente quanto está lucrando.
           </p>
           <Link to="/register">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700">
               Quero organizar meu depósito
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -44,35 +44,35 @@ const Solutions = () => {
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center">
+          <Card className="text-center bg-gray-800 border-gray-700">
             <CardContent className="p-6">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-emerald-400" />
               </div>
-              <h3 className="font-semibold mb-2">Fácil de Usar</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold mb-2 text-white">Fácil de Usar</h3>
+              <p className="text-sm text-gray-400">
                 Interface simples e intuitiva, perfeita para o dia a dia do depósito.
               </p>
             </CardContent>
           </Card>
-          <Card className="text-center">
+          <Card className="text-center bg-gray-800 border-gray-700">
             <CardContent className="p-6">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <Zap className="h-6 w-6 text-primary" />
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <Zap className="h-6 w-6 text-emerald-400" />
               </div>
-              <h3 className="font-semibold mb-2">Rápido</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold mb-2 text-white">Rápido</h3>
+              <p className="text-sm text-gray-400">
                 Registre compras e vendas em segundos, sem complicação.
               </p>
             </CardContent>
           </Card>
-          <Card className="text-center">
+          <Card className="text-center bg-gray-800 border-gray-700">
             <CardContent className="p-6">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-primary" />
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 text-emerald-400" />
               </div>
-              <h3 className="font-semibold mb-2">Relatórios Claros</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold mb-2 text-white">Relatórios Claros</h3>
+              <p className="text-sm text-gray-400">
                 Veja exatamente quanto entrou, saiu e seu lucro em tempo real.
               </p>
             </CardContent>
@@ -81,16 +81,16 @@ const Solutions = () => {
 
         {/* Solutions List */}
         <section>
-          <h2 className="text-2xl font-semibold mb-6">Conheça Nossas Soluções</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-white">Conheça Nossas Soluções</h2>
           
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[1, 2, 3, 4].map((i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i} className="animate-pulse bg-gray-800 border-gray-700">
                   <CardContent className="p-6">
-                    <div className="h-6 bg-muted rounded w-3/4 mb-3"></div>
-                    <div className="h-4 bg-muted rounded w-full mb-2"></div>
-                    <div className="h-4 bg-muted rounded w-2/3"></div>
+                    <div className="h-6 bg-gray-700 rounded w-3/4 mb-3"></div>
+                    <div className="h-4 bg-gray-700 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-700 rounded w-2/3"></div>
                   </CardContent>
                 </Card>
               ))}
@@ -131,13 +131,13 @@ const Solutions = () => {
                 },
               ].map((solution) => (
                 <Link key={solution.slug} to={`/solucoes/${solution.slug}`}>
-                  <Card className="h-full hover:shadow-lg transition-shadow hover:border-primary/50">
+                  <Card className="h-full bg-gray-800 border-gray-700 hover:shadow-lg transition-shadow hover:border-emerald-500/50">
                     <CardHeader>
-                      <CardTitle className="text-xl">{solution.headline}</CardTitle>
+                      <CardTitle className="text-xl text-white">{solution.headline}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground mb-4">{solution.subheadline}</p>
-                      <span className="text-primary font-medium inline-flex items-center gap-1">
+                      <p className="text-gray-400 mb-4">{solution.subheadline}</p>
+                      <span className="text-emerald-400 font-medium inline-flex items-center gap-1">
                         Saiba mais
                         <ArrowRight className="h-4 w-4" />
                       </span>
@@ -150,7 +150,7 @@ const Solutions = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {pages.map((page) => (
                 <Link key={page.id} to={`/solucoes/${page.slug}`}>
-                  <Card className="h-full hover:shadow-lg transition-shadow hover:border-primary/50">
+                  <Card className="h-full bg-gray-800 border-gray-700 hover:shadow-lg transition-shadow hover:border-emerald-500/50">
                     <CardHeader>
                       {page.hero_image && (
                         <img
@@ -159,11 +159,11 @@ const Solutions = () => {
                           className="w-full h-40 object-cover rounded-md mb-4"
                         />
                       )}
-                      <CardTitle className="text-xl">{page.headline}</CardTitle>
+                      <CardTitle className="text-xl text-white">{page.headline}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground mb-4">{page.subheadline}</p>
-                      <span className="text-primary font-medium inline-flex items-center gap-1">
+                      <p className="text-gray-400 mb-4">{page.subheadline}</p>
+                      <span className="text-emerald-400 font-medium inline-flex items-center gap-1">
                         Saiba mais
                         <ArrowRight className="h-4 w-4" />
                       </span>
@@ -177,23 +177,23 @@ const Solutions = () => {
 
         {/* CTA Section */}
         <section className="mt-16 text-center">
-          <Card className="bg-primary text-primary-foreground">
+          <Card className="bg-emerald-600 border-0">
             <CardContent className="p-8 md:p-12">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
                 Quanto você perdeu essa semana sem perceber?
               </h2>
-              <p className="text-lg opacity-90 mb-6 max-w-2xl mx-auto">
+              <p className="text-lg text-emerald-100 mb-6 max-w-2xl mx-auto">
                 Cada dia sem sistema é dinheiro jogado fora. Comece agora e pare de perder.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/register">
-                  <Button size="lg" variant="secondary" className="gap-2">
+                  <Button size="lg" className="gap-2 bg-white text-emerald-600 hover:bg-emerald-50">
                     Parar de perder dinheiro agora
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/planos">
-                  <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                     Ver Planos e Preços
                   </Button>
                 </Link>

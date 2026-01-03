@@ -32,12 +32,12 @@ const HelpArticle = () => {
       <PortalLayout>
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto animate-pulse">
-            <div className="h-8 bg-muted rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-muted rounded w-1/4 mb-8"></div>
+            <div className="h-8 bg-gray-700 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-gray-700 rounded w-1/4 mb-8"></div>
             <div className="space-y-4">
-              <div className="h-4 bg-muted rounded w-full"></div>
-              <div className="h-4 bg-muted rounded w-full"></div>
-              <div className="h-4 bg-muted rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
             </div>
           </div>
         </div>
@@ -49,12 +49,12 @@ const HelpArticle = () => {
     return (
       <PortalLayout>
         <div className="container mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-4">Artigo não encontrado</h1>
-          <p className="text-muted-foreground mb-6">
+          <h1 className="text-2xl font-bold mb-4 text-white">Artigo não encontrado</h1>
+          <p className="text-gray-400 mb-6">
             O artigo que você procura não existe ou foi removido.
           </p>
           <Link to="/ajuda">
-            <Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar à Central de Ajuda
             </Button>
@@ -98,20 +98,20 @@ const HelpArticle = () => {
           <header className="mb-8">
             <div className="flex flex-wrap gap-2 mb-4">
               {article.module && (
-                <Badge variant="outline">
+                <Badge variant="outline" className="border-gray-700 text-gray-300">
                   {moduleNames[article.module] || article.module}
                 </Badge>
               )}
               {article.category && (
-                <Badge variant="secondary">
+                <Badge className="bg-emerald-500/20 text-emerald-400 border-0">
                   {article.category.name}
                 </Badge>
               )}
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">
               {article.title}
             </h1>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4 text-sm text-gray-400">
               <span className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
                 {article.reading_time_minutes} min de leitura
@@ -124,18 +124,19 @@ const HelpArticle = () => {
 
           {/* Content */}
           <div
-            className="prose prose-lg dark:prose-invert max-w-none mb-12"
+            className="prose prose-lg prose-invert max-w-none mb-12"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 
           {/* Feedback */}
-          <Card className="mb-8">
+          <Card className="mb-8 bg-gray-800 border-gray-700">
             <CardContent className="p-6 text-center">
-              <p className="font-medium mb-4">Este artigo foi útil?</p>
+              <p className="font-medium mb-4 text-white">Este artigo foi útil?</p>
               <div className="flex justify-center gap-4">
                 <Button
                   variant={feedback === 'yes' ? 'default' : 'outline'}
                   onClick={() => setFeedback('yes')}
+                  className={feedback === 'yes' ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-gray-700 text-gray-300 hover:bg-gray-700'}
                 >
                   <ThumbsUp className="h-4 w-4 mr-2" />
                   Sim
@@ -143,13 +144,14 @@ const HelpArticle = () => {
                 <Button
                   variant={feedback === 'no' ? 'default' : 'outline'}
                   onClick={() => setFeedback('no')}
+                  className={feedback === 'no' ? 'bg-emerald-600 hover:bg-emerald-700' : 'border-gray-700 text-gray-300 hover:bg-gray-700'}
                 >
                   <ThumbsDown className="h-4 w-4 mr-2" />
                   Não
                 </Button>
               </div>
               {feedback && (
-                <p className="text-sm text-muted-foreground mt-4">
+                <p className="text-sm text-gray-400 mt-4">
                   Obrigado pelo feedback!
                 </p>
               )}
@@ -159,17 +161,17 @@ const HelpArticle = () => {
           {/* Related Articles */}
           {relatedArticles.length > 1 && (
             <section>
-              <h2 className="text-xl font-semibold mb-4">Artigos Relacionados</h2>
+              <h2 className="text-xl font-semibold mb-4 text-white">Artigos Relacionados</h2>
               <div className="grid gap-4">
                 {relatedArticles
                   .filter((a) => a.id !== article.id)
                   .slice(0, 3)
                   .map((relatedArticle) => (
                     <Link key={relatedArticle.id} to={`/ajuda/artigo/${relatedArticle.slug}`}>
-                      <Card className="hover:shadow-md transition-shadow">
+                      <Card className="bg-gray-800 border-gray-700 hover:shadow-md transition-shadow hover:border-emerald-500/50">
                         <CardContent className="p-4">
-                          <h3 className="font-medium">{relatedArticle.title}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                          <h3 className="font-medium text-white">{relatedArticle.title}</h3>
+                          <p className="text-sm text-gray-400 line-clamp-1 mt-1">
                             {relatedArticle.excerpt}
                           </p>
                         </CardContent>
@@ -181,12 +183,12 @@ const HelpArticle = () => {
           )}
 
           {/* CTA */}
-          <Card className="mt-8 bg-primary/5 border-primary/20">
+          <Card className="mt-8 bg-emerald-500/10 border-emerald-500/30">
             <CardContent className="p-6">
-              <h3 className="font-semibold text-lg mb-2">
+              <h3 className="font-semibold text-lg mb-2 text-white">
                 Precisa de ajuda personalizada?
               </h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-gray-400 mb-4">
                 Entre em contato conosco pelo WhatsApp para suporte direto.
               </p>
               <a
@@ -194,7 +196,7 @@ const HelpArticle = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button>
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
                   Falar no WhatsApp
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
@@ -203,9 +205,9 @@ const HelpArticle = () => {
           </Card>
 
           {/* Navigation */}
-          <div className="flex justify-between mt-8 pt-8 border-t">
+          <div className="flex justify-between mt-8 pt-8 border-t border-gray-700">
             <Link to="/ajuda">
-              <Button variant="ghost">
+              <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar à Central de Ajuda
               </Button>

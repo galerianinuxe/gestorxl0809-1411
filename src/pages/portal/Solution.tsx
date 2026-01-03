@@ -88,12 +88,12 @@ const Solution = () => {
       <PortalLayout>
         <div className="container mx-auto px-4 py-12">
           <div className="animate-pulse">
-            <div className="h-10 bg-muted rounded w-3/4 mb-4"></div>
-            <div className="h-6 bg-muted rounded w-1/2 mb-8"></div>
+            <div className="h-10 bg-gray-700 rounded w-3/4 mb-4"></div>
+            <div className="h-6 bg-gray-700 rounded w-1/2 mb-8"></div>
             <div className="space-y-4">
-              <div className="h-4 bg-muted rounded w-full"></div>
-              <div className="h-4 bg-muted rounded w-full"></div>
-              <div className="h-4 bg-muted rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
             </div>
           </div>
         </div>
@@ -105,12 +105,12 @@ const Solution = () => {
     return (
       <PortalLayout>
         <div className="container mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-4">Solução não encontrada</h1>
-          <p className="text-muted-foreground mb-6">
+          <h1 className="text-2xl font-bold mb-4 text-white">Solução não encontrada</h1>
+          <p className="text-gray-400 mb-6">
             A solução que você procura não existe ou foi removida.
           </p>
           <Link to="/solucoes">
-            <Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Ver Todas as Soluções
             </Button>
@@ -143,21 +143,21 @@ const Solution = () => {
 
         {/* Hero Section */}
         <section className="text-center mb-16">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
             {currentPage.headline}
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
             {currentPage.subheadline}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700">
                 Começar Teste Grátis de 7 Dias
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link to="/planos">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">
                 Ver Planos
               </Button>
             </Link>
@@ -167,7 +167,7 @@ const Solution = () => {
         {/* Intro */}
         {currentPage.intro_text && (
           <section className="max-w-3xl mx-auto mb-16">
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-lg text-gray-400 leading-relaxed">
               {currentPage.intro_text}
             </p>
           </section>
@@ -176,14 +176,14 @@ const Solution = () => {
         {/* Features */}
         {features.length > 0 && (
           <section className="mb-16">
-            <h2 className="text-2xl font-bold text-center mb-8">
+            <h2 className="text-2xl font-bold text-center mb-8 text-white">
               O que você pode fazer
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
               {features.map((feature: string, index: number) => (
-                <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-accent/50">
-                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>{feature}</span>
+                <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-gray-800">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <span className="text-gray-300">{feature}</span>
                 </div>
               ))}
             </div>
@@ -192,18 +192,18 @@ const Solution = () => {
 
         {/* How it Works */}
         {howItWorks.length > 0 && (
-          <section className="mb-16 bg-muted/50 -mx-4 px-4 py-12">
-            <h2 className="text-2xl font-bold text-center mb-8">
+          <section className="mb-16 bg-gray-800/50 -mx-4 px-4 py-12">
+            <h2 className="text-2xl font-bold text-center mb-8 text-white">
               Como Funciona
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
               {howItWorks.map((step: any, index: number) => (
                 <div key={index} className="text-center">
-                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xl font-bold">
                     {index + 1}
                   </div>
-                  <h3 className="font-semibold mb-2">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground">{step.description}</p>
+                  <h3 className="font-semibold mb-2 text-white">{step.title}</h3>
+                  <p className="text-sm text-gray-400">{step.description}</p>
                 </div>
               ))}
             </div>
@@ -213,15 +213,15 @@ const Solution = () => {
         {/* Benefits */}
         {benefits.length > 0 && (
           <section className="mb-16">
-            <h2 className="text-2xl font-bold text-center mb-8">
+            <h2 className="text-2xl font-bold text-center mb-8 text-white">
               Benefícios
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {benefits.map((benefit: any, index: number) => (
-                <Card key={index}>
+                <Card key={index} className="bg-gray-800 border-gray-700">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-2">{benefit.title}</h3>
-                    <p className="text-muted-foreground">{benefit.description}</p>
+                    <h3 className="font-semibold text-lg mb-2 text-white">{benefit.title}</h3>
+                    <p className="text-gray-400">{benefit.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -232,17 +232,17 @@ const Solution = () => {
         {/* FAQ */}
         {faq.length > 0 && (
           <section className="mb-16 max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-8 flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-bold text-center mb-8 flex items-center justify-center gap-2 text-white">
               <HelpCircle className="h-6 w-6" />
               Perguntas Frequentes
             </h2>
             <Accordion type="single" collapsible className="w-full">
               {faq.map((item: any, index: number) => (
-                <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger className="text-left">
+                <AccordionItem key={index} value={`item-${index}`} className="border-gray-700">
+                  <AccordionTrigger className="text-left text-white hover:text-emerald-400">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
+                  <AccordionContent className="text-gray-400">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -253,23 +253,23 @@ const Solution = () => {
 
         {/* Final CTA */}
         <section className="text-center">
-          <Card className="bg-primary text-primary-foreground max-w-3xl mx-auto">
+          <Card className="bg-emerald-600 border-0 max-w-3xl mx-auto">
             <CardContent className="p-8 md:p-12">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
                 Pronto para Começar?
               </h2>
-              <p className="text-lg opacity-90 mb-6">
+              <p className="text-lg text-emerald-100 mb-6">
                 Teste o XLata grátis por 7 dias. Sem cartão de crédito.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/register">
-                  <Button size="lg" variant="secondary" className="gap-2">
+                  <Button size="lg" className="gap-2 bg-white text-emerald-600 hover:bg-emerald-50">
                     Começar Teste Grátis
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <a href="https://wa.me/5511963512105" target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                     Falar no WhatsApp
                   </Button>
                 </a>
@@ -280,7 +280,7 @@ const Solution = () => {
 
         {/* Back Link */}
         <div className="mt-8 text-center">
-          <Link to="/solucoes" className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1">
+          <Link to="/solucoes" className="text-gray-400 hover:text-emerald-400 transition-colors inline-flex items-center gap-1">
             <ArrowLeft className="h-4 w-4" />
             Ver todas as soluções
           </Link>

@@ -51,14 +51,14 @@ const BlogPost = () => {
       <PortalLayout>
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto animate-pulse">
-            <div className="h-6 bg-slate-100 rounded w-32 mb-6"></div>
-            <div className="h-10 bg-slate-100 rounded w-3/4 mb-4"></div>
-            <div className="h-5 bg-slate-100 rounded w-1/4 mb-8"></div>
-            <div className="h-80 bg-slate-100 rounded-2xl mb-8"></div>
+            <div className="h-6 bg-gray-700 rounded w-32 mb-6"></div>
+            <div className="h-10 bg-gray-700 rounded w-3/4 mb-4"></div>
+            <div className="h-5 bg-gray-700 rounded w-1/4 mb-8"></div>
+            <div className="h-80 bg-gray-700 rounded-2xl mb-8"></div>
             <div className="space-y-4">
-              <div className="h-4 bg-slate-100 rounded w-full"></div>
-              <div className="h-4 bg-slate-100 rounded w-full"></div>
-              <div className="h-4 bg-slate-100 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
             </div>
           </div>
         </div>
@@ -70,11 +70,11 @@ const BlogPost = () => {
     return (
       <PortalLayout>
         <div className="container mx-auto px-4 py-20 text-center">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ArrowLeft className="h-10 w-10 text-emerald-600" />
+          <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ArrowLeft className="h-10 w-10 text-emerald-400" />
           </div>
-          <h1 className="text-3xl font-bold mb-4 text-slate-800">Artigo não encontrado</h1>
-          <p className="text-slate-600 mb-8 max-w-md mx-auto">
+          <h1 className="text-3xl font-bold mb-4 text-white">Artigo não encontrado</h1>
+          <p className="text-gray-400 mb-8 max-w-md mx-auto">
             O artigo que você procura não existe ou foi removido.
           </p>
           <Link to="/blog">
@@ -136,7 +136,7 @@ const BlogPost = () => {
 
       <article>
         {/* Hero Header */}
-        <div className="bg-gradient-to-br from-emerald-50 via-white to-slate-50">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
           <div className="container mx-auto px-4 py-8">
             <Breadcrumbs
               items={[
@@ -149,29 +149,29 @@ const BlogPost = () => {
             <div className="max-w-4xl mx-auto text-center pt-8 pb-12">
               {post.category && (
                 <Link to={`/blog/categoria/${post.category.slug}`}>
-                  <Badge className="mb-6 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-4 py-1.5 text-sm">
+                  <Badge className="mb-6 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 px-4 py-1.5 text-sm border-0">
                     {post.category.name}
                   </Badge>
                 </Link>
               )}
               
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-slate-800 leading-tight animate-fade-in">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-white leading-tight animate-fade-in">
                 {post.title}
               </h1>
               
               {post.excerpt && (
-                <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+                <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
                   {post.excerpt}
                 </p>
               )}
 
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-500">
-                <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
+              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-400">
+                <span className="flex items-center gap-1.5 bg-gray-800 px-3 py-1.5 rounded-full">
                   <Clock className="h-4 w-4 text-emerald-500" />
                   {post.reading_time_minutes} min de leitura
                 </span>
                 {post.published_at && (
-                  <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
+                  <span className="flex items-center gap-1.5 bg-gray-800 px-3 py-1.5 rounded-full">
                     <Calendar className="h-4 w-4 text-emerald-500" />
                     {new Date(post.published_at).toLocaleDateString('pt-BR', {
                       day: 'numeric',
@@ -180,7 +180,7 @@ const BlogPost = () => {
                     })}
                   </span>
                 )}
-                <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
+                <span className="flex items-center gap-1.5 bg-gray-800 px-3 py-1.5 rounded-full">
                   <Eye className="h-4 w-4 text-emerald-500" />
                   {post.view_count || 0} views
                 </span>
@@ -196,7 +196,7 @@ const BlogPost = () => {
               <img
                 src={post.og_image}
                 alt={post.title}
-                className="w-full h-64 md:h-96 lg:h-[28rem] object-cover rounded-2xl shadow-2xl shadow-slate-200"
+                className="w-full h-64 md:h-96 lg:h-[28rem] object-cover rounded-2xl shadow-2xl shadow-gray-900/50"
               />
             </div>
           </div>
@@ -207,13 +207,13 @@ const BlogPost = () => {
             {/* Main Content */}
             <div className="lg:col-span-8">
               {/* Share Bar - Mobile */}
-              <div className="lg:hidden flex items-center justify-center gap-2 mb-8 pb-8 border-b border-slate-100">
-                <span className="text-sm text-slate-500 mr-2">Compartilhar:</span>
+              <div className="lg:hidden flex items-center justify-center gap-2 mb-8 pb-8 border-b border-gray-700">
+                <span className="text-sm text-gray-400 mr-2">Compartilhar:</span>
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={() => shareOnSocial('facebook')}
-                  className="h-9 w-9 rounded-full border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+                  className="h-9 w-9 rounded-full border-gray-700 bg-gray-800 hover:bg-blue-900/50 hover:text-blue-400 hover:border-blue-500/50"
                 >
                   <Facebook className="h-4 w-4" />
                 </Button>
@@ -221,7 +221,7 @@ const BlogPost = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => shareOnSocial('twitter')}
-                  className="h-9 w-9 rounded-full border-slate-200 hover:bg-sky-50 hover:text-sky-500 hover:border-sky-200"
+                  className="h-9 w-9 rounded-full border-gray-700 bg-gray-800 hover:bg-sky-900/50 hover:text-sky-400 hover:border-sky-500/50"
                 >
                   <Twitter className="h-4 w-4" />
                 </Button>
@@ -229,7 +229,7 @@ const BlogPost = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => shareOnSocial('linkedin')}
-                  className="h-9 w-9 rounded-full border-slate-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                  className="h-9 w-9 rounded-full border-gray-700 bg-gray-800 hover:bg-blue-900/50 hover:text-blue-400 hover:border-blue-500/50"
                 >
                   <Linkedin className="h-4 w-4" />
                 </Button>
@@ -237,7 +237,7 @@ const BlogPost = () => {
                   variant="outline"
                   size="icon"
                   onClick={handleCopyLink}
-                  className="h-9 w-9 rounded-full border-slate-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200"
+                  className="h-9 w-9 rounded-full border-gray-700 bg-gray-800 hover:bg-emerald-900/50 hover:text-emerald-400 hover:border-emerald-500/50"
                 >
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </Button>
@@ -245,18 +245,18 @@ const BlogPost = () => {
 
               {/* Content */}
               <div
-                className="prose prose-lg prose-slate max-w-none
-                  prose-headings:text-slate-800 prose-headings:font-bold
-                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-slate-100 prose-h2:pb-2
+                className="prose prose-lg prose-invert max-w-none
+                  prose-headings:text-white prose-headings:font-bold
+                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-gray-700 prose-h2:pb-2
                   prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-                  prose-p:text-slate-600 prose-p:leading-relaxed
-                  prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline
-                  prose-strong:text-slate-800
-                  prose-blockquote:border-l-4 prose-blockquote:border-emerald-400 prose-blockquote:bg-emerald-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
-                  prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-code:before:content-none prose-code:after:content-none
-                  prose-pre:bg-slate-900 prose-pre:rounded-xl
+                  prose-p:text-gray-300 prose-p:leading-relaxed
+                  prose-a:text-emerald-400 prose-a:no-underline hover:prose-a:underline
+                  prose-strong:text-white
+                  prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:bg-gray-800 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
+                  prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-400 prose-code:before:content-none prose-code:after:content-none
+                  prose-pre:bg-gray-950 prose-pre:rounded-xl
                   prose-img:rounded-xl prose-img:shadow-lg
-                  prose-ul:text-slate-600 prose-ol:text-slate-600
+                  prose-ul:text-gray-300 prose-ol:text-gray-300
                   prose-li:marker:text-emerald-500
                   mb-12"
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
@@ -264,10 +264,10 @@ const BlogPost = () => {
 
               {/* Tags */}
               {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mb-10 pb-10 border-b border-slate-100">
-                  <Tag className="h-4 w-4 text-slate-400" />
+                <div className="flex flex-wrap items-center gap-2 mb-10 pb-10 border-b border-gray-700">
+                  <Tag className="h-4 w-4 text-gray-500" />
                   {post.tags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50">
+                    <Badge key={tag} variant="outline" className="border-gray-700 text-gray-400 hover:bg-gray-800">
                       {tag}
                     </Badge>
                   ))}
@@ -275,7 +275,7 @@ const BlogPost = () => {
               )}
 
               {/* CTA Box */}
-              <Card className="bg-gradient-to-br from-emerald-600 to-emerald-500 border-0 shadow-xl shadow-emerald-200/50 mb-12 overflow-hidden">
+              <Card className="bg-gradient-to-br from-emerald-600 to-emerald-500 border-0 shadow-xl shadow-emerald-900/30 mb-12 overflow-hidden">
                 <CardContent className="p-8 relative">
                   <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/10 rounded-full" />
                   <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-white/5 rounded-full" />
@@ -299,11 +299,11 @@ const BlogPost = () => {
               {/* Related Posts */}
               {filteredRelated.length > 0 && (
                 <section>
-                  <h2 className="text-2xl font-bold mb-6 text-slate-800">Artigos Relacionados</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-white">Artigos Relacionados</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {filteredRelated.map((relatedPost) => (
                       <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`}>
-                        <Card className="h-full group hover:shadow-lg transition-all duration-300 border-slate-100 hover:border-emerald-200 overflow-hidden">
+                        <Card className="h-full group hover:shadow-lg transition-all duration-300 bg-gray-800 border-gray-700 hover:border-emerald-500/50 overflow-hidden">
                           {relatedPost.og_image && (
                             <div className="h-36 overflow-hidden">
                               <img
@@ -315,14 +315,14 @@ const BlogPost = () => {
                           )}
                           <CardContent className="p-4">
                             {relatedPost.category && (
-                              <Badge className="mb-2 bg-emerald-100 text-emerald-700 text-xs">
+                              <Badge className="mb-2 bg-emerald-500/20 text-emerald-400 text-xs border-0">
                                 {relatedPost.category.name}
                               </Badge>
                             )}
-                            <h3 className="font-semibold text-slate-800 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                            <h3 className="font-semibold text-white line-clamp-2 group-hover:text-emerald-400 transition-colors">
                               {relatedPost.title}
                             </h3>
-                            <div className="flex items-center gap-2 text-xs text-slate-400 mt-2">
+                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
                               <Clock className="h-3 w-3" />
                               {relatedPost.reading_time_minutes} min
                             </div>
@@ -338,10 +338,10 @@ const BlogPost = () => {
             {/* Sidebar */}
             <aside className="lg:col-span-4 space-y-6">
               {/* Share Card - Desktop */}
-              <Card className="hidden lg:block border-slate-100 sticky top-24">
+              <Card className="hidden lg:block bg-gray-800 border-gray-700 sticky top-24">
                 <CardContent className="p-5">
-                  <h4 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                    <Share2 className="h-4 w-4 text-emerald-600" />
+                  <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                    <Share2 className="h-4 w-4 text-emerald-400" />
                     Compartilhar
                   </h4>
                   <div className="flex gap-2">
@@ -349,7 +349,7 @@ const BlogPost = () => {
                       variant="outline"
                       size="icon"
                       onClick={() => shareOnSocial('facebook')}
-                      className="flex-1 h-10 rounded-lg border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+                      className="flex-1 h-10 rounded-lg border-gray-700 bg-gray-900 hover:bg-blue-900/50 hover:text-blue-400 hover:border-blue-500/50"
                     >
                       <Facebook className="h-4 w-4" />
                     </Button>
@@ -357,7 +357,7 @@ const BlogPost = () => {
                       variant="outline"
                       size="icon"
                       onClick={() => shareOnSocial('twitter')}
-                      className="flex-1 h-10 rounded-lg border-slate-200 hover:bg-sky-50 hover:text-sky-500 hover:border-sky-200"
+                      className="flex-1 h-10 rounded-lg border-gray-700 bg-gray-900 hover:bg-sky-900/50 hover:text-sky-400 hover:border-sky-500/50"
                     >
                       <Twitter className="h-4 w-4" />
                     </Button>
@@ -365,7 +365,7 @@ const BlogPost = () => {
                       variant="outline"
                       size="icon"
                       onClick={() => shareOnSocial('linkedin')}
-                      className="flex-1 h-10 rounded-lg border-slate-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                      className="flex-1 h-10 rounded-lg border-gray-700 bg-gray-900 hover:bg-blue-900/50 hover:text-blue-400 hover:border-blue-500/50"
                     >
                       <Linkedin className="h-4 w-4" />
                     </Button>
@@ -373,7 +373,7 @@ const BlogPost = () => {
                       variant="outline"
                       size="icon"
                       onClick={handleCopyLink}
-                      className="flex-1 h-10 rounded-lg border-slate-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200"
+                      className="flex-1 h-10 rounded-lg border-gray-700 bg-gray-900 hover:bg-emerald-900/50 hover:text-emerald-400 hover:border-emerald-500/50"
                     >
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </Button>
