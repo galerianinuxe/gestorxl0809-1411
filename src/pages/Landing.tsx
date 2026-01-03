@@ -401,18 +401,18 @@ const Landing: React.FC = () => {
           </Button>
 
           {/* Social Proof Pills */}
-          <div className="flex items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-400 flex-wrap">
-            <div className="flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
+            <div className="flex items-center gap-1.5 bg-gray-800/60 px-3 py-1.5 rounded-full border border-gray-700/50">
               <Users className="h-3.5 w-3.5 text-green-400" />
-              <span>130+ depósitos</span>
+              <span className="text-gray-300">130+ depósitos</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-1.5 bg-gray-800/60 px-3 py-1.5 rounded-full border border-gray-700/50">
               <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
-              <span>4.9 estrelas</span>
+              <span className="text-gray-300">4.9 estrelas</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-1.5 bg-gray-800/60 px-3 py-1.5 rounded-full border border-gray-700/50">
               <MessageCircle className="h-3.5 w-3.5 text-green-400" />
-              <span>Suporte WhatsApp</span>
+              <span className="text-gray-300">Suporte WhatsApp</span>
             </div>
           </div>
         </div>
@@ -425,15 +425,15 @@ const Landing: React.FC = () => {
             Como funciona
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 lg:gap-12">
             {howItWorks.map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-600/20">
+              <div key={index} className="text-center flex flex-col items-center">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-600/20">
                   <item.icon className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <span className="inline-block text-green-400 font-bold text-sm mb-2 bg-green-400/10 px-3 py-1 rounded-full">{item.step}</span>
-                <h3 className="text-white font-semibold text-base sm:text-lg mb-2">{item.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
+                <span className="inline-block text-green-400 font-semibold text-xs mb-2 bg-green-400/10 px-3 py-1 rounded-full">{item.step}</span>
+                <h3 className="text-white font-semibold text-base sm:text-lg mb-1">{item.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed max-w-[200px]">{item.description}</p>
               </div>
             ))}
           </div>
@@ -521,32 +521,32 @@ const Landing: React.FC = () => {
       </section>
 
       {/* ROI Section */}
-      <section className="py-12 lg:py-20 px-4 bg-gradient-to-b from-green-950/30 to-gray-950">
+      <section className="py-12 lg:py-20 px-4 bg-gray-900">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-8 lg:mb-12 text-white">
             Investimento que se paga no primeiro dia
           </h2>
           
-          <div className="grid grid-cols-3 gap-3 lg:gap-6 mb-8 lg:mb-10">
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 lg:p-6">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-400 mb-1">+300%</p>
-              <p className="text-gray-400 text-xs sm:text-sm">produtividade</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 mb-6 lg:mb-10">
+            <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
+              <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">+300%</p>
+              <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">produtividade</p>
             </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 lg:p-6">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-400 mb-1">3 min</p>
-              <p className="text-gray-400 text-xs sm:text-sm">por descarga</p>
+            <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
+              <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">3 min</p>
+              <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">por descarga</p>
             </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 lg:p-6">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-400 mb-1">0</p>
-              <p className="text-gray-400 text-xs sm:text-sm">erros de conta</p>
+            <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
+              <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">0</p>
+              <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">erros de conta</p>
             </div>
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 lg:p-5 inline-flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-sm lg:text-base">
+          <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-xs sm:text-sm lg:text-base">
             <span className="text-red-400">Você perde: R$ 10.500/mês</span>
-            <span className="text-gray-600">•</span>
+            <span className="text-gray-700 hidden sm:inline">•</span>
             <span className="text-green-400">XLata custa: {plans.find(p => p.id === 'mensal')?.price || 'R$ 137,90'}/mês</span>
-            <span className="text-gray-600">•</span>
+            <span className="text-gray-700 hidden sm:inline">•</span>
             <span className="text-white font-semibold">Retorno: {plans.find(p => p.id === 'mensal')?.amount ? Math.round(10500 / plans.find(p => p.id === 'mensal')!.amount) : 76}x</span>
           </div>
         </div>
