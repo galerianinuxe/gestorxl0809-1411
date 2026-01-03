@@ -91,15 +91,15 @@ export const FeatureFlagsPanel = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Flag className="h-5 w-5 text-purple-400" />
                 Feature Flags
               </CardTitle>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Controle quais funcionalidades estão disponíveis no sistema
               </p>
             </div>
@@ -109,7 +109,7 @@ export const FeatureFlagsPanel = () => {
                 size="sm" 
                 onClick={refetch}
                 disabled={loading}
-                className="text-gray-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Atualizar
@@ -130,22 +130,22 @@ export const FeatureFlagsPanel = () => {
       {/* Flags List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {flags.map(flag => (
-            <Card key={flag.id} className="bg-gray-800 border-gray-700">
+            <Card key={flag.id} className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <code className="text-lg text-purple-400 font-mono">{flag.name}</code>
-                      <Badge className={flag.isEnabled ? 'bg-green-600' : 'bg-gray-600'}>
+                      <Badge className={flag.isEnabled ? 'bg-green-600' : 'bg-muted'}>
                         {flag.isEnabled ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       {flag.description || 'Sem descrição'}
                     </p>
                   </div>
@@ -166,13 +166,13 @@ export const FeatureFlagsPanel = () => {
                 </div>
 
                 {/* Percentage Rollout */}
-                <div className="space-y-2 pt-4 border-t border-gray-700">
+                <div className="space-y-2 pt-4 border-t border-border">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Percent className="h-4 w-4" />
                       <span>Rollout Gradual</span>
                     </div>
-                    <span className="text-sm font-mono text-gray-300">
+                    <span className="text-sm font-mono text-muted-foreground">
                       {flag.enabledPercentage}%
                     </span>
                   </div>
@@ -183,7 +183,7 @@ export const FeatureFlagsPanel = () => {
                     step={5}
                     className="w-full"
                   />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {flag.enabledPercentage === 0 
                       ? 'Rollout desativado' 
                       : `Habilitado para ${flag.enabledPercentage}% dos usuários`}
@@ -192,15 +192,15 @@ export const FeatureFlagsPanel = () => {
 
                 {/* Users with Access */}
                 {flag.enabledForUsers.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    <p className="text-xs text-gray-400 mb-2">
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <p className="text-xs text-muted-foreground mb-2">
                       Usuários específicos: {flag.enabledForUsers.length}
                     </p>
                   </div>
                 )}
 
                 {/* Metadata */}
-                <div className="mt-4 text-xs text-gray-500">
+                <div className="mt-4 text-xs text-muted-foreground">
                   Atualizado: {format(new Date(flag.updatedAt), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                 </div>
               </CardContent>
@@ -208,7 +208,7 @@ export const FeatureFlagsPanel = () => {
           ))}
 
           {flags.length === 0 && (
-            <div className="col-span-2 text-center py-12 text-gray-400">
+            <div className="col-span-2 text-center py-12 text-muted-foreground">
               <Flag className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Nenhuma feature flag cadastrada</p>
               <Button 
@@ -224,7 +224,7 @@ export const FeatureFlagsPanel = () => {
 
       {/* Add Flag Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent className="bg-gray-800 border-gray-700 text-white">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Flag className="h-5 w-5 text-purple-400" />
@@ -239,9 +239,9 @@ export const FeatureFlagsPanel = () => {
                 placeholder="exemplo_feature_nova"
                 value={newFlag.name}
                 onChange={(e) => setNewFlag({ ...newFlag, name: e.target.value.toLowerCase().replace(/[^a-z_]/g, '') })}
-                className="bg-gray-700 border-gray-600 font-mono"
+                className="bg-muted border-border font-mono"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Use apenas letras minúsculas e underscores
               </p>
             </div>
@@ -252,7 +252,7 @@ export const FeatureFlagsPanel = () => {
                 placeholder="Descreva o que esta flag controla..."
                 value={newFlag.description}
                 onChange={(e) => setNewFlag({ ...newFlag, description: e.target.value })}
-                className="bg-gray-700 border-gray-600"
+                className="bg-muted border-border"
               />
             </div>
 

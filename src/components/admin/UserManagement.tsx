@@ -173,7 +173,7 @@ export const UserManagement = () => {
           plan_display_name: planDisplayName,
           user_status: userStatus,
           last_seen_at: profile.updated_at,
-          is_online: false, // Removido status online em tempo real
+          is_online: false,
           status: profile.status || 'user',
           last_login_at: null,
           session_duration: null
@@ -387,7 +387,6 @@ export const UserManagement = () => {
     try {
       const newPassword = generateRandomPassword();
       
-      // Update password using Supabase Admin API
       const { error } = await supabase.auth.admin.updateUserById(
         userId,
         { password: newPassword }
@@ -395,7 +394,6 @@ export const UserManagement = () => {
       
       if (error) throw error;
       
-      // Show modal with new password
       setResetPasswordData({
         email: userEmail,
         password: newPassword
@@ -618,7 +616,7 @@ export const UserManagement = () => {
       <div>
         <div className="text-blue-400 text-sm">{planText}</div>
         {user.expires_at && (
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-muted-foreground">
             Expira: {new Date(user.expires_at).toLocaleDateString('pt-BR')}
           </div>
         )}
@@ -655,8 +653,8 @@ export const UserManagement = () => {
 
     return (
       <div>
-        <div className="text-sm text-gray-300">Login: {timeAgo}</div>
-        <div className="text-xs text-gray-400">Sessão: {sessionDuration}</div>
+        <div className="text-sm text-muted-foreground">Login: {timeAgo}</div>
+        <div className="text-xs text-muted-foreground">Sessão: {sessionDuration}</div>
       </div>
     );
   };
@@ -673,13 +671,13 @@ export const UserManagement = () => {
     trial: users.filter(u => u.subscription_status === 'trial').length,
     paid: users.filter(u => u.subscription_status === 'paid').length,
     inactive: users.filter(u => u.subscription_status === 'inactive').length,
-    online: 0 // Removido contador online em tempo real
+    online: 0
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -727,23 +725,23 @@ export const UserManagement = () => {
     <div className="space-y-6">
       {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Total</p>
-                <p className="text-2xl font-bold text-white">{stats.total}</p>
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
               </div>
               <Users className="h-8 w-8 text-blue-400" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Em Teste</p>
+                <p className="text-sm text-muted-foreground">Em Teste</p>
                 <p className="text-2xl font-bold text-blue-400">{stats.trial}</p>
               </div>
               <TestTube className="h-8 w-8 text-blue-400" />
@@ -751,11 +749,11 @@ export const UserManagement = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Pagantes</p>
+                <p className="text-sm text-muted-foreground">Pagantes</p>
                 <p className="text-2xl font-bold text-green-400">{stats.paid}</p>
               </div>
               <CreditCard className="h-8 w-8 text-green-400" />
@@ -763,11 +761,11 @@ export const UserManagement = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Inativos</p>
+                <p className="text-sm text-muted-foreground">Inativos</p>
                 <p className="text-2xl font-bold text-red-400">{stats.inactive}</p>
               </div>
               <UserX className="h-8 w-8 text-red-400" />
@@ -777,9 +775,9 @@ export const UserManagement = () => {
       </div>
 
       {/* Filtros e busca */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-4">
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Users className="h-5 w-5" />
             Lista de Usuários
           </CardTitle>
@@ -787,20 +785,20 @@ export const UserManagement = () => {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <input
                 type="text"
                 placeholder="Buscar por email ou nome..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-400"
+                className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
               />
             </div>
             
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-400"
+              className="px-4 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
             >
               <option value="all">Todos os Status</option>
               <option value="trial">Teste Grátis</option>
@@ -814,21 +812,21 @@ export const UserManagement = () => {
                 <SelectTrigger className="w-48 bg-blue-600 border-blue-500 text-white">
                   <SelectValue placeholder={`Ações (${selectedUsers.size})`} />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-700 border-gray-600">
-                  <SelectItem value="copy_data" className="text-white hover:bg-gray-600">
+                <SelectContent className="bg-card border-border">
+                  <SelectItem value="copy_data" className="text-foreground hover:bg-muted">
                     <Copy className="h-4 w-4 inline mr-2" />
                     Copiar Dados
                   </SelectItem>
-                  <SelectItem value="activate_trial" className="text-white hover:bg-gray-600">
+                  <SelectItem value="activate_trial" className="text-foreground hover:bg-muted">
                     Ativar Teste (7 dias)
                   </SelectItem>
-                  <SelectItem value="deactivate_trial" className="text-white hover:bg-gray-600">
+                  <SelectItem value="deactivate_trial" className="text-foreground hover:bg-muted">
                     Desativar Teste
                   </SelectItem>
-                  <SelectItem value="deactivate_user" className="text-white hover:bg-gray-600">
+                  <SelectItem value="deactivate_user" className="text-foreground hover:bg-muted">
                     Desativar Usuário
                   </SelectItem>
-                  <SelectItem value="delete_user" className="text-white hover:bg-gray-600 text-red-400">
+                  <SelectItem value="delete_user" className="text-foreground hover:bg-muted text-red-400">
                     Excluir Usuário
                   </SelectItem>
                 </SelectContent>
@@ -838,50 +836,50 @@ export const UserManagement = () => {
             <Button 
               onClick={fetchUsers}
               variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
+              className="border-border text-muted-foreground hover:bg-muted bg-transparent"
             >
               Atualizar
             </Button>
           </div>
 
           {/* Tabela de usuários */}
-          <div className="rounded-lg border border-gray-700 overflow-hidden">
+          <div className="rounded-lg border border-border overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-700 bg-gray-900/50">
-                  <TableHead className="w-12 text-gray-400">
+                <TableRow className="border-border bg-muted/50">
+                  <TableHead className="w-12 text-muted-foreground">
                     <Checkbox
                       checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
                       onCheckedChange={handleSelectAll}
-                      className="border-gray-500"
+                      className="border-muted-foreground"
                     />
                   </TableHead>
-                  <TableHead className="text-gray-400 font-medium">Usuário</TableHead>
-                  <TableHead className="text-gray-400 font-medium">Status</TableHead>
-                  <TableHead className="text-gray-400 font-medium">Assinatura</TableHead>
-                  <TableHead className="text-gray-400 font-medium">Última Atividade</TableHead>
-                  <TableHead className="text-gray-400 font-medium text-center">Ações</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">Usuário</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">Status</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">Assinatura</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">Última Atividade</TableHead>
+                  <TableHead className="text-muted-foreground font-medium text-center">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map(user => {
                   return (
-                    <TableRow key={user.id} className="border-gray-700 bg-gray-800/50 hover:bg-gray-700/50">
+                    <TableRow key={user.id} className="border-border bg-card/50 hover:bg-muted/50">
                       <TableCell>
                         <Checkbox
                           checked={selectedUsers.has(user.id)}
                           onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
-                          className="border-gray-500"
+                          className="border-muted-foreground"
                         />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium bg-gray-600">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-foreground text-sm font-medium bg-muted">
                             {(user.name || user.email).charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-white">
+                              <span className="font-medium text-foreground">
                                 {user.name || 'Usuário sem nome'}
                               </span>
                               {user.status === 'admin' && (
@@ -891,7 +889,7 @@ export const UserManagement = () => {
                                 <Badge variant="destructive" className="text-xs">Desativado</Badge>
                               )}
                             </div>
-                            <div className="text-sm text-gray-400">{user.email}</div>
+                            <div className="text-sm text-muted-foreground">{user.email}</div>
                           </div>
                         </div>
                       </TableCell>
@@ -931,14 +929,14 @@ export const UserManagement = () => {
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-gray-800 border-gray-700">
+                            <DropdownMenuContent className="bg-card border-border">
                               <DropdownMenuItem 
                                 onClick={() => handleActivateSubscription(user)}
-                                className="text-white hover:bg-gray-700 cursor-pointer"
+                                className="text-foreground hover:bg-muted cursor-pointer"
                               >
                                 <Crown className="h-4 w-4 mr-2" />
                                 Ativar Plano
@@ -946,59 +944,51 @@ export const UserManagement = () => {
                               
                               <DropdownMenuItem 
                                 onClick={() => handleResetPassword(user.id, user.email)}
-                                className="text-white hover:bg-gray-700 cursor-pointer"
+                                className="text-foreground hover:bg-muted cursor-pointer"
                               >
                                 <Key className="h-4 w-4 mr-2" />
                                 Resetar Senha
                               </DropdownMenuItem>
-                              
+
                               {user.status !== 'admin' ? (
                                 <DropdownMenuItem 
                                   onClick={() => handleMakeAdmin(user.id, user.name || user.email)}
-                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                  className="text-foreground hover:bg-muted cursor-pointer"
                                 >
                                   <Shield className="h-4 w-4 mr-2" />
                                   Tornar Admin
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem 
-                                  onClick={() => {
-                                    const currentUser = supabase.auth.getUser();
-                                    currentUser.then(({ data }) => {
-                                      const currentUserId = data.user?.id;
-                                      if (currentUserId) {
-                                        handleRemoveAdmin(user.id, user.name || user.email, currentUserId);
-                                      }
-                                    });
-                                  }}
-                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                  onClick={() => handleRemoveAdmin(user.id, user.name || user.email, '')}
+                                  className="text-foreground hover:bg-muted cursor-pointer"
                                 >
-                                  <Shield className="h-4 w-4 mr-2" />
+                                  <User className="h-4 w-4 mr-2" />
                                   Remover Admin
                                 </DropdownMenuItem>
                               )}
                               
-                              {user.is_active ? (
+                              {user.is_active !== false ? (
                                 <DropdownMenuItem 
                                   onClick={() => handleDeactivateUser(user.id, user.name || user.email)}
-                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                  className="text-yellow-400 hover:bg-muted cursor-pointer"
                                 >
                                   <UserMinus className="h-4 w-4 mr-2" />
-                                  Desativar Usuário
+                                  Desativar Conta
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem 
                                   onClick={() => handleActivateUser(user.id, user.name || user.email)}
-                                  className="text-white hover:bg-gray-700 cursor-pointer"
+                                  className="text-green-400 hover:bg-muted cursor-pointer"
                                 >
                                   <User className="h-4 w-4 mr-2" />
-                                  Ativar Usuário
+                                  Reativar Conta
                                 </DropdownMenuItem>
                               )}
-
+                              
                               <DropdownMenuItem 
                                 onClick={() => handleDeleteUser(user)}
-                                className="text-red-400 hover:bg-gray-700 cursor-pointer"
+                                className="text-red-400 hover:bg-muted cursor-pointer"
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Excluir Usuário
@@ -1012,34 +1002,27 @@ export const UserManagement = () => {
                 })}
               </TableBody>
             </Table>
-            
-            {filteredUsers.length === 0 && (
-              <div className="text-center py-8 bg-gray-800/50">
-                <p className="text-gray-400">Nenhum usuário encontrado</p>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Modals */}
+      {/* Modais */}
+      <SubscriptionPeriodModal 
+        open={subscriptionModalOpen}
+        onOpenChange={(open) => {
+          setSubscriptionModalOpen(open);
+          if (!open) setSelectedUser(null);
+        }}
+        onConfirm={handleSubscriptionConfirm}
+      />
+
       {selectedUser && (
-        <>
-          <SubscriptionPeriodModal
-            open={subscriptionModalOpen}
-            onOpenChange={setSubscriptionModalOpen}
-            onConfirm={handleSubscriptionConfirm}
-            userName={selectedUser.name || selectedUser.email}
-            userId={selectedUser.id}
-          />
-          
-          <UserDetailsExpandedModal
-            open={userDetailsModalOpen}
-            onOpenChange={setUserDetailsModalOpen}
-            user={selectedUser}
-            onRefresh={fetchUsers}
-          />
-        </>
+        <UserDetailsExpandedModal 
+          open={userDetailsModalOpen}
+          onOpenChange={setUserDetailsModalOpen}
+          user={selectedUser}
+          onRefresh={fetchUsers}
+        />
       )}
 
       {userToDelete && (
@@ -1047,7 +1030,7 @@ export const UserManagement = () => {
           open={confirmDeleteModalOpen}
           onOpenChange={setConfirmDeleteModalOpen}
           onConfirm={confirmDeleteUser}
-          userName={userToDelete.name || 'Usuário sem nome'}
+          userName={userToDelete.name || ''}
           userEmail={userToDelete.email}
         />
       )}
@@ -1060,7 +1043,7 @@ export const UserManagement = () => {
           targetUserName={messageTargetUser.name || messageTargetUser.email}
         />
       )}
-      
+
       {resetPasswordData && (
         <PasswordResetModal
           open={passwordResetModalOpen}

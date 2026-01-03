@@ -215,20 +215,20 @@ export const SecurityDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-gray-800 border-gray-700">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-gray-700">
+        <TabsList className="bg-card border-border">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Shield className="h-4 w-4 mr-2" />
             Visão Geral
           </TabsTrigger>
-          <TabsTrigger value="blocks" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="blocks" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Lock className="h-4 w-4 mr-2" />
             Bloqueios ({activeBlocks.length})
           </TabsTrigger>
-          <TabsTrigger value="access" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="access" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Eye className="h-4 w-4 mr-2" />
             Logs de Acesso ({accessLogsCount})
           </TabsTrigger>
-          <TabsTrigger value="audit" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="audit" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <FileText className="h-4 w-4 mr-2" />
             Auditoria ({auditLogsCount})
           </TabsTrigger>
@@ -238,12 +238,12 @@ export const SecurityDashboard = () => {
         <TabsContent value="overview" className="space-y-6">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Bloqueios Ativos</p>
-                    <p className="text-2xl font-bold text-white">{activeBlocks.length}</p>
+                    <p className="text-sm text-muted-foreground">Bloqueios Ativos</p>
+                    <p className="text-2xl font-bold text-foreground">{activeBlocks.length}</p>
                   </div>
                   <div className={`p-3 rounded-full ${activeBlocks.length > 0 ? 'bg-red-600/20' : 'bg-green-600/20'}`}>
                     <Lock className={`h-6 w-6 ${activeBlocks.length > 0 ? 'text-red-400' : 'text-green-400'}`} />
@@ -252,12 +252,12 @@ export const SecurityDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Logs de Acesso</p>
-                    <p className="text-2xl font-bold text-white">{accessLogsCount}</p>
+                    <p className="text-sm text-muted-foreground">Logs de Acesso</p>
+                    <p className="text-2xl font-bold text-foreground">{accessLogsCount}</p>
                   </div>
                   <div className="p-3 rounded-full bg-blue-600/20">
                     <Eye className="h-6 w-6 text-blue-400" />
@@ -266,12 +266,12 @@ export const SecurityDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Ações Auditadas</p>
-                    <p className="text-2xl font-bold text-white">{auditLogsCount}</p>
+                    <p className="text-sm text-muted-foreground">Ações Auditadas</p>
+                    <p className="text-2xl font-bold text-foreground">{auditLogsCount}</p>
                   </div>
                   <div className="p-3 rounded-full bg-purple-600/20">
                     <Clock className="h-6 w-6 text-purple-400" />
@@ -280,12 +280,12 @@ export const SecurityDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Logins Falhos</p>
-                    <p className="text-2xl font-bold text-white">{recentFailedLogins.length}</p>
+                    <p className="text-sm text-muted-foreground">Logins Falhos</p>
+                    <p className="text-2xl font-bold text-foreground">{recentFailedLogins.length}</p>
                   </div>
                   <div className={`p-3 rounded-full ${recentFailedLogins.length > 5 ? 'bg-yellow-600/20' : 'bg-green-600/20'}`}>
                     <AlertTriangle className={`h-6 w-6 ${recentFailedLogins.length > 5 ? 'text-yellow-400' : 'text-green-400'}`} />
@@ -296,9 +296,9 @@ export const SecurityDashboard = () => {
           </div>
 
           {/* Security Status */}
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-4">
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Shield className="h-5 w-5 text-green-400" />
                 Status de Segurança
               </CardTitle>
@@ -313,10 +313,10 @@ export const SecurityDashboard = () => {
                   { label: 'Sistema de Permissões', value: 'RBAC', active: true },
                   { label: 'Bloqueio Automático', value: 'Ativo', active: true },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
+                  <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-5 w-5 text-green-400" />
-                      <span className="text-gray-300">{item.label}</span>
+                      <span className="text-muted-foreground">{item.label}</span>
                     </div>
                     <Badge className="bg-green-600">{item.value}</Badge>
                   </div>
@@ -328,20 +328,20 @@ export const SecurityDashboard = () => {
           {/* Recent Activity */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Access Logs */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-foreground flex items-center gap-2">
                   <Eye className="h-5 w-5 text-blue-400" />
                   Acessos Recentes
                 </CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setActiveTab('access')} className="text-gray-400 hover:text-white">
+                <Button variant="ghost" size="sm" onClick={() => setActiveTab('access')} className="text-muted-foreground hover:text-foreground">
                   Ver Todos
                 </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {accessLogs.slice(0, 5).map(log => (
-                    <div key={log.id} className="flex items-center justify-between p-2 bg-gray-700/30 rounded-lg">
+                    <div key={log.id} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
                       <div className="flex items-center gap-3">
                         {log.success ? (
                           <CheckCircle className="h-4 w-4 text-green-400" />
@@ -349,42 +349,42 @@ export const SecurityDashboard = () => {
                           <XCircle className="h-4 w-4 text-red-400" />
                         )}
                         <div>
-                          <p className="text-sm text-white">{log.action}</p>
-                          <p className="text-xs text-gray-400">{log.ipAddress || 'IP desconhecido'}</p>
+                          <p className="text-sm text-foreground">{log.action}</p>
+                          <p className="text-xs text-muted-foreground">{log.ipAddress || 'IP desconhecido'}</p>
                         </div>
                       </div>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {format(new Date(log.createdAt), 'HH:mm', { locale: ptBR })}
                       </span>
                     </div>
                   ))}
                   {accessLogs.length === 0 && (
-                    <p className="text-gray-400 text-center py-4">Nenhum log de acesso recente</p>
+                    <p className="text-muted-foreground text-center py-4">Nenhum log de acesso recente</p>
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Active Blocks */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-foreground flex items-center gap-2">
                   <Lock className="h-5 w-5 text-red-400" />
                   Bloqueios Ativos
                 </CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setActiveTab('blocks')} className="text-gray-400 hover:text-white">
+                <Button variant="ghost" size="sm" onClick={() => setActiveTab('blocks')} className="text-muted-foreground hover:text-foreground">
                   Ver Todos
                 </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {activeBlocks.slice(0, 5).map(block => (
-                    <div key={block.id} className="flex items-center justify-between p-2 bg-gray-700/30 rounded-lg">
+                    <div key={block.id} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
                       <div className="flex items-center gap-3">
                         {getBlockTypeIcon(block.blockType)}
                         <div>
-                          <p className="text-sm text-white">{block.identifier}</p>
-                          <p className="text-xs text-gray-400">{block.reason}</p>
+                          <p className="text-sm text-foreground">{block.identifier}</p>
+                          <p className="text-xs text-muted-foreground">{block.reason}</p>
                         </div>
                       </div>
                       <Badge variant="outline" className={block.isPermanent ? 'border-red-500 text-red-400' : 'border-yellow-500 text-yellow-400'}>
@@ -393,7 +393,7 @@ export const SecurityDashboard = () => {
                     </div>
                   ))}
                   {activeBlocks.length === 0 && (
-                    <div className="flex items-center justify-center py-8 text-gray-400">
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
                       <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
                       <span>Nenhum bloqueio ativo</span>
                     </div>
@@ -408,23 +408,23 @@ export const SecurityDashboard = () => {
         <TabsContent value="blocks" className="space-y-6">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Total de Bloqueios</p>
-                    <p className="text-2xl font-bold text-white">{blocks.length}</p>
+                    <p className="text-sm text-muted-foreground">Total de Bloqueios</p>
+                    <p className="text-2xl font-bold text-foreground">{blocks.length}</p>
                   </div>
-                  <Lock className="h-8 w-8 text-gray-500" />
+                  <Lock className="h-8 w-8 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Bloqueios Ativos</p>
+                    <p className="text-sm text-muted-foreground">Bloqueios Ativos</p>
                     <p className="text-2xl font-bold text-red-400">{activeBlocks.length}</p>
                   </div>
                   <AlertTriangle className="h-8 w-8 text-red-500" />

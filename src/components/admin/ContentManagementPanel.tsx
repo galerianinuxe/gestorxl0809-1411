@@ -11,24 +11,24 @@ export const ContentManagementPanel = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="blog" className="w-full">
-        <TabsList className="bg-gray-800 border-gray-700 flex-wrap h-auto p-1">
-          <TabsTrigger value="blog" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+        <TabsList className="bg-card border-border flex-wrap h-auto p-1">
+          <TabsTrigger value="blog" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <FileText className="h-4 w-4 mr-2" />
             Blog
           </TabsTrigger>
-          <TabsTrigger value="help" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+          <TabsTrigger value="help" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <HelpCircle className="h-4 w-4 mr-2" />
             Ajuda
           </TabsTrigger>
-          <TabsTrigger value="glossary" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+          <TabsTrigger value="glossary" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <BookOpen className="h-4 w-4 mr-2" />
             Glossário
           </TabsTrigger>
-          <TabsTrigger value="pillar" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+          <TabsTrigger value="pillar" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Layers className="h-4 w-4 mr-2" />
             Soluções
           </TabsTrigger>
-          <TabsTrigger value="seo" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+          <TabsTrigger value="seo" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Search className="h-4 w-4 mr-2" />
             SEO
           </TabsTrigger>

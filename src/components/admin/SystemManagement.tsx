@@ -135,45 +135,45 @@ export const SystemManagement = () => {
   return (
     <div className="space-y-6">
       {/* Status do Sistema */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Server className="h-5 w-5 text-green-400" />
             Status do Sistema
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-400" />
-                <span className="text-gray-300 text-sm">Servidor</span>
+                <span className="text-muted-foreground text-sm">Servidor</span>
               </div>
               <Badge className="bg-green-600 hover:bg-green-700">Online</Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
               <div className="flex items-center gap-2">
                 <Database className="h-4 w-4 text-green-400" />
-                <span className="text-gray-300 text-sm">Banco de Dados</span>
+                <span className="text-muted-foreground text-sm">Banco de Dados</span>
               </div>
               <Badge className="bg-green-600 hover:bg-green-700">Conectado</Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-green-400" />
-                <span className="text-gray-300 text-sm">Backup</span>
+                <span className="text-muted-foreground text-sm">Backup</span>
               </div>
               <Badge className={localConfig.backup_enabled ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}>
                 {localConfig.backup_enabled ? 'Ativado' : 'Desativado'}
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
               <div className="flex items-center gap-2">
                 <Network className="h-4 w-4 text-blue-400" />
-                <span className="text-gray-300 text-sm">API</span>
+                <span className="text-muted-foreground text-sm">API</span>
               </div>
               <Badge className="bg-blue-600 hover:bg-blue-700">Funcional</Badge>
             </div>
@@ -182,9 +182,9 @@ export const SystemManagement = () => {
       </Card>
 
       {/* Informações do Banco de Dados Supabase */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Database className="h-5 w-5 text-blue-400" />
             Banco de Dados Supabase ({stats.supabase_plan})
           </CardTitle>
@@ -194,15 +194,15 @@ export const SystemManagement = () => {
             {/* Informações do Banco */}
             <div className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-400">Nome do Banco:</span>
-                <span className="text-white font-semibold">{stats.database_name}</span>
+                <span className="text-muted-foreground">Nome do Banco:</span>
+                <span className="text-foreground font-semibold">{stats.database_name}</span>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Uso do Banco:</span>
+                  <span className="text-muted-foreground">Uso do Banco:</span>
                   <div className="text-right">
-                    <div className="text-sm text-white font-semibold">
+                    <div className="text-sm text-foreground font-semibold">
                       {stats.database_size} / {stats.database_capacity}
                     </div>
                   </div>
@@ -210,14 +210,14 @@ export const SystemManagement = () => {
                 <div className="space-y-1">
                   <Progress 
                     value={stats.database_usage_percentage} 
-                    className="h-2 bg-gray-700" 
+                    className="h-2 bg-muted" 
                   />
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">0%</span>
+                    <span className="text-muted-foreground">0%</span>
                     <span className={`font-medium ${getUsageColor(stats.database_usage_percentage)}`}>
                       {stats.database_usage_percentage}% usado
                     </span>
-                    <span className="text-gray-500">100%</span>
+                    <span className="text-muted-foreground">100%</span>
                   </div>
                 </div>
                 {stats.database_usage_percentage > 80 && (
@@ -232,15 +232,15 @@ export const SystemManagement = () => {
             {/* Storage de Arquivos */}
             <div className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-400">Plano Supabase:</span>
+                <span className="text-muted-foreground">Plano Supabase:</span>
                 <Badge className="bg-blue-600 hover:bg-blue-700">{stats.supabase_plan}</Badge>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Storage de Arquivos:</span>
+                  <span className="text-muted-foreground">Storage de Arquivos:</span>
                   <div className="text-right">
-                    <div className="text-sm text-white font-semibold">
+                    <div className="text-sm text-foreground font-semibold">
                       {stats.storage_size} / {stats.storage_capacity}
                     </div>
                   </div>
@@ -248,14 +248,14 @@ export const SystemManagement = () => {
                 <div className="space-y-1">
                   <Progress 
                     value={stats.storage_usage_percentage} 
-                    className="h-2 bg-gray-700" 
+                    className="h-2 bg-muted" 
                   />
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">0%</span>
+                    <span className="text-muted-foreground">0%</span>
                     <span className={`font-medium ${getUsageColor(stats.storage_usage_percentage)}`}>
                       {stats.storage_usage_percentage}% usado
                     </span>
-                    <span className="text-gray-500">100%</span>
+                    <span className="text-muted-foreground">100%</span>
                   </div>
                 </div>
               </div>
@@ -265,9 +265,9 @@ export const SystemManagement = () => {
       </Card>
 
       {/* Informações do Sistema */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-blue-400" />
             Informações do Sistema
           </CardTitle>
@@ -276,58 +276,58 @@ export const SystemManagement = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-400">Versão do Sistema:</span>
-                <span className="text-white font-semibold">{config?.system_version}</span>
+                <span className="text-muted-foreground">Versão do Sistema:</span>
+                <span className="text-foreground font-semibold">{config?.system_version}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Última Atualização:</span>
+                <span className="text-muted-foreground">Última Atualização:</span>
                 <span className="text-blue-400">
                   {config?.updated_at ? new Date(config.updated_at).toLocaleString('pt-BR') : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Tempo Online:</span>
+                <span className="text-muted-foreground">Tempo Online:</span>
                 <span className="text-green-400">
                   {stats.uptime_days} dias, {stats.uptime_hours}h {stats.uptime_minutes}m
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Conexões Ativas:</span>
-                <span className="text-white font-semibold">{stats.active_connections}</span>
+                <span className="text-muted-foreground">Conexões Ativas:</span>
+                <span className="text-foreground font-semibold">{stats.active_connections}</span>
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-400">Usuários Ativos:</span>
-                <span className="text-white font-semibold">{stats.active_users}</span>
+                <span className="text-muted-foreground">Usuários Ativos:</span>
+                <span className="text-foreground font-semibold">{stats.active_users}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Transações Hoje:</span>
-                <span className="text-white font-semibold">{stats.transactions_today}</span>
+                <span className="text-muted-foreground">Transações Hoje:</span>
+                <span className="text-foreground font-semibold">{stats.transactions_today}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Total de Transações:</span>
-                <span className="text-white font-semibold">{stats.total_transactions}</span>
+                <span className="text-muted-foreground">Total de Transações:</span>
+                <span className="text-foreground font-semibold">{stats.total_transactions}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Total de Tabelas:</span>
-                <span className="text-white font-semibold">{stats.total_tables}</span>
+                <span className="text-muted-foreground">Total de Tabelas:</span>
+                <span className="text-foreground font-semibold">{stats.total_tables}</span>
               </div>
             </div>
 
             <div className="space-y-2">
               {stats.cpu_usage !== undefined && stats.cpu_usage > 0 ? (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Uso de CPU:</span>
+                  <span className="text-muted-foreground">Uso de CPU:</span>
                   <span className={stats.cpu_usage < 50 ? "text-green-400" : "text-yellow-400"}>
                     {stats.cpu_usage}%
                   </span>
                 </div>
               ) : (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Uso de CPU:</span>
-                  <span className="text-gray-500 text-sm flex items-center gap-1">
+                  <span className="text-muted-foreground">Uso de CPU:</span>
+                  <span className="text-muted-foreground text-sm flex items-center gap-1">
                     <Info className="h-3 w-3" />
                     N/A (Plano {stats.supabase_plan})
                   </span>
@@ -336,15 +336,15 @@ export const SystemManagement = () => {
               
               {stats.memory_usage !== undefined && stats.memory_usage > 0 ? (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Uso de Memória:</span>
+                  <span className="text-muted-foreground">Uso de Memória:</span>
                   <span className={stats.memory_usage < 70 ? "text-green-400" : "text-yellow-400"}>
                     {stats.memory_usage}%
                   </span>
                 </div>
               ) : (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Uso de Memória:</span>
-                  <span className="text-gray-500 text-sm flex items-center gap-1">
+                  <span className="text-muted-foreground">Uso de Memória:</span>
+                  <span className="text-muted-foreground text-sm flex items-center gap-1">
                     <Info className="h-3 w-3" />
                     N/A (Plano {stats.supabase_plan})
                   </span>
@@ -352,11 +352,11 @@ export const SystemManagement = () => {
               )}
               
               <div className="flex justify-between">
-                <span className="text-gray-400 flex items-center gap-1">
+                <span className="text-muted-foreground flex items-center gap-1">
                   <HardDrive className="h-3 w-3" />
                   Espaço em Disco:
                 </span>
-                <span className="text-gray-500 text-sm flex items-center gap-1">
+                <span className="text-muted-foreground text-sm flex items-center gap-1">
                   <Info className="h-3 w-3" />
                   N/A (Plano {stats.supabase_plan})
                 </span>
@@ -367,10 +367,10 @@ export const SystemManagement = () => {
       </Card>
 
       {/* Configurações do Sistema */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Settings className="h-5 w-5 text-gray-400" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <Settings className="h-5 w-5 text-muted-foreground" />
             Configurações do Sistema
           </CardTitle>
         </CardHeader>
@@ -378,54 +378,54 @@ export const SystemManagement = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="maxUsers" className="text-gray-300">Máximo de Usuários</Label>
+                <Label htmlFor="maxUsers" className="text-muted-foreground">Máximo de Usuários</Label>
                 <Input
                   id="maxUsers"
                   type="number"
                   value={localConfig.max_users}
                   onChange={(e) => setLocalConfig({...localConfig, max_users: e.target.value})}
-                  className="bg-gray-900 border-gray-600 text-white"
+                  className="bg-muted border-border text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sessionTimeout" className="text-gray-300">Timeout de Sessão (minutos)</Label>
+                <Label htmlFor="sessionTimeout" className="text-muted-foreground">Timeout de Sessão (minutos)</Label>
                 <Input
                   id="sessionTimeout"
                   type="number"
                   value={localConfig.session_timeout}
                   onChange={(e) => setLocalConfig({...localConfig, session_timeout: e.target.value})}
-                  className="bg-gray-900 border-gray-600 text-white"
+                  className="bg-muted border-border text-foreground"
                 />
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="backupInterval" className="text-gray-300">Intervalo de Backup (horas)</Label>
+                <Label htmlFor="backupInterval" className="text-muted-foreground">Intervalo de Backup (horas)</Label>
                 <Input
                   id="backupInterval"
                   type="number"
                   value={localConfig.backup_interval}
                   onChange={(e) => setLocalConfig({...localConfig, backup_interval: e.target.value})}
-                  className="bg-gray-900 border-gray-600 text-white"
+                  className="bg-muted border-border text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="logRetention" className="text-gray-300">Retenção de Logs (dias)</Label>
+                <Label htmlFor="logRetention" className="text-muted-foreground">Retenção de Logs (dias)</Label>
                 <Input
                   id="logRetention"
                   type="number"
                   value={localConfig.log_retention}
                   onChange={(e) => setLocalConfig({...localConfig, log_retention: e.target.value})}
-                  className="bg-gray-900 border-gray-600 text-white"
+                  className="bg-muted border-border text-foreground"
                 />
               </div>
             </div>
           </div>
 
-          <Separator className="bg-gray-700" />
+          <Separator className="bg-border" />
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">

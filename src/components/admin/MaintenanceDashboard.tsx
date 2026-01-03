@@ -309,20 +309,20 @@ export const MaintenanceDashboard = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-gray-800 border-gray-700">
-          <TabsTrigger value="status" className="data-[state=active]:bg-gray-700">
+        <TabsList className="bg-card border-border">
+          <TabsTrigger value="status" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Server className="h-4 w-4 mr-2" />
             Status
           </TabsTrigger>
-          <TabsTrigger value="config" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="config" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Settings className="h-4 w-4 mr-2" />
             Configurações
           </TabsTrigger>
-          <TabsTrigger value="notices" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="notices" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Bell className="h-4 w-4 mr-2" />
             Avisos ({notices.filter(n => n.is_active).length})
           </TabsTrigger>
-          <TabsTrigger value="cleanup" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="cleanup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Trash2 className="h-4 w-4 mr-2" />
             Limpeza
           </TabsTrigger>
@@ -332,11 +332,11 @@ export const MaintenanceDashboard = () => {
         <TabsContent value="status" className="space-y-6">
           {/* Status Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Status do Sistema</p>
+                    <p className="text-sm text-muted-foreground">Status do Sistema</p>
                     <p className="text-xl font-bold text-green-400">Online</p>
                   </div>
                   <div className="p-3 rounded-full bg-green-600/20">
@@ -346,12 +346,12 @@ export const MaintenanceDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Uptime</p>
-                    <p className="text-xl font-bold text-white">{getUptimeDays()} dias</p>
+                    <p className="text-sm text-muted-foreground">Uptime</p>
+                    <p className="text-xl font-bold text-foreground">{getUptimeDays()} dias</p>
                   </div>
                   <div className="p-3 rounded-full bg-blue-600/20">
                     <Activity className="h-6 w-6 text-blue-400" />
@@ -360,12 +360,12 @@ export const MaintenanceDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Tamanho do DB</p>
-                    <p className="text-xl font-bold text-white">{dbStats.size}</p>
+                    <p className="text-sm text-muted-foreground">Tamanho do DB</p>
+                    <p className="text-xl font-bold text-foreground">{dbStats.size}</p>
                   </div>
                   <div className="p-3 rounded-full bg-purple-600/20">
                     <Database className="h-6 w-6 text-purple-400" />
@@ -374,12 +374,12 @@ export const MaintenanceDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">Versão</p>
-                    <p className="text-xl font-bold text-white">{config?.system_version || '1.0.0'}</p>
+                    <p className="text-sm text-muted-foreground">Versão</p>
+                    <p className="text-xl font-bold text-foreground">{config?.system_version || '1.0.0'}</p>
                   </div>
                   <div className="p-3 rounded-full bg-yellow-600/20">
                     <HardDrive className="h-6 w-6 text-yellow-400" />
@@ -390,53 +390,53 @@ export const MaintenanceDashboard = () => {
           </div>
 
           {/* System Info */}
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Server className="h-5 w-5 text-blue-400" />
                 Informações do Sistema
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-4 bg-gray-700/50 rounded-lg">
+                <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Servidor</span>
+                    <span className="text-muted-foreground">Servidor</span>
                     <Badge className="bg-green-600">Supabase</Badge>
                   </div>
                 </div>
-                <div className="p-4 bg-gray-700/50 rounded-lg">
+                <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Tabelas</span>
-                    <span className="text-white font-medium">{dbStats.tables}</span>
+                    <span className="text-muted-foreground">Tabelas</span>
+                    <span className="text-foreground font-medium">{dbStats.tables}</span>
                   </div>
                 </div>
-                <div className="p-4 bg-gray-700/50 rounded-lg">
+                <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Funções</span>
-                    <span className="text-white font-medium">{dbStats.functions}</span>
+                    <span className="text-muted-foreground">Funções</span>
+                    <span className="text-foreground font-medium">{dbStats.functions}</span>
                   </div>
                 </div>
-                <div className="p-4 bg-gray-700/50 rounded-lg">
+                <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Backup</span>
-                    <Badge className={config?.backup_enabled ? 'bg-green-600' : 'bg-gray-600'}>
+                    <span className="text-muted-foreground">Backup</span>
+                    <Badge className={config?.backup_enabled ? 'bg-green-600' : 'bg-muted'}>
                       {config?.backup_enabled ? 'Ativo' : 'Inativo'}
                     </Badge>
                   </div>
                 </div>
-                <div className="p-4 bg-gray-700/50 rounded-lg">
+                <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Modo Manutenção</span>
-                    <Badge className={config?.maintenance_mode ? 'bg-yellow-600' : 'bg-gray-600'}>
+                    <span className="text-muted-foreground">Modo Manutenção</span>
+                    <Badge className={config?.maintenance_mode ? 'bg-yellow-600' : 'bg-muted'}>
                       {config?.maintenance_mode ? 'Ativo' : 'Inativo'}
                     </Badge>
                   </div>
                 </div>
-                <div className="p-4 bg-gray-700/50 rounded-lg">
+                <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-400">Auto Update</span>
-                    <Badge className={config?.auto_update_enabled ? 'bg-green-600' : 'bg-gray-600'}>
+                    <span className="text-muted-foreground">Auto Update</span>
+                    <Badge className={config?.auto_update_enabled ? 'bg-green-600' : 'bg-muted'}>
                       {config?.auto_update_enabled ? 'Ativo' : 'Inativo'}
                     </Badge>
                   </div>
@@ -446,21 +446,21 @@ export const MaintenanceDashboard = () => {
           </Card>
 
           {/* Maintenance Mode Control */}
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-yellow-400" />
                 Controle de Manutenção
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-muted-foreground">
                 Ative o modo manutenção para bloquear o acesso de usuários durante atualizações
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                 <div>
-                  <h4 className="text-white font-medium">Modo Manutenção</h4>
-                  <p className="text-gray-400 text-sm">Quando ativo, apenas admins podem acessar o sistema</p>
+                  <h4 className="text-foreground font-medium">Modo Manutenção</h4>
+                  <p className="text-muted-foreground text-sm">Quando ativo, apenas admins podem acessar o sistema</p>
                 </div>
                 <Button
                   variant={config?.maintenance_mode ? 'destructive' : 'default'}

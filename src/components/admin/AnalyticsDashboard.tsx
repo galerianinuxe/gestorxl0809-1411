@@ -295,12 +295,12 @@ export const AnalyticsDashboard = () => {
     };
 
     return (
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-sm text-gray-400">{title}</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-sm text-muted-foreground">{title}</p>
+              <p className="text-2xl font-bold text-foreground">
                 {prefix}{typeof value === 'number' ? value.toLocaleString('pt-BR') : value}{suffix}
               </p>
               {change !== undefined && (
@@ -322,7 +322,7 @@ export const AnalyticsDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -332,25 +332,25 @@ export const AnalyticsDashboard = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <BarChart3 className="h-6 w-6 text-blue-400" />
             Analytics Dashboard
           </h2>
-          <p className="text-gray-400">Métricas de uso, crescimento e conversão</p>
+          <p className="text-muted-foreground">Métricas de uso, crescimento e conversão</p>
         </div>
         <div className="flex gap-2">
           <Select value={period} onValueChange={(v: '7d' | '30d' | '90d') => setPeriod(v)}>
-            <SelectTrigger className="w-40 bg-gray-700 border-gray-600">
+            <SelectTrigger className="w-40 bg-muted border-border">
               <Calendar className="h-4 w-4 mr-2" />
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-700 border-gray-600">
+            <SelectContent className="bg-card border-border">
               <SelectItem value="7d">Últimos 7 dias</SelectItem>
               <SelectItem value="30d">Últimos 30 dias</SelectItem>
               <SelectItem value="90d">Últimos 90 dias</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={fetchAnalytics} variant="outline" className="border-gray-600">
+          <Button onClick={fetchAnalytics} variant="outline" className="border-border">
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
@@ -358,20 +358,20 @@ export const AnalyticsDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-gray-800 border-gray-700">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-gray-700">
+        <TabsList className="bg-card border-border">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Activity className="h-4 w-4 mr-2" />
             Visão Geral
           </TabsTrigger>
-          <TabsTrigger value="users" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Users className="h-4 w-4 mr-2" />
             Usuários
           </TabsTrigger>
-          <TabsTrigger value="revenue" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="revenue" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <DollarSign className="h-4 w-4 mr-2" />
             Receita
           </TabsTrigger>
-          <TabsTrigger value="engagement" className="data-[state=active]:bg-gray-700">
+          <TabsTrigger value="engagement" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Zap className="h-4 w-4 mr-2" />
             Engajamento
           </TabsTrigger>
@@ -412,9 +412,9 @@ export const AnalyticsDashboard = () => {
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* User Growth Chart */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-foreground flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-blue-400" />
                   Crescimento de Usuários
                 </CardTitle>
@@ -428,12 +428,12 @@ export const AnalyticsDashboard = () => {
                         <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                      labelStyle={{ color: '#fff' }}
+                      contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
                     />
                     <Area type="monotone" dataKey="users" stroke="#3B82F6" fill="url(#colorUsers)" />
                   </AreaChart>
@@ -442,9 +442,9 @@ export const AnalyticsDashboard = () => {
             </Card>
 
             {/* Subscriptions Chart */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-foreground flex items-center gap-2">
                   <CreditCard className="h-5 w-5 text-green-400" />
                   Novas Assinaturas
                 </CardTitle>
@@ -452,12 +452,12 @@ export const AnalyticsDashboard = () => {
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={dailyMetrics}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                      labelStyle={{ color: '#fff' }}
+                      contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
                     />
                     <Bar dataKey="subscriptions" fill="#10B981" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -469,9 +469,9 @@ export const AnalyticsDashboard = () => {
           {/* Pie Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Users by Plan */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white">Usuários por Plano</CardTitle>
+                <CardTitle className="text-foreground">Usuários por Plano</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center">
@@ -491,7 +491,7 @@ export const AnalyticsDashboard = () => {
                         ))}
                       </Pie>
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -500,9 +500,9 @@ export const AnalyticsDashboard = () => {
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                          <span className="text-gray-300 text-sm">{item.name}</span>
+                          <span className="text-muted-foreground text-sm">{item.name}</span>
                         </div>
-                        <span className="text-white font-medium">{item.value}</span>
+                        <span className="text-foreground font-medium">{item.value}</span>
                       </div>
                     ))}
                   </div>
@@ -511,9 +511,9 @@ export const AnalyticsDashboard = () => {
             </Card>
 
             {/* Revenue by Method */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white">Receita por Método</CardTitle>
+                <CardTitle className="text-foreground">Receita por Método</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center">
@@ -533,7 +533,7 @@ export const AnalyticsDashboard = () => {
                         ))}
                       </Pie>
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -542,9 +542,9 @@ export const AnalyticsDashboard = () => {
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                          <span className="text-gray-300 text-sm">{item.name}</span>
+                          <span className="text-muted-foreground text-sm">{item.name}</span>
                         </div>
-                        <span className="text-white font-medium">{item.value}%</span>
+                        <span className="text-foreground font-medium">{item.value}%</span>
                       </div>
                     ))}
                   </div>
@@ -563,9 +563,9 @@ export const AnalyticsDashboard = () => {
             <StatCard title="Assinantes" value={activeSubscriptions} icon={CreditCard} color="purple" />
           </div>
 
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white">Crescimento Diário de Usuários</CardTitle>
+              <CardTitle className="text-foreground">Crescimento Diário de Usuários</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
@@ -576,12 +576,12 @@ export const AnalyticsDashboard = () => {
                       <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
-                  <YAxis stroke="#9CA3AF" fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                    labelStyle={{ color: '#fff' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
                   />
                   <Area type="monotone" dataKey="users" stroke="#3B82F6" fill="url(#colorUsersArea)" name="Novos Usuários" />
                 </AreaChart>
@@ -599,19 +599,19 @@ export const AnalyticsDashboard = () => {
             <StatCard title="Conversão" value={conversionRate} suffix="%" icon={Percent} color="yellow" />
           </div>
 
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white">Receita por Transações (PDV)</CardTitle>
+              <CardTitle className="text-foreground">Receita por Transações (PDV)</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={dailyMetrics}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
-                  <YAxis stroke="#9CA3AF" fontSize={12} tickFormatter={(v) => `R$${v}`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `R$${v}`} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                    labelStyle={{ color: '#fff' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
                     formatter={(value: number) => [formatCurrency(value), 'Receita']}
                   />
                   <Bar dataKey="revenue" fill="#10B981" radius={[4, 4, 0, 0]} name="Receita" />
@@ -631,19 +631,19 @@ export const AnalyticsDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white">Logins Diários</CardTitle>
+                <CardTitle className="text-foreground">Logins Diários</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={dailyMetrics}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                      labelStyle={{ color: '#fff' }}
+                      contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
                     />
                     <Line type="monotone" dataKey="logins" stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6' }} />
                   </LineChart>
@@ -651,19 +651,19 @@ export const AnalyticsDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white">Transações Diárias</CardTitle>
+                <CardTitle className="text-foreground">Transações Diárias</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={dailyMetrics}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                      labelStyle={{ color: '#fff' }}
+                      contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
                     />
                     <Bar dataKey="transactions" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                   </BarChart>
