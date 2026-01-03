@@ -199,21 +199,21 @@ export const PlansManagement = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
             Gerenciamento de Planos
           </CardTitle>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Plano
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl bg-gray-800 border-gray-700 text-white">
+            <DialogContent className="max-w-2xl bg-card border-border text-foreground">
               <DialogHeader>
                 <DialogTitle>
                   {editingPlan ? 'Editar Plano' : 'Criar Novo Plano'}
@@ -385,7 +385,7 @@ export const PlansManagement = () => {
               <div
                 key={plan.id}
                 className={`p-4 rounded-lg border ${
-                  plan.is_active ? 'bg-gray-700 border-gray-600' : 'bg-gray-800 border-gray-700 opacity-60'
+                  plan.is_active ? 'bg-muted/50 border-border' : 'bg-muted/20 border-border opacity-60'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -393,7 +393,7 @@ export const PlansManagement = () => {
                     {getPlanIcon(plan)}
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-white">{plan.name}</h3>
+                        <h3 className="font-medium text-foreground">{plan.name}</h3>
                         {plan.is_promotional && (
                           <Badge className="bg-green-600 text-white">Promocional</Badge>
                         )}
@@ -404,18 +404,18 @@ export const PlansManagement = () => {
                           <Badge variant="destructive">Inativo</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-400">{plan.description}</p>
+                      <p className="text-sm text-muted-foreground">{plan.description}</p>
                       <div className="flex items-center gap-4 mt-1">
-                        <span className="text-lg font-bold text-green-400">
+                        <span className="text-lg font-bold text-emerald-400">
                           R$ {plan.price.toFixed(2)}{plan.period}
                         </span>
                         {plan.is_promotional && plan.promotional_description && (
-                          <span className="text-sm text-yellow-400">
+                          <span className="text-sm text-amber-400">
                             {plan.promotional_description}
                           </span>
                         )}
                         {plan.savings && (
-                          <span className="text-sm text-blue-400">{plan.savings}</span>
+                          <span className="text-sm text-primary">{plan.savings}</span>
                         )}
                       </div>
                     </div>
@@ -445,7 +445,7 @@ export const PlansManagement = () => {
             
             {plans.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-gray-400">Nenhum plano encontrado</p>
+                <p className="text-muted-foreground">Nenhum plano encontrado</p>
               </div>
             )}
           </div>

@@ -512,7 +512,7 @@ export const FinancialDashboard = () => {
 
         {/* Subscriptions Tab */}
         <TabsContent value="subscriptions" className="space-y-4">
-          <Card>
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -604,7 +604,7 @@ export const FinancialDashboard = () => {
 
         {/* Payments Tab */}
         <TabsContent value="payments" className="space-y-4">
-          <Card>
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -655,7 +655,7 @@ export const FinancialDashboard = () => {
                       <TableRow key={payment.id}>
                         <TableCell className="font-mono text-xs">{payment.payment_id}</TableCell>
                         <TableCell>{payment.payer_email}</TableCell>
-                        <TableCell className="font-medium text-green-500">
+                        <TableCell className="font-medium text-emerald-400">
                           {formatCurrency(payment.transaction_amount)}
                         </TableCell>
                         <TableCell>

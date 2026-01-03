@@ -1,14 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import sharp from "npm:sharp@0.33.5";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-// Logo XLATA oficial para overlay
-const XLATA_LOGO_URL = 'https://xlata.site/lovable-uploads/XLATALOGO.png';
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -49,16 +45,18 @@ serve(async (req) => {
     const contentSummary = content?.substring(0, 300) || '';
     const keywordsList = keywords || '';
 
+    // Include XLATA logo/branding directly in the prompt
     const optimizedPrompt = `${basePrompt} for XLATA, a recycling management software.
 
 Theme: "${title}"
 ${contentSummary ? `Context: ${contentSummary}` : ''}
 ${keywordsList ? `Related: ${keywordsList}` : ''}
 
-CRITICAL RULES - ABSOLUTELY MUST FOLLOW:
-1. NO TEXT whatsoever - absolutely NO words, NO letters, NO numbers, NO typography of any kind
-2. NO logos, NO watermarks, NO brand marks
-3. Pure visual illustration ONLY - no written content at all
+CRITICAL REQUIREMENTS:
+1. NO TEXT whatsoever - absolutely NO words, NO letters, NO numbers
+2. Include a small, subtle circular green logo mark in the bottom-right corner (representing XLATA brand)
+3. The logo should be a simple green circle with an "X" pattern inside, sized about 10% of image width
+4. Position the logo with padding from the edges
 
 Visual Style:
 - Modern flat illustration with subtle gradients and depth
@@ -66,14 +64,13 @@ Visual Style:
 - Primary colors: emerald green (#10B981), dark tones (#1F2937, #111827)
 - Industrial recycling elements: metal, gears, scales, trucks, recycling symbols
 - 16:9 aspect ratio, ultra high resolution
-- Leave bottom-right corner clean (space reserved for branding)
 - Suitable for website hero section
 
-This is an ILLUSTRATION, not a poster or banner with text. Generate pure visual artwork.`;
+This is a pure ILLUSTRATION with integrated branding, not a poster with text.`;
 
-    console.log('Generating base image with prompt (no text)...');
+    console.log('Generating image with integrated branding...');
 
-    // Call Lovable AI to generate base image (without logo/text)
+    // Call Lovable AI to generate image with branding
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -118,10 +115,10 @@ This is an ILLUSTRATION, not a poster or banner with text. Generate pure visual 
     const aiData = await aiResponse.json();
     console.log('AI Response received');
 
-    // Extract base image from response
-    const baseImageData = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    // Extract image from response
+    const imageData = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     
-    if (!baseImageData) {
+    if (!imageData) {
       console.error('No image in AI response:', JSON.stringify(aiData).substring(0, 500));
       return new Response(
         JSON.stringify({ error: 'No image generated' }),
@@ -129,74 +126,17 @@ This is an ILLUSTRATION, not a poster or banner with text. Generate pure visual 
       );
     }
 
-    console.log('Base image generated successfully');
+    console.log('Image generated successfully');
 
-    // ============ PROGRAMMATIC LOGO OVERLAY WITH SHARP ============
-    console.log('Downloading XLATA logo for overlay...');
-    
-    // Download the XLATA logo
-    const logoResponse = await fetch(XLATA_LOGO_URL);
-    if (!logoResponse.ok) {
-      console.error('Failed to download logo:', logoResponse.status);
-      throw new Error('Failed to download XLATA logo');
-    }
-    const logoArrayBuffer = await logoResponse.arrayBuffer();
-    const logoBuffer = Buffer.from(logoArrayBuffer);
-    console.log('Logo downloaded, size:', logoBuffer.length, 'bytes');
-
-    // Convert base64 image to buffer
-    const base64Data = baseImageData.replace(/^data:image\/\w+;base64,/, '');
-    const imageBuffer = Buffer.from(base64Data, 'base64');
-    console.log('Base image buffer size:', imageBuffer.length, 'bytes');
-
-    // Get base image dimensions
-    const baseMetadata = await sharp(imageBuffer).metadata();
-    const imageWidth = baseMetadata.width || 1024;
-    const imageHeight = baseMetadata.height || 576;
-    console.log('Base image dimensions:', imageWidth, 'x', imageHeight);
-
-    // Calculate logo size (12% of image width)
-    const logoTargetWidth = Math.floor(imageWidth * 0.12);
-    console.log('Resizing logo to width:', logoTargetWidth);
-
-    // Resize logo maintaining aspect ratio
-    const resizedLogoBuffer = await sharp(logoBuffer)
-      .resize(logoTargetWidth)
-      .png()
-      .toBuffer();
-    
-    // Get resized logo dimensions for positioning
-    const logoMetadata = await sharp(resizedLogoBuffer).metadata();
-    const logoWidth = logoMetadata.width || logoTargetWidth;
-    const logoHeight = logoMetadata.height || logoTargetWidth;
-    console.log('Resized logo dimensions:', logoWidth, 'x', logoHeight);
-
-    // Calculate position (bottom-right with 20px padding)
-    const padding = 20;
-    const leftPosition = imageWidth - logoWidth - padding;
-    const topPosition = imageHeight - logoHeight - padding;
-    console.log('Logo position: left=', leftPosition, 'top=', topPosition);
-
-    // Composite logo onto base image
-    const finalImageBuffer = await sharp(imageBuffer)
-      .composite([
-        {
-          input: resizedLogoBuffer,
-          left: leftPosition,
-          top: topPosition,
-          blend: 'over'
-        }
-      ])
-      .png()
-      .toBuffer();
-
-    console.log('Logo overlay complete! Final image size:', finalImageBuffer.length, 'bytes');
-
-    // ============ UPLOAD TO SUPABASE STORAGE ============
+    // Upload to Supabase Storage
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Extract base64 data
+    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+    const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    
     // Generate unique filename
     const timestamp = Date.now();
     const slug = title.toLowerCase()
@@ -207,11 +147,11 @@ This is an ILLUSTRATION, not a poster or banner with text. Generate pure visual 
       .substring(0, 50);
     const fileName = `${articleType}/${slug}-${timestamp}.png`;
 
-    console.log('Uploading final image to storage:', fileName);
+    console.log('Uploading image to storage:', fileName);
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('article-images')
-      .upload(fileName, finalImageBuffer, {
+      .upload(fileName, imageBuffer, {
         contentType: 'image/png',
         upsert: true
       });
@@ -229,15 +169,14 @@ This is an ILLUSTRATION, not a poster or banner with text. Generate pure visual 
       .from('article-images')
       .getPublicUrl(fileName);
 
-    console.log('Image uploaded successfully with XLATA logo:', publicUrl);
+    console.log('Image uploaded successfully:', publicUrl);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         imageUrl: publicUrl,
         fileName: fileName,
-        prompt: optimizedPrompt,
-        logoApplied: true
+        prompt: optimizedPrompt
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
