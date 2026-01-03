@@ -6,8 +6,10 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight, Clock, Package, DollarSign, Eye, Calendar, Trash2, AlertTriangle } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChevronLeft, ChevronRight, Clock, Package, DollarSign, Eye, Calendar, Trash2, AlertTriangle, X, Filter, ChevronDown } from "lucide-react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 import { Order, Customer } from '../types/pdv';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -44,9 +46,12 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
   const [deleting, setDeleting] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
 
   // Carregar histórico de pedidos
   const loadOrderHistory = async () => {
@@ -438,261 +443,493 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
     };
   }, [orders]);
 
+  const isMobileOrTablet = isMobile || isTablet;
+
+  // Render mobile/tablet card layout
+  const renderMobileOrderCard = (order: HistoryOrder) => (
+    <div 
+      key={order.id}
+      className="bg-slate-800 rounded-lg border border-slate-700 p-4 mb-3"
+    >
+      {/* Header: Cliente e Status */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-white font-semibold text-sm truncate">
+            # {order.customerName}
+          </h3>
+          <p className="text-slate-400 text-xs mt-0.5">
+            {order.formattedDate} • {order.formattedTime}
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1 ml-2">
+          <Badge 
+            className={`text-xs px-2 py-0.5 ${
+              order.status === 'completed' 
+                ? 'bg-emerald-600 text-white' 
+                : 'bg-amber-600 text-white'
+            }`}
+          >
+            {order.status === 'completed' ? 'Finalizado' : 'Em Aberto'}
+          </Badge>
+          <Badge 
+            className={`text-xs px-2 py-0.5 ${
+              order.type === 'venda' 
+                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
+                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+            }`}
+          >
+            {order.type === 'venda' ? 'Venda' : 'Compra'}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Info: Itens e Total */}
+      <div className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
+            <Package className="w-4 h-4 text-slate-400" />
+          </div>
+          <div>
+            <p className="text-white text-sm font-medium">{order.items.length} {order.items.length === 1 ? 'item' : 'itens'}</p>
+            <p className="text-slate-400 text-xs truncate max-w-[140px]">
+              {order.items.slice(0, 2).map(item => item.materialName).join(', ')}
+              {order.items.length > 2 && '...'}
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-emerald-400 font-bold text-lg">
+            R$ {order.total.toFixed(2)}
+          </p>
+        </div>
+      </div>
+
+      {/* Botão Ver Pedido */}
+      <button
+        onClick={() => handleViewOrder(order.id)}
+        className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm font-medium"
+      >
+        <Eye className="w-4 h-4" />
+        Ver Detalhes
+      </button>
+    </div>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="w-screen h-screen max-w-none max-h-none m-0 p-0 bg-pdv-dark border-gray-700 rounded-none flex flex-col">
-        <DialogHeader className="p-6 border-b border-gray-700">
-          <DialogTitle className="text-2xl text-white flex items-center gap-2">
-            <Clock className="h-6 w-6" />
-            Histórico de Pedidos
-          </DialogTitle>
-          <DialogDescription className="text-gray-400">
+      <DialogContent className={`${isMobileOrTablet ? 'w-screen h-screen max-w-none max-h-none m-0 rounded-none' : 'w-screen h-screen max-w-none max-h-none m-0 rounded-none'} p-0 bg-slate-900 border-slate-700 flex flex-col`}>
+        {/* Header */}
+        <DialogHeader className={`${isMobileOrTablet ? 'px-4 py-3' : 'p-6'} border-b border-slate-700 bg-slate-800`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className={`${isMobileOrTablet ? 'h-5 w-5' : 'h-6 w-6'} text-emerald-400`} />
+              <DialogTitle className={`${isMobileOrTablet ? 'text-lg' : 'text-2xl'} text-white`}>
+                Histórico de Pedidos
+              </DialogTitle>
+            </div>
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/40 text-red-400 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <DialogDescription className={`text-slate-400 ${isMobileOrTablet ? 'text-xs' : 'text-sm'} mt-1`}>
             Consulte e gerencie seus pedidos anteriores
           </DialogDescription>
         </DialogHeader>
 
-        {/* Filtros */}
-        <div className="flex flex-wrap gap-4 p-6 bg-gray-800 border-b border-gray-700">
-          {/* Filtros de Status e Tipo */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setFilterStatus('all')}
-                className={`px-3 py-1 rounded text-sm ${
-                  filterStatus === 'all' 
-                    ? 'bg-pdv-green text-white' 
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                }`}
-              >
-                Todos
-              </button>
-              <button
-                onClick={() => setFilterStatus('open')}
-                className={`px-3 py-1 rounded text-sm ${
-                  filterStatus === 'open' 
-                    ? 'bg-yellow-600 text-white' 
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                }`}
-              >
-                Em Aberto
-              </button>
-              <button
-                onClick={() => setFilterStatus('completed')}
-                className={`px-3 py-1 rounded text-sm ${
-                  filterStatus === 'completed' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                }`}
-              >
-                Finalizados
-              </button>
+        {/* Filtros Mobile/Tablet */}
+        {isMobileOrTablet ? (
+          <div className="bg-slate-800 border-b border-slate-700">
+            {/* Quick Filter Pills */}
+            <div className="px-4 py-3">
+              <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+                <button
+                  onClick={() => setFilterStatus('all')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                    filterStatus === 'all' 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-700 text-slate-300'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  onClick={() => setFilterStatus('open')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                    filterStatus === 'open' 
+                      ? 'bg-amber-600 text-white' 
+                      : 'bg-slate-700 text-slate-300'
+                  }`}
+                >
+                  Em Aberto
+                </button>
+                <button
+                  onClick={() => setFilterStatus('completed')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                    filterStatus === 'completed' 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-700 text-slate-300'
+                  }`}
+                >
+                  Finalizados
+                </button>
+                <div className="w-px bg-slate-600 mx-1" />
+                <button
+                  onClick={() => setFilterType('all')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                    filterType === 'all' 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-700 text-slate-300'
+                  }`}
+                >
+                  Todos Tipos
+                </button>
+                <button
+                  onClick={() => setFilterType('venda')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                    filterType === 'venda' 
+                      ? 'bg-amber-500 text-white' 
+                      : 'bg-slate-700 text-slate-300'
+                  }`}
+                >
+                  Vendas
+                </button>
+                <button
+                  onClick={() => setFilterType('compra')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                    filterType === 'compra' 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'bg-slate-700 text-slate-300'
+                  }`}
+                >
+                  Compras
+                </button>
+              </div>
             </div>
 
-            <Separator orientation="vertical" className="h-8" />
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => setFilterType('all')}
-                className={`px-3 py-1 rounded text-sm ${
-                  filterType === 'all' 
-                    ? 'bg-pdv-green text-white' 
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                }`}
+            {/* Expandable Filters */}
+            <div className="px-4 pb-3">
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 text-slate-400 text-xs"
               >
-                Todos Tipos
+                <Filter className="w-3 h-3" />
+                <span>Mais filtros</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </button>
-              <button
-                onClick={() => setFilterType('venda')}
-                className={`px-3 py-1 rounded text-sm ${
-                  filterType === 'venda' 
-                    ? 'bg-green-600 text-white' 
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                }`}
-              >
-                Vendas
-              </button>
-              <button
-                onClick={() => setFilterType('compra')}
-                className={`px-3 py-1 rounded text-sm ${
-                  filterType === 'compra' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                }`}
-              >
-                Compras
-              </button>
-            </div>
-          </div>
+              
+              {showFilters && (
+                <div className="mt-3 space-y-3">
+                  {/* Date Filters */}
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Label className="text-slate-400 text-xs mb-1 block">De:</Label>
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="bg-slate-700 border-slate-600 text-white text-xs h-9"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label className="text-slate-400 text-xs mb-1 block">Até:</Label>
+                      <Input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="bg-slate-700 border-slate-600 text-white text-xs h-9"
+                      />
+                    </div>
+                  </div>
 
-          <Separator orientation="vertical" className="h-8" />
-
-          {/* Filtro de Período */}
-          <div className="flex gap-4 items-center">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <Label htmlFor="startDate" className="text-gray-300 text-sm">De:</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="bg-gray-700 border-gray-600 text-white w-40"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="endDate" className="text-gray-300 text-sm">Até:</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="bg-gray-700 border-gray-600 text-white w-40"
-              />
-            </div>
-            {(startDate || endDate) && (
-              <Button
-                onClick={() => {
-                  setStartDate('');
-                  setEndDate('');
-                }}
-                variant="outline"
-                size="sm"
-                className="text-gray-400 border-gray-600 hover:bg-gray-700"
-              >
-                Limpar
-              </Button>
-            )}
-          </div>
-
-          {/* Botões de Exclusão */}
-          {openOrdersStats.totalOpen > 0 && (
-            <>
-              <Separator orientation="vertical" className="h-8" />
-              <div className="flex gap-2 items-center">
-                <div className="text-gray-400 text-sm">
-                  Em aberto: {openOrdersStats.totalOpen} 
-                  {openOrdersStats.emptyOpen > 0 && ` (${openOrdersStats.emptyOpen} vazios)`}
+                  {/* Actions */}
+                  {openOrdersStats.totalOpen > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      <span className="text-slate-400 text-xs w-full">
+                        Em aberto: {openOrdersStats.totalOpen} {openOrdersStats.emptyOpen > 0 && `(${openOrdersStats.emptyOpen} vazios)`}
+                      </span>
+                      {openOrdersStats.emptyOpen > 0 && (
+                        <button
+                          onClick={() => setShowDeleteEmptyConfirm(true)}
+                          disabled={deleting}
+                          className="flex items-center gap-1 bg-amber-600/20 border border-amber-500/30 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-medium"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Excluir Vazios ({openOrdersStats.emptyOpen})
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setShowDeleteAllOpenConfirm(true)}
+                        disabled={deleting}
+                        className="flex items-center gap-1 bg-red-600/20 border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs font-medium"
+                      >
+                        <AlertTriangle className="w-3 h-3" />
+                        Excluir Todos ({openOrdersStats.totalOpen})
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {openOrdersStats.emptyOpen > 0 && (
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Desktop Filters */
+          <div className="flex flex-wrap gap-4 p-6 bg-slate-800 border-b border-slate-700">
+            {/* Filtros de Status e Tipo */}
+            <div className="flex flex-wrap gap-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setFilterStatus('all')}
+                  className={`px-3 py-1 rounded text-sm ${
+                    filterStatus === 'all' 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  onClick={() => setFilterStatus('open')}
+                  className={`px-3 py-1 rounded text-sm ${
+                    filterStatus === 'open' 
+                      ? 'bg-amber-600 text-white' 
+                      : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                  }`}
+                >
+                  Em Aberto
+                </button>
+                <button
+                  onClick={() => setFilterStatus('completed')}
+                  className={`px-3 py-1 rounded text-sm ${
+                    filterStatus === 'completed' 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                  }`}
+                >
+                  Finalizados
+                </button>
+              </div>
+
+              <Separator orientation="vertical" className="h-8 bg-slate-600" />
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setFilterType('all')}
+                  className={`px-3 py-1 rounded text-sm ${
+                    filterType === 'all' 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                  }`}
+                >
+                  Todos Tipos
+                </button>
+                <button
+                  onClick={() => setFilterType('venda')}
+                  className={`px-3 py-1 rounded text-sm ${
+                    filterType === 'venda' 
+                      ? 'bg-amber-500 text-white' 
+                      : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                  }`}
+                >
+                  Vendas
+                </button>
+                <button
+                  onClick={() => setFilterType('compra')}
+                  className={`px-3 py-1 rounded text-sm ${
+                    filterType === 'compra' 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                  }`}
+                >
+                  Compras
+                </button>
+              </div>
+            </div>
+
+            <Separator orientation="vertical" className="h-8 bg-slate-600" />
+
+            {/* Filtro de Período */}
+            <div className="flex gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-slate-400" />
+                <Label htmlFor="startDate" className="text-slate-300 text-sm">De:</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="bg-slate-700 border-slate-600 text-white w-40"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="endDate" className="text-slate-300 text-sm">Até:</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="bg-slate-700 border-slate-600 text-white w-40"
+                />
+              </div>
+              {(startDate || endDate) && (
+                <Button
+                  onClick={() => {
+                    setStartDate('');
+                    setEndDate('');
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="text-slate-400 border-slate-600 hover:bg-slate-700"
+                >
+                  Limpar
+                </Button>
+              )}
+            </div>
+
+            {/* Botões de Exclusão */}
+            {openOrdersStats.totalOpen > 0 && (
+              <>
+                <Separator orientation="vertical" className="h-8 bg-slate-600" />
+                <div className="flex gap-2 items-center">
+                  <div className="text-slate-400 text-sm">
+                    Em aberto: {openOrdersStats.totalOpen} 
+                    {openOrdersStats.emptyOpen > 0 && ` (${openOrdersStats.emptyOpen} vazios)`}
+                  </div>
+                  {openOrdersStats.emptyOpen > 0 && (
+                    <Button
+                      onClick={() => setShowDeleteEmptyConfirm(true)}
+                      disabled={deleting}
+                      size="sm"
+                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Excluir Vazios ({openOrdersStats.emptyOpen})
+                    </Button>
+                  )}
                   <Button
-                    onClick={() => setShowDeleteEmptyConfirm(true)}
+                    onClick={() => setShowDeleteAllOpenConfirm(true)}
                     disabled={deleting}
                     size="sm"
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-white"
                   >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Excluir Vazios ({openOrdersStats.emptyOpen})
+                    <AlertTriangle className="h-4 w-4 mr-1" />
+                    Excluir Todos ({openOrdersStats.totalOpen})
                   </Button>
-                )}
-                <Button
-                  onClick={() => setShowDeleteAllOpenConfirm(true)}
-                  disabled={deleting}
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  <AlertTriangle className="h-4 w-4 mr-1" />
-                  Excluir Todos ({openOrdersStats.totalOpen})
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Lista de Pedidos */}
-        <div className="flex-1 overflow-auto p-6">
-          {loading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="text-white">Carregando histórico...</div>
-            </div>
-          ) : paginatedOrders.length === 0 ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="text-gray-400">Nenhum pedido encontrado</div>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-gray-300">Cliente</TableHead>
-                  <TableHead className="text-gray-300">Data/Hora</TableHead>
-                  <TableHead className="text-gray-300">Status</TableHead>
-                  <TableHead className="text-gray-300">Tipo</TableHead>
-                  <TableHead className="text-gray-300">Itens</TableHead>
-                  <TableHead className="text-gray-300">Total</TableHead>
-                  <TableHead className="text-gray-300">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedOrders.map((order) => (
-                  <TableRow key={order.id} className="border-gray-700">
-                    <TableCell className="text-white font-medium">
-                      {order.customerName}
-                    </TableCell>
-                    <TableCell className="text-gray-300">
-                      <div>{order.formattedDate}</div>
-                      <div className="text-sm text-gray-400">{order.formattedTime}</div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={order.status === 'completed' ? 'default' : 'secondary'}
-                        className={
-                          order.status === 'completed' 
-                            ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                            : 'bg-yellow-600 text-white hover:bg-yellow-700'
-                        }
-                      >
-                        {order.status === 'completed' ? 'Finalizado' : 'Em Aberto'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={order.type === 'venda' ? 'default' : 'secondary'}
-                        className={
-                          order.type === 'venda' 
-                            ? 'bg-green-600 text-white hover:bg-green-700' 
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                        }
-                      >
-                        {order.type === 'venda' ? 'Venda' : 'Compra'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-gray-300">
-                      <div className="flex items-center gap-1">
-                        <Package className="h-4 w-4" />
-                        {order.items.length}
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        {order.items.slice(0, 2).map(item => item.materialName).join(', ')}
-                        {order.items.length > 2 && '...'}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-green-400 font-bold">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        R$ {order.total.toFixed(2)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleViewOrder(order.id)}
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Ver Pedido
-                      </Button>
-                    </TableCell>
+        <ScrollArea className="flex-1">
+          <div className={isMobileOrTablet ? 'p-4' : 'p-6'}>
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-white">Carregando histórico...</div>
+              </div>
+            ) : paginatedOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 text-center">
+                <Package className="w-12 h-12 text-slate-600 mb-3" />
+                <p className="text-slate-400">Nenhum pedido encontrado</p>
+                <p className="text-slate-500 text-sm mt-1">Tente ajustar os filtros</p>
+              </div>
+            ) : isMobileOrTablet ? (
+              /* Mobile/Tablet Card Layout */
+              <div>
+                {paginatedOrders.map(renderMobileOrderCard)}
+              </div>
+            ) : (
+              /* Desktop Table Layout */
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-slate-700 hover:bg-transparent">
+                    <TableHead className="text-slate-300">Cliente</TableHead>
+                    <TableHead className="text-slate-300">Data/Hora</TableHead>
+                    <TableHead className="text-slate-300">Status</TableHead>
+                    <TableHead className="text-slate-300">Tipo</TableHead>
+                    <TableHead className="text-slate-300">Itens</TableHead>
+                    <TableHead className="text-slate-300">Total</TableHead>
+                    <TableHead className="text-slate-300">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {paginatedOrders.map((order) => (
+                    <TableRow key={order.id} className="border-slate-700 hover:bg-slate-800/50">
+                      <TableCell className="text-white font-medium">
+                        {order.customerName}
+                      </TableCell>
+                      <TableCell className="text-slate-300">
+                        <div>{order.formattedDate}</div>
+                        <div className="text-sm text-slate-400">{order.formattedTime}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          className={
+                            order.status === 'completed' 
+                              ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                              : 'bg-amber-600 text-white hover:bg-amber-700'
+                          }
+                        >
+                          {order.status === 'completed' ? 'Finalizado' : 'Em Aberto'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          className={
+                            order.type === 'venda' 
+                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
+                              : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          }
+                        >
+                          {order.type === 'venda' ? 'Venda' : 'Compra'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-slate-300">
+                        <div className="flex items-center gap-1">
+                          <Package className="h-4 w-4" />
+                          {order.items.length}
+                        </div>
+                        <div className="text-sm text-slate-400">
+                          {order.items.slice(0, 2).map(item => item.materialName).join(', ')}
+                          {order.items.length > 2 && '...'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-emerald-400 font-bold">
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-4 w-4" />
+                          R$ {order.total.toFixed(2)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => handleViewOrder(order.id)}
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver Pedido
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </ScrollArea>
 
         {/* Paginação */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-6 border-t border-gray-700">
-            <div className="text-gray-400 text-sm">
-              Mostrando {startIndex + 1} a {Math.min(startIndex + ITEMS_PER_PAGE, filteredOrders.length)} de {filteredOrders.length} pedidos
+          <div className={`flex items-center justify-between ${isMobileOrTablet ? 'px-4 py-3' : 'p-6'} border-t border-slate-700 bg-slate-800`}>
+            <div className={`text-slate-400 ${isMobileOrTablet ? 'text-xs' : 'text-sm'}`}>
+              {isMobileOrTablet ? (
+                `${startIndex + 1}-${Math.min(startIndex + ITEMS_PER_PAGE, filteredOrders.length)} de ${filteredOrders.length}`
+              ) : (
+                `Mostrando ${startIndex + 1} a ${Math.min(startIndex + ITEMS_PER_PAGE, filteredOrders.length)} de ${filteredOrders.length} pedidos`
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -700,49 +937,57 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
                 disabled={currentPage === 1}
                 variant="outline"
                 size="sm"
-                className="bg-white text-gray-900 border-white hover:bg-gray-100 disabled:opacity-50"
+                className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600 disabled:opacity-50"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               
               {/* Números das páginas */}
-              <div className="flex gap-1">
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <Button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      variant={currentPage === pageNum ? "default" : "outline"}
-                      size="sm"
-                      className={
-                        currentPage === pageNum 
-                          ? "bg-pdv-green text-white hover:bg-pdv-green/90 border-pdv-green" 
-                          : "bg-white text-gray-900 border-white hover:bg-gray-100"
-                      }
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
-              </div>
+              {!isMobileOrTablet && (
+                <div className="flex gap-1">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        className={
+                          currentPage === pageNum 
+                            ? "bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-600" 
+                            : "bg-slate-700 text-white border-slate-600 hover:bg-slate-600"
+                        }
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {isMobileOrTablet && (
+                <span className="text-white text-sm font-medium">
+                  {currentPage}/{totalPages}
+                </span>
+              )}
               
               <Button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
                 variant="outline"
                 size="sm"
-                className="bg-white text-gray-900 border-white hover:bg-gray-100 disabled:opacity-50"
+                className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600 disabled:opacity-50"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -753,29 +998,29 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
 
       {/* Modal de Confirmação - Excluir Pedidos Vazios */}
       <AlertDialog open={showDeleteEmptyConfirm} onOpenChange={setShowDeleteEmptyConfirm}>
-        <AlertDialogContent className="bg-pdv-dark border-gray-700">
+        <AlertDialogContent className="bg-slate-800 border-slate-700 max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl text-white flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-orange-500" />
+            <AlertDialogTitle className="text-lg text-white flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-amber-500" />
               Excluir Pedidos Vazios
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300">
+            <AlertDialogDescription className="text-slate-300 text-sm">
               Tem certeza que deseja excluir todos os {openOrdersStats.emptyOpen} pedidos em aberto que não possuem itens?
               <br /><br />
-              <strong className="text-orange-400">Esta ação não pode ser desfeita.</strong>
+              <strong className="text-amber-400">Esta ação não pode ser desfeita.</strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel 
               onClick={() => setShowDeleteEmptyConfirm(false)}
-              className="bg-gray-600 hover:bg-gray-700 text-white border-gray-500"
+              className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
             >
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteEmptyOpenOrders}
               disabled={deleting}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
+              className="bg-amber-600 hover:bg-amber-700 text-white"
             >
               {deleting ? 'Excluindo...' : `Excluir ${openOrdersStats.emptyOpen} Vazios`}
             </AlertDialogAction>
@@ -785,30 +1030,29 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
 
       {/* Modal de Confirmação - Excluir Todos os Pedidos Em Aberto */}
       <AlertDialog open={showDeleteAllOpenConfirm} onOpenChange={setShowDeleteAllOpenConfirm}>
-        <AlertDialogContent className="bg-pdv-dark border-gray-700">
+        <AlertDialogContent className="bg-slate-800 border-slate-700 max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl text-white flex items-center gap-2">
+            <AlertDialogTitle className="text-lg text-white flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              Excluir Todos os Pedidos Em Aberto
+              Excluir Todos Em Aberto
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300">
-              <strong className="text-red-400">ATENÇÃO!</strong> Você está prestes a excluir TODOS os {openOrdersStats.totalOpen} pedidos em aberto do sistema.
+            <AlertDialogDescription className="text-slate-300 text-sm">
+              <strong className="text-red-400">ATENÇÃO!</strong> Você está prestes a excluir TODOS os {openOrdersStats.totalOpen} pedidos em aberto.
               <br /><br />
-              Isso incluirá:
-              <ul className="list-disc list-inside mt-2 space-y-1">
+              <span className="text-slate-400">Isso incluirá:</span>
+              <ul className="list-disc list-inside mt-2 space-y-1 text-slate-400">
                 <li>Pedidos com itens ({openOrdersStats.totalOpen - openOrdersStats.emptyOpen})</li>
                 <li>Pedidos vazios ({openOrdersStats.emptyOpen})</li>
                 <li>Todos os itens associados</li>
-                <li>Clientes sem outros pedidos</li>
               </ul>
               <br />
               <strong className="text-red-400">Esta ação não pode ser desfeita.</strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel 
               onClick={() => setShowDeleteAllOpenConfirm(false)}
-              className="bg-gray-600 hover:bg-gray-700 text-white border-gray-500"
+              className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
             >
               Cancelar
             </AlertDialogCancel>
