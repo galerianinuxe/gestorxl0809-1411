@@ -691,7 +691,7 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
           
           <div className={`${
             isMobileOrTablet 
-              ? "flex flex-col space-y-2 overflow-y-auto px-2 pb-4" 
+              ? "flex flex-col space-y-1.5 overflow-y-auto px-2 pb-4" 
               : "grid grid-cols-3 gap-3 p-4 overflow-y-auto"
           } h-full`}>
             {isMobileOrTablet ? (
@@ -760,41 +760,43 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
                 />
                 
                 {/* Status do Caixa */}
-                <div className="bg-gray-800 p-4 rounded-sm text-center flex flex-col justify-center">
+                <div className="bg-gray-800 px-3 py-2 rounded-sm">
                   <div className="flex justify-between items-center">
-                    <div className="text-gray-300 text-xs">Status do Caixa</div>
-                    <div className={`font-bold text-2xl ${
-                      realTimeDifference === 0 
-                        ? "text-pdv-green" 
-                        : realTimeDifference > 0 
-                          ? "text-blue-400" 
-                          : "text-pdv-red"
-                    }`}>
-                      {realTimeDifference === 0 ? 'CONFERE' : realTimeDifference > 0 ? 'SOBRA' : 'FALTA'}
+                    <div className="text-gray-300 text-[10px]">Status do Caixa</div>
+                    <div className="flex items-center gap-2">
+                      <span className={`font-bold text-base ${
+                        realTimeDifference === 0 
+                          ? "text-pdv-green" 
+                          : realTimeDifference > 0 
+                            ? "text-blue-400" 
+                            : "text-pdv-red"
+                      }`}>
+                        {realTimeDifference === 0 ? 'CONFERE' : realTimeDifference > 0 ? 'SOBRA' : 'FALTA'}
+                      </span>
+                      <span className={`font-semibold text-sm ${
+                        realTimeDifference === 0 
+                          ? "text-pdv-green" 
+                          : realTimeDifference > 0 
+                            ? "text-blue-400" 
+                            : "text-pdv-red"
+                      }`}>
+                        R$ {Math.abs(realTimeDifference).toFixed(2)}
+                      </span>
                     </div>
-                  </div>
-                  <div className={`font-semibold mt-1 text-right text-sm ${
-                    realTimeDifference === 0 
-                      ? "text-pdv-green" 
-                      : realTimeDifference > 0 
-                        ? "text-blue-400" 
-                        : "text-pdv-red"
-                  }`}>
-                    R$ {Math.abs(realTimeDifference).toFixed(2)}
                   </div>
                 </div>
                 
                 {/* Saldo Final */}
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                     <FormField
                       control={form.control}
                       name="finalAmount"
                       render={({ field }) => (
                         <FormItem>
-                          <div className="bg-gray-800 rounded-sm p-4">
-                            <div className="flex justify-between items-center mb-2">
-                              <div className="text-gray-300 text-xs">Saldo Final (R$)</div>
+                          <div className="bg-gray-800 rounded-sm px-3 py-2">
+                            <div className="flex justify-between items-center mb-1">
+                              <div className="text-gray-300 text-[10px]">Saldo Final (R$)</div>
                             </div>
                             <div className="w-full mx-auto">
                               <CashRegisterFinalAmount
@@ -804,25 +806,23 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
                               />
                             </div>
                           </div>
-                          <FormMessage className="text-pdv-red" />
+                          <FormMessage className="text-pdv-red text-xs" />
                         </FormItem>
                       )}
                     />
                     
-                    <div className="flex gap-4 pt-2">
+                    <div className="flex gap-3 pt-1">
                       <Button 
                         type="button" 
                         variant="outline"
                         onClick={handleCancel}
-                        className="bg-transparent hover:bg-gray-700 text-white border-gray-600 text-lg w-full"
-                        style={{ height: 'calc(3rem * 1.2)' }}
+                        className="bg-transparent hover:bg-gray-700 text-white border-gray-600 text-base w-full h-11"
                       >
                         Cancelar
                       </Button>
                       <Button 
                         type="submit" 
-                        className="bg-pdv-red hover:bg-red-700 text-lg w-full"
-                        style={{ height: 'calc(3rem * 1.2)' }}
+                        className="bg-pdv-red hover:bg-red-700 text-base w-full h-11"
                       >
                         Fechar Caixa
                       </Button>
