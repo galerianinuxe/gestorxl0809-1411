@@ -2,21 +2,25 @@
 import React from 'react';
 import { createUltraDebounce, scheduleUltraTask } from './ultraPerformanceUtils';
 
-// Configurações de performance otimizadas
+// Configurações de performance ultra-otimizadas
 export const PERFORMANCE_CONFIG = {
-  // Delays reduzidos para interações de UI
-  MODAL_OPEN_DELAY: 50, // Reduzido de timeouts maiores
+  // Delays mínimos para interações de UI
+  MODAL_OPEN_DELAY: 0, // Sem delay para abertura de modais
   BUTTON_CLICK_DELAY: 0, // Sem delay para cliques
-  FOCUS_DELAY: 10, // Mínimo para foco
-  TOAST_DELAY: 100, // Reduzido para toasts
+  FOCUS_DELAY: 0, // Sem delay para foco
+  TOAST_DELAY: 50, // Mínimo para toasts
   
-  // Debounce otimizado
-  INPUT_DEBOUNCE: 150, // Para inputs
-  SEARCH_DEBOUNCE: 200, // Para buscas
+  // Debounce otimizado - reduzido
+  INPUT_DEBOUNCE: 100, // Reduzido de 150
+  SEARCH_DEBOUNCE: 150, // Reduzido de 200
   
   // Timeouts específicos
-  AUTO_RETURN_TIMEOUT: 8000, // Reduzido de 10000
-  NOTIFICATION_TIMEOUT: 2000,
+  AUTO_RETURN_TIMEOUT: 6000, // Reduzido de 8000
+  NOTIFICATION_TIMEOUT: 1500, // Reduzido de 2000
+  
+  // Novos configs de performance
+  SUBMIT_DEBOUNCE: 100, // Para submits
+  ANIMATION_DURATION: 100, // Duração de animações
 };
 
 // Cache para elementos DOM frequentemente acessados

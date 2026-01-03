@@ -142,24 +142,41 @@
 }
 
 .numpad-btn {
-  @apply flex items-center justify-center h-full text-white text-3xl font-bold m-[1px] transition-all;
+  @apply flex items-center justify-center h-full text-white text-3xl font-bold m-[1px];
   background-color: hsl(215 28% 17%);
   border: 1px solid hsl(215 19% 35%);
   cursor: pointer;
   user-select: none;
+  will-change: transform;
+  transition: transform 0.1s ease-out, background-color 0.1s ease-out;
 }
 
 .numpad-btn:hover {
   background-color: hsl(215 25% 25%);
   border-color: hsl(160 84% 39% / 0.5);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transform: translateY(-1px);
 }
 
 .numpad-btn:active {
   background-color: hsl(215 25% 30%);
-  transform: scale(0.95) translateY(0);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  transform: scale(0.95);
+}
+
+/* Versão ultra-otimizada do numpad-btn */
+.numpad-btn-optimized {
+  @apply flex items-center justify-center h-full text-white text-3xl font-bold m-[1px];
+  background-color: hsl(215 28% 17%);
+  border: 1px solid hsl(215 19% 35%);
+  cursor: pointer;
+  user-select: none;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.numpad-btn-optimized:active {
+  background-color: hsl(215 25% 30%);
+  transform: scale(0.95) translateZ(0);
 }
 
 .calc-btn {
@@ -200,9 +217,14 @@
 }
 
 .material-btn {
-  @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
+  @apply flex flex-col items-center justify-center text-white p-2 rounded-none;
   background-color: hsl(160 84% 39%);
   border: 1px solid hsl(160 84% 45%);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  transition: background-color 0.1s ease-out;
 }
 
 .material-btn:hover {
@@ -210,20 +232,34 @@
   border-color: hsl(160 84% 50%);
 }
 
-.material-btn span {
+.material-btn:active {
+  transform: scale(0.95) translateZ(0);
+}
+
+/* Text shadow para botões de material */
+.material-btn span,
+.material-btn-sale-mode span {
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Botões de material quando modo venda está ativado */
 .material-btn-sale-mode {
-  @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
+  @apply flex flex-col items-center justify-center text-white p-2 rounded-none;
   background-color: hsl(45 93% 47% / 0.25) !important;
   border: 1px solid hsl(45 93% 47%) !important;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  transition: background-color 0.1s ease-out;
 }
 
 .material-btn-sale-mode:hover {
   background-color: hsl(45 93% 47% / 0.4) !important;
+}
+
+.material-btn-sale-mode:active {
+  transform: scale(0.95) translateZ(0);
 }
 
 .insert-manually-btn {
@@ -536,4 +572,30 @@
     min-height: 44px;
     min-width: 44px;
   }
+}
+
+/* GPU Acceleration classes */
+.gpu-accelerated {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Fast transitions */
+.fast-transition {
+  transition: transform 0.1s ease-out, background-color 0.1s ease-out;
+}
+
+.fast-transition:active {
+  transform: scale(0.95) translateZ(0);
+}
+
+/* Immediate response buttons */
+.instant-btn {
+  transition: none !important;
+}
+
+.instant-btn:active {
+  transform: scale(0.95);
 }

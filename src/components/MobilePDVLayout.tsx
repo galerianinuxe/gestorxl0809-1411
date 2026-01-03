@@ -8,18 +8,18 @@ import { Customer, Order, Material } from '@/types/pdv';
 import { useNavigate } from 'react-router-dom';
 import PasswordPromptModal from './PasswordPromptModal';
 
-// Lazy loaded components
-const OrderList = React.lazy(() => import('./OrderList'));
-const OrderDetails = React.lazy(() => import('./OrderDetails'));
-const MaterialGrid = React.lazy(() => import('./MaterialGrid'));
-const NumberPad = React.lazy(() => import('./NumberPad'));
-const Footer = React.lazy(() => import('./Footer'));
+// Componentes críticos com import direto
+import OrderList from './OrderList';
+import OrderDetails from './OrderDetails';
+import MaterialGrid from './MaterialGrid';
+import NumberPadOptimized from './NumberPadOptimized';
+import Footer from './Footer';
 
 // Memoized versions
 const MemoizedOrderList = memo(OrderList);
 const MemoizedOrderDetails = memo(OrderDetails);
 const MemoizedMaterialGrid = memo(MaterialGrid);
-const MemoizedNumberPad = memo(NumberPad);
+const MemoizedNumberPad = memo(NumberPadOptimized);
 
 interface MobilePDVLayoutProps {
   // Data

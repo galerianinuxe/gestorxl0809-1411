@@ -15,13 +15,15 @@ import { saveOrderToLocalHistory } from '../components/OrderHistoryModal';
 import { setupAutoCleanup } from '../utils/cleanupEmptyOrders';
 import { useAuth } from '@/hooks/useAuth';
 
-// Importações otimizadas com lazy loading para componentes pesados
-const OrderList = React.lazy(() => import('../components/OrderList'));
-const OrderDetails = React.lazy(() => import('../components/OrderDetails'));
+// Componentes críticos com import direto para melhor performance
+import OrderList from '../components/OrderList';
+import OrderDetails from '../components/OrderDetails';
+import MaterialGrid from '../components/MaterialGrid';
+import NumberPadOptimized from '../components/NumberPadOptimized';
+import Footer from '../components/Footer';
+
+// Componentes secundários com lazy loading
 const OrderCompletionModal = React.lazy(() => import('../components/OrderCompletionModal'));
-const MaterialGrid = React.lazy(() => import('../components/MaterialGrid'));
-const NumberPad = React.lazy(() => import('../components/NumberPad'));
-const Footer = React.lazy(() => import('../components/Footer'));
 const MaterialModal = React.lazy(() => import('../components/MaterialModal'));
 const AlertModal = React.lazy(() => import('../components/AlertModal'));
 const CashRegisterOpeningModal = React.lazy(() => import('../components/CashRegisterOpeningModal'));
@@ -56,7 +58,7 @@ const parseWeight = (weightInput: string): number => {
 const MemoizedOrderList = memo(OrderList);
 const MemoizedOrderDetails = memo(OrderDetails);
 const MemoizedMaterialGrid = memo(MaterialGrid);
-const MemoizedNumberPad = memo(NumberPad);
+const MemoizedNumberPad = memo(NumberPadOptimized);
 const MemoizedFooter = memo(Footer);
 const Index: React.FC = () => {
   const navigate = useNavigate();

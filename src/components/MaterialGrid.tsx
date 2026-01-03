@@ -20,6 +20,10 @@ const MaterialGrid = React.memo(({
   hasActiveOrder = false,
   onNewOrderRequest 
 }: MaterialGridProps) => {
+  // Handler memoizado para cliques
+  const handleClick = React.useCallback((material: Material) => {
+    onMaterialSelect(material);
+  }, [onMaterialSelect]);
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [config, setConfig] = useState<MaterialDisplayConfig>({
     fontSize: 'medium',
@@ -37,11 +41,6 @@ const MaterialGrid = React.memo(({
     }
   }, []);
 
-  const handleMaterialClick = (material: Material) => {
-    // Sempre selecionar o material diretamente
-    // A lógica de criação automática do pedido será tratada no componente pai
-    onMaterialSelect(material);
-  };
 
   const formatPrice = (material: Material) => {
     if (!config.showPricePerKg) return '';
@@ -129,8 +128,8 @@ const MaterialGrid = React.memo(({
         {materials.map((material) => (
           <button
             key={material.id}
-            onClick={() => handleMaterialClick(material)}
-            className={`${getMaterialButtonClass()} ${isMobile ? 'p-1' : 'p-2'} hover:scale-[1.02] active:scale-95`}
+            onClick={() => handleClick(material)}
+            className={`${getMaterialButtonClass()} ${isMobile ? 'p-1' : 'p-2'} gpu-accelerated fast-transition`}
           >
             <span className={`${getNameFontSizeClass()} font-bold text-center leading-tight block text-white`}>
               {material.name}
