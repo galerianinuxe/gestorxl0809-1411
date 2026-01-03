@@ -161,7 +161,7 @@ export function AppSidebar({
   };
 
   return (
-    <Sidebar className={`${collapsed ? 'w-14' : 'w-48'} bg-slate-900 border-r border-slate-700`}>
+    <Sidebar className="bg-slate-900 border-r border-slate-700">
       <SidebarContent className="bg-slate-900 flex flex-col h-full">
         {/* Logo Header */}
         <div className="p-2 border-b border-slate-700">
