@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+
 
 interface DirectMessage {
   id: string;
