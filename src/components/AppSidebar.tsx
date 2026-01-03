@@ -177,12 +177,12 @@ export function AppSidebar({
         </div>
 
         {/* Principal */}
-        <SidebarGroup className="py-1">
-          <SidebarGroupLabel className="px-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-0.5">
+        <SidebarGroup className="pt-2 pb-1">
+          <SidebarGroupLabel className="px-3 text-[10px] font-semibold text-emerald-500 uppercase tracking-wider mb-1">
             {!collapsed && "Principal"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-1">
-            <SidebarMenu className="space-y-0">
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-0.5">
               {principalItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
@@ -194,11 +194,11 @@ export function AppSidebar({
 
         {/* Operações */}
         <SidebarGroup className="py-1">
-          <SidebarGroupLabel className="px-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-0.5">
+          <SidebarGroupLabel className="px-3 text-[10px] font-semibold text-emerald-500 uppercase tracking-wider mb-1">
             {!collapsed && "Operações"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-1">
-            <SidebarMenu className="space-y-0">
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-0.5">
               {operacoesItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
@@ -210,11 +210,11 @@ export function AppSidebar({
 
         {/* Configurações */}
         <SidebarGroup className="py-1">
-          <SidebarGroupLabel className="px-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-0.5">
+          <SidebarGroupLabel className="px-3 text-[10px] font-semibold text-emerald-500 uppercase tracking-wider mb-1">
             {!collapsed && "Sistema"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-1">
-            <SidebarMenu className="space-y-0">
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-0.5">
               {configuracoesItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
@@ -224,11 +224,11 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Extras - Collapsible */}
+        {/* Extras */}
         {!collapsed && (
           <SidebarGroup className="py-1">
-            <SidebarGroupContent className="px-1">
-              <SidebarMenu className="space-y-0">
+            <SidebarGroupContent className="px-2">
+              <SidebarMenu className="space-y-0.5">
                 {extraItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     {renderMenuItem(item)}
@@ -242,11 +242,11 @@ export function AppSidebar({
         {/* Admin */}
         {isAdmin && (
           <SidebarGroup className="py-1">
-            <SidebarGroupLabel className="px-2 text-[10px] font-medium text-emerald-600 uppercase tracking-wider mb-0.5">
+            <SidebarGroupLabel className="px-3 text-[10px] font-semibold text-emerald-500 uppercase tracking-wider mb-1">
               {!collapsed && "Admin"}
             </SidebarGroupLabel>
-            <SidebarGroupContent className="px-1">
-              <SidebarMenu className="space-y-0">
+            <SidebarGroupContent className="px-2">
+              <SidebarMenu className="space-y-0.5">
                 {adminItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <NavLink
