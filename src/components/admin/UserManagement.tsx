@@ -722,112 +722,103 @@ export const UserManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="space-y-3">
+      {/* Estatísticas - Layout mais compacto */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-xl font-bold text-foreground">{stats.total}</p>
               </div>
-              <Users className="h-8 w-8 text-blue-400" />
+              <Users className="h-6 w-6 text-blue-400" />
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Em Teste</p>
-                <p className="text-2xl font-bold text-blue-400">{stats.trial}</p>
+                <p className="text-xs text-muted-foreground">Em Teste</p>
+                <p className="text-xl font-bold text-blue-400">{stats.trial}</p>
               </div>
-              <TestTube className="h-8 w-8 text-blue-400" />
+              <TestTube className="h-6 w-6 text-blue-400" />
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Pagantes</p>
-                <p className="text-2xl font-bold text-green-400">{stats.paid}</p>
+                <p className="text-xs text-muted-foreground">Pagantes</p>
+                <p className="text-xl font-bold text-green-400">{stats.paid}</p>
               </div>
-              <CreditCard className="h-8 w-8 text-green-400" />
+              <CreditCard className="h-6 w-6 text-green-400" />
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Inativos</p>
-                <p className="text-2xl font-bold text-red-400">{stats.inactive}</p>
+                <p className="text-xs text-muted-foreground">Inativos</p>
+                <p className="text-xl font-bold text-red-400">{stats.inactive}</p>
               </div>
-              <UserX className="h-8 w-8 text-red-400" />
+              <UserX className="h-6 w-6 text-red-400" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filtros e busca */}
+      {/* Filtros e busca - Mais compacto */}
       <Card className="bg-card border-border">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-foreground flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Lista de Usuários
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <CardContent className="p-3">
+          <div className="flex flex-col md:flex-row gap-2 items-center">
+            <div className="relative flex-1 w-full">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <input
                 type="text"
                 placeholder="Buscar por email ou nome..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
+                className="w-full pl-8 pr-3 py-1.5 text-sm bg-muted border border-border rounded-md text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
               />
             </div>
             
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
+              className="px-3 py-1.5 text-sm bg-muted border border-border rounded-md text-foreground focus:outline-none focus:border-primary"
             >
-              <option value="all">Todos os Status</option>
-              <option value="trial">Teste Grátis</option>
-              <option value="paid">Assinatura Paga</option>
+              <option value="all">Todos</option>
+              <option value="trial">Teste</option>
+              <option value="paid">Pago</option>
               <option value="expired">Expirado</option>
               <option value="inactive">Inativo</option>
             </select>
 
             {selectedUsers.size > 0 && (
               <Select onValueChange={handleBulkAction}>
-                <SelectTrigger className="w-48 bg-blue-600 border-blue-500 text-white">
+                <SelectTrigger className="w-36 h-8 text-sm bg-blue-600 border-blue-500 text-white">
                   <SelectValue placeholder={`Ações (${selectedUsers.size})`} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border">
-                  <SelectItem value="copy_data" className="text-foreground hover:bg-muted">
-                    <Copy className="h-4 w-4 inline mr-2" />
-                    Copiar Dados
+                  <SelectItem value="copy_data" className="text-foreground hover:bg-muted text-sm">
+                    <Copy className="h-3 w-3 inline mr-1" />
+                    Copiar
                   </SelectItem>
-                  <SelectItem value="activate_trial" className="text-foreground hover:bg-muted">
-                    Ativar Teste (7 dias)
+                  <SelectItem value="activate_trial" className="text-foreground hover:bg-muted text-sm">
+                    Ativar Teste
                   </SelectItem>
-                  <SelectItem value="deactivate_trial" className="text-foreground hover:bg-muted">
+                  <SelectItem value="deactivate_trial" className="text-foreground hover:bg-muted text-sm">
                     Desativar Teste
                   </SelectItem>
-                  <SelectItem value="deactivate_user" className="text-foreground hover:bg-muted">
-                    Desativar Usuário
-                  </SelectItem>
-                  <SelectItem value="delete_user" className="text-foreground hover:bg-muted text-red-400">
-                    Excluir Usuário
+                  <SelectItem value="delete_user" className="text-foreground hover:bg-muted text-sm text-red-400">
+                    Excluir
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -836,101 +827,107 @@ export const UserManagement = () => {
             <Button 
               onClick={fetchUsers}
               variant="outline"
-              className="border-border text-muted-foreground hover:bg-muted bg-transparent"
+              size="sm"
+              className="border-border text-muted-foreground hover:bg-muted bg-transparent h-8"
             >
               Atualizar
             </Button>
-          </div>
 
-          {/* Tabela de usuários */}
-          <div className="rounded-lg border border-border overflow-hidden">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              {filteredUsers.length} usuários
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabela de usuários */}
+      <Card className="bg-card border-border">
+        <CardContent className="p-0">
+          <div className="rounded-lg border-0 overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="border-border bg-muted/50">
-                  <TableHead className="w-12 text-muted-foreground">
+                <TableRow className="border-border bg-muted/30">
+                  <TableHead className="w-8 py-2 text-muted-foreground">
                     <Checkbox
                       checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
                       onCheckedChange={handleSelectAll}
                       className="border-muted-foreground"
                     />
                   </TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Usuário</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Status</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Assinatura</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Última Atividade</TableHead>
-                  <TableHead className="text-muted-foreground font-medium text-center">Ações</TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium py-2">Usuário</TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium py-2 w-24">Status</TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium py-2 w-32">Plano</TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium py-2 w-24 hidden md:table-cell">Atividade</TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium py-2 text-right w-24">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map(user => {
                   return (
-                    <TableRow key={user.id} className="border-border bg-card/50 hover:bg-muted/50">
-                      <TableCell>
+                    <TableRow key={user.id} className="border-border hover:bg-muted/30">
+                      <TableCell className="py-2">
                         <Checkbox
                           checked={selectedUsers.has(user.id)}
                           onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
                           className="border-muted-foreground"
                         />
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-foreground text-sm font-medium bg-muted">
+                      <TableCell className="py-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-foreground text-xs font-medium bg-muted shrink-0">
                             {(user.name || user.email).charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground">
-                                {user.name || 'Usuário sem nome'}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className="text-sm font-medium text-foreground truncate">
+                                {user.name || 'Sem nome'}
                               </span>
                               {user.status === 'admin' && (
-                                <Badge className="bg-pink-600 text-white text-xs">Admin</Badge>
-                              )}
-                              {!user.is_active && (
-                                <Badge variant="destructive" className="text-xs">Desativado</Badge>
+                                <Badge className="bg-pink-600 text-white text-[10px] px-1 py-0">Admin</Badge>
                               )}
                             </div>
-                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                            <div className="text-xs text-muted-foreground truncate">{user.email}</div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          {getStatusBadge(user.subscription_status)}
-                          {user.remaining_days !== null && user.remaining_days > 0 && user.subscription_status !== 'inactive' && (
-                            <div className="text-xs text-yellow-500">
-                              {user.remaining_days} dias restantes
-                            </div>
+                      <TableCell className="py-2">
+                        {getStatusBadge(user.subscription_status)}
+                      </TableCell>
+                      <TableCell className="py-2">
+                        <div className="text-xs">
+                          <span className="text-blue-400">{user.plan_display_name || '-'}</span>
+                          {user.remaining_days !== null && user.remaining_days > 0 && (
+                            <div className="text-[10px] text-yellow-500">{user.remaining_days}d</div>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        {getSubscriptionInfo(user)}
+                      <TableCell className="py-2 hidden md:table-cell">
+                        <div className="text-[10px] text-muted-foreground">
+                          {user.last_seen_at ? new Date(user.last_seen_at).toLocaleDateString('pt-BR') : '-'}
+                        </div>
                       </TableCell>
-                      <TableCell>
-                        {getLastActivityInfo(user)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            onClick={() => handleSendMessage(user)}
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            <MessageCircle className="h-4 w-4 mr-1" />
-                            Mensagem
-                          </Button>
+                      <TableCell className="py-2">
+                        <div className="flex items-center justify-end gap-1">
                           <Button
                             onClick={() => handleViewUserDetails(user)}
                             size="sm"
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            variant="ghost"
+                            className="h-7 px-2 text-blue-400 hover:text-blue-300 hover:bg-blue-600/10"
                           >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Detalhes
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            onClick={() => handleSendMessage(user)}
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-green-400 hover:text-green-300 hover:bg-green-600/10"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" />
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                                <MoreVertical className="h-4 w-4" />
+                              <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
+                                <MoreVertical className="h-3.5 w-3.5" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="bg-card border-border">
