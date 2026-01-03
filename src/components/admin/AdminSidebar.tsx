@@ -45,6 +45,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 export type ActiveTab = 
   | 'dashboard' 
   | 'usuarios' 
+  | 'financeiro'
   | 'assinaturas' 
   | 'pix-payments' 
   | 'planos'
@@ -112,8 +113,8 @@ const menuGroups: MenuGroup[] = [
     label: 'Financeiro',
     icon: DollarSign,
     items: [
+      { id: 'financeiro', title: 'Dashboard Financeiro', icon: DollarSign },
       { id: 'assinaturas', title: 'Assinaturas', icon: CreditCard },
-      { id: 'pix-payments', title: 'Pagamentos PIX', icon: DollarSign },
       { id: 'planos', title: 'Configurar Planos', icon: Settings, requiredRole: 'admin_master' },
     ],
     requiredRole: 'admin_operacional'

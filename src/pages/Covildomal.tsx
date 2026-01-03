@@ -30,12 +30,12 @@ import { useUserPresence } from '@/hooks/useUserPresence';
 import ErrorReportsModal from '@/components/admin/ErrorReportsModal';
 import { BroadcastNotificationModal } from '@/components/admin/BroadcastNotificationModal';
 import { supabase } from '@/integrations/supabase/client';
-import PixPaymentsDashboard from '@/pages/PixPaymentsDashboard';
 import { SecurityPanel } from '@/components/admin/SecurityPanel';
 import { AccessLogsPanel } from '@/components/admin/AccessLogsPanel';
 import { AuditLogsPanel } from '@/components/admin/AuditLogsPanel';
 import { SecurityBlocksPanel } from '@/components/admin/SecurityBlocksPanel';
 import { FeatureFlagsPanel } from '@/components/admin/FeatureFlagsPanel';
+import { FinancialDashboard } from '@/components/admin/FinancialDashboard';
 
 const Covildomal = () => {
   const navigate = useNavigate();
@@ -122,21 +122,12 @@ const Covildomal = () => {
     switch (activeTab) {
       case 'usuarios':
         return <UserManagement />;
+      case 'financeiro':
+        return <FinancialDashboard />;
       case 'assinaturas':
         return <SubscriptionManagement />;
-      case 'pix-payments':
-        return <PixPaymentsDashboard />;
       case 'planos':
-        return (
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">Configuração de Planos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-400">Em desenvolvimento - Configuração de valores e períodos dos planos</p>
-            </CardContent>
-          </Card>
-        );
+        return <FinancialDashboard />;
       case 'conteudo':
         return (
           <Card className="bg-gray-800 border-gray-700">
