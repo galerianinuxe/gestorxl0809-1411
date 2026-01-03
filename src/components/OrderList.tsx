@@ -168,6 +168,14 @@ const OrderList: React.FC<OrderListProps> = ({
     try {
       console.log('Deleting order:', orderToDelete.id, 'from customer:', customerToDelete.name);
 
+      // Delete order items first (foreign key constraint)
+      const {
+        error: itemsError
+      } = await supabase.from('order_items').delete().eq('order_id', orderToDelete.id);
+      if (itemsError) {
+        console.error('Error deleting order items:', itemsError);
+      }
+
       // Delete the specific order from Supabase
       const {
         error: orderError
@@ -175,14 +183,6 @@ const OrderList: React.FC<OrderListProps> = ({
       if (orderError) {
         console.error('Error deleting order:', orderError);
         throw orderError;
-      }
-
-      // Delete associated order items
-      const {
-        error: itemsError
-      } = await supabase.from('order_items').delete().eq('order_id', orderToDelete.id);
-      if (itemsError) {
-        console.error('Error deleting order items:', itemsError);
       }
 
       // If the customer has no more open orders, delete the customer too
@@ -195,6 +195,23 @@ const OrderList: React.FC<OrderListProps> = ({
           console.error('Error deleting customer:', customerError);
         }
       }
+
+      // Update local state immediately - remove the order from openOrders
+      setOpenOrders(prevOrders => {
+        const updatedOrders = prevOrders.map(customer => {
+          if (customer.id === customerToDelete.id) {
+            const filteredOrders = customer.orders.filter(order => order.id !== orderToDelete.id);
+            // If no more orders, don't include this customer
+            if (filteredOrders.length === 0) {
+              return null;
+            }
+            return { ...customer, orders: filteredOrders };
+          }
+          return customer;
+        }).filter((customer): customer is Customer => customer !== null);
+        
+        return updatedOrders;
+      });
 
       // If the deleted order was the active one, clear active states
       if (activeCustomer?.id === customerToDelete.id && orderToDelete.id) {
