@@ -1,7 +1,56 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+const ALLOWED_ORIGINS = [
+  'https://xlata.site',
+  'https://www.xlata.site',
+  'http://localhost:8080',
+  'http://localhost:5173',
+]
+
+// User agents de crawlers conhecidos
+const ALLOWED_CRAWLERS = [
+  'googlebot',
+  'bingbot',
+  'yandexbot',
+  'duckduckbot',
+  'slurp', // Yahoo
+  'baiduspider',
+  'facebookexternalhit',
+  'twitterbot',
+  'linkedinbot',
+  'applebot',
+]
+
 serve(async (req) => {
+  const origin = req.headers.get('origin') || ''
+  const referer = req.headers.get('referer') || ''
+  const userAgent = (req.headers.get('user-agent') || '').toLowerCase()
+  
+  // Verificar se é um crawler autorizado
+  const isCrawler = ALLOWED_CRAWLERS.some(crawler => userAgent.includes(crawler))
+  
+  // Verificar se a origem é permitida
+  const isAllowedOrigin = ALLOWED_ORIGINS.some(allowed => 
+    origin.startsWith(allowed) || referer.startsWith(allowed)
+  )
+  
+  // Verificar se tem header secreto (para uso interno)
+  const internalKey = req.headers.get('x-sitemap-key')
+  const isInternalRequest = internalKey === Deno.env.get('SUPABASE_ANON_KEY')
+  
+  // Bloquear acesso direto não autorizado
+  if (!isCrawler && !isAllowedOrigin && !isInternalRequest) {
+    console.log(`[generate-sitemap] Blocked request - Origin: ${origin}, Referer: ${referer}, UA: ${userAgent.substring(0, 50)}`)
+    return new Response(
+      JSON.stringify({ error: 'Forbidden - Access denied' }),
+      { 
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    )
+  }
+
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL') ?? '',
     Deno.env.get('SUPABASE_ANON_KEY') ?? ''
