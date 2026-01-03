@@ -28,8 +28,11 @@ import {
   Star,
   Plus,
   Trash2,
-  User
+  User,
+  History
 } from 'lucide-react';
+import ContentVersioning from './ContentVersioning';
+import type { Json } from '@/integrations/supabase/types';
 
 interface Testimonial {
   id: string;
@@ -508,6 +511,14 @@ const LandingManagement: React.FC = () => {
           <p className="text-gray-400">Personalize a página inicial do seu sistema</p>
         </div>
         <div className="flex gap-3">
+          <ContentVersioning
+            contentType="landing"
+            currentData={settings as unknown as Json}
+            onRestoreVersion={(data) => {
+              const restoredSettings = data as unknown as LandingSettings;
+              setSettings(restoredSettings);
+            }}
+          />
           <Button
             variant="outline"
             onClick={handlePreview}
