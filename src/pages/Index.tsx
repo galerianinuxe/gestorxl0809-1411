@@ -29,6 +29,7 @@ const CashRegisterAddFundsModal = React.lazy(() => import('../components/CashReg
 const WelcomeScreen = React.lazy(() => import('../components/WelcomeScreen'));
 const PasswordPromptModal = React.lazy(() => import('@/components/PasswordPromptModal'));
 const ErrorReportModal = React.lazy(() => import('../components/ErrorReportModal'));
+const MobilePDVLayout = React.lazy(() => import('../components/MobilePDVLayout'));
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { MaterialsPrintModal } from '../components/MaterialsPrintModal';
 import { Customer, Order, Material, OrderItem } from '../types/pdv';
@@ -929,154 +930,37 @@ const Index: React.FC = () => {
       </React.Suspense>;
   }
 
-  // Layout responsivo baseado no dispositivo
-  const renderMobileLayout = () => <div className="flex flex-col h-screen bg-slate-900">
-      {/* Cabeçalho */}
-      <div className="flex items-center justify-between p-2 bg-slate-800 border-b border-slate-700 gap-3">
-        <div className="flex items-center gap-3">
-          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" className="data-[state=checked]:bg-amber-500" />
-          <Label htmlFor="modo-venda-switch" className={`font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-300'}`}>
-            {isSaleMode ? "Modo Venda ATIVADO" : "Modo Venda"}
-          </Label>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setShowNotificationsModal(true)}
-            className={`p-1 border transition-all duration-300 text-white rounded-md relative ${
-              unreadCount > 0 
-                ? 'border-amber-500 hover:border-amber-400 animate-pulse bg-amber-500/20 shadow-lg shadow-amber-500/30' 
-                : 'border-slate-600 hover:border-slate-500 bg-transparent'
-            }`}
-            title={unreadCount > 0 ? `${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}` : "Notificações"}
-          >
-            <Bell className={`w-4 h-4 transition-colors duration-300 ${
-              unreadCount > 0 ? 'text-amber-300' : 'text-slate-400'
-            }`} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-fade-in">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
-          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-emerald-900/50 hover:bg-emerald-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-emerald-500/30 text-emerald-300">Dar Sugestão</button>
-        </div>
-      </div>
-
-      {/* Lista de Pedidos */}
-      <div className="h-1/4 border-b border-slate-700">
-        <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-            <MemoizedOrderList customers={customers} activeCustomer={currentCustomer} setCurrentCustomer={handleSelectCustomer} setCurrentOrder={setCurrentOrder} onCustomerDeleted={handleCustomerDeleted} onOrderDeleted={handleOrderDeleted} />
-          </React.Suspense>
-        </ScrollArea>
-      </div>
-
-      {/* Teclado Numérico */}
-      <div className="h-[44%] border-b border-slate-700">
-        <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-          <MemoizedNumberPad onSubmit={handleNumberPadSubmit} onClear={() => setPesoInput("")} value={pesoInput} />
-        </React.Suspense>
-      </div>
-
-      {/* Grade de Materiais */}
-      <div className="h-[20.8%] border-b border-slate-700">
-        <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-            <MemoizedMaterialGrid materials={materials} onMaterialSelect={handleSelectMaterial} onManualInsert={() => {}} isSaleMode={isSaleMode} hasActiveOrder={!!activeOrder} onNewOrderRequest={handleNewOrderRequest} />
-          </React.Suspense>
-        </ScrollArea>
-      </div>
-
-      {/* Detalhes do Pedido */}
-      <div className="flex-1">
-        <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-            <MemoizedOrderDetails customer={currentCustomer} activeOrder={activeOrder} onCompleteOrder={handleInitiateCompleteOrder} formatPeso={formatPeso} onDeleteItem={handleDeleteOrderItem} />
-          </React.Suspense>
-        </ScrollArea>
-      </div>
-
-      {/* Footer */}
-      <React.Suspense fallback={<div className="bg-slate-800 text-slate-300 p-2">Carregando...</div>}>
-        <MemoizedFooter onMenuClick={handleMenuClick} currentBalance={currentBalance} onBalanceUpdate={updateCashRegisterBalance} />
-      </React.Suspense>
-    </div>;
-  const renderTabletLayout = () => <div className="flex flex-col h-screen bg-slate-900">
-      {/* Cabeçalho */}
-      <div className="flex items-center justify-between p-2 bg-slate-800 border-b border-slate-700 gap-3">
-        <div className="flex items-center gap-3">
-          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" className="data-[state=checked]:bg-amber-500" />
-          <Label htmlFor="modo-venda-switch" className={`font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-300'}`}>
-            {isSaleMode ? "Modo Venda ATIVADO" : "Modo Venda"}
-          </Label>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setShowNotificationsModal(true)}
-            className={`p-1 border transition-all duration-300 text-white rounded-md relative ${
-              unreadCount > 0 
-                ? 'border-amber-500 hover:border-amber-400 animate-pulse bg-amber-500/20 shadow-lg shadow-amber-500/30' 
-                : 'border-slate-600 hover:border-slate-500 bg-transparent'
-            }`}
-            title={unreadCount > 0 ? `${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}` : "Notificações"}
-          >
-            <Bell className={`w-4 h-4 transition-colors duration-300 ${
-              unreadCount > 0 ? 'text-amber-300' : 'text-slate-400'
-            }`} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-fade-in">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
-          <button onClick={() => setShowPrintConfirmModal(true)} className="p-2 border border-slate-600 hover:border-emerald-500 bg-transparent text-slate-300 hover:text-white rounded-md transition-colors duration-200">
-            <Printer className="w-4 h-4" />
-          </button>
-          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-emerald-900/50 hover:bg-emerald-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-emerald-500/30 text-emerald-300">Dar Sugestão</button>
-        </div>
-      </div>
-
-      {/* Lista de Pedidos */}
-      <div className="h-1/4 border-b border-slate-700">
-        <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-            <MemoizedOrderList customers={customers} activeCustomer={currentCustomer} setCurrentCustomer={handleSelectCustomer} setCurrentOrder={setCurrentOrder} onCustomerDeleted={handleCustomerDeleted} onOrderDeleted={handleOrderDeleted} />
-          </React.Suspense>
-        </ScrollArea>
-      </div>
-
-      {/* Teclado Numérico */}
-      <div className="h-[44%] border-b border-slate-700">
-        <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-          <MemoizedNumberPad onSubmit={handleNumberPadSubmit} onClear={() => setPesoInput("")} value={pesoInput} />
-        </React.Suspense>
-      </div>
-
-      {/* Grade de Materiais */}
-      <div className="h-[20.8%] border-b border-slate-700">
-        <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-            <MemoizedMaterialGrid materials={materials} onMaterialSelect={handleSelectMaterial} onManualInsert={() => {}} isSaleMode={isSaleMode} hasActiveOrder={!!activeOrder} onNewOrderRequest={handleNewOrderRequest} />
-          </React.Suspense>
-        </ScrollArea>
-      </div>
-
-      {/* Detalhes do Pedido */}
-      <div className="flex-1">
-        <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
-            <MemoizedOrderDetails customer={currentCustomer} activeOrder={activeOrder} onCompleteOrder={handleInitiateCompleteOrder} formatPeso={formatPeso} onDeleteItem={handleDeleteOrderItem} />
-          </React.Suspense>
-        </ScrollArea>
-      </div>
-
-      {/* Footer */}
-      <React.Suspense fallback={<div className="bg-slate-800 text-slate-300 p-2">Carregando...</div>}>
-        <MemoizedFooter onMenuClick={handleMenuClick} currentBalance={currentBalance} onBalanceUpdate={updateCashRegisterBalance} />
-      </React.Suspense>
-    </div>;
+  // Layout responsivo baseado no dispositivo - Mobile/Tablet usa novo componente
+  const renderMobileTabletLayout = () => (
+    <React.Suspense fallback={<div className="flex items-center justify-center h-screen bg-slate-900 text-slate-300">Carregando...</div>}>
+      <MobilePDVLayout
+        customers={customers}
+        currentCustomer={currentCustomer}
+        activeOrder={activeOrder}
+        materials={materials}
+        pesoInput={pesoInput}
+        currentBalance={currentBalance}
+        isSaleMode={isSaleMode}
+        unreadCount={unreadCount}
+        handleSelectCustomer={handleSelectCustomer}
+        setCurrentOrder={setCurrentOrder}
+        handleCustomerDeleted={handleCustomerDeleted}
+        handleOrderDeleted={handleOrderDeleted}
+        handleNumberPadSubmit={handleNumberPadSubmit}
+        setPesoInput={setPesoInput}
+        handleSelectMaterial={handleSelectMaterial}
+        handleNewOrderRequest={handleNewOrderRequest}
+        handleInitiateCompleteOrder={handleInitiateCompleteOrder}
+        formatPeso={formatPeso}
+        handleDeleteOrderItem={handleDeleteOrderItem}
+        handleSaleModeToggle={handleSaleModeToggle}
+        setShowNotificationsModal={setShowNotificationsModal}
+        setShowErrorReportModal={setShowErrorReportModal}
+        updateCashRegisterBalance={updateCashRegisterBalance}
+        handleMenuClick={handleMenuClick}
+      />
+    </React.Suspense>
+  );
   const renderDesktopLayout = () => <>
       <div className="flex items-center justify-between p-2 bg-slate-800 border-b border-slate-700 gap-3">
         <div className="flex items-center gap-3">
@@ -1162,7 +1046,7 @@ const Index: React.FC = () => {
       
       {isCashRegisterOpen ? <>
           {/* Renderização condicional baseada no dispositivo */}
-          {isMobile ? renderMobileLayout() : isTablet ? renderTabletLayout() : renderDesktopLayout()}
+          {(isMobile || isTablet) ? renderMobileTabletLayout() : renderDesktopLayout()}
           
           {/* Modals com Suspense para carregamento assíncrono */}
           <React.Suspense fallback={null}>
