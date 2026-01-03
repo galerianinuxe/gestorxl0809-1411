@@ -1014,6 +1014,8 @@ export const UserManagement = () => {
           if (!open) setSelectedUser(null);
         }}
         onConfirm={handleSubscriptionConfirm}
+        userName={selectedUser?.name || selectedUser?.email || 'Usuário'}
+        userId={selectedUser?.id}
       />
 
       {selectedUser && (
