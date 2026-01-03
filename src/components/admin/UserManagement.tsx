@@ -575,35 +575,32 @@ export const UserManagement = () => {
   const getStatusBadge = (user: UserData) => {
     const status = user.subscription_status;
     let badge;
-    let planInfo = '';
+    let daysInfo = '';
     
     switch (status) {
       case 'trial':
-        badge = <Badge className="bg-blue-600 text-white text-[10px] px-1.5 py-0">Teste</Badge>;
+        badge = <Badge className="bg-blue-600 text-white text-xs px-2 py-0.5">Teste</Badge>;
         if (user.remaining_days !== null && user.remaining_days > 0) {
-          planInfo = `${user.remaining_days}d`;
+          daysInfo = `${user.remaining_days}d restantes`;
         }
         break;
       case 'paid':
-        badge = <Badge className="bg-green-600 text-white text-[10px] px-1.5 py-0">Ativo</Badge>;
-        if (user.subscription_type === 'monthly') planInfo = 'Mensal';
-        else if (user.subscription_type === 'quarterly') planInfo = 'Trim.';
-        else if (user.subscription_type === 'annual') planInfo = 'Anual';
+        badge = <Badge className="bg-green-600 text-white text-xs px-2 py-0.5">Ativo</Badge>;
         if (user.remaining_days !== null && user.remaining_days > 0) {
-          planInfo += planInfo ? ` · ${user.remaining_days}d` : `${user.remaining_days}d`;
+          daysInfo = `${user.remaining_days}d restantes`;
         }
         break;
       case 'expired':
-        badge = <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Expirado</Badge>;
+        badge = <Badge variant="destructive" className="text-xs px-2 py-0.5">Expirado</Badge>;
         break;
       default:
-        badge = <Badge variant="outline" className="text-[10px] px-1.5 py-0">Inativo</Badge>;
+        badge = <Badge variant="outline" className="text-xs px-2 py-0.5">Inativo</Badge>;
     }
     
     return (
       <div className="flex flex-col gap-0.5">
         {badge}
-        {planInfo && <span className="text-[10px] text-muted-foreground">{planInfo}</span>}
+        {daysInfo && <span className="text-xs text-muted-foreground">{daysInfo}</span>}
       </div>
     );
   };
@@ -626,7 +623,15 @@ export const UserManagement = () => {
       timeAgo = `${diffMinutes}min`;
     }
 
-    return <span className="text-[10px] text-muted-foreground">{timeAgo}</span>;
+    return <span className="text-sm text-muted-foreground">{timeAgo}</span>;
+  };
+
+  const getPlanName = (user: UserData) => {
+    if (user.subscription_type === 'monthly') return 'Mensal';
+    if (user.subscription_type === 'quarterly') return 'Trimestral';
+    if (user.subscription_type === 'annual') return 'Anual';
+    if (user.subscription_type === 'trial') return 'Teste';
+    return '-';
   };
 
   const filteredUsers = users.filter(user => {
@@ -817,52 +822,57 @@ export const UserManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow className="border-border bg-muted/30">
-                  <TableHead className="w-8 py-2 text-muted-foreground">
+                  <TableHead className="w-10 py-3 text-muted-foreground">
                     <Checkbox
                       checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
                       onCheckedChange={handleSelectAll}
                       className="border-muted-foreground"
                     />
                   </TableHead>
-                  <TableHead className="text-muted-foreground text-xs font-medium py-2">Usuário</TableHead>
-                  <TableHead className="text-muted-foreground text-xs font-medium py-2 w-20">Status</TableHead>
-                  <TableHead className="text-muted-foreground text-xs font-medium py-2 w-16 hidden md:table-cell">Ativ.</TableHead>
-                  <TableHead className="text-muted-foreground text-xs font-medium py-2 text-right w-16">Ações</TableHead>
+                  <TableHead className="text-muted-foreground text-sm font-medium py-3">Usuário</TableHead>
+                  <TableHead className="text-muted-foreground text-sm font-medium py-3 hidden md:table-cell">Email</TableHead>
+                  <TableHead className="text-muted-foreground text-sm font-medium py-3 w-28 hidden lg:table-cell">Plano</TableHead>
+                  <TableHead className="text-muted-foreground text-sm font-medium py-3 w-32">Status</TableHead>
+                  <TableHead className="text-muted-foreground text-sm font-medium py-3 w-20 hidden md:table-cell">Ativ.</TableHead>
+                  <TableHead className="text-muted-foreground text-sm font-medium py-3 text-right w-28">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map(user => {
                   return (
                     <TableRow key={user.id} className="border-border hover:bg-muted/30">
-                      <TableCell className="py-1.5">
+                      <TableCell className="py-2">
                         <Checkbox
                           checked={selectedUsers.has(user.id)}
                           onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
                           className="border-muted-foreground"
                         />
                       </TableCell>
-                      <TableCell className="py-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full flex items-center justify-center text-foreground text-[10px] font-medium bg-muted shrink-0">
+                      <TableCell className="py-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-foreground text-sm font-medium bg-muted shrink-0">
                             {(user.name || user.email).charAt(0).toUpperCase()}
                           </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1">
-                              <span className="text-xs font-medium text-foreground truncate max-w-[120px]">
-                                {user.name || 'Sem nome'}
-                              </span>
-                              {user.status === 'admin' && (
-                                <Badge className="bg-pink-600 text-white text-[8px] px-1 py-0">ADM</Badge>
-                              )}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{user.email}</div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground">
+                              {user.name || 'Sem nome'}
+                            </span>
+                            {user.status === 'admin' && (
+                              <Badge className="bg-pink-600 text-white text-[10px] px-1.5 py-0">ADM</Badge>
+                            )}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="py-1.5">
+                      <TableCell className="py-2 hidden md:table-cell">
+                        <span className="text-sm text-muted-foreground">{user.email}</span>
+                      </TableCell>
+                      <TableCell className="py-2 hidden lg:table-cell">
+                        <span className="text-sm text-foreground">{getPlanName(user)}</span>
+                      </TableCell>
+                      <TableCell className="py-2">
                         {getStatusBadge(user)}
                       </TableCell>
-                      <TableCell className="py-1.5 hidden md:table-cell">
+                      <TableCell className="py-2 hidden md:table-cell">
                         {getLastActivityInfo(user)}
                       </TableCell>
                       <TableCell className="py-2">
