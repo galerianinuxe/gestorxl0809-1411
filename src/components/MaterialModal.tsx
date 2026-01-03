@@ -486,11 +486,13 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
           <DialogFooter className="mt-4 flex flex-row gap-2">
             <Button variant="secondary" onClick={onCancel} type="button">Cancelar</Button>
             {/* Show "Inserir Peso" button on mobile/tablet when peso is zero */}
-            {isMobileOrTablet && !isPesoValido && onRequestWeight ? (
+            {isMobileOrTablet && !isPesoValido ? (
               <Button 
                 onClick={() => {
                   onCancel();
-                  onRequestWeight();
+                  if (onRequestWeight) {
+                    onRequestWeight();
+                  }
                 }}
                 className="bg-amber-600 hover:bg-amber-700 flex items-center gap-2"
               >

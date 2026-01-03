@@ -12,6 +12,7 @@ import PaymentOptions, { PaymentData } from './PaymentOptions';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { X, Save, Printer } from 'lucide-react';
 import { useReceiptFormatSettings } from '@/hooks/useReceiptFormatSettings';
+import { cleanMaterialName } from '@/utils/materialNameCleaner';
 
 // Import the QZ Tray type definitions
 /// <reference path="../types/qz-tray.d.ts" />
@@ -264,10 +265,11 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
             <tbody>
               ${order.items.map(item => {
                 const pesoLiquido = item.quantity - (item.tara || 0);
+                const cleanedName = cleanMaterialName(item.materialName);
                 return `
                   <tr>
                     <td style="padding: 1mm 0; vertical-align: top; font-weight: bold; word-wrap: break-word;">
-                      ${item.materialName}
+                      ${cleanedName}
                       ${item.tara && item.tara > 0 ? `<br/><span style="font-size: ${receiptFormat === '50mm' ? '8px' : '10.8px'}; font-weight: bold;">Tara: ${formatPeso(item.tara).replace('/kg', '')} kg</span>` : ""}
                       ${item.tara && item.tara > 0 ? `<br/><span style="font-size: ${receiptFormat === '50mm' ? '8px' : '10.8px'}; font-weight: bold;">P. Líquido: ${formatPeso(pesoLiquido).replace('/kg', '')} kg</span>` : ""}
                     </td>
@@ -570,7 +572,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
                       {order.items.map((item, index) => (
                         <TableRow key={index} className="border-gray-700">
                           <TableCell className="text-white text-[94%]">
-                            {item.materialName}
+                            {cleanMaterialName(item.materialName)}
                             {item.tara && item.tara > 0 && (
                               <div className="text-xs text-yellow-400">
                                 Tara: {formatPeso(item.tara).replace('/kg', '')} kg
@@ -640,7 +642,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
                     {order.items.map((item, index) => (
                       <TableRow key={index} className="border-gray-700">
                         <TableCell className="text-white text-[11px] p-1">
-                          <div className="truncate max-w-[80px]">{item.materialName}</div>
+                          <div className="truncate max-w-[80px]">{cleanMaterialName(item.materialName)}</div>
                           {item.tara && item.tara > 0 && (
                             <div className="text-[9px] text-yellow-400">
                               Tara: {formatPeso(item.tara).replace('/kg', '')} kg

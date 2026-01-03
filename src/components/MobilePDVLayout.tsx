@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, startTransition } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -141,7 +141,10 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
     } else if (action === 'print' && setShowMaterialsPrintModal) {
       setShowMaterialsPrintModal(true);
     } else if (action === 'settings') {
-      navigate('/settings');
+      // Use startTransition to avoid suspense error during navigation
+      startTransition(() => {
+        navigate('/settings');
+      });
     }
   };
 
