@@ -434,159 +434,54 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-gray-950">
-        <header className="bg-gray-950 text-white p-4 border-b border-gray-800">
+      <div className="flex flex-col h-screen bg-slate-800">
+        <header className="bg-slate-900 text-white p-4 border-b border-slate-700">
           <h1 className="text-xl font-semibold">Dashboard</h1>
         </header>
         <main className="flex-1 flex items-center justify-center">
-          <div className="text-gray-400 text-lg">Carregando...</div>
+          <div className="text-slate-400 text-lg">Carregando...</div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-950">
-      <header className="bg-gray-950 text-white p-3 md:p-4 border-b border-gray-800">
-        {/* Mobile layout */}
-        <div className="block md:hidden">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              {isAdminView ? (
-                <Button
-                  onClick={handleBackToAdmin}
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1 hover:text-gray-300 text-white p-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="text-xs">Admin</span>
-                </Button>
-              ) : (
-                <Link to="/" className="flex items-center gap-1 hover:text-gray-300 p-2">
-                  <ArrowLeft className="h-4 w-4 text-white" />
-                  <span className="text-xs">Voltar</span>
-                </Link>
-              )}
-              <h1 className="text-lg font-bold">Dashboard</h1>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              size="sm"
-              className="bg-red-600 border-red-500 text-white hover:bg-red-700 flex items-center gap-1 px-2 py-1"
-            >
-              <LogOut className="w-3 h-3" />
-              <span className="text-xs">Sair</span>
-            </Button>
-          </div>
-
-          {/* Admin view indicator - mobile */}
-          {isAdminView && (
-            <div className="flex items-center gap-2 bg-purple-600/20 px-2 py-1 rounded-lg mb-2">
-              <Shield className="w-3 h-3 text-purple-400" />
-              <span className="text-purple-300 text-xs font-semibold">
-                Visualizando: {adminViewingUserName}
-              </span>
-            </div>
-          )}
-
-          {/* Status indicators - mobile */}
-          <div className="flex flex-col gap-2">
-            {isAdminView && (
-              <Button
-                onClick={handleExitAdminView}
-                variant="outline"
-                size="sm"
-                className="bg-red-600 border-red-500 text-white hover:bg-red-700 flex items-center gap-2 self-start"
-              >
-                <Eye className="w-3 h-3" />
-                <span className="text-xs">Sair da Visualização</span>
-              </Button>
-            )}
-            
-            {activeCashRegister && activeCashRegister.status === 'open' && (
-              <div className="flex items-center gap-2 bg-green-600/20 px-2 py-1 rounded-lg">
-                <Wallet className="w-3 h-3 text-green-400" />
-                <span className="text-green-300 text-xs font-semibold">
-                  Caixa: {formatCurrency(activeCashRegister.currentAmount)}
-                </span>
-              </div>
-            )}
-            
-            {!activeCashRegister && (
-              <div className="flex items-center gap-2 bg-yellow-600/20 px-2 py-1 rounded-lg">
-                <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
-                <span className="text-yellow-300 text-xs">Nenhum dado cadastrado</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Desktop/Tablet layout */}
-        <div className="hidden md:flex md:items-center md:justify-between">
+    <div className="flex flex-col h-screen bg-slate-800">
+      {/* Header simplificado */}
+      <header className="bg-slate-900 text-white p-4 border-b border-slate-700">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {isAdminView ? (
               <Button
                 onClick={handleBackToAdmin}
                 variant="ghost"
-                className="flex items-center gap-2 hover:text-gray-300 text-white"
+                size="sm"
+                className="text-slate-400 hover:text-white"
               >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="hidden lg:inline">Voltar ao Painel Admin</span>
-                <span className="lg:hidden">Admin</span>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Admin
               </Button>
             ) : (
-              <Link to="/" className="flex items-center gap-2 hover:text-gray-300">
-                <ArrowLeft className="h-5 w-5 text-white" />
-                <span className="hidden lg:inline">Voltar</span>
+              <Link to="/" className="flex items-center gap-2 text-slate-400 hover:text-white">
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Voltar</span>
               </Link>
             )}
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl lg:text-2xl font-bold">Dashboard</h1>
-              {isAdminView && (
-                <div className="flex items-center gap-2 bg-purple-600/20 px-3 py-1 rounded-lg">
-                  <Shield className="w-4 h-4 text-purple-400" />
-                  <span className="text-purple-300 text-sm font-semibold hidden lg:inline">
-                    Visualizando como: {adminViewingUserName}
-                  </span>
-                  <span className="text-purple-300 text-sm font-semibold lg:hidden">
-                    {adminViewingUserName}
-                  </span>
-                </div>
-              )}
-            </div>
+            <h1 className="text-xl font-bold">Dashboard</h1>
           </div>
           
-          <div className="flex items-center gap-2 lg:gap-4">
-            {isAdminView && (
-              <Button
-                onClick={handleExitAdminView}
-                variant="outline"
-                size="sm"
-                className="bg-red-600 border-red-500 text-white hover:bg-red-700 flex items-center gap-1 lg:gap-2"
-              >
-                <Eye className="w-4 h-4" />
-                <span className="hidden lg:inline">Sair da Visualização</span>
-                <span className="lg:hidden text-xs">Sair</span>
-              </Button>
-            )}
-            
-            {activeCashRegister && activeCashRegister.status === 'open' && (
-              <div className="flex items-center gap-2 bg-green-600/20 px-2 lg:px-3 py-1 rounded-lg">
-                <Wallet className="w-4 h-4 text-green-400" />
-                <span className="text-green-300 text-xs lg:text-sm font-semibold">
-                  <span className="hidden lg:inline">Caixa aberto: </span>
-                  {formatCurrency(activeCashRegister.currentAmount)}
+          <div className="flex items-center gap-3">
+            {activeCashRegister && activeCashRegister.status === 'open' ? (
+              <div className="hidden sm:flex items-center gap-2 bg-emerald-600/20 px-3 py-1.5 rounded-lg">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                <span className="text-emerald-400 text-sm font-medium">
+                  Caixa: {formatCurrency(activeCashRegister.currentAmount)}
                 </span>
               </div>
-            )}
-            
-            {!activeCashRegister && (
-              <div className="flex items-center gap-2 bg-yellow-600/20 px-2 lg:px-3 py-1 rounded-lg">
-                <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
-                <span className="text-yellow-300 text-xs lg:text-sm hidden lg:inline">Nenhum dado cadastrado</span>
-                <span className="text-yellow-300 text-xs lg:text-sm lg:hidden">Sem dados</span>
+            ) : (
+              <div className="hidden sm:flex items-center gap-2 bg-amber-600/20 px-3 py-1.5 rounded-lg">
+                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                <span className="text-amber-400 text-sm">Sem dados</span>
               </div>
             )}
             
@@ -594,322 +489,312 @@ const Dashboard = () => {
               onClick={handleLogout}
               variant="outline"
               size="sm"
-              className="bg-red-600 border-red-500 text-white hover:bg-red-700 flex items-center gap-1 lg:gap-2"
+              className="bg-rose-600/20 border-rose-600/50 text-rose-400 hover:bg-rose-600/30"
             >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden lg:inline">Deslogar</span>
-              <span className="lg:hidden text-xs">Sair</span>
+              <LogOut className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Sair</span>
             </Button>
           </div>
         </div>
+        
+        {/* Admin view indicator */}
+        {isAdminView && (
+          <div className="mt-3 flex items-center gap-2 bg-purple-600/20 px-3 py-2 rounded-lg">
+            <Shield className="w-4 h-4 text-purple-400" />
+            <span className="text-purple-300 text-sm">
+              Visualizando: <strong>{adminViewingUserName}</strong>
+            </span>
+            <Button
+              onClick={handleExitAdminView}
+              variant="ghost"
+              size="sm"
+              className="ml-auto text-purple-300 hover:text-white text-xs"
+            >
+              Sair
+            </Button>
+          </div>
+        )}
       </header>
 
-      <main className="flex-1 p-4 md:p-6 overflow-auto bg-gray-950">
-        {isAdminView && (
-          <Card className="bg-gray-900 border-gray-800 mb-6">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <User className="h-5 w-5 text-emerald-500" />
-                <div>
-                  <h3 className="text-base font-medium text-white">
-                    Visualizando Dashboard
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    Usuário: <span className="font-medium text-white">{adminViewingUserName}</span>
-                  </p>
-                  <p className="text-gray-500 text-xs font-mono mt-1">
-                    ID: {adminViewingUser}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Filtros */}
-        <Card className="bg-gray-900 border-gray-800 mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <Filter className="h-4 w-4 text-gray-500" />
-              Filtros
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {/* Combobox para seleção de período */}
-              <div className="space-y-2">
-                <Label className="text-gray-300">Período</Label>
-                <Select 
-                  value={periodType} 
-                  onValueChange={handlePeriodChange}
-                >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 h-9 text-sm">
-                    <SelectValue placeholder="Selecione o período" />
+      <main className="flex-1 p-4 md:p-6 overflow-auto">
+        {/* Seção 1: Filtro de Período - Simplificado */}
+        <Card className="bg-slate-900 border-slate-700 mb-6">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="flex-1 min-w-[140px]">
+                <Label className="text-slate-400 text-xs mb-1.5 block">Período</Label>
+                <Select value={periodType} onValueChange={handlePeriodChange}>
+                  <SelectTrigger className="bg-slate-800 border-slate-600 text-white h-10">
+                    <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700 text-gray-200">
-                    <SelectGroup>
-                      <SelectItem value="daily" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Diário</SelectItem>
-                      <SelectItem value="weekly" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Semanal</SelectItem>
-                      <SelectItem value="monthly" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Mensal</SelectItem>
-                      <SelectItem value="yearly" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Anual</SelectItem>
-                      <SelectItem value="custom" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Personalizado</SelectItem>
-                    </SelectGroup>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="daily">Hoje</SelectItem>
+                    <SelectItem value="weekly">Esta Semana</SelectItem>
+                    <SelectItem value="monthly">Este Mês</SelectItem>
+                    <SelectItem value="yearly">Este Ano</SelectItem>
+                    <SelectItem value="custom">Personalizado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-gray-300">Data Inicial</Label>
+              <div className="flex-1 min-w-[130px]">
+                <Label className="text-slate-400 text-xs mb-1.5 block">De</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 h-9 text-sm",
-                        !filterStartDate && "text-gray-500"
-                      )}
+                      className="w-full justify-start bg-slate-800 border-slate-600 text-white h-10"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterStartDate ? format(filterStartDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar data"}
+                      <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                      {filterStartDate ? format(filterStartDate, "dd/MM/yy", { locale: ptBR }) : "Data"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={filterStartDate}
-                      onSelect={(date) => {
-                        setFilterStartDate(date);
-                        setPeriodType('custom');
-                      }}
+                      onSelect={(date) => { setFilterStartDate(date); setPeriodType('custom'); }}
                       initialFocus
-                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-gray-300">Data Final</Label>
+              <div className="flex-1 min-w-[130px]">
+                <Label className="text-slate-400 text-xs mb-1.5 block">Até</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 h-9 text-sm",
-                        !filterEndDate && "text-gray-500"
-                      )}
+                      className="w-full justify-start bg-slate-800 border-slate-600 text-white h-10"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterEndDate ? format(filterEndDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar data"}
+                      <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                      {filterEndDate ? format(filterEndDate, "dd/MM/yy", { locale: ptBR }) : "Data"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={filterEndDate}
-                      onSelect={(date) => {
-                        setFilterEndDate(date);
-                        setPeriodType('custom');
-                      }}
+                      onSelect={(date) => { setFilterEndDate(date); setPeriodType('custom'); }}
                       initialFocus
-                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-gray-500 text-xs">Ações</Label>
-                <Button 
-                  onClick={applyFilters}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-9 text-sm"
-                >
-                  Filtrar
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-gray-500 text-xs">&nbsp;</Label>
-                <Button 
-                  onClick={clearFilters}
-                  variant="outline"
-                  className="w-full bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 h-9 text-sm"
-                >
-                  Limpar
-                </Button>
-              </div>
+              <Button 
+                onClick={clearFilters}
+                variant="ghost"
+                size="sm"
+                className="text-slate-400 hover:text-white h-10"
+              >
+                Limpar
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Cards de Métricas */}
-        <div className="space-y-6 mb-6">
-          {/* Primeira linha - 4 cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Seção 2: Resumo Principal - Cards claros e bem organizados */}
+        <div className="mb-6">
+          <h2 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-emerald-500" />
+            Resumo do Período
+          </h2>
+          
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card Compras */}
             <Card 
-              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
+              className="bg-slate-700 border-slate-600 cursor-pointer hover:bg-slate-600/80 transition-all group"
               onClick={() => handleCardClick('purchases')}
             >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">
-                  Total Comprado
-                </CardTitle>
-                <ShoppingCart className="h-4 w-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-400 text-xs font-medium">COMPRAS</span>
+                  <ShoppingCart className="h-4 w-4 text-blue-400" />
+                </div>
                 <div className="text-xl font-bold text-white">
                   {formatCurrency(calculateMetrics.totalPurchases)}
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
-              onClick={() => handleCardClick('stock')}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">
-                  Peso Bruto Estoque
-                </CardTitle>
-                <Archive className="h-4 w-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold text-white">
-                  {formatWeight(calculateMetrics.grossWeight)}
+                <div className="text-xs text-slate-500 mt-1 group-hover:text-emerald-400">
+                  Clique para detalhes →
                 </div>
               </CardContent>
             </Card>
 
+            {/* Card Vendas */}
             <Card 
-              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
+              className="bg-slate-700 border-slate-600 cursor-pointer hover:bg-slate-600/80 transition-all group"
               onClick={() => handleCardClick('sales')}
             >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">
-                  Total Vendas
-                </CardTitle>
-                <DollarSign className="h-4 w-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold text-white">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-400 text-xs font-medium">VENDAS</span>
+                  <DollarSign className="h-4 w-4 text-emerald-400" />
+                </div>
+                <div className="text-xl font-bold text-emerald-400">
                   {formatCurrency(calculateMetrics.totalSales)}
+                </div>
+                <div className="text-xs text-slate-500 mt-1 group-hover:text-emerald-400">
+                  Clique para detalhes →
                 </div>
               </CardContent>
             </Card>
 
+            {/* Card Despesas */}
             <Card 
-              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
+              className="bg-slate-700 border-slate-600 cursor-pointer hover:bg-slate-600/80 transition-all group"
+              onClick={() => handleCardClick('expenses')}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-400 text-xs font-medium">DESPESAS</span>
+                  <TrendingDown className="h-4 w-4 text-rose-400" />
+                </div>
+                <div className="text-xl font-bold text-rose-400">
+                  {formatCurrency(calculateMetrics.totalExpenses)}
+                </div>
+                <div className="text-xs text-slate-500 mt-1 group-hover:text-emerald-400">
+                  Clique para detalhes →
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Card Transações */}
+            <Card 
+              className="bg-slate-700 border-slate-600 cursor-pointer hover:bg-slate-600/80 transition-all group"
               onClick={() => handleCardClick('transactions')}
             >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">
-                  Transações
-                </CardTitle>
-                <FileText className="h-4 w-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-400 text-xs font-medium">TRANSAÇÕES</span>
+                  <FileText className="h-4 w-4 text-purple-400" />
+                </div>
                 <div className="text-xl font-bold text-white">
                   {calculateMetrics.totalTransactions}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Segunda linha - 3 cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            <Card 
-              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-red-500/50 transition-all"
-              onClick={() => handleCardClick('expenses')}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">
-                  Despesas
-                </CardTitle>
-                <TrendingDown className="h-4 w-4 text-red-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold text-red-400">
-                  {formatCurrency(calculateMetrics.totalExpenses)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
-              onClick={() => handleCardClick('cash-additions')}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">
-                  Adições de Saldo
-                </CardTitle>
-                <Plus className="h-4 w-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold text-white">
-                  {formatCurrency(calculateMetrics.totalCashAdditions)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
-              onClick={() => handleCardClick('daily-flow')}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-medium text-gray-500">
-                  Fluxo de Caixa
-                </CardTitle>
-                <ClipboardList className="h-4 w-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm font-medium text-gray-400 text-center">
-                  Ver Fechamentos
+                <div className="text-xs text-slate-500 mt-1 group-hover:text-emerald-400">
+                  Clique para detalhes →
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Mostrar mensagem quando não há dados */}
-        {orders.length === 0 && (
-          <Card className="mb-6 bg-gray-900 border-gray-800">
-            <CardContent className="p-6">
-              <div className="text-center text-gray-400">
-                <Archive className="h-12 w-12 mx-auto mb-4 text-gray-600" />
-                <h3 className="text-lg font-medium text-white mb-2">Nenhum dado encontrado</h3>
-                <p className="text-gray-500 text-sm">
-                  Comece cadastrando materiais e fazendo transações para ver os dados.
-                </p>
+        {/* Seção 3: Estoque e Operações */}
+        <div className="mb-6">
+          <h2 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+            <Archive className="h-5 w-5 text-emerald-500" />
+            Estoque & Operações
+          </h2>
+          
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Estoque Atual */}
+            <Card 
+              className="bg-gradient-to-br from-emerald-900/50 to-slate-800 border-emerald-700/50 cursor-pointer hover:border-emerald-500 transition-all"
+              onClick={() => handleCardClick('stock')}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-emerald-300 text-xs font-medium">ESTOQUE ATUAL</span>
+                  <Archive className="h-4 w-4 text-emerald-400" />
+                </div>
+                <div className="text-2xl font-bold text-white">
+                  {formatWeight(calculateMetrics.grossWeight)}
+                </div>
+                <div className="text-xs text-emerald-400 mt-1">
+                  Ver materiais →
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Adições */}
+            <Card 
+              className="bg-slate-700 border-slate-600 cursor-pointer hover:bg-slate-600/80 transition-all"
+              onClick={() => handleCardClick('cash-additions')}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-400 text-xs font-medium">ADIÇÕES CAIXA</span>
+                  <Plus className="h-4 w-4 text-cyan-400" />
+                </div>
+                <div className="text-xl font-bold text-white">
+                  {formatCurrency(calculateMetrics.totalCashAdditions)}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Fluxo de Caixa */}
+            <Card 
+              className="bg-slate-700 border-slate-600 cursor-pointer hover:bg-slate-600/80 transition-all col-span-2"
+              onClick={() => handleCardClick('daily-flow')}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-slate-400 text-xs font-medium block mb-1">FLUXO DE CAIXA</span>
+                    <span className="text-white text-lg font-medium">Ver fechamentos de caixa</span>
+                  </div>
+                  <ClipboardList className="h-6 w-6 text-amber-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Seção 4: Lucro Resumido - Destaque visual */}
+        {orders.length > 0 && (
+          <Card className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-slate-700 mb-6">
+            <CardContent className="p-5">
+              <h3 className="text-slate-400 text-sm font-medium mb-4">Resumo Financeiro</h3>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="p-3 bg-slate-800/50 rounded-lg">
+                  <div className={`text-2xl font-bold ${(calculateMetrics.totalSales - calculateMetrics.totalPurchases) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {formatCurrency(calculateMetrics.totalSales - calculateMetrics.totalPurchases)}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Lucro Bruto</div>
+                </div>
+                <div className="p-3 bg-slate-800/50 rounded-lg">
+                  <div className="text-2xl font-bold text-white">
+                    {calculateMetrics.totalSales > 0 ? ((calculateMetrics.totalSales - calculateMetrics.totalPurchases) / calculateMetrics.totalSales * 100).toFixed(0) : 0}%
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Margem</div>
+                </div>
+                <div className="p-3 bg-slate-800/50 rounded-lg">
+                  <div className={`text-2xl font-bold ${((calculateMetrics.totalSales - calculateMetrics.totalPurchases) - calculateMetrics.totalExpenses) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {formatCurrency((calculateMetrics.totalSales - calculateMetrics.totalPurchases) - calculateMetrics.totalExpenses)}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Lucro Líquido</div>
+                </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Gráficos - apenas mostrar se há dados */}
+        {/* Seção 5: Gráficos lado a lado */}
         {orders.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Gráfico de Vendas vs Compras */}
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-white text-base">Vendas vs Compras</CardTitle>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <Card className="bg-slate-900 border-slate-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-white text-sm font-medium">Vendas vs Compras</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px]">
+                <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={calculateMetrics.salesData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                       <XAxis 
                         dataKey="date" 
-                        tick={{ fill: '#6b7280', fontSize: 11 }}
+                        tick={{ fill: '#64748b', fontSize: 10 }}
                         tickFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                       />
-                      <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} />
+                      <YAxis tick={{ fill: '#64748b', fontSize: 10 }} />
                       <ChartTooltip 
                         content={({ active, payload, label }) => {
                           if (active && payload && payload.length) {
                             return (
-                              <div className="bg-gray-900 border border-gray-700 rounded p-3 shadow-lg">
-                                <p className="text-white text-sm mb-2">{new Date(label).toLocaleDateString('pt-BR')}</p>
+                              <div className="bg-slate-900 border border-slate-600 rounded p-2 shadow-lg">
+                                <p className="text-white text-xs mb-1">{new Date(label).toLocaleDateString('pt-BR')}</p>
                                 {payload.map((entry, index) => (
                                   <p key={index} className="text-xs" style={{ color: entry.color }}>
                                     {entry.dataKey === 'sales' ? 'Vendas' : 'Compras'}: {formatCurrency(Number(entry.value))}
@@ -921,21 +806,20 @@ const Dashboard = () => {
                           return null;
                         }}
                       />
-                      <Bar dataKey="sales" fill="#10B981" name="Vendas" />
-                      <Bar dataKey="purchases" fill="#3B82F6" name="Compras" />
+                      <Bar dataKey="sales" fill="#10B981" name="Vendas" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="purchases" fill="#3B82F6" name="Compras" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Gráfico de Materiais Mais Vendidos */}
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-white text-base">Top 5 Materiais</CardTitle>
+            <Card className="bg-slate-900 border-slate-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-white text-sm font-medium">Top 5 Materiais Vendidos</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px]">
+                <div className="h-[250px]">
                   {calculateMetrics.materialsData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -945,8 +829,8 @@ const Dashboard = () => {
                           nameKey="name"
                           cx="50%"
                           cy="50%"
-                          outerRadius={80}
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={70}
+                          label={({ name, percent }) => `${name.substring(0, 10)}${name.length > 10 ? '...' : ''} ${(percent * 100).toFixed(0)}%`}
                           labelLine={false}
                         >
                           {calculateMetrics.materialsData.map((entry, index) => (
@@ -957,10 +841,10 @@ const Dashboard = () => {
                           content={({ active, payload }) => {
                             if (active && payload && payload.length) {
                               return (
-                                <div className="bg-gray-900 border border-gray-700 rounded p-3 shadow-lg">
-                                  <p className="text-white text-sm">{payload[0].name}</p>
-                                  <p className="text-xs" style={{ color: payload[0].color }}>
-                                    Valor: {formatCurrency(Number(payload[0].value))}
+                                <div className="bg-slate-900 border border-slate-600 rounded p-2 shadow-lg">
+                                  <p className="text-white text-xs">{payload[0].name}</p>
+                                  <p className="text-xs text-emerald-400">
+                                    {formatCurrency(Number(payload[0].value))}
                                   </p>
                                 </div>
                               );
@@ -971,8 +855,8 @@ const Dashboard = () => {
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="flex items-center justify-center h-full text-gray-400">
-                      Nenhuma venda registrada no período
+                    <div className="flex items-center justify-center h-full text-slate-500 text-sm">
+                      Nenhuma venda no período
                     </div>
                   )}
                 </div>
@@ -981,60 +865,15 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Resumo Financeiro - apenas mostrar se há dados */}
-        {orders.length > 0 && (
-          <Card className="mt-6 bg-gray-900 border-gray-800">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-base">Resumo Financeiro</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-gray-800 rounded-lg">
-                  <div className="text-xl font-bold text-emerald-500">
-                    {formatCurrency(calculateMetrics.totalSales - calculateMetrics.totalPurchases)}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">Lucro Bruto</div>
-                </div>
-                <div className="text-center p-4 bg-gray-800 rounded-lg">
-                  <div className="text-xl font-bold text-white">
-                    {calculateMetrics.totalSales > 0 ? ((calculateMetrics.totalSales - calculateMetrics.totalPurchases) / calculateMetrics.totalSales * 100).toFixed(1) : 0}%
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">Margem de Lucro</div>
-                </div>
-                <div className="text-center p-4 bg-gray-800 rounded-lg">
-                  <div className="text-xl font-bold text-emerald-500">
-                    {formatCurrency((calculateMetrics.totalSales - calculateMetrics.totalPurchases) - calculateMetrics.totalExpenses)}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">Lucro Líquido</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Estoque Atual por Material - apenas mostrar se há dados */}
-        {orders.length > 0 && Object.keys(calculateMetrics.currentStock).length > 0 && (
-          <Card className="mt-6 bg-gray-900 border-gray-800">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-base">Estoque por Material</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Object.entries(calculateMetrics.currentStock)
-                  .filter(([_, quantity]) => quantity > 0)
-                  .sort(([,a], [,b]) => b - a)
-                  .map(([materialName, quantity]) => (
-                  <div key={materialName} className="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                    <div className="text-white font-medium text-sm">{materialName}</div>
-                    <div className="text-gray-400 text-xs">{formatWeight(quantity)}</div>
-                  </div>
-                ))}
-                {Object.entries(calculateMetrics.currentStock).filter(([_, quantity]) => quantity > 0).length === 0 && (
-                  <div className="text-gray-500 col-span-full text-center py-4 text-sm">
-                    Nenhum material em estoque
-                  </div>
-                )}
-              </div>
+        {/* Mensagem quando não há dados */}
+        {orders.length === 0 && (
+          <Card className="bg-slate-900 border-slate-700">
+            <CardContent className="p-8 text-center">
+              <Archive className="h-12 w-12 mx-auto mb-4 text-slate-600" />
+              <h3 className="text-lg font-medium text-white mb-2">Nenhum dado encontrado</h3>
+              <p className="text-slate-500 text-sm">
+                Cadastre materiais e faça transações para ver os dados aqui.
+              </p>
             </CardContent>
           </Card>
         )}
@@ -1045,7 +884,7 @@ const Dashboard = () => {
         onOpenChange={setShowPasswordModal}
         onAuthenticated={handlePasswordAuthenticated}
         title="Acesso Restrito"
-        description="Digite sua senha para acessar esta seção"
+        description="Digite sua senha para acessar"
       />
     </div>
   );
