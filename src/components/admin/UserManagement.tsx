@@ -47,11 +47,12 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import SubscriptionPeriodModal from '@/components/SubscriptionPeriodModal';
-import UserDetailsModal from '@/components/admin/UserDetailsModal';
+import UserDetailsExpandedModal from '@/components/admin/UserDetailsExpandedModal';
 import { upsertSubscription } from '@/utils/subscriptionStorage';
 import { ConfirmDeleteUserModal } from '@/components/admin/ConfirmDeleteUserModal';
 import { SendMessageModal } from '@/components/admin/SendMessageModal';
 import { PasswordResetModal } from '@/components/admin/PasswordResetModal';
+import { useAuditLog } from '@/hooks/useAuditLog';
 
 interface UserData {
   id: string;
@@ -1032,10 +1033,11 @@ export const UserManagement = () => {
             userId={selectedUser.id}
           />
           
-          <UserDetailsModal
+          <UserDetailsExpandedModal
             open={userDetailsModalOpen}
             onOpenChange={setUserDetailsModalOpen}
             user={selectedUser}
+            onRefresh={fetchUsers}
           />
         </>
       )}
