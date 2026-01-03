@@ -16,30 +16,23 @@ const CashRegisterSummaryCard: React.FC<CashRegisterSummaryCardProps> = ({
   isMobileOrTablet = false
 }) => {
   if (isMobileOrTablet) {
-    // Mobile/Tablet layout: title left, value right
+    // Mobile/Tablet layout: compact with title left, value right
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-    const isTablet = typeof window !== 'undefined' && window.innerWidth > 768 && window.innerWidth <= 1024;
     
     return (
-      <div className={`bg-gray-800 p-4 rounded-sm ${className}`}>
+      <div className={`bg-gray-800 px-3 py-2 rounded-sm ${className}`}>
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
-            <div className={`text-gray-300 ${
-              isTablet ? 'text-[13px]' : 'text-[11px]' // Tablet: +30%, Mobile: +10%
-            }`}>
+            <div className={`text-gray-300 ${isMobile ? 'text-[10px]' : 'text-[11px]'}`}>
               {title}
             </div>
             {subtitle && (
-              <div className={`text-blue-400 mt-1 ${
-                isTablet ? 'text-[10px]' : 'text-[9px]' // Tablet: +30%, Mobile: +10%
-              }`}>
+              <div className={`text-blue-400 ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
                 {subtitle}
               </div>
             )}
           </div>
-          <div className={`text-[#10b981] font-bold ${
-            isTablet ? 'text-2xl' : 'text-xl' // Tablet: +30%, Mobile: +10%
-          }`}>
+          <div className={`text-[#10b981] font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>
             {value}
           </div>
         </div>
