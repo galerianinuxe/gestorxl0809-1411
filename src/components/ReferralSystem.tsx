@@ -33,9 +33,9 @@ const ReferralSystem: React.FC = () => {
   const [referrals, setReferrals] = useState<ReferralData[]>([]);
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [refKey, setRefKey] = useState<string>('');
+  const [userName, setUserName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [copying, setCopying] = useState(false);
-  const [generatingKey, setGeneratingKey] = useState(false);
 
   const referralLink = refKey ? `https://xlata.site/register?ref=${refKey}` : '';
 
@@ -62,6 +62,7 @@ const ReferralSystem: React.FC = () => {
         console.error('Erro ao buscar perfil:', profileError);
       } else if (profileData) {
         setRefKey((profileData as any).ref_key || '');
+        setUserName(profileData.name || '');
       }
 
       // Buscar estatísticas usando a nova função RPC
@@ -129,53 +130,6 @@ const ReferralSystem: React.FC = () => {
       console.error('Erro ao buscar dados de indicação:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const generateRefKey = async () => {
-    if (!user) return;
-
-    try {
-      setGeneratingKey(true);
-      
-      // Buscar nome do usuário
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('name')
-        .eq('id', user.id)
-        .single();
-
-      const userName = profileData?.name || user.email?.split('@')[0] || 'Usuario';
-
-      // Gerar nova chave
-      const { data: newKey, error } = await supabase
-        .rpc('generate_ref_key', { user_name: userName });
-
-      if (error) throw error;
-
-      // Atualizar perfil com a nova chave
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ ref_key: newKey } as any)
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      setRefKey(newKey);
-      
-      toast({
-        title: "Chave gerada!",
-        description: `Sua nova chave de referência: ${newKey}`,
-      });
-    } catch (error) {
-      console.error('Erro ao gerar chave:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao gerar chave. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setGeneratingKey(false);
     }
   };
 
@@ -380,47 +334,29 @@ const ReferralSystem: React.FC = () => {
         <CardContent className="space-y-4">
           {refKey ? (
             <div>
-              <div className="flex gap-2 mb-3">
+              <div className="mb-3">
                 <Input
                   value={refKey}
                   readOnly
                   className="bg-slate-900 border-slate-600 text-white font-mono text-lg"
                 />
-                <Button
-                  onClick={generateRefKey}
-                  disabled={generatingKey}
-                  variant="outline"
-                  className="border-slate-600 hover:bg-slate-700"
-                  title="Gerar nova chave"
-                >
-                  <RefreshCw className={`h-4 w-4 ${generatingKey ? 'animate-spin' : ''}`} />
-                </Button>
               </div>
               <div className="flex items-center gap-2 text-emerald-400 text-sm">
                 <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                Chave ativa
+                Chave única baseada no seu nome
               </div>
+              {userName && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Baseada em: {userName}
+                </p>
+              )}
             </div>
           ) : (
             <div className="text-center py-4">
-              <p className="text-slate-400 mb-4">Você ainda não tem uma chave de referência</p>
-              <Button
-                onClick={generateRefKey}
-                disabled={generatingKey}
-                className="bg-emerald-600 hover:bg-emerald-700"
-              >
-                {generatingKey ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Gerando...
-                  </>
-                ) : (
-                  <>
-                    <Key className="h-4 w-4 mr-2" />
-                    Gerar Minha Chave
-                  </>
-                )}
-              </Button>
+              <p className="text-slate-400">Sua chave será gerada automaticamente ao criar a conta</p>
+              <p className="text-xs text-slate-500 mt-2">
+                A chave é baseada no seu nome e é única no sistema
+              </p>
             </div>
           )}
         </CardContent>
