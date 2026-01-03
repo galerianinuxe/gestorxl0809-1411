@@ -56,12 +56,26 @@ const Register: React.FC = () => {
     try {
       console.log('🔗 Verificando chave de referência:', refKey);
       
-      // Buscar informações do indicador pelo ID
-      const { data, error } = await supabase
+      // Tentar buscar por ref_key primeiro (novo formato curto)
+      let { data, error } = await supabase
         .from('profiles')
-        .select('name')
-        .eq('id', refKey)
+        .select('id, name')
+        .eq('ref_key', refKey)
         .single();
+
+      // Se não encontrou por ref_key, tentar por ID (formato antigo UUID)
+      if (error || !data) {
+        const { data: dataById, error: errorById } = await supabase
+          .from('profiles')
+          .select('id, name')
+          .eq('id', refKey)
+          .single();
+        
+        if (!errorById && dataById) {
+          data = dataById;
+          error = null;
+        }
+      }
 
       if (!error && data) {
         setReferralInfo(data);

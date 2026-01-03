@@ -2076,6 +2076,7 @@ export type Database = {
           last_login_at: string | null
           name: string | null
           phone: string | null
+          ref_key: string | null
           status: Database["public"]["Enums"]["user_status"]
           updated_at: string | null
           whatsapp: string | null
@@ -2092,6 +2093,7 @@ export type Database = {
           last_login_at?: string | null
           name?: string | null
           phone?: string | null
+          ref_key?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string | null
           whatsapp?: string | null
@@ -2108,6 +2110,7 @@ export type Database = {
           last_login_at?: string | null
           name?: string | null
           phone?: string | null
+          ref_key?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string | null
           whatsapp?: string | null
@@ -2228,7 +2231,9 @@ export type Database = {
           dias_creditados: number
           id: string
           indicado_id: string
+          numero_renovacao: number | null
           plano_ativado: string
+          tipo_bonus: string | null
           user_id: string
         }
         Insert: {
@@ -2237,7 +2242,9 @@ export type Database = {
           dias_creditados: number
           id?: string
           indicado_id: string
+          numero_renovacao?: number | null
           plano_ativado: string
+          tipo_bonus?: string | null
           user_id: string
         }
         Update: {
@@ -2246,7 +2253,9 @@ export type Database = {
           dias_creditados?: number
           id?: string
           indicado_id?: string
+          numero_renovacao?: number | null
           plano_ativado?: string
+          tipo_bonus?: string | null
           user_id?: string
         }
         Relationships: [
@@ -2993,6 +3002,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      calcular_bonus_indicacao: {
+        Args: { p_is_renewal?: boolean; p_plan_type: string }
+        Returns: number
+      }
       check_password_breach: {
         Args: { password_hash: string }
         Returns: boolean
@@ -3037,6 +3050,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_referral_stats: { Args: { p_user_id: string }; Returns: Json }
       get_storage_usage: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
       get_table_count: { Args: never; Returns: Json }
