@@ -19,6 +19,7 @@ import { toast } from '@/hooks/use-toast';
 import { StandardFilter, FilterPeriod } from '@/components/StandardFilter';
 import { MetricCard } from '@/components/MetricCard';
 import { Label } from '@/components/ui/label';
+import { cleanMaterialName } from '@/utils/materialNameCleaner';
 
 const Transactions = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -306,7 +307,7 @@ const Transactions = () => {
         <div style="border-bottom: 2px solid #000; margin: 10px 0;"></div>
         <table style="width: 100%; border-collapse: collapse; font-size: ${formatSettings.table_font_size};">
           <thead><tr><th style="text-align: left;">Material</th><th style="text-align: right;">Peso</th><th style="text-align: right;">R$/kg</th><th style="text-align: right;">Total</th></tr></thead>
-          <tbody>${order.items.map(item => `<tr><td>${item.materialName}</td><td style="text-align: right;">${item.quantity.toFixed(3)}</td><td style="text-align: right;">${item.price.toFixed(2)}</td><td style="text-align: right;">${item.total.toFixed(2)}</td></tr>`).join("")}</tbody>
+          <tbody>${order.items.map(item => `<tr><td>${cleanMaterialName(item.materialName)}</td><td style="text-align: right;">${item.quantity.toFixed(3)}</td><td style="text-align: right;">${item.price.toFixed(2)}</td><td style="text-align: right;">${item.total.toFixed(2)}</td></tr>`).join("")}</tbody>
         </table>
         <div style="border-bottom: 2px solid #000; margin: 10px 0;"></div>
         <div style="text-align: right; font-weight: bold; font-size: ${formatSettings.final_total_font_size};">Total: R$ ${order.total.toFixed(2)}</div>
