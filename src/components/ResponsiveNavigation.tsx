@@ -8,10 +8,10 @@ import {
   Zap,
   Home,
   CreditCard,
-  FileText,
   HelpCircle,
   Phone,
-  ChevronRight
+  ChevronRight,
+  BookOpen
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SystemLogo from './SystemLogo';
@@ -29,7 +29,8 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const navigationItems = [
-    { title: "Início", href: "/", icon: Home },
+    { title: "Início", href: "/landing", icon: Home },
+    { title: "Blog", href: "/blog", icon: BookOpen },
     { title: "Planos", href: "/planos", icon: CreditCard },
     { title: "Guia", href: "/guia-completo", icon: HelpCircle },
   ];

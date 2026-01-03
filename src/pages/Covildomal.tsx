@@ -36,6 +36,7 @@ import { FinancialDashboard } from '@/components/admin/FinancialDashboard';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { MaintenanceDashboard } from '@/components/admin/MaintenanceDashboard';
 import { PlansManagement } from '@/components/admin/PlansManagement';
+import { ContentManagementPanel } from '@/components/admin/ContentManagementPanel';
 
 const Covildomal = () => {
   const navigate = useNavigate();
@@ -127,16 +128,7 @@ const Covildomal = () => {
       case 'planos':
         return <PlansManagement />;
       case 'conteudo':
-        return (
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">CMS / Blog</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-400">Em desenvolvimento - Gerenciamento de conteúdo e blog</p>
-            </CardContent>
-          </Card>
-        );
+        return <ContentManagementPanel />;
       case 'landing':
         return <LandingManagement />;
       case 'seguranca':
