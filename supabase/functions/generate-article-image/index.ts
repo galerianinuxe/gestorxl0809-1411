@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// XLATA Logo as base64 (small green circular logo with X pattern)
+const XLATA_LOGO_URL = 'https://oxawvjcckmbevjztyfgp.supabase.co/storage/v1/object/public/landing-images/XLATALOGO.png';
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -45,18 +48,17 @@ serve(async (req) => {
     const contentSummary = content?.substring(0, 300) || '';
     const keywordsList = keywords || '';
 
-    // Include XLATA logo/branding directly in the prompt
-    const optimizedPrompt = `${basePrompt} for XLATA, a recycling management software.
+    // Step 1: Generate base image WITHOUT logo
+    const baseImagePrompt = `${basePrompt} for a recycling management software.
 
 Theme: "${title}"
 ${contentSummary ? `Context: ${contentSummary}` : ''}
 ${keywordsList ? `Related: ${keywordsList}` : ''}
 
-CRITICAL REQUIREMENTS:
-1. NO TEXT whatsoever - absolutely NO words, NO letters, NO numbers
-2. Include a small, subtle circular green logo mark in the bottom-right corner (representing XLATA brand)
-3. The logo should be a simple green circle with an "X" pattern inside, sized about 10% of image width
-4. Position the logo with padding from the edges
+CRITICAL RULES - ABSOLUTELY MUST FOLLOW:
+1. NO TEXT whatsoever - absolutely NO words, NO letters, NO numbers, NO typography
+2. NO logos, NO watermarks, NO brand marks
+3. Leave the bottom-right corner relatively clean/simple for logo placement later
 
 Visual Style:
 - Modern flat illustration with subtle gradients and depth
@@ -66,12 +68,12 @@ Visual Style:
 - 16:9 aspect ratio, ultra high resolution
 - Suitable for website hero section
 
-This is a pure ILLUSTRATION with integrated branding, not a poster with text.`;
+This is a pure ILLUSTRATION without any text or logos.`;
 
-    console.log('Generating image with integrated branding...');
+    console.log('Step 1: Generating base image...');
 
-    // Call Lovable AI to generate image with branding
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call Lovable AI to generate base image
+    const baseImageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
@@ -82,24 +84,24 @@ This is a pure ILLUSTRATION with integrated branding, not a poster with text.`;
         messages: [
           {
             role: 'user',
-            content: optimizedPrompt
+            content: baseImagePrompt
           }
         ],
         modalities: ['image', 'text']
       })
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI Gateway error:', aiResponse.status, errorText);
+    if (!baseImageResponse.ok) {
+      const errorText = await baseImageResponse.text();
+      console.error('AI Gateway error (base image):', baseImageResponse.status, errorText);
       
-      if (aiResponse.status === 429) {
+      if (baseImageResponse.status === 429) {
         return new Response(
           JSON.stringify({ error: 'Limite de requisições excedido. Tente novamente em alguns minutos.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      if (aiResponse.status === 402) {
+      if (baseImageResponse.status === 402) {
         return new Response(
           JSON.stringify({ error: 'Créditos insuficientes para geração de imagem.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -107,26 +109,95 @@ This is a pure ILLUSTRATION with integrated branding, not a poster with text.`;
       }
       
       return new Response(
-        JSON.stringify({ error: 'Failed to generate image' }),
+        JSON.stringify({ error: 'Failed to generate base image' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const aiData = await aiResponse.json();
-    console.log('AI Response received');
+    const baseImageData = await baseImageResponse.json();
+    console.log('Base image generated');
 
-    // Extract image from response
-    const imageData = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    // Extract base image from response
+    const baseImageUrl = baseImageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     
-    if (!imageData) {
-      console.error('No image in AI response:', JSON.stringify(aiData).substring(0, 500));
+    if (!baseImageUrl) {
+      console.error('No base image in AI response:', JSON.stringify(baseImageData).substring(0, 500));
       return new Response(
-        JSON.stringify({ error: 'No image generated' }),
+        JSON.stringify({ error: 'No base image generated' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Image generated successfully');
+    console.log('Step 2: Adding XLATA logo overlay...');
+
+    // Step 2: Use image editing to add the XLATA logo
+    const logoOverlayResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-image',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: `Add the XLATA logo (the second image) to the bottom-right corner of the main image (the first image).
+
+REQUIREMENTS:
+- Place the logo in the bottom-right corner with 20-30 pixels of padding from edges
+- Make the logo size approximately 10-12% of the image width
+- Keep the logo fully visible and clear
+- DO NOT modify any other part of the image
+- DO NOT add any text
+- Maintain the original image quality
+- The logo should have a subtle white or light glow/shadow behind it to ensure visibility`
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: baseImageUrl
+                }
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: XLATA_LOGO_URL
+                }
+              }
+            ]
+          }
+        ],
+        modalities: ['image', 'text']
+      })
+    });
+
+    if (!logoOverlayResponse.ok) {
+      const errorText = await logoOverlayResponse.text();
+      console.error('AI Gateway error (logo overlay):', logoOverlayResponse.status, errorText);
+      
+      // If logo overlay fails, use the base image without logo
+      console.log('Logo overlay failed, using base image');
+    }
+
+    let finalImageData = baseImageUrl;
+
+    if (logoOverlayResponse.ok) {
+      const logoOverlayData = await logoOverlayResponse.json();
+      const overlayImageUrl = logoOverlayData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      
+      if (overlayImageUrl) {
+        finalImageData = overlayImageUrl;
+        console.log('Logo overlay successful');
+      } else {
+        console.log('No overlay image returned, using base image');
+      }
+    }
+
+    console.log('Image generation complete');
 
     // Upload to Supabase Storage
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -134,7 +205,7 @@ This is a pure ILLUSTRATION with integrated branding, not a poster with text.`;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Extract base64 data
-    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+    const base64Data = finalImageData.replace(/^data:image\/\w+;base64,/, '');
     const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
     
     // Generate unique filename
