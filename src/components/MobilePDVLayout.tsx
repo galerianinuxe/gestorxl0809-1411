@@ -248,7 +248,20 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
           <div className="flex flex-col h-full">
             {/* Header */}
             <div className="flex items-center justify-between px-3 py-2 bg-slate-800 border-b border-slate-700">
-              <h2 className="text-white font-semibold text-sm">Materiais</h2>
+              <div className="flex items-center gap-2">
+                <Switch 
+                  checked={isSaleMode} 
+                  onCheckedChange={handleSaleModeToggle} 
+                  id="modo-venda-switch-materials" 
+                  className="data-[state=checked]:bg-amber-500 scale-90" 
+                />
+                <Label 
+                  htmlFor="modo-venda-switch-materials" 
+                  className={`text-xs font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-400'}`}
+                >
+                  {isSaleMode ? "Venda" : "Compra"}
+                </Label>
+              </div>
               <span className="text-slate-400 text-xs">{materials.length} cadastrados</span>
             </div>
 
@@ -283,6 +296,24 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
       case 'orders':
         return (
           <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between px-3 py-2 bg-slate-800 border-b border-slate-700">
+              <div className="flex items-center gap-2">
+                <Switch 
+                  checked={isSaleMode} 
+                  onCheckedChange={handleSaleModeToggle} 
+                  id="modo-venda-switch-orders" 
+                  className="data-[state=checked]:bg-amber-500 scale-90" 
+                />
+                <Label 
+                  htmlFor="modo-venda-switch-orders" 
+                  className={`text-xs font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-400'}`}
+                >
+                  {isSaleMode ? "Venda" : "Compra"}
+                </Label>
+              </div>
+              <span className="text-slate-400 text-xs">{openOrdersCount} pedidos abertos</span>
+            </div>
             {/* Lista de Pedidos */}
             <div className={activeOrder ? 'h-2/5' : 'flex-1'}>
               <ScrollArea className="h-full">
