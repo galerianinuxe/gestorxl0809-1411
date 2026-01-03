@@ -247,7 +247,7 @@ REQUIREMENTS:
         success: true, 
         imageUrl: publicUrl,
         fileName: fileName,
-        prompt: optimizedPrompt
+        prompt: baseImagePrompt
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
