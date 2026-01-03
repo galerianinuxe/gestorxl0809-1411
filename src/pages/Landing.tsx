@@ -541,9 +541,9 @@ const Landing: React.FC = () => {
             <p className="text-gray-400 text-sm lg:text-base">
               <span className="text-red-400">Você perde: R$ 10.500/mês</span>
               {" • "}
-              <span className="text-green-400">XLata custa: R$ 97/mês</span>
+              <span className="text-green-400">XLata custa: {plans.find(p => p.id === 'mensal')?.price || 'R$ 137,90'}/mês</span>
               {" • "}
-              <span className="text-white font-bold">Retorno: 108x</span>
+              <span className="text-white font-bold">Retorno: {plans.find(p => p.id === 'mensal')?.amount ? Math.round(10500 / plans.find(p => p.id === 'mensal')!.amount) : 76}x</span>
             </p>
           </div>
         </div>
