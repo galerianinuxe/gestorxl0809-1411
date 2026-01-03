@@ -122,9 +122,6 @@ const Covildomal = () => {
       case 'usuarios':
         return <UserManagement />;
       case 'financeiro':
-        return <FinancialDashboard />;
-      case 'assinaturas':
-        return <SubscriptionManagement />;
       case 'planos':
         return <FinancialDashboard />;
       case 'conteudo':
@@ -141,9 +138,6 @@ const Covildomal = () => {
       case 'landing':
         return <LandingManagement />;
       case 'seguranca':
-      case 'access-logs':
-      case 'audit-logs':
-      case 'bloqueios':
         return <SecurityDashboard />;
       case 'sistema':
         return <SystemManagement />;
