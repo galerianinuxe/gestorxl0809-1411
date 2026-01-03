@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMobilePrint } from "@/hooks/useMobilePrint";
 import MobilePrintOptions from "./MobilePrintOptions";
 import { useReceiptFormatSettings } from '@/hooks/useReceiptFormatSettings';
+import { cleanMaterialName } from '@/utils/materialNameCleaner';
 
 interface ReceiptPrintModalProps {
   open: boolean;
@@ -187,7 +188,7 @@ const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
               return `
                 <tr>
                   <td style="padding: 1mm 0; vertical-align: top; font-weight: bold; word-wrap: break-word;">
-                    ${item.materialName}
+                    ${cleanMaterialName(item.materialName)}
                     ${item.tara && item.tara > 0 ? `<br/><span style="font-size: ${receiptFormat === '50mm' ? '5px' : '10.8px'}; font-weight: bold;">Tara: ${formatPeso(item.tara).replace('/kg', '')} kg</span>` : ""}
                     ${item.tara && item.tara > 0 ? `<br/><span style="font-size: ${receiptFormat === '50mm' ? '5px' : '10.8px'}; font-weight: bold;">P. Líquido: ${formatPeso(pesoLiquido).replace('/kg', '')} kg</span>` : ""}
                   </td>
@@ -342,7 +343,7 @@ const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
                     return (
                       <tr key={idx}>
                         <td style={{ fontWeight: "bold", wordWrap: 'break-word' }}>
-                          {item.materialName}
+                          {cleanMaterialName(item.materialName)}
                           {item.tara && item.tara > 0 ? (
                             <span style={{ fontSize: receiptFormat === '50mm' ? 5 : 10.8, color: "#222", display: "block", fontStyle:"italic", marginTop:1, fontWeight: "bold" }}>
                               Tara: {formatPeso(item.tara).replace('/kg', '')} kg

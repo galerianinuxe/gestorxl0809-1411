@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Customer, Order } from '../types/pdv';
 import { setActiveCustomer, setActiveOrder } from '../utils/supabaseStorage';
+import { cleanMaterialName } from '../utils/materialNameCleaner';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, History } from "lucide-react";
@@ -84,12 +85,12 @@ const OrderList: React.FC<OrderListProps> = ({
 
           // Só adicionar se o pedido tiver itens
           if (order.order_items && order.order_items.length > 0) {
-            const orderData: Order = {
+              const orderData: Order = {
               id: order.id,
               customerId: order.customer_id,
               items: order.order_items.map(item => ({
                 materialId: item.material_id,
-                materialName: item.material_name,
+                materialName: cleanMaterialName(item.material_name),
                 quantity: item.quantity,
                 price: item.price,
                 total: item.total,

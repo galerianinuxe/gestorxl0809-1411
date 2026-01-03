@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { createLogger } from '@/utils/logger';
 import PasswordPromptModal from '@/components/PasswordPromptModal';
+import { cleanMaterialName } from '@/utils/materialNameCleaner';
 
 const logger = createLogger('[OrderHistory]');
 
@@ -100,7 +101,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
           customerName: order.customers?.name || 'Cliente Removido',
           items: (order.order_items || []).map(item => ({
             materialId: item.material_id,
-            materialName: item.material_name,
+            materialName: cleanMaterialName(item.material_name),
             quantity: item.quantity,
             price: item.price,
             total: item.total,
