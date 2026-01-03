@@ -434,20 +434,20 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-gray-900">
-        <header className="bg-pdv-dark text-white p-4 border-b border-gray-700">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="flex flex-col h-screen bg-gray-950">
+        <header className="bg-gray-950 text-white p-4 border-b border-gray-800">
+          <h1 className="text-xl font-semibold">Dashboard</h1>
         </header>
         <main className="flex-1 flex items-center justify-center">
-          <div className="text-white text-xl">Carregando dados...</div>
+          <div className="text-gray-400 text-lg">Carregando...</div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
-      <header className="bg-pdv-dark text-white p-3 md:p-4 border-b border-gray-700">
+    <div className="flex flex-col h-screen bg-gray-950">
+      <header className="bg-gray-950 text-white p-3 md:p-4 border-b border-gray-800">
         {/* Mobile layout */}
         <div className="block md:hidden">
           <div className="flex items-center justify-between mb-3">
@@ -604,20 +604,20 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-4 md:p-6 overflow-auto bg-gray-950">
         {isAdminView && (
-          <Card className="bg-blue-900 border-blue-700 mb-6">
+          <Card className="bg-gray-900 border-gray-800 mb-6">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <User className="h-6 w-6 text-blue-400" />
+                <User className="h-5 w-5 text-emerald-500" />
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-100">
-                    Visualizando Dashboard do Usuário
+                  <h3 className="text-base font-medium text-white">
+                    Visualizando Dashboard
                   </h3>
-                  <p className="text-blue-200 text-sm">
-                    Usuário: <span className="font-medium">{adminViewingUserName}</span>
+                  <p className="text-gray-400 text-sm">
+                    Usuário: <span className="font-medium text-white">{adminViewingUserName}</span>
                   </p>
-                  <p className="text-blue-300 text-xs font-mono">
+                  <p className="text-gray-500 text-xs font-mono mt-1">
                     ID: {adminViewingUser}
                   </p>
                 </div>
@@ -627,10 +627,10 @@ const Dashboard = () => {
         )}
 
         {/* Filtros */}
-        <Card className="bg-gray-800 border-gray-700 mb-6">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Filter className="h-5 w-5" />
+        <Card className="bg-gray-900 border-gray-800 mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white flex items-center gap-2 text-base">
+              <Filter className="h-4 w-4 text-gray-500" />
               Filtros
             </CardTitle>
           </CardHeader>
@@ -643,16 +643,16 @@ const Dashboard = () => {
                   value={periodType} 
                   onValueChange={handlePeriodChange}
                 >
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600">
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 h-9 text-sm">
                     <SelectValue placeholder="Selecione o período" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-gray-200">
+                  <SelectContent className="bg-gray-900 border-gray-700 text-gray-200">
                     <SelectGroup>
-                      <SelectItem value="daily" className="text-gray-200 focus:bg-gray-700 focus:text-white">Diário</SelectItem>
-                      <SelectItem value="weekly" className="text-gray-200 focus:bg-gray-700 focus:text-white">Semanal</SelectItem>
-                      <SelectItem value="monthly" className="text-gray-200 focus:bg-gray-700 focus:text-white">Mensal</SelectItem>
-                      <SelectItem value="yearly" className="text-gray-200 focus:bg-gray-700 focus:text-white">Anual</SelectItem>
-                      <SelectItem value="custom" className="text-gray-200 focus:bg-gray-700 focus:text-white">Personalizado</SelectItem>
+                      <SelectItem value="daily" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Diário</SelectItem>
+                      <SelectItem value="weekly" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Semanal</SelectItem>
+                      <SelectItem value="monthly" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Mensal</SelectItem>
+                      <SelectItem value="yearly" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Anual</SelectItem>
+                      <SelectItem value="custom" className="text-gray-200 focus:bg-gray-800 focus:text-white text-sm">Personalizado</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -665,8 +665,8 @@ const Dashboard = () => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600",
-                        !filterStartDate && "text-muted-foreground"
+                        "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 h-9 text-sm",
+                        !filterStartDate && "text-gray-500"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -695,8 +695,8 @@ const Dashboard = () => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600",
-                        !filterEndDate && "text-muted-foreground"
+                        "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 h-9 text-sm",
+                        !filterEndDate && "text-gray-500"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -719,23 +719,23 @@ const Dashboard = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-300">Ações</Label>
+                <Label className="text-gray-500 text-xs">Ações</Label>
                 <Button 
                   onClick={applyFilters}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-9 text-sm"
                 >
                   Filtrar
                 </Button>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-300">&nbsp;</Label>
+                <Label className="text-gray-500 text-xs">&nbsp;</Label>
                 <Button 
                   onClick={clearFilters}
                   variant="outline"
-                  className="w-full bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                  className="w-full bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 h-9 text-sm"
                 >
-                  Limpar Filtros
+                  Limpar
                 </Button>
               </div>
             </div>
@@ -747,68 +747,68 @@ const Dashboard = () => {
           {/* Primeira linha - 4 cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card 
-              className="bg-green-900 border-green-700 cursor-pointer hover:bg-green-800 transition-colors"
+              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
               onClick={() => handleCardClick('purchases')}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-green-100">
+                <CardTitle className="text-xs font-medium text-gray-500">
                   Total Comprado
                 </CardTitle>
-                <ShoppingCart className="h-4 w-4 text-green-400" />
+                <ShoppingCart className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-100">
+                <div className="text-xl font-bold text-white">
                   {formatCurrency(calculateMetrics.totalPurchases)}
                 </div>
               </CardContent>
             </Card>
 
             <Card 
-              className="bg-blue-900 border-blue-700 cursor-pointer hover:bg-blue-800 transition-colors"
+              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
               onClick={() => handleCardClick('stock')}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-100">
-                  Peso Bruto Estoque Atual
+                <CardTitle className="text-xs font-medium text-gray-500">
+                  Peso Bruto Estoque
                 </CardTitle>
-                <Archive className="h-4 w-4 text-blue-400" />
+                <Archive className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-100">
+                <div className="text-xl font-bold text-white">
                   {formatWeight(calculateMetrics.grossWeight)}
                 </div>
               </CardContent>
             </Card>
 
             <Card 
-              className="bg-emerald-900 border-emerald-700 cursor-pointer hover:bg-emerald-800 transition-colors"
+              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
               onClick={() => handleCardClick('sales')}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-emerald-100">
-                  Total em Vendas
+                <CardTitle className="text-xs font-medium text-gray-500">
+                  Total Vendas
                 </CardTitle>
-                <DollarSign className="h-4 w-4 text-emerald-400" />
+                <DollarSign className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-emerald-100">
+                <div className="text-xl font-bold text-white">
                   {formatCurrency(calculateMetrics.totalSales)}
                 </div>
               </CardContent>
             </Card>
 
             <Card 
-              className="bg-purple-900 border-purple-700 cursor-pointer hover:bg-purple-800 transition-colors"
+              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
               onClick={() => handleCardClick('transactions')}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-purple-100">
+                <CardTitle className="text-xs font-medium text-gray-500">
                   Transações
                 </CardTitle>
-                <FileText className="h-4 w-4 text-purple-400" />
+                <FileText className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-purple-100">
+                <div className="text-xl font-bold text-white">
                   {calculateMetrics.totalTransactions}
                 </div>
               </CardContent>
@@ -816,53 +816,53 @@ const Dashboard = () => {
           </div>
 
           {/* Segunda linha - 3 cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <Card 
-              className="bg-red-900 border-red-700 cursor-pointer hover:bg-red-800 transition-colors"
+              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-red-500/50 transition-all"
               onClick={() => handleCardClick('expenses')}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-red-100">
-                  Total Despesas
+                <CardTitle className="text-xs font-medium text-gray-500">
+                  Despesas
                 </CardTitle>
                 <TrendingDown className="h-4 w-4 text-red-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-100">
+                <div className="text-xl font-bold text-red-400">
                   {formatCurrency(calculateMetrics.totalExpenses)}
                 </div>
               </CardContent>
             </Card>
 
             <Card 
-              className="bg-cyan-900 border-cyan-700 cursor-pointer hover:bg-cyan-800 transition-colors"
+              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
               onClick={() => handleCardClick('cash-additions')}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-cyan-100">
+                <CardTitle className="text-xs font-medium text-gray-500">
                   Adições de Saldo
                 </CardTitle>
-                <Plus className="h-4 w-4 text-cyan-400" />
+                <Plus className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-cyan-100">
+                <div className="text-xl font-bold text-white">
                   {formatCurrency(calculateMetrics.totalCashAdditions)}
                 </div>
               </CardContent>
             </Card>
 
             <Card 
-              className="bg-yellow-900 border-yellow-700 cursor-pointer hover:bg-yellow-800 transition-colors"
+              className="bg-gray-900 border-gray-800 cursor-pointer hover:border-emerald-500/50 transition-all"
               onClick={() => handleCardClick('daily-flow')}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-yellow-100">
-                  Fluxo Diário
+                <CardTitle className="text-xs font-medium text-gray-500">
+                  Fluxo de Caixa
                 </CardTitle>
-                <ClipboardList className="h-4 w-4 text-yellow-400" />
+                <ClipboardList className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-bold text-yellow-100 text-center">
+                <div className="text-sm font-medium text-gray-400 text-center">
                   Ver Fechamentos
                 </div>
               </CardContent>
@@ -872,13 +872,13 @@ const Dashboard = () => {
 
         {/* Mostrar mensagem quando não há dados */}
         {orders.length === 0 && (
-          <Card className="mb-6 bg-blue-900 border-blue-700">
+          <Card className="mb-6 bg-gray-900 border-gray-800">
             <CardContent className="p-6">
-              <div className="text-center text-blue-100">
-                <Archive className="h-16 w-16 mx-auto mb-4 text-blue-400" />
-                <h3 className="text-xl font-semibold mb-2">Nenhum dado encontrado</h3>
-                <p className="text-blue-200">
-                  Comece cadastrando materiais e fazendo suas primeiras transações para ver os dados do dashboard.
+              <div className="text-center text-gray-400">
+                <Archive className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+                <h3 className="text-lg font-medium text-white mb-2">Nenhum dado encontrado</h3>
+                <p className="text-gray-500 text-sm">
+                  Comece cadastrando materiais e fazendo transações para ver os dados.
                 </p>
               </div>
             </CardContent>
@@ -889,29 +889,29 @@ const Dashboard = () => {
         {orders.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Gráfico de Vendas vs Compras */}
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">Vendas vs Compras por Período</CardTitle>
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-base">Vendas vs Compras</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={calculateMetrics.salesData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
                       <XAxis 
                         dataKey="date" 
-                        tick={{ fill: '#D1D5DB', fontSize: 12 }}
+                        tick={{ fill: '#6b7280', fontSize: 11 }}
                         tickFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                       />
-                      <YAxis tick={{ fill: '#D1D5DB', fontSize: 12 }} />
+                      <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} />
                       <ChartTooltip 
                         content={({ active, payload, label }) => {
                           if (active && payload && payload.length) {
                             return (
-                              <div className="bg-gray-800 border border-gray-600 rounded p-3 shadow-lg">
-                                <p className="text-white mb-2">{new Date(label).toLocaleDateString('pt-BR')}</p>
+                              <div className="bg-gray-900 border border-gray-700 rounded p-3 shadow-lg">
+                                <p className="text-white text-sm mb-2">{new Date(label).toLocaleDateString('pt-BR')}</p>
                                 {payload.map((entry, index) => (
-                                  <p key={index} style={{ color: entry.color }}>
+                                  <p key={index} className="text-xs" style={{ color: entry.color }}>
                                     {entry.dataKey === 'sales' ? 'Vendas' : 'Compras'}: {formatCurrency(Number(entry.value))}
                                   </p>
                                 ))}
@@ -930,9 +930,9 @@ const Dashboard = () => {
             </Card>
 
             {/* Gráfico de Materiais Mais Vendidos */}
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">Top 5 Materiais Vendidos</CardTitle>
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-base">Top 5 Materiais</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
@@ -957,9 +957,9 @@ const Dashboard = () => {
                           content={({ active, payload }) => {
                             if (active && payload && payload.length) {
                               return (
-                                <div className="bg-gray-800 border border-gray-600 rounded p-3 shadow-lg">
-                                  <p className="text-white">{payload[0].name}</p>
-                                  <p style={{ color: payload[0].color }}>
+                                <div className="bg-gray-900 border border-gray-700 rounded p-3 shadow-lg">
+                                  <p className="text-white text-sm">{payload[0].name}</p>
+                                  <p className="text-xs" style={{ color: payload[0].color }}>
                                     Valor: {formatCurrency(Number(payload[0].value))}
                                   </p>
                                 </div>
@@ -983,29 +983,29 @@ const Dashboard = () => {
 
         {/* Resumo Financeiro - apenas mostrar se há dados */}
         {orders.length > 0 && (
-          <Card className="mt-6 bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">Resumo Financeiro</CardTitle>
+          <Card className="mt-6 bg-gray-900 border-gray-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white text-base">Resumo Financeiro</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-400">
+                <div className="text-center p-4 bg-gray-800 rounded-lg">
+                  <div className="text-xl font-bold text-emerald-500">
                     {formatCurrency(calculateMetrics.totalSales - calculateMetrics.totalPurchases)}
                   </div>
-                  <div className="text-sm text-gray-400">Lucro Bruto</div>
+                  <div className="text-xs text-gray-500 mt-1">Lucro Bruto</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-400">
+                <div className="text-center p-4 bg-gray-800 rounded-lg">
+                  <div className="text-xl font-bold text-white">
                     {calculateMetrics.totalSales > 0 ? ((calculateMetrics.totalSales - calculateMetrics.totalPurchases) / calculateMetrics.totalSales * 100).toFixed(1) : 0}%
                   </div>
-                  <div className="text-sm text-gray-400">Margem de Lucro</div>
+                  <div className="text-xs text-gray-500 mt-1">Margem de Lucro</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-400">
+                <div className="text-center p-4 bg-gray-800 rounded-lg">
+                  <div className="text-xl font-bold text-emerald-500">
                     {formatCurrency((calculateMetrics.totalSales - calculateMetrics.totalPurchases) - calculateMetrics.totalExpenses)}
                   </div>
-                  <div className="text-sm text-gray-400">Lucro Líquido</div>
+                  <div className="text-xs text-gray-500 mt-1">Lucro Líquido</div>
                 </div>
               </div>
             </CardContent>
@@ -1014,9 +1014,9 @@ const Dashboard = () => {
 
         {/* Estoque Atual por Material - apenas mostrar se há dados */}
         {orders.length > 0 && Object.keys(calculateMetrics.currentStock).length > 0 && (
-          <Card className="mt-6 bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">Estoque Atual por Material</CardTitle>
+          <Card className="mt-6 bg-gray-900 border-gray-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white text-base">Estoque por Material</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1024,13 +1024,13 @@ const Dashboard = () => {
                   .filter(([_, quantity]) => quantity > 0)
                   .sort(([,a], [,b]) => b - a)
                   .map(([materialName, quantity]) => (
-                  <div key={materialName} className="bg-gray-700 p-3 rounded-lg">
-                    <div className="text-white font-medium">{materialName}</div>
-                    <div className="text-gray-300">{formatWeight(quantity)}</div>
+                  <div key={materialName} className="bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <div className="text-white font-medium text-sm">{materialName}</div>
+                    <div className="text-gray-400 text-xs">{formatWeight(quantity)}</div>
                   </div>
                 ))}
                 {Object.entries(calculateMetrics.currentStock).filter(([_, quantity]) => quantity > 0).length === 0 && (
-                  <div className="text-gray-400 col-span-full text-center py-4">
+                  <div className="text-gray-500 col-span-full text-center py-4 text-sm">
                     Nenhum material em estoque
                   </div>
                 )}

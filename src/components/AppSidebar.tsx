@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   Home, 
-  User, 
   Settings, 
   BarChart3, 
   Archive, 
@@ -14,14 +13,12 @@ import {
   BookOpen,
   LogOut,
   Shield,
-  Plus,
   Wallet,
   ClipboardList,
   Users,
-  PhoneCall,
   AlertCircle,
   Crown,
-  Zap
+  ChevronRight
 } from 'lucide-react';
 import {
   Sidebar,
@@ -34,7 +31,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/hooks/useAuth';
 import { getActiveCashRegister } from '@/utils/supabaseStorage';
 import SystemLogo from './SystemLogo';
@@ -60,11 +56,9 @@ export function AppSidebar({
       const activeCashRegister = await getActiveCashRegister();
       
       if (activeCashRegister && activeCashRegister.status === 'open') {
-        // Se o caixa está aberto, navegar para o PDV
         console.log('✅ Caixa aberto, redirecionando para PDV');
         navigate('/');
       } else {
-        // Se o caixa está fechado, chamar a função de abertura
         console.log('❌ Caixa fechado, abrindo modal de abertura');
         if (onOpenCashRegister) {
           onOpenCashRegister();
@@ -72,153 +66,121 @@ export function AppSidebar({
       }
     } catch (error) {
       console.error('Erro ao verificar status do caixa:', error);
-      // Em caso de erro, tentar abrir o modal de abertura
       if (onOpenCashRegister) {
         onOpenCashRegister();
       }
     }
   };
 
-  const quickAccessItems = [
+  // Seção Principal - Acesso rápido
+  const principalItems = [
     { 
-      title: "Abrir Caixa", 
-      icon: Plus, 
+      title: "PDV / Caixa", 
+      icon: ShoppingCart, 
       action: handleCashRegisterAction,
-      color: "bg-green-600 hover:bg-green-700 text-white",
-      show: true
+      isAction: true
     },
     { 
       title: "Dashboard", 
       icon: BarChart3, 
-      href: "/dashboard",
-      color: "bg-blue-600 hover:bg-blue-700 text-white",
-      show: true
+      href: "/dashboard"
     },
     { 
       title: "Estoque", 
       icon: Archive, 
-      href: "/current-stock",
-      color: "bg-orange-600 hover:bg-orange-700 text-white",
-      show: true
-    },
-    { 
-      title: "Materiais", 
-      icon: ClipboardList, 
-      href: "/materiais",
-      color: "bg-purple-600 hover:bg-purple-700 text-white",
-      show: true
-    },
-    { 
-      title: "Configurações", 
-      icon: Settings, 
-      href: "/configuracoes",
-      color: "bg-gray-600 hover:bg-gray-700 text-white",
-      show: true
+      href: "/current-stock"
     },
   ];
 
-  const navigationItems = [
-    { title: "Ordens de Compra", icon: ShoppingCart, href: "/purchase-orders" },
-    { title: "Ordens de Venda", icon: TrendingUp, href: "/sales-orders" },
+  // Seção Operações - Gestão do dia a dia
+  const operacoesItems = [
+    { title: "Compras", icon: ShoppingCart, href: "/purchase-orders" },
+    { title: "Vendas", icon: TrendingUp, href: "/sales-orders" },
     { title: "Transações", icon: FileText, href: "/transactions" },
     { title: "Despesas", icon: DollarSign, href: "/expenses" },
     { title: "Adições de Caixa", icon: Wallet, href: "/cash-additions" },
-    { title: "Fluxo Diário", icon: Calendar, href: "/daily-flow" },
+    { title: "Fluxo de Caixa", icon: Calendar, href: "/daily-flow" },
   ];
 
-  const systemItems = [
-    { title: "Guia Completo", icon: BookOpen, href: "/guia-completo" },
+  // Seção Configurações - Sistema
+  const configuracoesItems = [
+    { title: "Materiais", icon: ClipboardList, href: "/materiais" },
+    { title: "Configurações", icon: Settings, href: "/configuracoes" },
+    { title: "Ajuda & Guia", icon: BookOpen, href: "/guia-completo" },
     { title: "Planos", icon: Crown, href: "/planos" },
-    { title: "Sistema de Indicações", icon: Users, href: "/sistema-indicacoes" },
+  ];
+
+  // Items extras
+  const extraItems = [
+    { title: "Indicações", icon: Users, href: "/sistema-indicacoes" },
     { title: "Relatar Erro", icon: AlertCircle, href: "/relatar-erro" },
   ];
 
+  // Admin
   const adminItems = [
     { title: "Painel Admin", icon: Shield, href: "/covildomal" },
   ];
-
-  const handleAction = (action?: () => void) => {
-    if (action) action();
-  };
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
   };
 
-  const renderMenuItem = (item: any, isQuickAccess = false) => {
-    const baseClass = isQuickAccess 
-      ? `${item.color} mb-2 rounded-lg p-3 w-full text-left transition-all duration-200 hover:scale-105`
-      : "text-gray-300 hover:text-white hover:bg-gray-800 p-3 w-full text-left rounded-lg transition-colors";
+  const renderMenuItem = (item: any) => {
+    const baseClass = "flex items-center gap-3 px-3 py-2.5 w-full text-left rounded-md transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/60";
+    const activeClass = "bg-gray-800 text-white border-l-2 border-emerald-500 rounded-l-none";
 
-    if (item.href) {
-      return (
-        <NavLink
-          key={item.title}
-          to={item.href}
-          className={({ isActive }) => 
-            `${baseClass} block no-underline ${isActive && !isQuickAccess ? 'bg-gray-800 text-white' : ''}`
-          }
-        >
-          <div className="flex items-center gap-3">
-            <item.icon className="h-5 w-5 flex-shrink-0" />
-            {!collapsed && <span className={isQuickAccess ? "font-medium" : ""}>{item.title}</span>}
-          </div>
-        </NavLink>
-      );
-    } else {
+    if (item.isAction) {
       return (
         <button
           key={item.title}
-          onClick={() => handleAction(item.action)}
+          onClick={item.action}
           className={baseClass}
         >
-          <div className="flex items-center gap-3">
-            <item.icon className="h-5 w-5 flex-shrink-0" />
-            {!collapsed && <span className={isQuickAccess ? "font-medium" : ""}>{item.title}</span>}
-          </div>
+          <item.icon className="h-4 w-4 flex-shrink-0" />
+          {!collapsed && <span className="text-sm">{item.title}</span>}
         </button>
       );
     }
+
+    return (
+      <NavLink
+        key={item.title}
+        to={item.href}
+        className={({ isActive }) => 
+          `${baseClass} ${isActive ? activeClass : ''}`
+        }
+      >
+        <item.icon className="h-4 w-4 flex-shrink-0" />
+        {!collapsed && <span className="text-sm">{item.title}</span>}
+      </NavLink>
+    );
   };
 
   return (
-    <Sidebar className={`${collapsed ? 'w-16' : 'w-64'} bg-gray-900 border-r border-gray-700`}>
-      <SidebarContent className="bg-gray-900">
-        {/* Logo */}
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex items-center gap-2">
+    <Sidebar className={`${collapsed ? 'w-16' : 'w-60'} bg-gray-950 border-r border-gray-800`}>
+      <SidebarContent className="bg-gray-950 flex flex-col h-full">
+        {/* Logo Header */}
+        <div className="p-4 border-b border-gray-800">
+          <div className="flex items-center gap-3">
             <SystemLogo size="sm" />
             {!collapsed && (
-              <span className="text-white font-bold text-lg">Sistema PDV</span>
+              <div>
+                <span className="text-white font-semibold text-sm">XLATA</span>
+                <span className="text-gray-500 text-xs block">Gestor PDV</span>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Acesso Rápido */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-400">
-            {!collapsed && "Acesso Rápido"}
+        {/* Principal */}
+        <SidebarGroup className="py-4">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+            {!collapsed && "Principal"}
           </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {quickAccessItems.filter(item => item.show).map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  {renderMenuItem(item, true)}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Navegação Principal */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-400">
-            {!collapsed && "Navegação"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems.map((item) => (
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-1">
+              {principalItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
                 </SidebarMenuItem>
@@ -227,14 +189,30 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Sistema */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-400">
+        {/* Operações */}
+        <SidebarGroup className="py-2">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+            {!collapsed && "Operações"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-1">
+              {operacoesItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  {renderMenuItem(item)}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Configurações */}
+        <SidebarGroup className="py-2">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
             {!collapsed && "Sistema"}
           </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemItems.map((item) => (
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-1">
+              {configuracoesItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
                 </SidebarMenuItem>
@@ -243,15 +221,12 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Admin */}
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-gray-400">
-              {!collapsed && "Administração"}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminItems.map((item) => (
+        {/* Extras - Collapsible */}
+        {!collapsed && (
+          <SidebarGroup className="py-2">
+            <SidebarGroupContent className="px-2">
+              <SidebarMenu className="space-y-1">
+                {extraItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     {renderMenuItem(item)}
                   </SidebarMenuItem>
@@ -261,34 +236,63 @@ export function AppSidebar({
           </SidebarGroup>
         )}
 
-        {/* Subscription Status */}
-        {subscription && !collapsed && (
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <div className="p-3 bg-gray-800 rounded-lg mx-3 mb-3">
-                <div className="flex items-center justify-between mb-2">
-                  <Badge variant="outline" className="text-green-400 border-green-400">
-                    {subscription.plan_type === 'trial' ? 'Teste' : 'Ativo'}
-                  </Badge>
-                  <Zap className="h-4 w-4 text-green-400" />
-                </div>
-                <p className="text-xs text-gray-400">
-                  Expira em: {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
-                </p>
-              </div>
+        {/* Admin */}
+        {isAdmin && (
+          <SidebarGroup className="py-2">
+            <SidebarGroupLabel className="px-4 text-xs font-medium text-emerald-600 uppercase tracking-wider mb-2">
+              {!collapsed && "Admin"}
+            </SidebarGroupLabel>
+            <SidebarGroupContent className="px-2">
+              <SidebarMenu className="space-y-1">
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <NavLink
+                      to={item.href}
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 w-full rounded-md transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-emerald-900/30 text-emerald-400 border-l-2 border-emerald-500 rounded-l-none' 
+                            : 'text-emerald-500 hover:text-emerald-400 hover:bg-emerald-900/20'
+                        }`
+                      }
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && <span className="text-sm">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
 
+        {/* Status da Assinatura - Minimalista */}
+        {subscription && !collapsed && (
+          <div className="px-4 py-3 mt-auto">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-500">Plano</span>
+              <span className="text-emerald-500 font-medium">
+                {subscription.plan_type === 'trial' ? 'Teste' : 'Ativo'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs mt-1">
+              <span className="text-gray-500">Expira</span>
+              <span className="text-gray-400">
+                {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Logout */}
-        <div className="mt-auto p-3 border-t border-gray-700">
+        <div className="mt-auto p-3 border-t border-gray-800">
           <Button
             variant="ghost"
             onClick={handleSignOut}
-            className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10 justify-start"
+            className="w-full text-gray-500 hover:text-red-400 hover:bg-red-500/10 justify-start h-10"
           >
-            <LogOut className="h-5 w-5 mr-3" />
-            {!collapsed && "Sair"}
+            <LogOut className="h-4 w-4 mr-3" />
+            {!collapsed && <span className="text-sm">Sair</span>}
           </Button>
         </div>
       </SidebarContent>
