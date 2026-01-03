@@ -17,9 +17,13 @@ export const useDirectMessages = () => {
 
   const checkForDirectMessages = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data: messages, error } = await supabase
         .from('user_direct_messages')
         .select('*')
+        .eq('recipient_id', user.id)
         .is('read_at', null)
         .order('created_at', { ascending: true })
         .limit(1);
