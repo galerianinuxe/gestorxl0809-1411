@@ -295,80 +295,80 @@ export const FinancialDashboard = () => {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <Card>
+        <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground uppercase">Receita Total</p>
-                <p className="text-xl font-bold text-green-500">{formatCurrency(stats.totalRevenue)}</p>
+                <p className="text-xs text-gray-400 uppercase">Receita Total</p>
+                <p className="text-xl font-bold text-green-400">{formatCurrency(stats.totalRevenue)}</p>
               </div>
-              <DollarSign className="h-6 w-6 text-green-500" />
+              <DollarSign className="h-6 w-6 text-green-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground uppercase">Receita Mensal</p>
-                <p className="text-xl font-bold text-primary">{formatCurrency(stats.monthlyRevenue)}</p>
+                <p className="text-xs text-gray-400 uppercase">Receita Mensal</p>
+                <p className="text-xl font-bold text-blue-400">{formatCurrency(stats.monthlyRevenue)}</p>
                 {stats.revenueGrowth !== 0 && (
-                  <div className={`flex items-center text-xs ${stats.revenueGrowth > 0 ? 'text-green-500' : 'text-destructive'}`}>
+                  <div className={`flex items-center text-xs ${stats.revenueGrowth > 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {stats.revenueGrowth > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                     {Math.abs(stats.revenueGrowth).toFixed(1)}%
                   </div>
                 )}
               </div>
-              <TrendingUp className="h-6 w-6 text-primary" />
+              <TrendingUp className="h-6 w-6 text-blue-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground uppercase">Assinaturas Ativas</p>
-                <p className="text-xl font-bold">{stats.activeSubscriptions}</p>
+                <p className="text-xs text-gray-400 uppercase">Assinaturas Ativas</p>
+                <p className="text-xl font-bold text-white">{stats.activeSubscriptions}</p>
               </div>
-              <Users className="h-6 w-6 text-blue-500" />
+              <Users className="h-6 w-6 text-blue-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground uppercase">Em Teste</p>
-                <p className="text-xl font-bold text-cyan-500">{stats.trialUsers}</p>
+                <p className="text-xs text-gray-400 uppercase">Em Teste</p>
+                <p className="text-xl font-bold text-cyan-400">{stats.trialUsers}</p>
               </div>
-              <TestTube className="h-6 w-6 text-cyan-500" />
+              <TestTube className="h-6 w-6 text-cyan-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground uppercase">Conversão</p>
-                <p className="text-xl font-bold text-purple-500">{stats.conversionRate.toFixed(1)}%</p>
+                <p className="text-xs text-gray-400 uppercase">Conversão</p>
+                <p className="text-xl font-bold text-purple-400">{stats.conversionRate.toFixed(1)}%</p>
               </div>
-              <BarChart3 className="h-6 w-6 text-purple-500" />
+              <BarChart3 className="h-6 w-6 text-purple-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground uppercase">Ticket Médio</p>
-                <p className="text-xl font-bold">{formatCurrency(stats.avgTicket)}</p>
+                <p className="text-xs text-gray-400 uppercase">Ticket Médio</p>
+                <p className="text-xl font-bold text-yellow-400">{formatCurrency(stats.avgTicket)}</p>
               </div>
-              <Wallet className="h-6 w-6 text-amber-500" />
+              <Wallet className="h-6 w-6 text-yellow-400" />
             </div>
           </CardContent>
         </Card>
@@ -376,20 +376,20 @@ export const FinancialDashboard = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 bg-muted">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-4 bg-gray-800 border border-gray-700">
+          <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-gray-700">
             <PieChart className="h-4 w-4" />
             <span className="hidden sm:inline">Visão Geral</span>
           </TabsTrigger>
-          <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+          <TabsTrigger value="subscriptions" className="flex items-center gap-2 data-[state=active]:bg-gray-700">
             <CreditCard className="h-4 w-4" />
             <span className="hidden sm:inline">Assinaturas</span>
           </TabsTrigger>
-          <TabsTrigger value="payments" className="flex items-center gap-2">
+          <TabsTrigger value="payments" className="flex items-center gap-2 data-[state=active]:bg-gray-700">
             <DollarSign className="h-4 w-4" />
             <span className="hidden sm:inline">Pagamentos PIX</span>
           </TabsTrigger>
-          <TabsTrigger value="plans" className="flex items-center gap-2">
+          <TabsTrigger value="plans" className="flex items-center gap-2 data-[state=active]:bg-gray-700">
             <Settings className="h-4 w-4" />
             <span className="hidden sm:inline">Planos</span>
           </TabsTrigger>
@@ -398,66 +398,66 @@ export const FinancialDashboard = () => {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
+            <Card className="bg-gray-800 border-gray-700">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-primary" />
+                <CardTitle className="text-sm flex items-center gap-2 text-white">
+                  <CreditCard className="h-4 w-4 text-blue-400" />
                   Resumo de Assinaturas
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Ativas (Pagas)</span>
+                  <span className="text-gray-400">Ativas (Pagas)</span>
                   <Badge className="bg-green-600">{stats.paidUsers}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Em Teste</span>
+                  <span className="text-gray-400">Em Teste</span>
                   <Badge className="bg-cyan-500">{stats.trialUsers}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Expiradas</span>
+                  <span className="text-gray-400">Expiradas</span>
                   <Badge variant="destructive">{stats.expiredSubscriptions}</Badge>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t">
-                  <span className="font-medium">Total</span>
-                  <span className="font-bold">{subscriptions.length}</span>
+                <div className="flex justify-between items-center pt-2 border-t border-gray-700">
+                  <span className="font-medium text-white">Total</span>
+                  <span className="font-bold text-white">{subscriptions.length}</span>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gray-800 border-gray-700">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-primary" />
+                <CardTitle className="text-sm flex items-center gap-2 text-white">
+                  <DollarSign className="h-4 w-4 text-green-400" />
                   Resumo de Pagamentos
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Aprovados</span>
+                  <span className="text-gray-400">Aprovados</span>
                   <Badge className="bg-green-600">{pixPayments.filter(p => p.status === 'approved').length}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Pendentes</span>
+                  <span className="text-gray-400">Pendentes</span>
                   <Badge className="bg-blue-600">{stats.pendingPayments}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Rejeitados</span>
+                  <span className="text-gray-400">Rejeitados</span>
                   <Badge variant="destructive">{pixPayments.filter(p => p.status === 'rejected' || p.status === 'cancelled').length}</Badge>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t">
-                  <span className="font-medium">Total</span>
-                  <span className="font-bold">{pixPayments.length}</span>
+                <div className="flex justify-between items-center pt-2 border-t border-gray-700">
+                  <span className="font-medium text-white">Total</span>
+                  <span className="font-bold text-white">{pixPayments.length}</span>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Recent Activity */}
-          <Card>
+          <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Clock className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm flex items-center gap-2 text-white">
+                <Clock className="h-4 w-4 text-purple-400" />
                 Últimas Atividades
               </CardTitle>
             </CardHeader>
@@ -468,19 +468,19 @@ export const FinancialDashboard = () => {
                     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                     .slice(0, 10)
                     .map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-700/50 rounded-lg">
                         {'payment_id' in item ? (
                           <>
                             <div className="flex items-center gap-3">
-                              <DollarSign className="h-4 w-4 text-green-500" />
+                              <DollarSign className="h-4 w-4 text-green-400" />
                               <div>
-                                <p className="text-sm font-medium">Pagamento PIX</p>
-                                <p className="text-xs text-muted-foreground">{item.payer_email}</p>
+                                <p className="text-sm font-medium text-white">Pagamento PIX</p>
+                                <p className="text-xs text-gray-400">{item.payer_email}</p>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm font-medium">{formatCurrency(item.transaction_amount)}</p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-sm font-medium text-green-400">{formatCurrency(item.transaction_amount)}</p>
+                              <p className="text-xs text-gray-500">
                                 {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: ptBR })}
                               </p>
                             </div>
@@ -488,15 +488,15 @@ export const FinancialDashboard = () => {
                         ) : (
                           <>
                             <div className="flex items-center gap-3">
-                              <CreditCard className="h-4 w-4 text-blue-500" />
+                              <CreditCard className="h-4 w-4 text-blue-400" />
                               <div>
-                                <p className="text-sm font-medium">Nova Assinatura</p>
-                                <p className="text-xs text-muted-foreground">{(item as SubscriptionData).user_email}</p>
+                                <p className="text-sm font-medium text-white">Nova Assinatura</p>
+                                <p className="text-xs text-gray-400">{(item as SubscriptionData).user_email}</p>
                               </div>
                             </div>
                             <div className="text-right">
                               {getPlanBadge((item as SubscriptionData).plan_type, (item as SubscriptionData).is_active, (item as SubscriptionData).expires_at)}
-                              <p className="text-xs text-muted-foreground mt-1">
+                              <p className="text-xs text-gray-500 mt-1">
                                 {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: ptBR })}
                               </p>
                             </div>

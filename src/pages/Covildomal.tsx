@@ -35,6 +35,7 @@ import { FeatureFlagsPanel } from '@/components/admin/FeatureFlagsPanel';
 import { FinancialDashboard } from '@/components/admin/FinancialDashboard';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { MaintenanceDashboard } from '@/components/admin/MaintenanceDashboard';
+import { PlansManagement } from '@/components/admin/PlansManagement';
 
 const Covildomal = () => {
   const navigate = useNavigate();
@@ -122,8 +123,9 @@ const Covildomal = () => {
       case 'usuarios':
         return <UserManagement />;
       case 'financeiro':
-      case 'planos':
         return <FinancialDashboard />;
+      case 'planos':
+        return <PlansManagement />;
       case 'conteudo':
         return (
           <Card className="bg-gray-800 border-gray-700">
