@@ -74,7 +74,6 @@ interface MenuItem {
   icon: React.ElementType;
   badge?: string | number;
   requiredRole?: AdminRole;
-  description?: string;
 }
 
 interface AdminSidebarProps {
@@ -94,9 +93,9 @@ const menuGroups: MenuGroup[] = [
     label: 'Visão Geral',
     icon: LayoutDashboard,
     items: [
-      { id: 'dashboard', title: 'Dashboard', icon: LayoutDashboard, description: 'Resumo do sistema' },
-      { id: 'online', title: 'Usuários Online', icon: Wifi, description: 'Monitorar sessões ativas' },
-      { id: 'analytics', title: 'Analytics', icon: BarChart3, description: 'Métricas e relatórios' },
+      { id: 'dashboard', title: 'Dashboard', icon: LayoutDashboard },
+      { id: 'analytics', title: 'Analytics', icon: BarChart3 },
+      { id: 'online', title: 'Online', icon: Wifi },
     ]
   },
   {
@@ -104,7 +103,7 @@ const menuGroups: MenuGroup[] = [
     label: 'Usuários',
     icon: Users,
     items: [
-      { id: 'usuarios', title: 'Gerenciar Usuários', icon: Users, description: 'Cadastro e permissões' },
+      { id: 'usuarios', title: 'Gerenciar', icon: Users },
     ],
     requiredRole: 'suporte'
   },
@@ -113,8 +112,8 @@ const menuGroups: MenuGroup[] = [
     label: 'Financeiro',
     icon: DollarSign,
     items: [
-      { id: 'financeiro', title: 'Dashboard Financeiro', icon: DollarSign, description: 'Receitas e pagamentos' },
-      { id: 'planos', title: 'Configurar Planos', icon: Settings, requiredRole: 'admin_master', description: 'Gerenciar planos' },
+      { id: 'financeiro', title: 'Dashboard', icon: DollarSign },
+      { id: 'planos', title: 'Planos', icon: CreditCard, requiredRole: 'admin_master' },
     ],
     requiredRole: 'admin_operacional'
   },
@@ -123,8 +122,8 @@ const menuGroups: MenuGroup[] = [
     label: 'Conteúdo',
     icon: FileText,
     items: [
-      { id: 'landing', title: 'Landing Page', icon: Image, description: 'Editar página inicial' },
-      { id: 'conteudo', title: 'CMS / Blog', icon: FileText, description: 'Artigos e posts' },
+      { id: 'landing', title: 'Landing', icon: Image },
+      { id: 'conteudo', title: 'Blog', icon: FileText },
     ],
     requiredRole: 'admin_operacional'
   },
@@ -133,7 +132,7 @@ const menuGroups: MenuGroup[] = [
     label: 'Segurança',
     icon: Shield,
     items: [
-      { id: 'seguranca', title: 'Central de Segurança', icon: Shield, description: 'Logs, bloqueios e auditoria' },
+      { id: 'seguranca', title: 'Central', icon: Shield },
     ],
     requiredRole: 'admin_master'
   },
@@ -142,9 +141,9 @@ const menuGroups: MenuGroup[] = [
     label: 'Sistema',
     icon: Server,
     items: [
-      { id: 'sistema', title: 'Configurações', icon: Settings, description: 'Configurações gerais' },
-      { id: 'feature-flags', title: 'Feature Flags', icon: Flag, description: 'Controle de recursos' },
-      { id: 'manutencao', title: 'Manutenção', icon: AlertTriangle, description: 'Backup e manutenção' },
+      { id: 'sistema', title: 'Config', icon: Settings },
+      { id: 'feature-flags', title: 'Features', icon: Flag },
+      { id: 'manutencao', title: 'Manutenção', icon: AlertTriangle },
     ],
     requiredRole: 'admin_master'
   },
@@ -178,8 +177,6 @@ export const AdminSidebar = ({
   const { highestRole, hasMinimumRole, loading: rolesLoading } = useAdminRoles();
   const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({
     overview: true,
-    users: true,
-    financial: true,
   });
 
   const toggleGroup = (groupId: string) => {
@@ -312,29 +309,16 @@ export const AdminSidebar = ({
                               onClick={() => onTabClick(item.id)}
                               isActive={activeTab === item.id}
                               className={cn(
-                                "w-full flex items-center gap-3 px-3 py-2.5 text-left transition-all rounded-lg ml-2",
+                                "w-full flex items-center gap-3 px-3 py-2 text-left transition-colors rounded-md ml-2",
                                 activeTab === item.id
-                                  ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-600/20"
-                                  : "text-gray-300 hover:bg-gray-700/70 hover:text-white hover:translate-x-1"
+                                  ? "bg-red-600 text-white"
+                                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
                               )}
                             >
-                              <item.icon className={cn(
-                                "h-4 w-4 flex-shrink-0",
-                                activeTab === item.id && "drop-shadow-glow"
-                              )} />
-                              <div className="flex-1 min-w-0">
-                                <span className="text-sm font-medium block truncate">{item.title}</span>
-                                {item.description && (
-                                  <span className={cn(
-                                    "text-xs block truncate",
-                                    activeTab === item.id ? "text-red-200" : "text-gray-500"
-                                  )}>
-                                    {item.description}
-                                  </span>
-                                )}
-                              </div>
+                              <item.icon className="h-4 w-4 flex-shrink-0" />
+                              <span className="text-sm">{item.title}</span>
                               {item.badge && (
-                                <Badge variant="secondary" className="ml-auto text-xs flex-shrink-0">
+                                <Badge variant="secondary" className="ml-auto text-xs">
                                   {item.badge}
                                 </Badge>
                               )}
