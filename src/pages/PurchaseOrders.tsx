@@ -10,7 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, ShoppingCart, CalendarIcon, Search, X, Filter, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, CalendarIcon, Search, X, Filter, ChevronDown, DollarSign, Scale } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -195,8 +195,8 @@ const PurchaseOrders = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-gray-900">
-        <header className="bg-pdv-dark text-white p-4 border-b border-gray-700">
+      <div className="flex flex-col h-screen bg-slate-800">
+        <header className="bg-slate-900 text-white p-4 border-b border-slate-700">
           <h1 className="text-2xl font-bold">Materiais Comprados</h1>
         </header>
         <main className="flex-1 flex items-center justify-center">
@@ -207,15 +207,15 @@ const PurchaseOrders = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
-      <header className="bg-pdv-dark text-white p-4 border-b border-gray-700 flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-slate-800">
+      <header className="bg-slate-900 text-white p-4 border-b border-slate-700 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="flex items-center gap-2 hover:text-gray-300">
+          <Link to="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="h-5 w-5" />
-            Voltar ao Dashboard
+            Voltar
           </Link>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <ShoppingCart className="h-6 w-6" />
+            <ShoppingCart className="h-6 w-6 text-emerald-500" />
             Materiais Comprados
           </h1>
         </div>
@@ -223,27 +223,26 @@ const PurchaseOrders = () => {
 
       <main className="flex-1 p-3 md:p-6 overflow-auto">
         {/* Filtros */}
-        <Card className="bg-gray-800 border-gray-700 mb-6">
+        <Card className="bg-slate-700 border-slate-600 mb-6">
           <Collapsible>
             <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-gray-750 transition-colors">
+              <CardHeader className="cursor-pointer hover:bg-slate-600/50 transition-colors">
                 <CardTitle className="text-white flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Filter className="h-5 w-5" />
+                    <Filter className="h-5 w-5 text-emerald-500" />
                     Filtros
                   </div>
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-slate-400" />
                 </CardTitle>
               </CardHeader>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="space-y-4">
-            {/* Filtros de Data */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Período</Label>
+                <Label className="text-slate-400">Período</Label>
                 <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-300">
+                  <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -255,13 +254,13 @@ const PurchaseOrders = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Data Inicial</Label>
+                <Label className="text-slate-400">Data Inicial</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600",
+                        "w-full justify-start text-left font-normal bg-slate-600 border-slate-500 text-white hover:bg-slate-500",
                         !filterStartDate && "text-muted-foreground"
                       )}
                     >
@@ -282,13 +281,13 @@ const PurchaseOrders = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-300">Data Final</Label>
+                <Label className="text-slate-400">Data Final</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600",
+                        "w-full justify-start text-left font-normal bg-slate-600 border-slate-500 text-white hover:bg-slate-500",
                         !filterEndDate && "text-muted-foreground"
                       )}
                     >
@@ -309,14 +308,14 @@ const PurchaseOrders = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-300">Materiais</Label>
+                <Label className="text-slate-400">Materiais</Label>
                 <Popover open={materialSearchOpen} onOpenChange={setMaterialSearchOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       role="combobox"
                       aria-expanded={materialSearchOpen}
-                      className="w-full justify-between bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                      className="w-full justify-between bg-slate-600 border-slate-500 text-white hover:bg-slate-500"
                     >
                       <Search className="mr-2 h-4 w-4" />
                       {selectedMaterials.length > 0 
@@ -361,31 +360,30 @@ const PurchaseOrders = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-300">Ações</Label>
+                <Label className="text-slate-400">Ações</Label>
                 <Button 
                   onClick={clearFilters}
                   variant="outline"
-                  className="w-full bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                  className="w-full bg-slate-600 border-slate-500 text-white hover:bg-slate-500"
                 >
                   Limpar Filtros
                 </Button>
               </div>
             </div>
 
-            {/* Materiais Selecionados */}
             {selectedMaterials.length > 0 && (
               <div className="space-y-2">
-                <Label className="text-gray-300">Materiais Selecionados:</Label>
+                <Label className="text-slate-400">Materiais Selecionados:</Label>
                 <div className="flex flex-wrap gap-2">
                   {selectedMaterials.map((material) => (
                     <div
                       key={material}
-                      className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                      className="bg-emerald-600/20 text-emerald-400 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                     >
                       {material}
                       <button
                         onClick={() => removeMaterial(material)}
-                        className="hover:bg-blue-700 rounded-full p-1"
+                        className="hover:bg-emerald-600/30 rounded-full p-1"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -401,40 +399,43 @@ const PurchaseOrders = () => {
 
         {/* Resumo */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-6">
-          <Card className="bg-green-900 border-green-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="text-xs md:text-sm font-medium text-green-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4 text-emerald-500" />
                 Total de Pedidos
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-xl md:text-2xl xl:text-3xl font-bold text-green-100">
+              <div className="text-xl md:text-2xl xl:text-3xl font-bold text-white">
                 {purchaseOrders.length}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-blue-900 border-blue-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="text-xs md:text-sm font-medium text-blue-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-emerald-500" />
                 Valor Total
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-xl md:text-2xl xl:text-3xl font-bold text-blue-100">
+              <div className="text-xl md:text-2xl xl:text-3xl font-bold text-white">
                 {formatCurrency(totalAmount)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-purple-900 border-purple-700 md:col-span-2 xl:col-span-1">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all md:col-span-2 xl:col-span-1">
             <CardHeader className="pb-2 md:pb-3">
-              <CardTitle className="text-xs md:text-sm font-medium text-purple-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <Scale className="h-4 w-4 text-emerald-500" />
                 Peso Total
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-xl md:text-2xl xl:text-3xl font-bold text-purple-100">
+              <div className="text-xl md:text-2xl xl:text-3xl font-bold text-white">
                 {formatWeight(totalWeight)}
               </div>
             </CardContent>
@@ -442,7 +443,7 @@ const PurchaseOrders = () => {
         </div>
 
         {/* Lista de Pedidos */}
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-slate-700 border-slate-600">
           <CardHeader>
             <CardTitle className="text-white">Lista de Materiais Comprados</CardTitle>
           </CardHeader>
@@ -452,32 +453,32 @@ const PurchaseOrders = () => {
                 <div className="overflow-x-auto">
                   <Table className="table-responsive">
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-white text-xs md:text-sm">Data</TableHead>
-                        <TableHead className="text-white text-xs md:text-sm table-hide-mobile">ID do Pedido</TableHead>
-                        <TableHead className="text-white text-xs md:text-sm">Materiais</TableHead>
-                        <TableHead className="text-white text-xs md:text-sm table-hide-mobile">Peso Total</TableHead>
-                        <TableHead className="text-white text-xs md:text-sm">Valor Total</TableHead>
+                      <TableRow className="border-slate-600">
+                        <TableHead className="text-slate-300 text-xs md:text-sm">Data</TableHead>
+                        <TableHead className="text-slate-300 text-xs md:text-sm table-hide-mobile">ID do Pedido</TableHead>
+                        <TableHead className="text-slate-300 text-xs md:text-sm">Materiais</TableHead>
+                        <TableHead className="text-slate-300 text-xs md:text-sm table-hide-mobile">Peso Total</TableHead>
+                        <TableHead className="text-slate-300 text-xs md:text-sm">Valor Total</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {paginatedOrders.map((order) => (
-                        <TableRow key={order.id} className="border-gray-600">
-                          <TableCell className="text-gray-300 text-xs md:text-sm p-2 md:p-4">
+                        <TableRow key={order.id} className="border-slate-600 hover:bg-slate-600/30">
+                          <TableCell className="text-slate-300 text-xs md:text-sm p-2 md:p-4">
                             {formatDate(order.timestamp)}
                           </TableCell>
-                          <TableCell className="text-gray-300 font-mono text-xs md:text-sm p-2 md:p-4 table-hide-mobile">
+                          <TableCell className="text-slate-400 font-mono text-xs md:text-sm p-2 md:p-4 table-hide-mobile">
                             {order.id.substring(0, 8)}
                           </TableCell>
-                          <TableCell className="text-gray-300 text-xs md:text-sm p-2 md:p-4">
+                          <TableCell className="text-slate-300 text-xs md:text-sm p-2 md:p-4">
                             <div className="truncate max-w-[120px] md:max-w-none">
                               {order.items.map(item => item.materialName).join(', ')}
                             </div>
                           </TableCell>
-                          <TableCell className="text-gray-300 text-xs md:text-sm p-2 md:p-4 table-hide-mobile">
+                          <TableCell className="text-slate-300 text-xs md:text-sm p-2 md:p-4 table-hide-mobile">
                             {formatWeight(order.items.reduce((sum, item) => sum + item.quantity, 0))}
                           </TableCell>
-                          <TableCell className="text-gray-300 font-semibold text-xs md:text-sm p-2 md:p-4">
+                          <TableCell className="text-white font-semibold text-xs md:text-sm p-2 md:p-4">
                             {formatCurrency(order.total)}
                           </TableCell>
                         </TableRow>
@@ -511,7 +512,7 @@ const PurchaseOrders = () => {
                               <React.Fragment key={page}>
                                 {showEllipsisBefore && (
                                   <PaginationItem>
-                                    <span className="px-4 py-2 text-gray-400">...</span>
+                                    <span className="px-4 py-2 text-slate-400">...</span>
                                   </PaginationItem>
                                 )}
                                 <PaginationItem>
@@ -540,7 +541,7 @@ const PurchaseOrders = () => {
                 )}
               </>
             ) : (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-slate-400">
                 {selectedMaterials.length > 0 || filterStartDate || filterEndDate
                   ? "Nenhum material encontrado com os filtros aplicados."
                   : loading ? "Selecione um período para carregar os dados." : "Nenhum material comprado encontrado no período selecionado."

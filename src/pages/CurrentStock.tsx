@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { ArrowLeft, Archive, Search, Calendar as CalendarIcon, Filter, X, Trash2 } from 'lucide-react';
+import { ArrowLeft, Archive, Search, Calendar as CalendarIcon, Filter, X, Trash2, Package, TrendingUp, DollarSign, Scale } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -86,7 +86,6 @@ const CurrentStock = () => {
   };
 
   const handleStockCleared = () => {
-    // Recarregar dados após zerar estoque
     loadData();
   };
 
@@ -108,7 +107,6 @@ const CurrentStock = () => {
   const { filteredStockData, totalStockData, filteredTotals } = useMemo(() => {
     const materialStocks: { [key: string]: MaterialStock } = {};
 
-    // PRIMEIRO: Calcular estoque atual total (sem filtro de período)
     orders.forEach(order => {
       if (order.status === 'completed') {
         order.items.forEach(item => {
@@ -138,17 +136,14 @@ const CurrentStock = () => {
       }
     });
 
-    // Verificar se há filtros aplicados
     const hasActiveFilters = selectedPeriod || filterStartDate || filterEndDate || selectedMaterials.length > 0;
 
-    // SEGUNDO: Filtrar pedidos por período (apenas se há filtros)
     const filteredOrders = hasActiveFilters ? orders.filter(order => {
       if (order.status !== 'completed') return false;
       
       const orderDate = new Date(order.timestamp);
       const now = new Date();
       
-      // Aplicar filtro de período se especificado
       if (selectedPeriod) {
         let periodStartDate: Date;
         
@@ -176,7 +171,6 @@ const CurrentStock = () => {
         if (orderDate < periodStartDate) return false;
       }
       
-      // Aplicar filtro de data customizada se especificado
       if (filterStartDate) {
         const startOfDay = new Date(filterStartDate);
         startOfDay.setHours(0, 0, 0, 0);
@@ -192,10 +186,8 @@ const CurrentStock = () => {
       return true;
     }) : [];
 
-    // TERCEIRO: Adicionar transações do período filtrado e calcular totais do período
     const filteredPeriodTotals: { [key: string]: { weight: number; value: number; profit: number; materialsCount: number } } = {};
 
-    // Só processar se há filtros ativos
     if (hasActiveFilters) {
       filteredOrders.forEach(order => {
         order.items.forEach(item => {
@@ -208,7 +200,6 @@ const CurrentStock = () => {
               total: item.total
             });
 
-            // Calcular totais do período filtrado
             if (!filteredPeriodTotals[item.materialName]) {
               filteredPeriodTotals[item.materialName] = { weight: 0, value: 0, profit: 0, materialsCount: 0 };
             }
@@ -227,7 +218,6 @@ const CurrentStock = () => {
       });
     }
 
-    // QUARTO: Calcular valores e projeções baseados no estoque atual
     Object.values(materialStocks).forEach(stock => {
       if (stock.currentStock > 0) {
         stock.totalValue = stock.currentStock * stock.purchasePrice;
@@ -239,10 +229,8 @@ const CurrentStock = () => {
 
     const totalStockData = Object.values(materialStocks);
     
-    // QUINTO: Aplicar filtros de materiais específicos
     let filteredStockData = Object.values(materialStocks);
     
-    // Filtro por materiais específicos selecionados
     if (selectedMaterials.length > 0) {
       filteredStockData = filteredStockData.filter(stock => 
         selectedMaterials.some(selectedMaterial => 
@@ -251,8 +239,6 @@ const CurrentStock = () => {
       );
     }
 
-    // SEXTO: Calcular totais dos dados filtrados baseado APENAS no período filtrado
-    // Se não há filtros ativos, zerar todos os valores
     const filteredTotals = hasActiveFilters ? {
       totalWeight: Object.values(filteredPeriodTotals)
         .filter((_, index) => {
@@ -351,8 +337,8 @@ const CurrentStock = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-gray-900">
-        <header className="bg-pdv-dark text-white p-4 border-b border-gray-700">
+      <div className="flex flex-col h-screen bg-slate-800">
+        <header className="bg-slate-900 text-white p-4 border-b border-slate-700">
           <h1 className="text-2xl font-bold">Estoque Atual</h1>
         </header>
         <main className="flex-1 flex items-center justify-center">
@@ -363,15 +349,15 @@ const CurrentStock = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900">
-      <header className="bg-pdv-dark text-white p-4 border-b border-gray-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="flex flex-col min-h-screen bg-slate-800">
+      <header className="bg-slate-900 text-white p-4 border-b border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="flex items-center gap-2 hover:text-gray-300">
+          <Link to="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Voltar ao Dashboard</span>
+            <span className="hidden sm:inline">Voltar</span>
           </Link>
           <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-            <Archive className="h-6 w-6" />
+            <Archive className="h-6 w-6 text-emerald-500" />
             Estoque Atual
           </h1>
         </div>
@@ -380,7 +366,7 @@ const CurrentStock = () => {
           onClick={handleClearStockRequest}
           size="sm"
           variant="outline"
-          className="bg-red-900/20 border-red-600 text-red-400 hover:bg-red-900/40 hover:text-red-300 text-xs px-3 py-1"
+          className="bg-rose-900/20 border-rose-600 text-rose-400 hover:bg-rose-900/40 hover:text-rose-300 text-xs px-3 py-1"
         >
           <Trash2 className="h-3 w-3 mr-1" />
           Zerar Estoque
@@ -388,29 +374,29 @@ const CurrentStock = () => {
       </header>
 
       <main className="flex-1 p-3 sm:p-6 overflow-auto">
-        {/* Filtros em Dropdown */}
+        {/* Filtros */}
         <div className="mb-6">
           <Popover open={showFilters} onOpenChange={setShowFilters}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 flex items-center gap-2"
+                className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600 flex items-center gap-2"
               >
                 <Filter className="h-4 w-4" />
                 Filtros
                 {(selectedPeriod || filterStartDate || filterEndDate || selectedMaterials.length > 0) && (
-                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                  <span className="bg-emerald-600 text-white text-xs px-2 py-1 rounded-full">
                     {[selectedPeriod, filterStartDate, filterEndDate, ...selectedMaterials].filter(Boolean).length}
                   </span>
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-4 bg-gray-800 border-gray-700" align="start">
+            <PopoverContent className="w-80 p-4 bg-slate-800 border-slate-700" align="start">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Período</Label>
+                  <Label className="text-slate-300">Período</Label>
                   <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                    <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-300">
+                    <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-300">
                       <SelectValue placeholder="Selecionar período" />
                     </SelectTrigger>
                     <SelectContent>
@@ -423,13 +409,13 @@ const CurrentStock = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Data Inicial</Label>
+                  <Label className="text-slate-300">Data Inicial</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600",
+                          "w-full justify-start text-left font-normal bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600",
                           !filterStartDate && "text-muted-foreground"
                         )}
                       >
@@ -450,13 +436,13 @@ const CurrentStock = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Data Final</Label>
+                  <Label className="text-slate-300">Data Final</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600",
+                          "w-full justify-start text-left font-normal bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600",
                           !filterEndDate && "text-muted-foreground"
                         )}
                       >
@@ -477,18 +463,18 @@ const CurrentStock = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Materiais</Label>
+                  <Label className="text-slate-300">Materiais</Label>
                   <Popover open={materialSearchOpen} onOpenChange={setMaterialSearchOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
                         aria-expanded={materialSearchOpen}
-                        className="w-full justify-between bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                        className="w-full justify-between bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600"
                       >
                         <Search className="mr-2 h-4 w-4" />
                         {selectedMaterials.length > 0 
-                          ? `${selectedMaterials.length} material(is) selecionado(s)`
+                          ? `${selectedMaterials.length} material(is)` 
                           : "Selecionar materiais"
                         }
                       </Button>
@@ -496,323 +482,263 @@ const CurrentStock = () => {
                     <PopoverContent className="w-full p-0">
                       <Command>
                         <CommandInput 
-                          placeholder="Pesquisar material..." 
+                          placeholder="Buscar material..." 
                           value={materialSearchValue}
                           onValueChange={setMaterialSearchValue}
                         />
-                        <CommandEmpty>Nenhum material encontrado.</CommandEmpty>
-                        <CommandGroup>
-                          <CommandList>
+                        <CommandList>
+                          <CommandEmpty>Nenhum material encontrado.</CommandEmpty>
+                          <CommandGroup>
                             {uniqueMaterials
                               .filter(material => 
                                 material.toLowerCase().includes(materialSearchValue.toLowerCase())
                               )
                               .map((material) => (
-                              <CommandItem
-                                key={material}
-                                value={material}
-                                onSelect={() => {
-                                  setSelectedMaterials(prev =>
-                                    prev.includes(material)
-                                      ? prev.filter(m => m !== material)
-                                      : [...prev, material]
-                                  );
-                                }}
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedMaterials.includes(material)}
-                                    readOnly
-                                    className="h-4 w-4"
-                                  />
-                                  <span>{material}</span>
-                                </div>
-                              </CommandItem>
-                            ))}
-                          </CommandList>
-                        </CommandGroup>
+                                <CommandItem
+                                  key={material}
+                                  value={material}
+                                  onSelect={() => {
+                                    if (!selectedMaterials.includes(material)) {
+                                      setSelectedMaterials(prev => [...prev, material]);
+                                    }
+                                    setMaterialSearchValue('');
+                                  }}
+                                >
+                                  {material}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
                 </div>
 
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={clearFilters}
-                    variant="outline"
-                    className="flex-1 bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
-                  >
-                    Limpar Filtros
-                  </Button>
-                  <Button 
-                    onClick={() => setShowFilters(false)}
-                    className="flex-1"
-                  >
-                    Aplicar
-                  </Button>
-                </div>
-
                 {selectedMaterials.length > 0 && (
-                  <div className="space-y-2">
-                    <span className="text-sm text-gray-300">Materiais selecionados:</span>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedMaterials.map(material => (
-                        <div key={material} className="flex items-center gap-1 bg-blue-900 text-blue-200 px-2 py-1 rounded-md text-sm">
-                          <span>{material}</span>
-                          <button
-                            onClick={() => removeMaterial(material)}
-                            className="ml-1 hover:text-white"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedMaterials.map((material) => (
+                      <span
+                        key={material}
+                        className="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded-full text-xs flex items-center gap-1"
+                      >
+                        {material}
+                        <button onClick={() => removeMaterial(material)}>
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
                   </div>
                 )}
+
+                <Button onClick={clearFilters} variant="outline" className="w-full bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600">
+                  Limpar Filtros
+                </Button>
               </div>
             </PopoverContent>
           </Popover>
         </div>
 
-        {/* Cards de Resumo */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          <Card className="bg-blue-900 border-blue-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">
-                {selectedPeriod || filterStartDate || filterEndDate || selectedMaterials.length > 0 
-                  ? "Peso Bruto (Período Filtrado)" 
-                  : "Peso Bruto (Período Filtrado)"}
+        {/* Cards de Resumo - Estoque Total */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <Scale className="h-4 w-4 text-emerald-500" />
+                Peso Total
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-blue-100">
-                {formatWeight(filteredTotals.totalWeight)}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-green-900 border-green-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">
-                {selectedPeriod || filterStartDate || filterEndDate || selectedMaterials.length > 0 
-                  ? "Tipos de Materiais (Filtrados)" 
-                  : "Tipos de Materiais (Filtrados)"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-green-100">
-                {filteredTotals.materialsCount}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-yellow-900 border-yellow-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">
-                {selectedPeriod || filterStartDate || filterEndDate || selectedMaterials.length > 0 
-                  ? "Valor Total (Período Filtrado)" 
-                  : "Valor Total (Período Filtrado)"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-yellow-100">
-                {formatCurrency(filteredTotals.totalValue)}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-purple-900 border-purple-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">
-                {selectedPeriod || filterStartDate || filterEndDate || selectedMaterials.length > 0 
-                  ? "Projeção de Lucro (Filtrado)" 
-                  : "Projeção de Lucro (Filtrado)"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-purple-100">
-                {formatCurrency(filteredTotals.totalProfitProjection)}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Cards de Resumo do Estoque Atual Total */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          <Card className="bg-blue-900 border-blue-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">Estoque Atual - Peso Total</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-blue-100">
+              <div className="text-xl md:text-2xl font-bold text-white">
                 {formatWeight(totalWeight)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-green-900 border-green-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">Estoque Atual - Tipos</CardTitle>
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <Package className="h-4 w-4 text-emerald-500" />
+                Materiais
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-green-100">
+              <div className="text-xl md:text-2xl font-bold text-white">
                 {materialsInStock}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-yellow-900 border-yellow-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">Estoque Atual - Valor</CardTitle>
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-emerald-500" />
+                Valor Total
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-yellow-100">
+              <div className="text-xl md:text-2xl font-bold text-white">
                 {formatCurrency(totalStockValue)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-purple-900 border-purple-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-sm font-medium">Estoque Atual - Projeção</CardTitle>
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                Projeção Lucro
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg md:text-xl xl:text-2xl font-bold text-purple-100">
+              <div className={`text-xl md:text-2xl font-bold ${totalProfitProjection >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatCurrency(totalProfitProjection)}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Materiais em Estoque - Lista Mobile-Friendly */}
-        <Card className="mb-6 bg-gray-800 border-gray-700">
+        {/* Cards Período Filtrado */}
+        {(selectedPeriod || filterStartDate || filterEndDate || selectedMaterials.length > 0) && (
+          <div className="mb-6">
+            <h3 className="text-slate-400 text-sm mb-3 font-medium">Período Filtrado</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              <Card className="bg-slate-700/50 border-slate-600">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-slate-500">Peso</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-bold text-white">{formatWeight(filteredTotals.totalWeight)}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-slate-700/50 border-slate-600">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-slate-500">Materiais</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-bold text-white">{filteredTotals.materialsCount}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-slate-700/50 border-slate-600">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-slate-500">Valor</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-bold text-white">{formatCurrency(filteredTotals.totalValue)}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-slate-700/50 border-slate-600">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-slate-500">Lucro</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-lg font-bold ${filteredTotals.totalProfitProjection >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {formatCurrency(filteredTotals.totalProfitProjection)}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de Materiais em Estoque */}
+        <Card className="bg-slate-700 border-slate-600 mb-6">
           <CardHeader>
-            <CardTitle className="text-white">Materiais em Estoque</CardTitle>
+            <CardTitle className="text-white text-lg">Materiais em Estoque</CardTitle>
           </CardHeader>
           <CardContent>
             {filteredStockData.filter(stock => stock.currentStock > 0).length > 0 ? (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {filteredStockData
                   .filter(stock => stock.currentStock > 0)
-                  .map(stock => {
-                    const percentage = totalWeight > 0 ? (stock.currentStock / totalWeight * 100) : 0;
-                    return (
-                      <div 
-                        key={stock.materialName}
-                        onClick={() => handleMaterialClick(stock)}
-                        className="p-4 bg-gray-700 rounded-lg border border-gray-600 cursor-pointer hover:bg-gray-600 transition-colors"
-                      >
-                        <div className="flex flex-col space-y-3">
-                          {/* Material Name */}
-                          <div>
-                            <h3 className="font-medium text-white text-lg">{stock.materialName}</h3>
-                          </div>
-                          
-                          {/* Weight and percentage */}
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-300">Peso em Estoque:</span>
-                            <span className="text-white font-medium">
-                              {formatWeight(stock.currentStock)}
-                            </span>
-                          </div>
-                          
-                          {/* Progress bar for percentage */}
-                          <div className="space-y-1">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-300 text-sm">Percentual do Total:</span>
-                              <span className="text-gray-300 text-sm">{percentage.toFixed(1)}%</span>
-                            </div>
-                            <div className="w-full bg-gray-600 rounded-full h-2">
-                              <div 
-                                className="bg-blue-500 h-2 rounded-full transition-all" 
-                                style={{width: `${Math.min(percentage, 100)}%`}}
-                              />
-                            </div>
-                          </div>
-                          
-                          {/* Additional info on mobile */}
-                          <div className="grid grid-cols-2 gap-3 text-sm">
-                            <div>
-                              <span className="text-gray-400">Valor Total:</span>
-                              <div className="text-white font-medium">{formatCurrency(stock.totalValue)}</div>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Projeção:</span>
-                              <div className="text-green-400 font-medium">{formatCurrency(stock.profitProjection)}</div>
-                            </div>
-                          </div>
-                          
-                          {/* Tap hint */}
-                          <div className="text-center text-xs text-gray-500 mt-2 border-t border-gray-600 pt-2">
-                            Toque para ver detalhes completos
-                          </div>
+                  .map((stock) => (
+                    <div
+                      key={stock.materialName}
+                      onClick={() => handleMaterialClick(stock)}
+                      className="bg-slate-800 border border-slate-600 rounded-lg p-4 cursor-pointer hover:border-emerald-500/50 transition-all"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="text-white font-medium text-sm truncate">{stock.materialName}</h4>
+                        <span className="text-emerald-400 font-bold text-sm">{formatWeight(stock.currentStock)}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-400">Valor:</span>
+                          <span className="text-slate-300">{formatCurrency(stock.totalValue)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-400">Lucro Proj.:</span>
+                          <span className={stock.profitProjection >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                            {formatCurrency(stock.profitProjection)}
+                          </span>
                         </div>
                       </div>
-                    );
-                  })}
+                      <div className="mt-2 h-1 bg-slate-600 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-emerald-500 rounded-full"
+                          style={{ width: `${Math.min((stock.currentStock / Math.max(...filteredStockData.map(s => s.currentStock))) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-400">
-                Nenhum material em estoque encontrado.
+              <div className="text-center py-8 text-slate-400">
+                Nenhum material em estoque.
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Materiais com Estoque Zerado */}
+        {/* Materiais com Estoque Zero */}
         {filteredStockData.filter(stock => stock.currentStock <= 0).length > 0 && (
-          <Card className="mt-6 bg-red-900 border-red-700">
+          <Card className="bg-slate-700/50 border-slate-600">
             <CardHeader>
-              <CardTitle className="text-white">Materiais com Estoque Zerado</CardTitle>
+              <CardTitle className="text-slate-400 text-sm">Estoque Zero ou Negativo</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
                 {filteredStockData
                   .filter(stock => stock.currentStock <= 0)
-                  .map(stock => (
-                    <div key={stock.materialName} className="flex justify-between items-center p-3 bg-red-800 rounded-lg">
-                      <div>
-                        <span className="text-white font-medium">{stock.materialName}</span>
-                        <div className="text-red-200 text-sm">
-                          Estoque: {formatWeight(stock.currentStock)}
-                        </div>
-                      </div>
-                      {stock.transactions.length > 0 && (
-                        <div className="text-red-200 text-sm">
-                          Última transação: {formatDate(stock.transactions[0].date)}
-                        </div>
-                      )}
-                    </div>
+                  .map((stock) => (
+                    <span
+                      key={stock.materialName}
+                      className="bg-slate-800 text-slate-400 px-3 py-1 rounded-full text-xs"
+                    >
+                      {stock.materialName}: {formatWeight(stock.currentStock)}
+                    </span>
                   ))}
               </div>
             </CardContent>
           </Card>
         )}
       </main>
-      
-      {/* Modais */}
+
+      {/* Modals */}
       <PasswordPromptModal
         open={showPasswordModal}
         onOpenChange={setShowPasswordModal}
         onAuthenticated={handlePasswordAuthenticated}
-        title="Autenticação para Zerar Estoque"
-        description="Digite sua senha para confirmar a operação de zerar estoque"
+        title="Autenticação Necessária"
+        description="Digite a senha para zerar o estoque"
       />
-      
+
       <ClearStockModal
         open={showClearStockModal}
         onOpenChange={setShowClearStockModal}
         onStockCleared={handleStockCleared}
       />
-      
-      <MaterialDetailsModal
-        open={showMaterialDetails}
-        onOpenChange={setShowMaterialDetails}
-        material={selectedMaterial}
-        totalWeight={totalWeight}
-      />
+
+      {selectedMaterial && (
+        <MaterialDetailsModal
+          open={showMaterialDetails}
+          onOpenChange={(open) => {
+            setShowMaterialDetails(open);
+            if (!open) setSelectedMaterial(null);
+          }}
+          material={selectedMaterial}
+          totalWeight={selectedMaterial.currentStock}
+        />
+      )}
     </div>
   );
 };

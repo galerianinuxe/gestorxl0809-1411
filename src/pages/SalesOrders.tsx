@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, DollarSign, Filter, ChevronDown } from 'lucide-react';
+import { ArrowLeft, DollarSign, Filter, ChevronDown, Scale, FileText, TrendingUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { getOrders, getMaterials } from '@/utils/supabaseStorage';
 import { Order } from '@/types/pdv';
@@ -26,14 +26,12 @@ const SalesOrders = () => {
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Filtros e paginação
   const [selectedPeriod, setSelectedPeriod] = useState('mensal');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 30;
 
   useEffect(() => {
     const loadData = async () => {
-      // Não carregar dados automaticamente - só quando necessário  
       if (!selectedPeriod) {
         setLoading(false);
         return;
@@ -58,7 +56,6 @@ const SalesOrders = () => {
   }, [selectedPeriod]);
 
   const salesData = useMemo(() => {
-    // Filtrar por período
     const now = new Date();
     let filterStartDate: Date;
     let filterEndDate: Date = new Date(now);
@@ -98,7 +95,6 @@ const SalesOrders = () => {
              orderDate <= filterEndDate;
     });
 
-    // Criar lista de itens vendidos com informações detalhadas
     const salesItems: Array<{
       orderId: string;
       date: number;
@@ -131,12 +127,11 @@ const SalesOrders = () => {
 
     return {
       salesItems: salesItems.sort((a, b) => b.date - a.date),
-      salesOrders: salesOrders, // Adicionar pedidos também para contagem
-      salesOrdersCount: salesOrders.length // Contagem correta de transações
+      salesOrders: salesOrders,
+      salesOrdersCount: salesOrders.length
     };
   }, [orders, materials, startDate, endDate, selectedPeriod]);
 
-  // Cálculos de paginação
   const totalPages = Math.ceil(salesData.salesItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -163,8 +158,8 @@ const SalesOrders = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-gray-900">
-        <header className="bg-pdv-dark text-white p-4 border-b border-gray-700">
+      <div className="flex flex-col h-screen bg-slate-800">
+        <header className="bg-slate-900 text-white p-4 border-b border-slate-700">
           <h1 className="text-2xl font-bold">Vendas Realizadas</h1>
         </header>
         <main className="flex-1 flex items-center justify-center">
@@ -175,15 +170,15 @@ const SalesOrders = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
-      <header className="bg-pdv-dark text-white p-4 border-b border-gray-700 flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-slate-800">
+      <header className="bg-slate-900 text-white p-4 border-b border-slate-700 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="flex items-center gap-2 hover:text-gray-300">
+          <Link to="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="h-5 w-5" />
-            Voltar ao Dashboard
+            Voltar
           </Link>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <DollarSign className="h-6 w-6" />
+            <DollarSign className="h-6 w-6 text-emerald-500" />
             Vendas Realizadas
           </h1>
         </div>
@@ -191,37 +186,37 @@ const SalesOrders = () => {
 
       <main className="flex-1 p-6 overflow-auto">
         {/* Filtros */}
-        <Card className="mb-6 bg-gray-800 border-gray-700">
+        <Card className="mb-6 bg-slate-700 border-slate-600">
           <Collapsible>
             <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-gray-750 transition-colors">
+              <CardHeader className="cursor-pointer hover:bg-slate-600/50 transition-colors">
                 <CardTitle className="text-white flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Filter className="h-5 w-5" />
+                    <Filter className="h-5 w-5 text-emerald-500" />
                     Filtros
                   </div>
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-slate-400" />
                 </CardTitle>
               </CardHeader>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Período</label>
-                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-300">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="diario">Diário</SelectItem>
-                    <SelectItem value="semanal">Semanal</SelectItem>
-                    <SelectItem value="mensal">Mensal</SelectItem>
-                    <SelectItem value="anual">Anual</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-400">Período</label>
+                    <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                      <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="diario">Diário</SelectItem>
+                        <SelectItem value="semanal">Semanal</SelectItem>
+                        <SelectItem value="mensal">Mensal</SelectItem>
+                        <SelectItem value="anual">Anual</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </CardContent>
             </CollapsibleContent>
           </Collapsible>
@@ -229,77 +224,65 @@ const SalesOrders = () => {
 
         {/* Resumo */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-green-900 border-green-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-green-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-emerald-500" />
                 Total em Vendas
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-100">
+              <div className="text-2xl font-bold text-white">
                 {formatCurrency(totalSales)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-blue-900 border-blue-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-blue-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <Scale className="h-4 w-4 text-emerald-500" />
                 Peso Total Vendido
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-100">
+              <div className="text-2xl font-bold text-white">
                 {formatWeight(totalWeight)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-purple-900 border-purple-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-purple-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-emerald-500" />
                 Transações de Vendas
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-100">
+              <div className="text-2xl font-bold text-white">
                 {salesData.salesOrdersCount}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-yellow-900 border-yellow-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
                 Lucro Total
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-100">
+              <div className={`text-2xl font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatCurrency(totalProfit)}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Resumo Adicional */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <Card className="bg-indigo-900 border-indigo-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-indigo-100">
-                Itens Vendidos (Total)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-indigo-100">
-                {salesData.salesItems.length}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Lista de Vendas */}
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-slate-700 border-slate-600">
           <CardHeader>
             <CardTitle className="text-white">Itens Vendidos</CardTitle>
           </CardHeader>
@@ -307,38 +290,38 @@ const SalesOrders = () => {
             {salesData.salesItems.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-white">Data</TableHead>
-                    <TableHead className="text-white">Material</TableHead>
-                    <TableHead className="text-white">Peso</TableHead>
-                    <TableHead className="text-white">Preço Compra</TableHead>
-                    <TableHead className="text-white">Preço Venda</TableHead>
-                    <TableHead className="text-white">Total Venda</TableHead>
-                    <TableHead className="text-white">Lucro</TableHead>
+                  <TableRow className="border-slate-600">
+                    <TableHead className="text-slate-300">Data</TableHead>
+                    <TableHead className="text-slate-300">Material</TableHead>
+                    <TableHead className="text-slate-300">Peso</TableHead>
+                    <TableHead className="text-slate-300">Preço Compra</TableHead>
+                    <TableHead className="text-slate-300">Preço Venda</TableHead>
+                    <TableHead className="text-slate-300">Total Venda</TableHead>
+                    <TableHead className="text-slate-300">Lucro</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedSalesData.map((item, index) => (
-                    <TableRow key={`${item.orderId}-${index}`} className="border-gray-600">
-                      <TableCell className="text-gray-300">
+                    <TableRow key={`${item.orderId}-${index}`} className="border-slate-600 hover:bg-slate-600/30">
+                      <TableCell className="text-slate-300">
                         {formatDate(item.date)}
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-slate-300">
                         {item.materialName}
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-slate-300">
                         {formatWeight(item.quantity)}
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-slate-300">
                         {formatCurrency(item.purchasePrice)}
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-slate-300">
                         {formatCurrency(item.salePrice)}
                       </TableCell>
-                      <TableCell className="text-gray-300 font-semibold">
+                      <TableCell className="text-white font-semibold">
                         {formatCurrency(item.saleTotal)}
                       </TableCell>
-                      <TableCell className={`font-semibold ${item.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <TableCell className={`font-semibold ${item.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                         {formatCurrency(item.profit)}
                       </TableCell>
                     </TableRow>
@@ -346,7 +329,7 @@ const SalesOrders = () => {
                 </TableBody>
               </Table>
             ) : (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-slate-400">
                 {!selectedPeriod
                   ? "Selecione um período para carregar os dados."
                   : "Nenhuma venda encontrada no período selecionado."

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { ArrowLeft, Plus, Search, Calendar, Filter, DollarSign, User, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Calendar, Filter, DollarSign, ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -35,7 +35,6 @@ const CashAdditions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Check URL params on component mount
   useEffect(() => {
     const urlStartDate = searchParams.get('startDate');
     const urlEndDate = searchParams.get('endDate');
@@ -48,7 +47,6 @@ const CashAdditions = () => {
 
   useEffect(() => {
     const loadCashAdditions = async () => {
-      // Não carregar dados automaticamente - só quando necessário
       if (!selectedPeriod && !startDate && !endDate) {
         setLoading(false);
         return;
@@ -77,7 +75,6 @@ const CashAdditions = () => {
           }
         });
 
-        // Sort by timestamp (newest first)
         additions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         
         setCashAdditions(additions);
@@ -91,11 +88,9 @@ const CashAdditions = () => {
     loadCashAdditions();
   }, [selectedPeriod, startDate, endDate]);
 
-  // Filter cash additions based on date range and search term
   const filteredAdditions = useMemo(() => {
     let filtered = cashAdditions;
 
-    // Filter by date range
     const now = new Date();
     let filterStartDate: Date;
     let filterEndDate: Date = new Date(now);
@@ -135,9 +130,7 @@ const CashAdditions = () => {
     }
 
     filtered = filtered.filter(addition => {
-      // Use the transaction timestamp for filtering (when the addition actually happened)
       const additionDate = new Date(addition.timestamp);
-      // Ensure we're comparing dates correctly by setting hours properly
       const additionDateOnly = new Date(additionDate.getFullYear(), additionDate.getMonth(), additionDate.getDate());
       const filterStartDateOnly = new Date(filterStartDate.getFullYear(), filterStartDate.getMonth(), filterStartDate.getDate());
       const filterEndDateOnly = new Date(filterEndDate.getFullYear(), filterEndDate.getMonth(), filterEndDate.getDate());
@@ -145,7 +138,6 @@ const CashAdditions = () => {
       return additionDateOnly >= filterStartDateOnly && additionDateOnly <= filterEndDateOnly;
     });
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(addition =>
         addition.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -156,13 +148,11 @@ const CashAdditions = () => {
     return filtered;
   }, [cashAdditions, selectedPeriod, startDate, endDate, searchTerm]);
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredAdditions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedAdditions = filteredAdditions.slice(startIndex, endIndex);
 
-  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedPeriod, startDate, endDate, searchTerm]);
@@ -182,8 +172,8 @@ const CashAdditions = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-gray-900">
-        <header className="bg-pdv-dark text-white p-4 border-b border-gray-700">
+      <div className="flex flex-col h-screen bg-slate-800">
+        <header className="bg-slate-900 text-white p-4 border-b border-slate-700">
           <h1 className="text-2xl font-bold">Adições de Saldo</h1>
         </header>
         <main className="flex-1 flex items-center justify-center">
@@ -194,20 +184,23 @@ const CashAdditions = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
-      <header className="bg-pdv-dark text-white p-4 border-b border-gray-700 flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-slate-800">
+      <header className="bg-slate-900 text-white p-4 border-b border-slate-700 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="flex items-center gap-2 hover:text-gray-300">
+          <Link to="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="h-5 w-5" />
-            Voltar ao Dashboard
+            Voltar
           </Link>
-          <h1 className="text-2xl font-bold">Adições de Saldo</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Plus className="h-6 w-6 text-emerald-500" />
+            Adições de Saldo
+          </h1>
         </div>
         
         {(startDate || endDate) && (
-          <div className="flex items-center gap-2 bg-blue-600/20 px-3 py-1 rounded-lg">
-            <Calendar className="w-4 h-4 text-blue-400" />
-            <span className="text-blue-300 text-sm">
+          <div className="flex items-center gap-2 bg-emerald-600/20 px-3 py-1 rounded-lg">
+            <Calendar className="w-4 h-4 text-emerald-400" />
+            <span className="text-emerald-300 text-sm">
               Filtrado: {startDate && format(new Date(startDate), 'dd/MM/yyyy')} 
               {startDate && endDate && ' - '}
               {endDate && format(new Date(endDate), 'dd/MM/yyyy')}
@@ -217,106 +210,106 @@ const CashAdditions = () => {
       </header>
 
       <main className="flex-1 p-3 md:p-6 overflow-auto">
-        {/* Filtros de Período */}
-        <Card className="mb-6 bg-gray-800 border-gray-700">
+        {/* Filtros */}
+        <Card className="mb-6 bg-slate-700 border-slate-600">
           <Collapsible>
             <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-gray-750 transition-colors">
+              <CardHeader className="cursor-pointer hover:bg-slate-600/50 transition-colors">
                 <CardTitle className="text-white flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-white" />
+                    <Calendar className="h-5 w-5 text-emerald-500" />
                     Período de Análise
                   </div>
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-slate-400" />
                 </CardTitle>
               </CardHeader>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-              <div>
-                <Label htmlFor="period" className="text-gray-300 text-base">Período</Label>
-                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger className="bg-gray-900 border-gray-600 text-white text-base">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="diario">Diário</SelectItem>
-                    <SelectItem value="semanal">Semanal</SelectItem>
-                    <SelectItem value="mensal">Mensal</SelectItem>
-                    <SelectItem value="anual">Anual</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="startDate" className="text-gray-300 text-base">Data Inicial</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-gray-900 border-gray-600 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
-                />
-              </div>
-              <div>
-                <Label htmlFor="endDate" className="text-gray-300 text-base">Data Final</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-gray-900 border-gray-600 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
-                />
-              </div>
-              <div className="flex items-end">
-                <Button 
-                  onClick={() => {
-                    setStartDate('');
-                    setEndDate('');
-                  }}
-                  variant="outline"
-                  className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600 text-base"
-                >
-                  Limpar Filtros
-                </Button>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                  <div>
+                    <Label htmlFor="period" className="text-slate-400 text-base">Período</Label>
+                    <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                      <SelectTrigger className="bg-slate-600 border-slate-500 text-white text-base">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="diario">Diário</SelectItem>
+                        <SelectItem value="semanal">Semanal</SelectItem>
+                        <SelectItem value="mensal">Mensal</SelectItem>
+                        <SelectItem value="anual">Anual</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="startDate" className="text-slate-400 text-base">Data Inicial</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="bg-slate-600 border-slate-500 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="endDate" className="text-slate-400 text-base">Data Final</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="bg-slate-600 border-slate-500 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button 
+                      onClick={() => {
+                        setStartDate('');
+                        setEndDate('');
+                      }}
+                      variant="outline"
+                      className="bg-slate-600 border-slate-500 text-white hover:bg-slate-500 text-base"
+                    >
+                      Limpar Filtros
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </CollapsibleContent>
           </Collapsible>
         </Card>
 
         {/* Summary Card */}
-        <Card className="bg-cyan-900 border-cyan-700 mb-6">
+        <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all mb-6">
           <CardHeader>
-            <CardTitle className="text-cyan-100 flex items-center gap-2">
-              <Plus className="h-5 w-5" />
+            <CardTitle className="text-white flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-emerald-500" />
               Resumo das Adições de Saldo
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div className="text-center">
-                <div className="text-2xl md:text-3xl xl:text-4xl font-bold text-cyan-100">
+                <div className="text-2xl md:text-3xl xl:text-4xl font-bold text-emerald-400">
                   {formatCurrency(totalAdditions)}
                 </div>
-                <div className="text-xs md:text-sm text-cyan-300">Total Adicionado</div>
+                <div className="text-xs md:text-sm text-slate-400">Total Adicionado</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl md:text-3xl xl:text-4xl font-bold text-cyan-100">
+                <div className="text-2xl md:text-3xl xl:text-4xl font-bold text-white">
                   {filteredAdditions.length}
                 </div>
-                <div className="text-xs md:text-sm text-cyan-300">Número de Adições</div>
+                <div className="text-xs md:text-sm text-slate-400">Número de Adições</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Search and Filters */}
-        <Card className="bg-gray-800 border-gray-700 mb-6">
+        {/* Search */}
+        <Card className="bg-slate-700 border-slate-600 mb-6">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <Search className="h-5 w-5" />
+              <Search className="h-5 w-5 text-emerald-500" />
               Buscar Adições
             </CardTitle>
           </CardHeader>
@@ -327,13 +320,13 @@ const CashAdditions = () => {
                   placeholder="Buscar por descrição ou valor..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-slate-600 border-slate-500 text-white"
                 />
               </div>
               <Button
                 onClick={() => setSearchTerm('')}
                 variant="outline"
-                className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                className="bg-slate-600 border-slate-500 text-white hover:bg-slate-500"
               >
                 Limpar
               </Button>
@@ -343,13 +336,13 @@ const CashAdditions = () => {
 
         {/* Cash Additions List */}
         {paginatedAdditions.length === 0 ? (
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-slate-700 border-slate-600">
             <CardContent className="p-8 text-center">
-              <Plus className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+              <Plus className="h-16 w-16 mx-auto mb-4 text-slate-500" />
               <h3 className="text-xl font-semibold text-white mb-2">
                 Nenhuma adição de saldo encontrada
               </h3>
-              <p className="text-gray-400">
+              <p className="text-slate-400">
                 {searchTerm || startDate || endDate
                   ? 'Tente ajustar os filtros para encontrar as adições desejadas.'
                   : !selectedPeriod && !startDate && !endDate
@@ -361,30 +354,30 @@ const CashAdditions = () => {
         ) : (
           <div className="space-y-4">
             {paginatedAdditions.map((addition) => (
-              <Card key={addition.id} className="bg-gray-800 border-gray-700 hover:bg-gray-750 transition-colors">
+              <Card key={addition.id} className="bg-slate-700 border-slate-600 hover:border-emerald-500/30 transition-colors">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-cyan-600 p-2 rounded-lg">
-                          <Plus className="h-4 w-4 text-white" />
+                        <div className="bg-emerald-600/20 p-2 rounded-lg">
+                          <Plus className="h-4 w-4 text-emerald-400" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-white">
+                          <h3 className="text-lg font-semibold text-emerald-400">
                             {formatCurrency(addition.amount)}
                           </h3>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-slate-400">
                             {formatDateTime(addition.timestamp)}
                           </p>
                         </div>
                       </div>
                       
                       <div className="ml-11">
-                        <p className="text-gray-300 mb-2">
+                        <p className="text-slate-300 mb-2">
                           {addition.description}
                         </p>
                         
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
                           <Calendar className="h-4 w-4" />
                           <span>
                             Caixa aberto em: {formatDateTime(addition.cashRegisterDate)}
@@ -394,7 +387,7 @@ const CashAdditions = () => {
                     </div>
                     
                     <div className="flex flex-col items-end gap-2">
-                      <Badge variant="secondary" className="bg-cyan-600/20 text-cyan-300 border-cyan-600">
+                      <Badge variant="secondary" className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30">
                         Adição de Saldo
                       </Badge>
                     </div>
@@ -417,20 +410,18 @@ const CashAdditions = () => {
                     
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                       .filter(page => {
-                        // Show first page, last page, current page, and one page before/after current
                         return page === 1 || 
                                page === totalPages || 
                                (page >= currentPage - 1 && page <= currentPage + 1);
                       })
                       .map((page, index, array) => {
-                        // Add ellipsis if there's a gap
                         const showEllipsisBefore = index > 0 && array[index - 1] < page - 1;
                         
                         return (
                           <React.Fragment key={page}>
                             {showEllipsisBefore && (
                               <PaginationItem>
-                                <span className="px-4 py-2 text-gray-400">...</span>
+                                <span className="px-4 py-2 text-slate-400">...</span>
                               </PaginationItem>
                             )}
                             <PaginationItem>
@@ -444,8 +435,7 @@ const CashAdditions = () => {
                             </PaginationItem>
                           </React.Fragment>
                         );
-                      })
-                    }
+                      })}
                     
                     <PaginationItem>
                       <PaginationNext 

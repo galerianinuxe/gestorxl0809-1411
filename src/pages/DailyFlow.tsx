@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, DollarSign, Printer, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, DollarSign, Printer, Trash2, ShoppingCart, TrendingDown, FileText, TrendingUp } from 'lucide-react';
 import { getCashRegisters, calculateCashSummary } from '@/utils/localStorage';
 import { useReceiptFormatSettings } from '@/hooks/useReceiptFormatSettings';
 import { useAuth } from '@/hooks/useAuth';
@@ -374,15 +374,15 @@ const DailyFlow = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
-      <header className="bg-pdv-dark text-white p-4 border-b border-gray-700 flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-slate-800">
+      <header className="bg-slate-900 text-white p-4 border-b border-slate-700 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="flex items-center gap-2 hover:text-gray-300">
+          <Link to="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="h-5 w-5" />
-            Voltar ao Dashboard
+            Voltar
           </Link>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Calendar className="h-6 w-6" />
+            <Calendar className="h-6 w-6 text-emerald-500" />
             Fluxo Diário
           </h1>
         </div>
@@ -390,19 +390,19 @@ const DailyFlow = () => {
 
       <main className="flex-1 p-3 md:p-6 overflow-auto">
         {/* Filtros de Período */}
-        <Card className="mb-6 bg-gray-800 border-gray-700">
+        <Card className="mb-6 bg-slate-700 border-slate-600">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2 text-lg">
-              <Calendar className="h-5 w-5 text-white" />
+              <Calendar className="h-5 w-5 text-emerald-500" />
               Período de Análise
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="period" className="text-gray-300 text-base">Período</Label>
+                <Label htmlFor="period" className="text-slate-400 text-base">Período</Label>
                 <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger className="bg-gray-900 border-gray-600 text-white text-base">
+                  <SelectTrigger className="bg-slate-600 border-slate-500 text-white text-base">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -414,23 +414,23 @@ const DailyFlow = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="startDate" className="text-gray-300 text-base">Data Inicial</Label>
+                <Label htmlFor="startDate" className="text-slate-400 text-base">Data Inicial</Label>
                 <Input
                   id="startDate"
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-gray-900 border-gray-600 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
+                  className="bg-slate-600 border-slate-500 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
                 />
               </div>
               <div>
-                <Label htmlFor="endDate" className="text-gray-300 text-base">Data Final</Label>
+                <Label htmlFor="endDate" className="text-slate-400 text-base">Data Final</Label>
                 <Input
                   id="endDate"
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-gray-900 border-gray-600 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
+                  className="bg-slate-600 border-slate-500 text-white text-base [&::-webkit-calendar-picker-indicator]:invert"
                 />
               </div>
               <div>
@@ -440,7 +440,7 @@ const DailyFlow = () => {
                     setEndDate('');
                   }}
                   variant="outline"
-                  className="w-full bg-gray-700 border-gray-600 text-white hover:bg-gray-600 text-base"
+                  className="w-full bg-slate-600 border-slate-500 text-white hover:bg-slate-500 text-base"
                 >
                   Limpar Filtros
                 </Button>
@@ -451,53 +451,57 @@ const DailyFlow = () => {
 
         {/* Resumo */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-          <Card className="bg-green-900 border-green-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-green-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-emerald-500" />
                 Total em Vendas
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-xl font-bold text-green-100">
+              <div className="text-xl font-bold text-emerald-400">
                 {formatCurrency(totalSales)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-purple-900 border-purple-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-purple-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4 text-emerald-500" />
                 Total em Compras
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-xl font-bold text-purple-100">
+              <div className="text-xl font-bold text-white">
                 {formatCurrency(totalPurchases)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-red-900 border-red-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-red-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <TrendingDown className="h-4 w-4 text-rose-400" />
                 Total em Despesas
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-xl font-bold text-red-100">
+              <div className="text-xl font-bold text-rose-400">
                 {formatCurrency(totalExpenses)}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-blue-900 border-blue-700">
+          <Card className="bg-slate-700 border-slate-600 hover:border-emerald-500/50 transition-all">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-blue-100">
+              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-emerald-500" />
                 Fechamentos
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-xl font-bold text-blue-100">
+              <div className="text-xl font-bold text-white">
                 {filteredDailyFlowData.length}
               </div>
             </CardContent>

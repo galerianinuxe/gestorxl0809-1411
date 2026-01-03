@@ -127,8 +127,8 @@ export function AppSidebar({
   };
 
   const renderMenuItem = (item: any) => {
-    const baseClass = "flex items-center gap-3 px-3 py-2.5 w-full text-left rounded-md transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/60";
-    const activeClass = "bg-gray-800 text-white border-l-2 border-emerald-500 rounded-l-none";
+    const baseClass = "flex items-center gap-3 px-3 py-2.5 w-full text-left rounded-md transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-700/60";
+    const activeClass = "bg-slate-800 text-white border-l-2 border-emerald-500 rounded-l-none";
 
     if (item.isAction) {
       return (
@@ -158,16 +158,16 @@ export function AppSidebar({
   };
 
   return (
-    <Sidebar className={`${collapsed ? 'w-16' : 'w-60'} bg-gray-950 border-r border-gray-800`}>
-      <SidebarContent className="bg-gray-950 flex flex-col h-full">
+    <Sidebar className={`${collapsed ? 'w-16' : 'w-60'} bg-slate-900 border-r border-slate-700`}>
+      <SidebarContent className="bg-slate-900 flex flex-col h-full">
         {/* Logo Header */}
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-4 border-b border-slate-700">
           <div className="flex items-center gap-3">
             <SystemLogo size="sm" />
             {!collapsed && (
               <div>
                 <span className="text-white font-semibold text-sm">XLATA</span>
-                <span className="text-gray-500 text-xs block">Gestor PDV</span>
+                <span className="text-slate-500 text-xs block">Gestor PDV</span>
               </div>
             )}
           </div>
@@ -175,7 +175,7 @@ export function AppSidebar({
 
         {/* Principal */}
         <SidebarGroup className="py-4">
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
             {!collapsed && "Principal"}
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
@@ -191,7 +191,7 @@ export function AppSidebar({
 
         {/* Operações */}
         <SidebarGroup className="py-2">
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
             {!collapsed && "Operações"}
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
@@ -207,7 +207,7 @@ export function AppSidebar({
 
         {/* Configurações */}
         <SidebarGroup className="py-2">
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
             {!collapsed && "Sistema"}
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
@@ -270,14 +270,14 @@ export function AppSidebar({
         {subscription && !collapsed && (
           <div className="px-4 py-3 mt-auto">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500">Plano</span>
+              <span className="text-slate-500">Plano</span>
               <span className="text-emerald-500 font-medium">
                 {subscription.plan_type === 'trial' ? 'Teste' : 'Ativo'}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs mt-1">
-              <span className="text-gray-500">Expira</span>
-              <span className="text-gray-400">
+              <span className="text-slate-500">Expira</span>
+              <span className="text-slate-400">
                 {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
               </span>
             </div>
@@ -285,11 +285,11 @@ export function AppSidebar({
         )}
 
         {/* Logout */}
-        <div className="mt-auto p-3 border-t border-gray-800">
+        <div className="mt-auto p-3 border-t border-slate-700">
           <Button
             variant="ghost"
             onClick={handleSignOut}
-            className="w-full text-gray-500 hover:text-red-400 hover:bg-red-500/10 justify-start h-10"
+            className="w-full text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 justify-start h-10"
           >
             <LogOut className="h-4 w-4 mr-3" />
             {!collapsed && <span className="text-sm">Sair</span>}
