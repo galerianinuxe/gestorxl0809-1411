@@ -356,140 +356,254 @@ const Materials = () => {
     }
     handleEditMaterial(material);
   };
-  return <div className="min-h-screen bg-pdv-dark text-white p-2 sm:p-4">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div className="flex items-center gap-2">
+  return (
+    <div className="min-h-screen bg-slate-900 text-white p-3 sm:p-4 md:p-6">
+      {/* Header */}
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 mb-4">
+        <div className="flex items-center gap-3">
           <Link to="/">
-            <Button variant="outline" size="icon" className="mr-2" style={{
-            color: '#000'
-          }}>
+            <Button variant="outline" size="icon" className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold">Gerenciar Materiais</h1>
+          <div>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">Gerenciar Materiais</h1>
+            <p className="text-slate-400 text-sm hidden sm:block">
+              {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material' : 'materiais'} cadastrados
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Button onClick={() => setConfigModal(true)} className="bg-gray-600 hover:bg-gray-700 w-full sm:w-auto" disabled={loading}>
-            <Settings className="mr-2 h-4 w-4" /> 
+        
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+          <Button 
+            onClick={() => setConfigModal(true)} 
+            variant="outline"
+            className="bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white flex-1 sm:flex-none" 
+            disabled={loading}
+          >
+            <Settings className="h-4 w-4 sm:mr-2" /> 
             <span className="hidden sm:inline">Configurações</span>
-            <span className="sm:hidden">Config</span>
           </Button>
-          <Button onClick={insertDefaultMaterials} className="bg-transparent border border-[#FCCE03] text-[#FCCE03] hover:bg-[#FCCE03] hover:text-black w-full sm:w-auto" disabled={loading}>
-            <Download className="mr-2 h-4 w-4" /> 
-            <span className="hidden sm:inline">Inserir Materiais Padrão</span>
-            <span className="sm:hidden">Materiais Padrão</span>
+          <Button 
+            onClick={insertDefaultMaterials} 
+            variant="outline"
+            className="bg-slate-700 border-amber-500/50 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300 flex-1 sm:flex-none" 
+            disabled={loading}
+          >
+            <Download className="h-4 w-4 sm:mr-2" /> 
+            <span className="hidden sm:inline">Materiais Padrão</span>
           </Button>
-          <Button onClick={handleAddMaterial} className="bg-pdv-green hover:bg-pdv-green/90 w-full sm:w-auto" disabled={loading}>
-            <Plus className="mr-2 h-4 w-4" /> 
-            <span className="hidden sm:inline">Adicionar Material</span>
-            <span className="sm:hidden">Adicionar</span>
+          <Button 
+            onClick={handleAddMaterial} 
+            className="bg-emerald-600 hover:bg-emerald-500 text-white flex-1 sm:flex-none" 
+            disabled={loading}
+          >
+            <Plus className="h-4 w-4 sm:mr-2" /> 
+            <span className="hidden sm:inline">Adicionar</span>
           </Button>
         </div>
       </header>
 
-      <div className="mb-6">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input type="text" placeholder="Buscar material..." value={searchTerm} onChange={handleSearchChange} className="pl-10 bg-white border-gray-600 text-black placeholder:text-gray-500 w-full" disabled={loading} />
-        </div>
-      </div>
+      {/* Search Bar */}
+      <Card className="bg-slate-800 border-slate-700 mb-4">
+        <CardContent className="p-3">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <Input 
+              type="text" 
+              placeholder="Buscar material por nome..." 
+              value={searchTerm} 
+              onChange={handleSearchChange} 
+              className="pl-11 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 h-11 text-base" 
+              disabled={loading} 
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-      <Card className="bg-pdv-dark-light border-gray-700">
-        <CardContent className="p-0">
-          <ScrollArea className="h-[calc(100vh-280px)] sm:h-[calc(100vh-250px)]">
-            {loading ? <div className="flex justify-center items-center h-32">
-                <div className="text-white">Carregando materiais...</div>
-              </div> : <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-0.25 p-2">
-                {filteredMaterials.map(material => <Card key={material.id} className="bg-pdv-green border-gray-600 relative group rounded-none hover:bg-pdv-green/40 cursor-pointer" onClick={e => handleCardClick(material, e)}>
-                    <div className="absolute top-2 right-2 z-10 opacity-100">
-                      <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-red-500 hover:text-white hover:bg-red-800" onClick={e => {
-                  e.stopPropagation();
-                  handleDeleteMaterial(material);
-                }} disabled={loading}>
-                        <Trash className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    <CardContent className="p-2 flex flex-col items-center justify-center min-h-[100px] lg:min-h-[120px] text-white">
-                      <h3 className="font-bold text-xs sm:text-sm lg:text-sm text-center leading-tight">{material.name}</h3>
-                      <div className="text-[10px] sm:text-xs lg:text-xs mt-0.5">Compra: {formatCurrency(material.price.toString())}/{material.unit}</div>
-                      <div className="text-[10px] sm:text-xs lg:text-xs font-bold">Venda: {formatCurrency(material.salePrice?.toString() || "0")}/{material.unit}</div>
+      {/* Materials Grid */}
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-2 sm:p-3">
+          <ScrollArea className="h-[calc(100vh-280px)] sm:h-[calc(100vh-260px)]">
+            {loading ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="text-slate-400">Carregando materiais...</div>
+              </div>
+            ) : filteredMaterials.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 text-slate-400">
+                <p className="text-base">Nenhum material encontrado</p>
+                <p className="text-sm mt-1">Adicione materiais ou use os materiais padrão</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2">
+                {filteredMaterials.map(material => (
+                  <Card 
+                    key={material.id} 
+                    className="bg-slate-700 border-slate-600 relative group hover:bg-slate-600 hover:border-emerald-500/50 cursor-pointer transition-all duration-200"
+                    onClick={e => handleCardClick(material, e)}
+                  >
+                    {/* Delete Button */}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="absolute top-1 right-1 h-6 w-6 rounded-full text-slate-400 hover:text-white hover:bg-red-600 opacity-60 hover:opacity-100 z-10"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteMaterial(material);
+                      }} 
+                      disabled={loading}
+                    >
+                      <Trash className="h-3 w-3" />
+                    </Button>
+                    
+                    <CardContent className="p-3 pt-6">
+                      {/* Material Name */}
+                      <h3 className="font-semibold text-sm sm:text-base text-white text-center leading-tight mb-2 truncate" title={material.name}>
+                        {material.name}
+                      </h3>
+                      
+                      {/* Prices */}
+                      <div className="space-y-1 text-center">
+                        <div className="flex items-center justify-between text-xs sm:text-sm">
+                          <span className="text-slate-400">Compra:</span>
+                          <span className="text-amber-400 font-medium">
+                            {formatCurrency(material.price.toString())}/{material.unit}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs sm:text-sm">
+                          <span className="text-slate-400">Venda:</span>
+                          <span className="text-emerald-400 font-semibold">
+                            {formatCurrency(material.salePrice?.toString() || "0")}/{material.unit}
+                          </span>
+                        </div>
+                      </div>
                     </CardContent>
-                  </Card>)}
-              </div>}
+                  </Card>
+                ))}
+              </div>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>
 
-        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogContent className="bg-[#202020] border-gray-700 text-white !bg-opacity-100 w-[95vw] max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="modal-material-title text-lg sm:text-xl">{editingMaterial ? "Editar Material" : "Adicionar Material"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="material-name" className="text-white text-sm">Nome do Material</Label>
-                  <Input id="material-name" value={materialName} onChange={handleMaterialNameChange} onKeyDown={handleKeyDown} disabled={loading || isSubmitting} className="bg-[#102224] border-gray-600 text-[#4fd683] text-base sm:text-3xl " />
-                  
-                  {showDuplicateWarning && (
-                    <Alert className="border-orange-500 bg-orange-50">
-                      <AlertTriangle className="h-4 w-4 text-orange-500" />
-                      <AlertDescription className="text-orange-700">
-                        Material similar já existe. Verifique os materiais cadastrados.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  
-                  {materialSuggestions.length > 0 && (
-                    <div className="bg-[#102224] border border-gray-600 rounded-md p-2 space-y-1">
-                      <p className="text-xs text-gray-400 mb-2">Materiais similares encontrados:</p>
-                      {materialSuggestions.slice(0, 3).map((suggestion) => (
-                        <div
-                          key={suggestion.id}
-                          className="flex items-center justify-between p-2 bg-gray-700 rounded cursor-pointer hover:bg-gray-600"
-                          onClick={() => selectSuggestion(suggestion)}
-                        >
-                          <span className="text-sm text-white">{suggestion.name}</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {Math.round(suggestion.similarity * 100)}% similar
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="material-unit" className="text-white text-sm">Unidade</Label>
-                  <Input id="material-unit" value={materialUnit} onChange={e => setMaterialUnit(e.target.value)} className="bg-[#102224] border-gray-600 text-[#4fd683] text-base sm:text-lg" disabled />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="material-price" className="text-white text-sm">Preço de Compra (R$)</Label>
-                  <Input id="material-price" value={materialPrice} onChange={handleMaterialPriceChange} inputMode="numeric" maxLength={15} onKeyDown={handleKeyDown} disabled={loading || isSubmitting} className="bg-[#102224] border-gray-600 text-[#4fd683] text-lg sm:text-3xl py-3 sm:py-5 font-bold" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="material-sale-price" className="text-white text-sm">Preço de Venda (R$)</Label>
-                  <Input id="material-sale-price" value={materialSalePrice} onChange={handleMaterialSalePriceChange} inputMode="numeric" maxLength={15} onKeyDown={handleKeyDown} disabled={loading || isSubmitting} className="bg-[#102224] border-gray-600 text-[#4fd683] text-lg sm:text-3xl py-3 sm:py-5 font-bold" />
-                </div>
+      {/* Add/Edit Dialog */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="bg-slate-800 border-slate-700 text-white w-[95vw] max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg sm:text-xl text-white">
+              {editingMaterial ? "Editar Material" : "Adicionar Material"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="material-name" className="text-slate-300 text-sm">Nome do Material</Label>
+                <Input 
+                  id="material-name" 
+                  value={materialName} 
+                  onChange={handleMaterialNameChange} 
+                  onKeyDown={handleKeyDown} 
+                  disabled={loading || isSubmitting} 
+                  className="bg-slate-700 border-slate-600 text-emerald-400 text-base sm:text-lg font-medium" 
+                />
+                
+                {showDuplicateWarning && (
+                  <Alert className="border-amber-500 bg-amber-500/10">
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    <AlertDescription className="text-amber-400 text-sm">
+                      Material similar já existe. Verifique os materiais cadastrados.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                {materialSuggestions.length > 0 && (
+                  <div className="bg-slate-700 border border-slate-600 rounded-md p-2 space-y-1">
+                    <p className="text-xs text-slate-400 mb-2">Materiais similares encontrados:</p>
+                    {materialSuggestions.slice(0, 3).map((suggestion) => (
+                      <div
+                        key={suggestion.id}
+                        className="flex items-center justify-between p-2 bg-slate-600 rounded cursor-pointer hover:bg-slate-500"
+                        onClick={() => selectSuggestion(suggestion)}
+                      >
+                        <span className="text-sm text-white">{suggestion.name}</span>
+                        <Badge variant="secondary" className="text-xs bg-slate-500">
+                          {Math.round(suggestion.similarity * 100)}% similar
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="material-unit" className="text-slate-300 text-sm">Unidade</Label>
+                <Input 
+                  id="material-unit" 
+                  value={materialUnit} 
+                  onChange={e => setMaterialUnit(e.target.value)} 
+                  className="bg-slate-700 border-slate-600 text-slate-400 text-base" 
+                  disabled 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="material-price" className="text-slate-300 text-sm">Preço de Compra (R$)</Label>
+                <Input 
+                  id="material-price" 
+                  value={materialPrice} 
+                  onChange={handleMaterialPriceChange} 
+                  inputMode="numeric" 
+                  maxLength={15} 
+                  onKeyDown={handleKeyDown} 
+                  disabled={loading || isSubmitting} 
+                  className="bg-slate-700 border-slate-600 text-amber-400 text-xl sm:text-2xl py-3 font-bold" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="material-sale-price" className="text-slate-300 text-sm">Preço de Venda (R$)</Label>
+                <Input 
+                  id="material-sale-price" 
+                  value={materialSalePrice} 
+                  onChange={handleMaterialSalePriceChange} 
+                  inputMode="numeric" 
+                  maxLength={15} 
+                  onKeyDown={handleKeyDown} 
+                  disabled={loading || isSubmitting} 
+                  className="bg-slate-700 border-slate-600 text-emerald-400 text-xl sm:text-2xl py-3 font-bold" 
+                />
               </div>
             </div>
-            <DialogFooter className="flex-col sm:flex-row gap-2">
-              <Button variant="outline" onClick={() => setOpenDialog(false)} className="text-black bg-white hover:bg-gray-100 text-base sm:text-lg w-full sm:w-auto order-2 sm:order-1" disabled={loading || isSubmitting}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSaveMaterial} className="bg-pdv-green hover:bg-pdv-green/90 text-base sm:text-lg w-full sm:w-auto order-1 sm:order-2" disabled={loading || isSubmitting}>
-                <Save className="mr-2 h-4 w-4" /> 
-                {isSubmitting ? "Salvando..." : "Salvar"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setOpenDialog(false)} 
+              className="bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600 w-full sm:w-auto order-2 sm:order-1" 
+              disabled={loading || isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSaveMaterial} 
+              className="bg-emerald-600 hover:bg-emerald-500 text-white w-full sm:w-auto order-1 sm:order-2" 
+              disabled={loading || isSubmitting}
+            >
+              <Save className="mr-2 h-4 w-4" /> 
+              {isSubmitting ? "Salvando..." : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
-      <DeleteMaterialModal open={deleteModal.open} onClose={() => setDeleteModal({
-      open: false,
-      material: null
-    })} onConfirm={confirmDeleteMaterial} materialName={deleteModal.material?.name || ""} />
+      <DeleteMaterialModal 
+        open={deleteModal.open} 
+        onClose={() => setDeleteModal({ open: false, material: null })} 
+        onConfirm={confirmDeleteMaterial} 
+        materialName={deleteModal.material?.name || ""} 
+      />
 
       <MaterialConfigModal open={configModal} onClose={() => setConfigModal(false)} />
-    </div>;
+    </div>
+  );
 };
+
 export default Materials;
