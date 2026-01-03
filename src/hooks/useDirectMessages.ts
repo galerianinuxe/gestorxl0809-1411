@@ -9,14 +9,38 @@ interface DirectMessage {
   created_at: string;
 }
 
+const PROCESSED_MESSAGES_KEY = 'direct_messages_processed';
+
+const getProcessedFromStorage = (): Set<string> => {
+  try {
+    const stored = localStorage.getItem(PROCESSED_MESSAGES_KEY);
+    if (stored) {
+      return new Set(JSON.parse(stored));
+    }
+  } catch (e) {
+    console.error('Erro ao carregar mensagens processadas:', e);
+  }
+  return new Set();
+};
+
+const saveProcessedToStorage = (processed: Set<string>) => {
+  try {
+    const arr = Array.from(processed).slice(-100);
+    localStorage.setItem(PROCESSED_MESSAGES_KEY, JSON.stringify(arr));
+  } catch (e) {
+    console.error('Erro ao salvar mensagens processadas:', e);
+  }
+};
+
 export const useDirectMessages = () => {
   const [currentMessage, setCurrentMessage] = useState<DirectMessage | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isProcessingRef = useRef(false);
-  const processedMessagesRef = useRef<Set<string>>(new Set());
+  const processedMessagesRef = useRef<Set<string>>(getProcessedFromStorage());
+  const hasCheckedRef = useRef(false);
 
   const checkForDirectMessages = useCallback(async () => {
-    if (isProcessingRef.current) return;
+    if (isProcessingRef.current || isModalOpen) return;
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -27,6 +51,7 @@ export const useDirectMessages = () => {
         .select('*')
         .eq('recipient_id', user.id)
         .is('read_at', null)
+        .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: true })
         .limit(1);
 
@@ -38,7 +63,6 @@ export const useDirectMessages = () => {
       if (messages && messages.length > 0) {
         const message = messages[0];
         
-        // Evitar processar mensagem já em processamento
         if (processedMessagesRef.current.has(message.id)) {
           return;
         }
@@ -55,7 +79,7 @@ export const useDirectMessages = () => {
     } catch (error) {
       console.error('Erro ao buscar mensagens diretas:', error);
     }
-  }, []);
+  }, [isModalOpen]);
 
   const markMessageAsRead = useCallback(async (messageId: string): Promise<boolean> => {
     try {
@@ -77,34 +101,29 @@ export const useDirectMessages = () => {
   }, []);
 
   const handleCloseMessage = useCallback(async () => {
-    if (isProcessingRef.current) return;
+    if (isProcessingRef.current || !currentMessage) return;
     isProcessingRef.current = true;
     
+    const messageId = currentMessage.id;
+    
     try {
-      if (currentMessage) {
-        // Marcar como processada para evitar re-exibição
-        processedMessagesRef.current.add(currentMessage.id);
-        
-        // Fechar o modal imediatamente
-        setIsModalOpen(false);
-        setCurrentMessage(null);
-        
-        // Aguardar a marcação como lida
-        await markMessageAsRead(currentMessage.id);
-        
-        // Pequena pausa para garantir que o banco atualizou
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Verificar se há mais mensagens
-        await checkForDirectMessages();
-      }
+      processedMessagesRef.current.add(messageId);
+      saveProcessedToStorage(processedMessagesRef.current);
+      
+      setIsModalOpen(false);
+      setCurrentMessage(null);
+      
+      await markMessageAsRead(messageId);
     } finally {
       isProcessingRef.current = false;
     }
-  }, [currentMessage, markMessageAsRead, checkForDirectMessages]);
+  }, [currentMessage, markMessageAsRead]);
 
   useEffect(() => {
-    checkForDirectMessages();
+    if (!hasCheckedRef.current) {
+      hasCheckedRef.current = true;
+      checkForDirectMessages();
+    }
 
     const interval = setInterval(() => {
       if (!isProcessingRef.current && !isModalOpen) {

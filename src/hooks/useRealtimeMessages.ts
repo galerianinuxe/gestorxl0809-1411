@@ -10,22 +10,42 @@ interface RealtimeMessage {
   created_at: string;
 }
 
+const PROCESSED_REALTIME_KEY = 'realtime_messages_processed';
+
+const getProcessedFromStorage = (): Set<string> => {
+  try {
+    const stored = localStorage.getItem(PROCESSED_REALTIME_KEY);
+    if (stored) {
+      return new Set(JSON.parse(stored));
+    }
+  } catch (e) {
+    console.error('Erro ao carregar mensagens processadas:', e);
+  }
+  return new Set();
+};
+
+const saveProcessedToStorage = (processed: Set<string>) => {
+  try {
+    const arr = Array.from(processed).slice(-100);
+    localStorage.setItem(PROCESSED_REALTIME_KEY, JSON.stringify(arr));
+  } catch (e) {
+    console.error('Erro ao salvar mensagens processadas:', e);
+  }
+};
+
 export const useRealtimeMessages = () => {
   const [unreadMessages, setUnreadMessages] = useState<RealtimeMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState<RealtimeMessage | null>(null);
   
-  // Use refs to prevent re-renders causing listener recreation
-  const processedMessagesRef = useRef<Set<string>>(new Set());
+  const processedMessagesRef = useRef<Set<string>>(getProcessedFromStorage());
   const isInitializedRef = useRef(false);
 
-  // Buscar mensagens não lidas ao inicializar
   useEffect(() => {
     if (isInitializedRef.current) return;
     isInitializedRef.current = true;
     fetchUnreadMessages();
   }, []);
 
-  // Configurar listener para mensagens em tempo real - SEM dependências para evitar loop
   useEffect(() => {
     const channel = supabase
       .channel('admin_realtime_messages_listener')
@@ -40,13 +60,11 @@ export const useRealtimeMessages = () => {
           console.log('Nova mensagem recebida:', payload);
           const newMessage = payload.new as any;
           
-          // Verificar se já foi processada usando ref
           if (processedMessagesRef.current.has(newMessage.id)) {
             console.log('Mensagem já processada, ignorando:', newMessage.id);
             return;
           }
           
-          // Verificar se a mensagem é para o usuário atual
           supabase.auth.getUser().then(({ data: { user } }) => {
             if (user && newMessage.target_user_id === user.id) {
               const message: RealtimeMessage = {
@@ -57,12 +75,10 @@ export const useRealtimeMessages = () => {
                 created_at: newMessage.created_at
               };
               
-              // Marcar como processada usando ref
               processedMessagesRef.current.add(newMessage.id);
+              saveProcessedToStorage(processedMessagesRef.current);
               
               setUnreadMessages(prev => [message, ...prev]);
-              
-              // Se não há mensagem sendo exibida, mostrar esta
               setCurrentMessage(prev => prev || message);
             }
           });
@@ -73,7 +89,7 @@ export const useRealtimeMessages = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []); // Array vazio - listener criado apenas uma vez
+  }, []);
 
   const fetchUnreadMessages = async () => {
     try {
@@ -94,22 +110,25 @@ export const useRealtimeMessages = () => {
       }
 
       if (data && data.length > 0) {
-        console.log('Mensagens não lidas encontradas:', data.length);
-        const messages = data.map(msg => ({
-          id: msg.id,
-          sender_name: msg.sender_name,
-          title: msg.title,
-          message: msg.message,
-          created_at: msg.created_at
-        }));
+        // Filtrar mensagens já processadas
+        const unprocessedMessages = data.filter(msg => !processedMessagesRef.current.has(msg.id));
         
-        // Marcar todas como processadas usando ref
-        messages.forEach(msg => processedMessagesRef.current.add(msg.id));
-        
-        setUnreadMessages(messages);
-        setCurrentMessage(messages[0]);
+        if (unprocessedMessages.length > 0) {
+          const messages = unprocessedMessages.map(msg => ({
+            id: msg.id,
+            sender_name: msg.sender_name,
+            title: msg.title,
+            message: msg.message,
+            created_at: msg.created_at
+          }));
+          
+          setUnreadMessages(messages);
+          setCurrentMessage(messages[0]);
+        } else {
+          setUnreadMessages([]);
+          setCurrentMessage(null);
+        }
       } else {
-        console.log('Nenhuma mensagem não lida encontrada');
         setUnreadMessages([]);
         setCurrentMessage(null);
       }
@@ -120,7 +139,8 @@ export const useRealtimeMessages = () => {
 
   const markAsRead = useCallback(async (messageId: string) => {
     try {
-      console.log('Marcando mensagem como lida:', messageId);
+      processedMessagesRef.current.add(messageId);
+      saveProcessedToStorage(processedMessagesRef.current);
       
       const { error } = await supabase
         .from('admin_realtime_messages')
@@ -135,13 +155,9 @@ export const useRealtimeMessages = () => {
         throw error;
       }
 
-      console.log('Mensagem marcada como lida com sucesso');
-
-      // Atualizar estados de forma segura
       setUnreadMessages(prev => {
         const filtered = prev.filter(msg => msg.id !== messageId);
         
-        // Atualizar currentMessage baseado nas mensagens restantes
         setCurrentMessage(current => {
           if (current?.id === messageId) {
             return filtered.length > 0 ? filtered[0] : null;
@@ -164,12 +180,11 @@ export const useRealtimeMessages = () => {
   }, []);
 
   const dismissCurrentMessage = useCallback(() => {
-    console.log('Descartando mensagem atual');
     setCurrentMessage(current => {
       if (current) {
         markAsRead(current.id);
       }
-      return null; // Limpar imediatamente para evitar re-exibição
+      return null;
     });
   }, [markAsRead]);
 
