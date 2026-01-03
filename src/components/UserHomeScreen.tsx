@@ -841,111 +841,99 @@ const UserHomeScreen: React.FC<UserHomeScreenProps> = ({ onOpenCashRegister }) =
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+      <main className="flex-1 p-3 max-w-6xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 h-full">
           
           {/* Seção do Usuário */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-3">
             
             {/* Usar o ProfileSection moderno */}
             <ProfileSection />
 
             {/* Card de Assinatura - Different for Admin vs Regular User */}
             <Card className="bg-pdv-dark-light border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <CardHeader className="py-2 px-3">
+                <CardTitle className="text-base font-bold text-white flex items-center gap-2">
                   {isAdmin ? (
-                    <UserCog className="h-5 w-5 text-purple-400" />
+                    <UserCog className="h-4 w-4 text-purple-400" />
                   ) : (
-                    <Crown className="h-5 w-5 text-yellow-400" />
+                    <Crown className="h-4 w-4 text-yellow-400" />
                   )}
-                  {isAdmin ? 'Painel Administrativo' : 'Assinatura'}
+                  {isAdmin ? 'Painel Admin' : 'Assinatura'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="py-2 px-3 space-y-2">
                 <div className="text-center">
                   {isAdmin ? (
                     <>
-                      <Badge className="bg-purple-600 text-white mb-2">
+                      <Badge className="bg-purple-600 text-white mb-1 text-xs">
                         Acesso Administrativo
                       </Badge>
-                      <p className="text-gray-300 text-sm mb-4">
-                        Você possui acesso total ao sistema sem limitações de tempo.
+                      <p className="text-gray-300 text-xs">
+                        Acesso total ao sistema sem limitações.
                       </p>
                     </>
                   ) : (
                     <>
                       {isSubscriptionActive ? (
                         <>
-                          <Badge className="bg-pdv-green text-white mb-2">
+                          <Badge className="bg-pdv-green text-white mb-1 text-xs">
                             Plano Ativo
                           </Badge>
-                          <p className="text-gray-300 text-sm mb-2">
-                            Sua assinatura está ativa até {subscription ? new Date(subscription.expires_at).toLocaleDateString('pt-BR') : 'N/A'}
+                          <p className="text-gray-300 text-xs mb-1">
+                            Ativo até {subscription ? new Date(subscription.expires_at).toLocaleDateString('pt-BR') : 'N/A'}
                           </p>
                           {subscription && (
-                            <>
-                              <p className="text-gray-400 text-xs mb-4">
-                                Plano: {getPlanDisplayName(subscription.plan_type)} - {calculateRemainingDays(subscription.expires_at)} dias restantes
-                              </p>
-                              {(subscription.activation_method === 'admin' || subscription.activation_method === 'admin_manual') && (
-                                <p className="text-blue-300 text-xs mb-4">
-                                  ✅ Ativado pelo administrador
-                                </p>
-                              )}
-                            </>
+                            <p className="text-gray-400 text-[10px] mb-2">
+                              {getPlanDisplayName(subscription.plan_type)} - {calculateRemainingDays(subscription.expires_at)} dias
+                            </p>
                           )}
                         </>
                       ) : (
                         <>
-                          <Badge variant="outline" className="text-yellow-400 border-yellow-400 mb-2">
+                          <Badge variant="outline" className="text-yellow-400 border-yellow-400 mb-1 text-xs">
                             Plano Inativo
                           </Badge>
-                          <p className="text-gray-300 text-sm mb-4">
+                          <p className="text-gray-300 text-xs mb-2">
                             {hasUsedTrialBefore 
-                              ? "Seu teste gratuito expirou. Contrate um plano para continuar usando o sistema."
-                              : "Aproveite todos os recursos do sistema PDV com nossos planos flexíveis."
+                              ? "Teste gratuito expirado."
+                              : "Ative um plano para usar o sistema."
                             }
                           </p>
                           
-                          {/* Show trial activation only if user hasn't used it before */}
                           {!hasUsedTrialBefore && (
-                            <div className="bg-green-900/30 p-3 rounded-lg border border-green-700 mb-4">
-                              <p className="text-sm text-green-200 mb-3">
-                                🎉 <strong>Teste Gratuito Disponível!</strong> Experimente o sistema por 7 dias grátis.
+                            <div className="bg-green-900/30 p-2 rounded border border-green-700 mb-2">
+                              <p className="text-[10px] text-green-200 mb-1">
+                                🎉 <strong>Teste Grátis!</strong> 7 dias grátis.
                               </p>
                               <Button
                                 onClick={handleActivateFreeTrial}
                                 disabled={isActivatingTrial}
-                                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                className="w-full bg-green-600 hover:bg-green-700 text-white h-7 text-xs"
                                 size="sm"
                               >
-                                {isActivatingTrial ? 'Ativando...' : 'Ativar Teste Gratuito'}
+                                {isActivatingTrial ? 'Ativando...' : 'Ativar Teste'}
                               </Button>
                             </div>
                           )}
                           
-                          {/* Show message for users who already used trial */}
                           {hasUsedTrialBefore && (
-                            <div className="bg-orange-900/30 p-3 rounded-lg border border-orange-700 mb-4">
-                              <p className="text-sm text-orange-200 mb-3">
-                                ⚠️ <strong>Teste Gratuito Já Utilizado</strong><br />
-                                Você já usou seu período de teste gratuito de 7 dias. Para continuar usando o sistema, contrate um dos nossos planos.
+                            <div className="bg-orange-900/30 p-2 rounded border border-orange-700 mb-2">
+                              <p className="text-[10px] text-orange-200">
+                                ⚠️ Teste já usado. Contrate um plano.
                               </p>
                             </div>
                           )}
                         </>
                       )}
                       
-                      <div className="space-y-2">
-                        <Button
-                          onClick={() => navigate('/planos')}
-                          className="w-full bg-yellow-600 hover:bg-yellow-700 text-white"
-                        >
-                          <Crown className="h-4 w-4 mr-2" />
-                          Ver Planos
-                        </Button>
-                      </div>
+                      <Button
+                        onClick={() => navigate('/planos')}
+                        className="w-full bg-yellow-600 hover:bg-yellow-700 text-white h-7 text-xs"
+                      >
+                        <Crown className="h-3 w-3 mr-1" />
+                        Ver Planos
+                      </Button>
                     </>
                   )}
                 </div>
@@ -955,83 +943,76 @@ const UserHomeScreen: React.FC<UserHomeScreenProps> = ({ onOpenCashRegister }) =
             {/* Seção de Indicações - Only for regular users */}
             {!isAdmin && (
               <Card className="bg-pdv-dark-light border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-white flex items-center gap-2 justify-between">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-green-400" />
+                <CardHeader className="py-2 px-3">
+                  <CardTitle className="text-sm font-bold text-white flex items-center gap-2 justify-between">
+                    <div className="flex items-center gap-1">
+                      <Users className="h-4 w-4 text-green-400" />
                       Indique e Ganhe
                     </div>
-                    <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">
-                      (Em desenvolvimento)
+                    <Badge variant="secondary" className="bg-yellow-600 text-white text-[10px] px-1">
+                      Em dev
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <Badge className="bg-green-600 text-white mb-2">
-                      Programa de Indicação
-                    </Badge>
-                    <p className="text-gray-300 text-sm mb-4">
-                      Indique amigos e ganhe dias extras na sua assinatura quando eles ativarem um plano!
-                    </p>
-                    
-                    <div className="bg-green-900/30 p-3 rounded-lg border border-green-700 mb-4">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <Gift className="h-4 w-4 text-green-200" />
-                        <span className="text-sm text-green-200 font-medium">Recompensas</span>
-                      </div>
-                      <ul className="text-xs text-green-100 space-y-1">
-                        <li>• Plano Mensal: +7 dias</li>
-                        <li>• Plano Trimestral: +14 dias</li>
-                        <li>• Plano Anual: +30 dias</li>
-                      </ul>
+                <CardContent className="py-2 px-3">
+                  <div className="bg-green-900/30 p-2 rounded border border-green-700 mb-2">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Gift className="h-3 w-3 text-green-200" />
+                      <span className="text-[10px] text-green-200 font-medium">Recompensas</span>
                     </div>
-                    
-                    <Button
-                      onClick={() => setShowReferralSystem(true)}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <Users className="h-4 w-4 mr-2" />
-                      Indique e Ganhe
-                    </Button>
+                    <ul className="text-[10px] text-green-100 space-y-0.5">
+                      <li>• Mensal: +7 dias</li>
+                      <li>• Trimestral: +14 dias</li>
+                      <li>• Anual: +30 dias</li>
+                    </ul>
                   </div>
+                  
+                  <Button
+                    onClick={() => setShowReferralSystem(true)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white h-7 text-xs"
+                  >
+                    <Users className="h-3 w-3 mr-1" />
+                    Indicar
+                  </Button>
                 </CardContent>
               </Card>
             )}
           </div>
 
           {/* Seção Principal - Acesso Rápido */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-3">
             
             {/* Alert for inactive subscription */}
             {!isSubscriptionActive && !isAdmin && (
               <Card className="bg-red-900/30 border-red-700 backdrop-blur-sm">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <Crown className="h-8 w-8 text-red-400 mx-auto mb-2" />
-                    <h3 className="text-white font-medium mb-2">Assinatura Inativa</h3>
-                    <p className="text-gray-300 text-sm mb-4">
-                      {hasUsedTrialBefore 
-                        ? "Seu teste gratuito expirou. Para acessar todas as funcionalidades do sistema, contrate um de nossos planos."
-                        : "Para acessar todas as funcionalidades do sistema, você precisa de uma assinatura ativa."
-                      }
-                    </p>
-                    <div className="flex gap-2 justify-center">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <Crown className="h-6 w-6 text-red-400 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h3 className="text-white font-medium text-sm">Assinatura Inativa</h3>
+                      <p className="text-gray-300 text-xs">
+                        {hasUsedTrialBefore 
+                          ? "Teste expirou. Contrate um plano."
+                          : "Ative um plano para acessar o sistema."
+                        }
+                      </p>
+                    </div>
+                    <div className="flex gap-1">
                       <Button
                         onClick={() => navigate('/planos')}
-                        className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white h-7 text-xs px-2"
                         size="sm"
                       >
-                        Ver Planos
+                        Planos
                       </Button>
                       {!hasUsedTrialBefore && (
                         <Button
                           onClick={handleActivateFreeTrial}
                           disabled={isActivatingTrial}
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-green-600 hover:bg-green-700 text-white h-7 text-xs px-2"
                           size="sm"
                         >
-                          {isActivatingTrial ? 'Ativando...' : 'Teste Grátis'}
+                          Teste
                         </Button>
                       )}
                     </div>
@@ -1042,105 +1023,102 @@ const UserHomeScreen: React.FC<UserHomeScreenProps> = ({ onOpenCashRegister }) =
             
             {/* Ações Rápidas */}
             <Card className="bg-gray-800/90 border-gray-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white">Acesso Rápido</CardTitle>
+              <CardHeader className="py-2 px-3">
+                <CardTitle className="text-white text-sm">Acesso Rápido</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              <CardContent className="px-3 py-2">
+                <div className="space-y-2">
                   
-                  {/* Botão dinâmico - Abrir Caixa/PDV - 100% width */}
+                  {/* Botão dinâmico - Abrir Caixa/PDV */}
                   <Button
                     onClick={handleOpenCashOrPDV}
-                    className="w-full h-20 bg-pdv-green hover:bg-green-600 text-white flex-col gap-2"
+                    className="w-full h-14 bg-pdv-green hover:bg-green-600 text-white flex-col gap-1"
                     size="lg"
                     disabled={!isSubscriptionActive && !isAdmin}
                   >
-                    <ShoppingCart className="h-6 w-6" />
-                    <span className="text-sm">
-                      {isCashRegisterOpen 
-                        ? "Abrir PDV - (Caixa aberto)" 
-                        : "Abrir Caixa - (Caixa fechado)"
-                      }
+                    <ShoppingCart className="h-5 w-5" />
+                    <span className="text-xs">
+                      {isCashRegisterOpen ? "PDV (Caixa aberto)" : "Abrir Caixa"}
                     </span>
                   </Button>
                   
-                  {/* Row 1 - Dashboard and Estoque - 50% each */}
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Row 1 - Dashboard and Estoque */}
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => handleNavigation('/dashboard')}
-                      className="h-20 bg-blue-600 hover:bg-blue-700 text-white flex-col gap-2"
+                      className="h-14 bg-blue-600 hover:bg-blue-700 text-white flex-col gap-1"
                       size="lg"
                       disabled={!isSubscriptionActive && !isAdmin}
                     >
-                      <BarChart3 className="h-6 w-6" />
-                      <span className="text-sm">Dashboard</span>
+                      <BarChart3 className="h-5 w-5" />
+                      <span className="text-xs">Dashboard</span>
                     </Button>
                     
                     <Button
                       onClick={() => handleNavigation('/current-stock')}
-                      className="h-20 bg-amber-600 hover:bg-amber-700 text-white flex-col gap-2"
+                      className="h-14 bg-amber-600 hover:bg-amber-700 text-white flex-col gap-1"
                       size="lg"
                       disabled={!isSubscriptionActive && !isAdmin}
                     >
-                      <Archive className="h-6 w-6" />
-                      <span className="text-sm">Estoque</span>
+                      <Archive className="h-5 w-5" />
+                      <span className="text-xs">Estoque</span>
                     </Button>
                   </div>
                   
-                  {/* Row 2 - Materiais and Configurações - 50% each */}
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Row 2 - Materiais and Configurações */}
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => handleNavigation('/materiais')}
-                      className="h-20 bg-purple-600 hover:bg-purple-700 text-white flex-col gap-2"
+                      className="h-14 bg-purple-600 hover:bg-purple-700 text-white flex-col gap-1"
                       size="lg"
                       disabled={!isSubscriptionActive && !isAdmin}
                     >
-                      <BookOpen className="h-6 w-6" />
-                      <span className="text-sm">Materiais</span>
+                      <BookOpen className="h-5 w-5" />
+                      <span className="text-xs">Materiais</span>
                     </Button>
                     
                     <Button
                       onClick={() => handleNavigation('/configuracoes')}
-                      className="h-20 bg-gray-600 hover:bg-gray-700 text-white flex-col gap-2"
+                      className="h-14 bg-gray-600 hover:bg-gray-700 text-white flex-col gap-1"
                       size="lg"
                       disabled={!isSubscriptionActive && !isAdmin}
                     >
                       <Settings className="h-4 w-4" />
-                      <span className="text-sm">Configurações</span>
+                      <span className="text-xs">Configurações</span>
                     </Button>
                   </div>
                   
-                  {/* Row 3 - Guia Completo do Sistema - 100% width */}
+                  {/* Row 3 - Guia Completo */}
                   <Button
                     onClick={() => navigate('/guia-completo')}
-                    className="w-full h-20 bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex-col gap-2"
+                    className="w-full h-12 bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex-col gap-1"
                     size="lg"
                   >
-                    <BookOpen className="h-6 w-6" />
-                    <span className="text-sm">Guia Completo</span>
+                    <BookOpen className="h-5 w-5" />
+                    <span className="text-xs">Guia Completo</span>
                   </Button>
                   
-                  {/* Row 4 - Suporte WhatsApp and Relatar Erro - 50% each */}
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Row 4 - Suporte and Erro */}
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => {
-                        const message = encodeURIComponent('Olá! Preciso de ajuda com o Sistema XLata.site. Podem me ajudar?');
+                        const message = encodeURIComponent('Olá! Preciso de ajuda com o Sistema XLata.site.');
                         window.open(`https://wa.me/5511963512105?text=${message}`, '_blank');
                       }}
-                      className="h-16 bg-transparent border-2 border-solid border-green-600 text-green-400 hover:bg-green-600 hover:text-white flex-col gap-1"
-                      size="lg"
+                      className="h-10 bg-transparent border border-green-600 text-green-400 hover:bg-green-600 hover:text-white flex-col gap-0.5"
+                      size="sm"
                     >
-                      <Phone className="h-5 w-5" />
-                      <span className="text-xs">Suporte WhatsApp</span>
+                      <Phone className="h-4 w-4" />
+                      <span className="text-[10px]">WhatsApp</span>
                     </Button>
                     
                     <Button
                       onClick={() => setShowErrorReportModal(true)}
-                      className="h-16 bg-transparent border-2 border-solid border-red-600 text-red-400 hover:bg-red-600 hover:text-white flex-col gap-1"
-                      size="lg"
+                      className="h-10 bg-transparent border border-red-600 text-red-400 hover:bg-red-600 hover:text-white flex-col gap-0.5"
+                      size="sm"
                     >
-                      <MessageSquare className="h-5 w-5" />
-                      <span className="text-xs">Relatar Erro</span>
+                      <MessageSquare className="h-4 w-4" />
+                      <span className="text-[10px]">Relatar Erro</span>
                     </Button>
                   </div>
                   
@@ -1148,39 +1126,31 @@ const UserHomeScreen: React.FC<UserHomeScreenProps> = ({ onOpenCashRegister }) =
               </CardContent>
             </Card>
 
-            {/* Bem-vindo */}
+            {/* Bem-vindo - Compactado */}
             <Card className="bg-gray-800/90 border-gray-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white">Bem-vindo ao Sistema PDV</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-gray-300">
-                  Olá, {profile?.name || user.email}! Você está usando o sistema completo de gestão de compra e venda para depósitos de ferro velho.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  <div className="bg-gray-700/50 p-4 rounded-lg">
-                    <h4 className="text-white font-medium mb-2 flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      Segurança e Privacidade
+              <CardContent className="p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-gray-700/50 p-2 rounded">
+                    <h4 className="text-white font-medium text-xs mb-1 flex items-center gap-1">
+                      <Shield className="h-3 w-3" />
+                      Segurança
                     </h4>
-                    <ul className="text-sm text-gray-300 space-y-1">
+                    <ul className="text-[10px] text-gray-300 space-y-0.5">
                       <li>• Autenticação segura</li>
-                      <li>• Backup automático na nuvem</li>
-                      <li>• Acesso protegido por senha</li>
+                      <li>• Backup na nuvem</li>
+                      <li>• Acesso protegido</li>
                     </ul>
                   </div>
                   
-                  <div className="bg-gray-700/50 p-4 rounded-lg">
-                    <h4 className="text-white font-medium mb-2 flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      Recursos Disponíveis
+                  <div className="bg-gray-700/50 p-2 rounded">
+                    <h4 className="text-white font-medium text-xs mb-1 flex items-center gap-1">
+                      <BookOpen className="h-3 w-3" />
+                      Recursos
                     </h4>
-                    <ul className="text-sm text-gray-300 space-y-1">
-                      <li>• Controle de caixa completo</li>
-                      <li>• Gestão de estoque em tempo real</li>
-                      <li>• Relatórios detalhados</li>
-                      <li>• Dashboard com métricas</li>
+                    <ul className="text-[10px] text-gray-300 space-y-0.5">
+                      <li>• Controle de caixa</li>
+                      <li>• Gestão de estoque</li>
+                      <li>• Relatórios</li>
                     </ul>
                   </div>
                 </div>

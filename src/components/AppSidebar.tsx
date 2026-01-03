@@ -125,7 +125,7 @@ export function AppSidebar({
   };
 
   const renderMenuItem = (item: any) => {
-    const baseClass = "flex items-center gap-3 px-3 py-2.5 w-full text-left rounded-md transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-700/60";
+    const baseClass = "flex items-center gap-2 px-2 py-1.5 w-full text-left rounded-sm transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-700/60";
     const activeClass = "bg-slate-800 text-white border-l-2 border-emerald-500 rounded-l-none";
 
     if (item.isAction) {
@@ -141,7 +141,7 @@ export function AppSidebar({
           className={`${baseClass} relative z-10 cursor-pointer`}
         >
           <item.icon className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span className="text-sm">{item.title}</span>}
+          {!collapsed && <span className="text-xs">{item.title}</span>}
         </button>
       );
     }
@@ -155,34 +155,34 @@ export function AppSidebar({
         }
       >
         <item.icon className="h-4 w-4 flex-shrink-0" />
-        {!collapsed && <span className="text-sm">{item.title}</span>}
+        {!collapsed && <span className="text-xs">{item.title}</span>}
       </NavLink>
     );
   };
 
   return (
-    <Sidebar className={`${collapsed ? 'w-16' : 'w-60'} bg-slate-900 border-r border-slate-700`}>
+    <Sidebar className={`${collapsed ? 'w-14' : 'w-48'} bg-slate-900 border-r border-slate-700`}>
       <SidebarContent className="bg-slate-900 flex flex-col h-full">
         {/* Logo Header */}
-        <div className="p-4 border-b border-slate-700">
-          <div className="flex items-center gap-3">
+        <div className="p-2 border-b border-slate-700">
+          <div className="flex items-center gap-2">
             <SystemLogo size="sm" />
             {!collapsed && (
               <div>
-                <span className="text-white font-semibold text-sm">XLATA</span>
-                <span className="text-slate-500 text-xs block">Gestor PDV</span>
+                <span className="text-white font-semibold text-xs">XLATA</span>
+                <span className="text-slate-500 text-[10px] block">Gestor PDV</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Principal */}
-        <SidebarGroup className="py-4">
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+        <SidebarGroup className="py-1">
+          <SidebarGroupLabel className="px-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-0.5">
             {!collapsed && "Principal"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
-            <SidebarMenu className="space-y-1">
+          <SidebarGroupContent className="px-1">
+            <SidebarMenu className="space-y-0">
               {principalItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
@@ -193,12 +193,12 @@ export function AppSidebar({
         </SidebarGroup>
 
         {/* Operações */}
-        <SidebarGroup className="py-2">
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+        <SidebarGroup className="py-1">
+          <SidebarGroupLabel className="px-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-0.5">
             {!collapsed && "Operações"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
-            <SidebarMenu className="space-y-1">
+          <SidebarGroupContent className="px-1">
+            <SidebarMenu className="space-y-0">
               {operacoesItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
@@ -209,12 +209,12 @@ export function AppSidebar({
         </SidebarGroup>
 
         {/* Configurações */}
-        <SidebarGroup className="py-2">
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+        <SidebarGroup className="py-1">
+          <SidebarGroupLabel className="px-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider mb-0.5">
             {!collapsed && "Sistema"}
           </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
-            <SidebarMenu className="space-y-1">
+          <SidebarGroupContent className="px-1">
+            <SidebarMenu className="space-y-0">
               {configuracoesItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {renderMenuItem(item)}
@@ -226,9 +226,9 @@ export function AppSidebar({
 
         {/* Extras - Collapsible */}
         {!collapsed && (
-          <SidebarGroup className="py-2">
-            <SidebarGroupContent className="px-2">
-              <SidebarMenu className="space-y-1">
+          <SidebarGroup className="py-1">
+            <SidebarGroupContent className="px-1">
+              <SidebarMenu className="space-y-0">
                 {extraItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     {renderMenuItem(item)}
@@ -241,18 +241,18 @@ export function AppSidebar({
 
         {/* Admin */}
         {isAdmin && (
-          <SidebarGroup className="py-2">
-            <SidebarGroupLabel className="px-4 text-xs font-medium text-emerald-600 uppercase tracking-wider mb-2">
+          <SidebarGroup className="py-1">
+            <SidebarGroupLabel className="px-2 text-[10px] font-medium text-emerald-600 uppercase tracking-wider mb-0.5">
               {!collapsed && "Admin"}
             </SidebarGroupLabel>
-            <SidebarGroupContent className="px-2">
-              <SidebarMenu className="space-y-1">
+            <SidebarGroupContent className="px-1">
+              <SidebarMenu className="space-y-0">
                 {adminItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <NavLink
                       to={item.href}
                       className={({ isActive }) => 
-                        `flex items-center gap-3 px-3 py-2.5 w-full rounded-md transition-all duration-200 ${
+                        `flex items-center gap-2 px-2 py-1.5 w-full rounded-sm transition-all duration-200 ${
                           isActive 
                             ? 'bg-emerald-900/30 text-emerald-400 border-l-2 border-emerald-500 rounded-l-none' 
                             : 'text-emerald-500 hover:text-emerald-400 hover:bg-emerald-900/20'
@@ -260,7 +260,7 @@ export function AppSidebar({
                       }
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
-                      {!collapsed && <span className="text-sm">{item.title}</span>}
+                      {!collapsed && <span className="text-xs">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuItem>
                 ))}
@@ -271,14 +271,14 @@ export function AppSidebar({
 
         {/* Status da Assinatura - Minimalista */}
         {subscription && !collapsed && (
-          <div className="px-4 py-3 mt-auto">
-            <div className="flex items-center justify-between text-xs">
+          <div className="px-2 py-1.5 mt-auto">
+            <div className="flex items-center justify-between text-[10px]">
               <span className="text-slate-500">Plano</span>
               <span className="text-emerald-500 font-medium">
                 {subscription.plan_type === 'trial' ? 'Teste' : 'Ativo'}
               </span>
             </div>
-            <div className="flex items-center justify-between text-xs mt-1">
+            <div className="flex items-center justify-between text-[10px] mt-0.5">
               <span className="text-slate-500">Expira</span>
               <span className="text-slate-400">
                 {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
@@ -288,14 +288,14 @@ export function AppSidebar({
         )}
 
         {/* Logout */}
-        <div className="mt-auto p-3 border-t border-slate-700">
+        <div className="mt-auto p-1.5 border-t border-slate-700">
           <Button
             variant="ghost"
             onClick={handleSignOut}
-            className="w-full text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 justify-start h-10"
+            className="w-full text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 justify-start h-7 text-xs"
           >
-            <LogOut className="h-4 w-4 mr-3" />
-            {!collapsed && <span className="text-sm">Sair</span>}
+            <LogOut className="h-3.5 w-3.5 mr-2" />
+            {!collapsed && <span>Sair</span>}
           </Button>
         </div>
       </SidebarContent>
