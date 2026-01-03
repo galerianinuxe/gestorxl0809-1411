@@ -193,9 +193,7 @@ const Settings: React.FC = () => {
     }
   }, [user]);
 
-  const fontSizeClass = "text-[130%]";
-  const inputFontSizeClass = "text-[148%] md:text-[163%]";
-  const inputStyles = `bg-[#000] text-[#10B981] border-gray-500 ${inputFontSizeClass} placeholder-[#10B981]`;
+  // Using consistent styling with the rest of the project
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -277,47 +275,47 @@ const Settings: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-pdv-dark text-white flex items-center justify-center">
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pdv-green mx-auto mb-4"></div>
-          <p className="text-lg">Carregando configurações...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-base text-slate-300">Carregando configurações...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-pdv-dark text-white">
+    <div className="min-h-screen bg-slate-900 text-white">
       {/* Header */}
-      <div className="bg-pdv-dark-light border-b border-gray-700 p-4">
-        <div className="flex items-center gap-3">
+      <div className="bg-slate-800 border-b border-slate-700 p-4">
+        <div className="flex items-center gap-3 max-w-7xl mx-auto">
           <Link to="/">
-            <Button variant="outline" size="icon" className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700">
+            <Button variant="outline" size="icon" className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600">
               <span className="sr-only">Voltar</span>
               &larr;
             </Button>
           </Link>
-          <SettingsIcon className="h-6 w-6 text-pdv-green" />
-          <h1 className={`text-2xl font-bold ${fontSizeClass} text-white`}>
+          <SettingsIcon className="h-6 w-6 text-emerald-500" />
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
             Configurações do Sistema
           </h1>
         </div>
       </div>
 
-      <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+      <div className="p-3 sm:p-4 md:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-7xl mx-auto">
           {/* Formulário de Configurações */}
-          <Card className="bg-pdv-dark-light border-gray-700">
-            <CardHeader className="pb-4">
-              <CardTitle className={`text-xl font-bold ${fontSizeClass} text-white flex items-center gap-2`}>
-                <SettingsIcon className="h-5 w-5 text-pdv-green" />
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader className="pb-3 px-4">
+              <CardTitle className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+                <SettingsIcon className="h-5 w-5 text-emerald-500" />
                 Configurações da Empresa
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 px-4">
               {/* Logo upload */}
-              <div className="space-y-3">
-                <Label className={`block ${fontSizeClass} text-white font-semibold`} htmlFor="logo">
+              <div className="space-y-2">
+                <Label className="block text-sm text-slate-300 font-medium" htmlFor="logo">
                   Logotipo da empresa
                 </Label>
                 <div className="flex items-center gap-4">
@@ -326,10 +324,10 @@ const Settings: React.FC = () => {
                       <img
                         src={logoPreview}
                         alt="Logo da empresa"
-                        className="w-24 h-24 object-contain bg-white rounded-lg shadow-md border-2 border-gray-600"
+                        className="w-20 h-20 object-contain bg-white rounded-lg border border-slate-600"
                       />
                     ) : (
-                      <div className="w-24 h-24 flex items-center justify-center bg-gray-800 text-gray-400 rounded-lg border-2 border-dashed border-gray-600">
+                      <div className="w-20 h-20 flex items-center justify-center bg-slate-700 text-slate-400 rounded-lg border-2 border-dashed border-slate-600">
                         <span className="text-xs text-center">Sem logo</span>
                       </div>
                     )}
@@ -346,20 +344,20 @@ const Settings: React.FC = () => {
                     <Button 
                       type="button" 
                       onClick={handleUploadLogoClick} 
-                      className="bg-pdv-green hover:bg-pdv-green/90 text-black font-semibold"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
                     >
                       <Upload className="mr-2 h-4 w-4" /> 
                       Selecionar Logo
                     </Button>
-                    <p className="text-xs text-gray-400 mt-1">PNG com fundo transparente</p>
+                    <p className="text-xs text-slate-400 mt-1">PNG com fundo transparente</p>
                   </div>
                 </div>
               </div>
 
               {/* WhatsApp numbers */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className={`block ${fontSizeClass} text-white font-semibold`} htmlFor="whatsapp1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="block text-sm text-slate-300 font-medium" htmlFor="whatsapp1">
                     WhatsApp 1
                   </Label>
                   <Input
@@ -368,13 +366,13 @@ const Settings: React.FC = () => {
                     placeholder="(11) 96351-2105"
                     value={settings.whatsapp1}
                     maxLength={15}
-                    className={`${inputStyles} h-12`}
+                    className="bg-slate-700 border-slate-600 text-emerald-400 text-base h-11 placeholder:text-slate-500"
                     onChange={handleWhatsapp1Change}
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label className={`block ${fontSizeClass} text-white font-semibold`} htmlFor="whatsapp2">
+                <div className="space-y-1.5">
+                  <Label className="block text-sm text-slate-300 font-medium" htmlFor="whatsapp2">
                     WhatsApp 2
                   </Label>
                   <Input
@@ -383,15 +381,15 @@ const Settings: React.FC = () => {
                     placeholder="(11) 92555-8555"
                     value={settings.whatsapp2}
                     maxLength={15}
-                    className={`${inputStyles} h-12`}
+                    className="bg-slate-700 border-slate-600 text-emerald-400 text-base h-11 placeholder:text-slate-500"
                     onChange={handleWhatsapp2Change}
                   />
                 </div>
               </div>
 
               {/* Address */}
-              <div className="space-y-2">
-                <Label className={`block ${fontSizeClass} text-white font-semibold`} htmlFor="address">
+              <div className="space-y-1.5">
+                <Label className="block text-sm text-slate-300 font-medium" htmlFor="address">
                   Endereço da empresa
                 </Label>
                 <Input
@@ -400,25 +398,26 @@ const Settings: React.FC = () => {
                   placeholder="Rua Exemplo, 123 - Centro, Cidade"
                   value={settings.address}
                   maxLength={120}
-                  className={`${inputStyles} h-12`}
+                  className="bg-slate-700 border-slate-600 text-emerald-400 text-base h-11 placeholder:text-slate-500"
                   onChange={(e) => setSettings(prev => ({ ...prev, address: e.target.value }))}
                 />
               </div>
 
               {/* Advanced Receipt Config Button */}
-              <div className="space-y-2">
-                <Label className={`block ${fontSizeClass} text-white font-semibold`}>
+              <div className="space-y-1.5">
+                <Label className="block text-sm text-slate-300 font-medium">
                   Configurações de Comprovante
                 </Label>
                 <Button
                   type="button"
                   onClick={() => setShowAdvancedConfig(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12"
+                  variant="outline"
+                  className="w-full bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white h-11"
                 >
                   <SettingsIcon className="mr-2 h-4 w-4" />
                   Configurações Avançadas de Comprovante
                 </Button>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-slate-400">
                   Configure tamanhos de fonte e layout para formatos 50mm e 80mm
                 </p>
               </div>
@@ -427,7 +426,7 @@ const Settings: React.FC = () => {
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className={`bg-pdv-green hover:bg-pdv-green/90 text-black font-bold ${fontSizeClass} w-full h-14 mt-8`}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold w-full h-12 mt-4"
               >
                 <Save className="mr-2 h-5 w-5" /> 
                 {saving ? "Salvando..." : "Salvar Configurações"}
@@ -436,26 +435,26 @@ const Settings: React.FC = () => {
           </Card>
 
           {/* Preview do Comprovante */}
-          <Card className="bg-pdv-dark-light border-gray-700">
-            <CardHeader className="pb-4">
-              <CardTitle className={`text-xl font-bold ${fontSizeClass} text-white flex items-center gap-2`}>
-                <Eye className="h-5 w-5 text-pdv-green" />
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader className="pb-3 px-4">
+              <CardTitle className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+                <Eye className="h-5 w-5 text-emerald-500" />
                 Prévia do Comprovante
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4">
               {/* Receipt Format Selector */}
-              <div className="mb-6">
-                <Label className={`block ${fontSizeClass} text-white font-semibold mb-2`}>
+              <div className="mb-4">
+                <Label className="block text-sm text-slate-300 font-medium mb-1.5">
                   Formato do Comprovante
                 </Label>
                 <Select value={receiptFormat} onValueChange={handleReceiptFormatChange}>
-                  <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white h-11">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    <SelectItem value="50mm" className="text-white hover:bg-gray-800">50mm</SelectItem>
-                    <SelectItem value="80mm" className="text-white hover:bg-gray-800">80mm</SelectItem>
+                  <SelectContent className="bg-slate-700 border-slate-600">
+                    <SelectItem value="50mm" className="text-white hover:bg-slate-600">50mm</SelectItem>
+                    <SelectItem value="80mm" className="text-white hover:bg-slate-600">80mm</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -549,7 +548,7 @@ const Settings: React.FC = () => {
                 </div>
               </div>
               
-              <p className="text-xs text-gray-400 text-center mt-4">
+              <p className="text-xs text-slate-400 text-center mt-4">
                 Esta é uma prévia de como seu comprovante aparecerá na impressão
               </p>
             </CardContent>
