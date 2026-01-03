@@ -192,7 +192,7 @@ export const PlansManagement = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -227,7 +227,7 @@ export const PlansManagement = () => {
                       id="plan_id"
                       value={formData.plan_id}
                       onChange={(e) => setFormData({ ...formData, plan_id: e.target.value })}
-                      className="bg-gray-700 border-gray-600 text-white"
+                      className="bg-muted border-border text-foreground"
                       placeholder="ex: mensal"
                     />
                   </div>
@@ -237,7 +237,7 @@ export const PlansManagement = () => {
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="bg-gray-700 border-gray-600 text-white"
+                      className="bg-muted border-border text-foreground"
                       placeholder="ex: Plano Mensal"
                     />
                   </div>
@@ -252,7 +252,7 @@ export const PlansManagement = () => {
                       step="0.01"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: Number(e.target.value), amount: Number(e.target.value) })}
-                      className="bg-gray-700 border-gray-600 text-white"
+                      className="bg-muted border-border text-foreground"
                     />
                   </div>
                   <div>
@@ -261,7 +261,7 @@ export const PlansManagement = () => {
                       id="period"
                       value={formData.period}
                       onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                      className="bg-gray-700 border-gray-600 text-white"
+                      className="bg-muted border-border text-foreground"
                       placeholder="ex: /mês"
                     />
                   </div>
@@ -273,7 +273,7 @@ export const PlansManagement = () => {
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-muted border-border text-foreground"
                     placeholder="ex: Ideal para começar"
                   />
                 </div>
@@ -284,7 +284,7 @@ export const PlansManagement = () => {
                     id="savings"
                     value={formData.savings}
                     onChange={(e) => setFormData({ ...formData, savings: e.target.value })}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-muted border-border text-foreground"
                     placeholder="ex: Economize R$ 50,00"
                   />
                 </div>
@@ -317,8 +317,8 @@ export const PlansManagement = () => {
                 </div>
 
                 {formData.is_promotional && (
-                  <div className="space-y-4 p-4 bg-gray-700 rounded-lg">
-                    <h4 className="text-sm font-medium text-green-400">Configurações Promocionais</h4>
+                  <div className="space-y-4 p-4 bg-muted/50 rounded-lg border border-primary/30">
+                    <h4 className="text-sm font-medium text-emerald-400">Configurações Promocionais</h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="promotional_price">Preço Promocional (R$)</Label>
@@ -328,7 +328,7 @@ export const PlansManagement = () => {
                           step="0.01"
                           value={formData.promotional_price}
                           onChange={(e) => setFormData({ ...formData, promotional_price: Number(e.target.value) })}
-                          className="bg-gray-600 border-gray-500 text-white"
+                          className="bg-muted border-border text-foreground"
                         />
                       </div>
                       <div>
@@ -337,7 +337,7 @@ export const PlansManagement = () => {
                           id="promotional_period"
                           value={formData.promotional_period}
                           onChange={(e) => setFormData({ ...formData, promotional_period: e.target.value })}
-                          className="bg-gray-600 border-gray-500 text-white"
+                          className="bg-muted border-border text-foreground"
                           placeholder="ex: /mês nos 3 primeiros meses"
                         />
                       </div>
@@ -348,7 +348,7 @@ export const PlansManagement = () => {
                         id="promotional_description"
                         value={formData.promotional_description}
                         onChange={(e) => setFormData({ ...formData, promotional_description: e.target.value })}
-                        className="bg-gray-600 border-gray-500 text-white"
+                        className="bg-muted border-border text-foreground"
                         placeholder="ex: Depois R$ 147,90/mês"
                       />
                     </div>
@@ -362,7 +362,7 @@ export const PlansManagement = () => {
                     type="number"
                     value={formData.display_order}
                     onChange={(e) => setFormData({ ...formData, display_order: Number(e.target.value) })}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-muted border-border text-foreground"
                   />
                 </div>
               </div>
@@ -371,7 +371,7 @@ export const PlansManagement = () => {
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleSavePlan} className="bg-green-600 hover:bg-green-700">
+                <Button onClick={handleSavePlan} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                   {editingPlan ? 'Atualizar' : 'Criar'} Plano
                 </Button>
               </div>
@@ -426,7 +426,7 @@ export const PlansManagement = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleEditPlan(plan)}
-                      className="bg-transparent border-gray-600 text-gray-300 hover:bg-gray-600"
+                      className="bg-transparent border-border text-muted-foreground hover:bg-muted"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -434,7 +434,7 @@ export const PlansManagement = () => {
                       variant={plan.is_active ? "destructive" : "outline"}
                       size="sm"
                       onClick={() => handleToggleActive(plan)}
-                      className={plan.is_active ? '' : 'bg-green-600 hover:bg-green-700 text-white'}
+                      className={plan.is_active ? '' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}
                     >
                       {plan.is_active ? 'Desativar' : 'Ativar'}
                     </Button>

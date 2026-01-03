@@ -78,8 +78,10 @@ export const FinancialDashboard = () => {
     revenueGrowth: 0
   });
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [subscriptionFilter, setSubscriptionFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [subscriptionSearch, setSubscriptionSearch] = useState('');
+  const [paymentSearch, setPaymentSearch] = useState('');
   const { logAction } = useAuditLog();
 
   useEffect(() => {
@@ -264,23 +266,23 @@ export const FinancialDashboard = () => {
   };
 
   const filteredSubscriptions = subscriptions.filter(sub => {
-    const matchesSearch = sub.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (sub.user_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    const matchesSearch = sub.user_email.toLowerCase().includes(subscriptionSearch.toLowerCase()) ||
+      (sub.user_name?.toLowerCase() || '').includes(subscriptionSearch.toLowerCase());
     
-    if (filterStatus === 'all') return matchesSearch;
-    if (filterStatus === 'active') return matchesSearch && sub.is_active && new Date(sub.expires_at) > new Date();
-    if (filterStatus === 'expired') return matchesSearch && (!sub.is_active || new Date(sub.expires_at) <= new Date());
-    if (filterStatus === 'trial') return matchesSearch && sub.plan_type === 'trial';
-    if (filterStatus === 'paid') return matchesSearch && sub.plan_type !== 'trial';
+    if (subscriptionFilter === 'all') return matchesSearch;
+    if (subscriptionFilter === 'active') return matchesSearch && sub.is_active && new Date(sub.expires_at) > new Date();
+    if (subscriptionFilter === 'expired') return matchesSearch && (!sub.is_active || new Date(sub.expires_at) <= new Date());
+    if (subscriptionFilter === 'trial') return matchesSearch && sub.plan_type === 'trial';
+    if (subscriptionFilter === 'paid') return matchesSearch && sub.plan_type !== 'trial';
     return matchesSearch;
   });
 
   const filteredPayments = pixPayments.filter(payment => {
-    const matchesSearch = payment.payer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.payment_id.includes(searchTerm);
+    const matchesSearch = payment.payer_email.toLowerCase().includes(paymentSearch.toLowerCase()) ||
+      payment.payment_id.includes(paymentSearch);
     
-    if (filterStatus === 'all') return matchesSearch;
-    return matchesSearch && payment.status === filterStatus;
+    if (paymentFilter === 'all') return matchesSearch;
+    return matchesSearch && payment.status === paymentFilter;
   });
 
   if (loading) {
@@ -519,28 +521,28 @@ export const FinancialDashboard = () => {
                   <CreditCard className="h-4 w-4 text-primary" />
                   Assinaturas ({filteredSubscriptions.length})
                 </CardTitle>
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                  <div className="relative flex-1 md:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Buscar..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Filtrar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
-                      <SelectItem value="active">Ativas</SelectItem>
-                      <SelectItem value="expired">Expiradas</SelectItem>
-                      <SelectItem value="trial">Teste</SelectItem>
-                      <SelectItem value="paid">Pagas</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-2 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar..."
+                        value={subscriptionSearch}
+                        onChange={(e) => setSubscriptionSearch(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <Select value={subscriptionFilter} onValueChange={setSubscriptionFilter}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Filtrar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas</SelectItem>
+                        <SelectItem value="active">Ativas</SelectItem>
+                        <SelectItem value="expired">Expiradas</SelectItem>
+                        <SelectItem value="trial">Teste</SelectItem>
+                        <SelectItem value="paid">Pagas</SelectItem>
+                      </SelectContent>
+                    </Select>
                   <Button variant="destructive" size="sm" onClick={handleDeleteExpiredSubscriptions}>
                     <Trash2 className="h-4 w-4 mr-2" />
                     Limpar Expiradas
@@ -616,12 +618,12 @@ export const FinancialDashboard = () => {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       placeholder="Buscar..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      value={paymentSearch}
+                      onChange={(e) => setPaymentSearch(e.target.value)}
                       className="pl-9"
                     />
                   </div>
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <Select value={paymentFilter} onValueChange={setPaymentFilter}>
                     <SelectTrigger className="w-32">
                       <SelectValue placeholder="Filtrar" />
                     </SelectTrigger>
