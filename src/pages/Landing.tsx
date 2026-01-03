@@ -473,7 +473,7 @@ const Landing: React.FC = () => {
             <Button 
               variant="outline" 
               onClick={() => navigate('/register')}
-              className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white"
+              className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white bg-transparent"
             >
               QUERO RESOLVER ISSO
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -612,7 +612,7 @@ const Landing: React.FC = () => {
               Escolha seu plano
             </h2>
             <p className="text-gray-400 text-sm lg:text-base">
-              Todos incluem acesso completo. Sem módulo extra.
+              Todos incluem acesso completo. Sem módulo extra. <span className="text-green-400">Sem fidelidade - cancele quando quiser.</span>
             </p>
           </div>
           
@@ -718,7 +718,7 @@ const Landing: React.FC = () => {
               variant="outline" 
               size="sm"
               onClick={() => window.open('https://wa.me/5511963512105', '_blank')}
-              className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white"
+              className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white bg-transparent"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
               Chamar no WhatsApp
