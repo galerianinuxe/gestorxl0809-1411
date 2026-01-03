@@ -911,17 +911,17 @@ const Index: React.FC = () => {
 
   // CORRIGIDO: Mostrar tela de carregamento enquanto verifica o caixa
   if (isCheckingCashRegister) {
-    return <div className="flex items-center justify-center h-screen bg-pdv-dark text-white">
+    return <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Verificando status do caixa...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-slate-300">Verificando status do caixa...</p>
         </div>
       </div>;
   }
 
   // Show welcome screen when needed - MOVED AFTER ALL HOOKS
   if (showWelcomeScreen) {
-    return <React.Suspense fallback={<div className="flex items-center justify-center h-screen bg-pdv-dark text-white">Carregando...</div>}>
+    return <React.Suspense fallback={<div className="flex items-center justify-center h-screen bg-slate-900 text-white">Carregando...</div>}>
         <WelcomeScreen onOpenCashRegister={handleOpenRegisterClick} />
         <React.Suspense fallback={null}>
           <CashRegisterOpeningModal open={showCashRegisterOpeningModal} onOpenChange={setShowCashRegisterOpeningModal} onComplete={handleCashRegisterOpened} />
@@ -930,12 +930,12 @@ const Index: React.FC = () => {
   }
 
   // Layout responsivo baseado no dispositivo
-  const renderMobileLayout = () => <div className="flex flex-col h-screen">
-      {/* Cabeçalho com switch de modo venda e badge de relatório de erro */}
-      <div className="flex items-center justify-between p-2 bg-pdv-dark gap-3">
+  const renderMobileLayout = () => <div className="flex flex-col h-screen bg-slate-900">
+      {/* Cabeçalho */}
+      <div className="flex items-center justify-between p-2 bg-slate-800 border-b border-slate-700 gap-3">
         <div className="flex items-center gap-3">
-          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" />
-          <Label htmlFor="modo-venda-switch" className="text-white font-semibold select-none">
+          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" className="data-[state=checked]:bg-amber-500" />
+          <Label htmlFor="modo-venda-switch" className={`font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-300'}`}>
             {isSaleMode ? "Modo Venda ATIVADO" : "Modo Venda"}
           </Label>
         </div>
@@ -945,13 +945,13 @@ const Index: React.FC = () => {
             onClick={() => setShowNotificationsModal(true)}
             className={`p-1 border transition-all duration-300 text-white rounded-md relative ${
               unreadCount > 0 
-                ? 'border-yellow-500 hover:border-yellow-400 animate-pulse bg-yellow-500/20 shadow-lg shadow-yellow-500/30' 
-                : 'border-gray-600 hover:border-gray-500 bg-transparent'
+                ? 'border-amber-500 hover:border-amber-400 animate-pulse bg-amber-500/20 shadow-lg shadow-amber-500/30' 
+                : 'border-slate-600 hover:border-slate-500 bg-transparent'
             }`}
             title={unreadCount > 0 ? `${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}` : "Notificações"}
           >
             <Bell className={`w-4 h-4 transition-colors duration-300 ${
-              unreadCount > 0 ? 'text-yellow-300' : 'text-gray-400'
+              unreadCount > 0 ? 'text-amber-300' : 'text-slate-400'
             }`} />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-fade-in">
@@ -959,55 +959,55 @@ const Index: React.FC = () => {
               </span>
             )}
           </button>
-          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-green-900/50 hover:bg-green-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-green-500/30 text-green-300">Dar Sugestão</button>
+          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-emerald-900/50 hover:bg-emerald-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-emerald-500/30 text-emerald-300">Dar Sugestão</button>
         </div>
       </div>
 
-      {/* Lista de Pedidos - Topo */}
-      <div className="h-1/4 border-b border-gray-700">
+      {/* Lista de Pedidos */}
+      <div className="h-1/4 border-b border-slate-700">
         <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
             <MemoizedOrderList customers={customers} activeCustomer={currentCustomer} setCurrentCustomer={handleSelectCustomer} setCurrentOrder={setCurrentOrder} onCustomerDeleted={handleCustomerDeleted} onOrderDeleted={handleOrderDeleted} />
           </React.Suspense>
         </ScrollArea>
       </div>
 
-      {/* Teclado Numérico - Aumentado em 10% */}
-      <div className="h-[44%] border-b border-gray-700">
-        <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+      {/* Teclado Numérico */}
+      <div className="h-[44%] border-b border-slate-700">
+        <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
           <MemoizedNumberPad onSubmit={handleNumberPadSubmit} onClear={() => setPesoInput("")} value={pesoInput} />
         </React.Suspense>
       </div>
 
-      {/* Grade de Materiais - Aumentada em 30% */}
-      <div className="h-[20.8%] border-b border-gray-700">
+      {/* Grade de Materiais */}
+      <div className="h-[20.8%] border-b border-slate-700">
         <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
             <MemoizedMaterialGrid materials={materials} onMaterialSelect={handleSelectMaterial} onManualInsert={() => {}} isSaleMode={isSaleMode} hasActiveOrder={!!activeOrder} onNewOrderRequest={handleNewOrderRequest} />
           </React.Suspense>
         </ScrollArea>
       </div>
 
-      {/* Detalhes do Pedido - 100% da largura */}
+      {/* Detalhes do Pedido */}
       <div className="flex-1">
         <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
             <MemoizedOrderDetails customer={currentCustomer} activeOrder={activeOrder} onCompleteOrder={handleInitiateCompleteOrder} formatPeso={formatPeso} onDeleteItem={handleDeleteOrderItem} />
           </React.Suspense>
         </ScrollArea>
       </div>
 
       {/* Footer */}
-      <React.Suspense fallback={<div className="bg-pdv-dark text-white p-2">Carregando...</div>}>
+      <React.Suspense fallback={<div className="bg-slate-800 text-slate-300 p-2">Carregando...</div>}>
         <MemoizedFooter onMenuClick={handleMenuClick} currentBalance={currentBalance} onBalanceUpdate={updateCashRegisterBalance} />
       </React.Suspense>
     </div>;
-  const renderTabletLayout = () => <div className="flex flex-col h-screen">
-      {/* Cabeçalho com switch de modo venda e badge de relatório de erro */}
-      <div className="flex items-center justify-between p-2 bg-pdv-dark gap-3">
+  const renderTabletLayout = () => <div className="flex flex-col h-screen bg-slate-900">
+      {/* Cabeçalho */}
+      <div className="flex items-center justify-between p-2 bg-slate-800 border-b border-slate-700 gap-3">
         <div className="flex items-center gap-3">
-          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" />
-          <Label htmlFor="modo-venda-switch" className="text-white font-semibold select-none">
+          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" className="data-[state=checked]:bg-amber-500" />
+          <Label htmlFor="modo-venda-switch" className={`font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-300'}`}>
             {isSaleMode ? "Modo Venda ATIVADO" : "Modo Venda"}
           </Label>
         </div>
@@ -1017,13 +1017,13 @@ const Index: React.FC = () => {
             onClick={() => setShowNotificationsModal(true)}
             className={`p-1 border transition-all duration-300 text-white rounded-md relative ${
               unreadCount > 0 
-                ? 'border-yellow-500 hover:border-yellow-400 animate-pulse bg-yellow-500/20 shadow-lg shadow-yellow-500/30' 
-                : 'border-gray-600 hover:border-gray-500 bg-transparent'
+                ? 'border-amber-500 hover:border-amber-400 animate-pulse bg-amber-500/20 shadow-lg shadow-amber-500/30' 
+                : 'border-slate-600 hover:border-slate-500 bg-transparent'
             }`}
             title={unreadCount > 0 ? `${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}` : "Notificações"}
           >
             <Bell className={`w-4 h-4 transition-colors duration-300 ${
-              unreadCount > 0 ? 'text-yellow-300' : 'text-gray-400'
+              unreadCount > 0 ? 'text-amber-300' : 'text-slate-400'
             }`} />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-fade-in">
@@ -1031,57 +1031,57 @@ const Index: React.FC = () => {
               </span>
             )}
           </button>
-          <button onClick={() => setShowPrintConfirmModal(true)} className="p-2 border border-purple-500 hover:border-purple-400 bg-transparent text-white rounded-md transition-colors duration-200">
+          <button onClick={() => setShowPrintConfirmModal(true)} className="p-2 border border-slate-600 hover:border-emerald-500 bg-transparent text-slate-300 hover:text-white rounded-md transition-colors duration-200">
             <Printer className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-green-900/50 hover:bg-green-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-green-500/30 text-green-300">Dar Sugestão</button>
+          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-emerald-900/50 hover:bg-emerald-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-emerald-500/30 text-emerald-300">Dar Sugestão</button>
         </div>
       </div>
 
-      {/* Lista de Pedidos - Topo */}
-      <div className="h-1/4 border-b border-gray-700">
+      {/* Lista de Pedidos */}
+      <div className="h-1/4 border-b border-slate-700">
         <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
             <MemoizedOrderList customers={customers} activeCustomer={currentCustomer} setCurrentCustomer={handleSelectCustomer} setCurrentOrder={setCurrentOrder} onCustomerDeleted={handleCustomerDeleted} onOrderDeleted={handleOrderDeleted} />
           </React.Suspense>
         </ScrollArea>
       </div>
 
-      {/* Teclado Numérico - Aumentado em 10% */}
-      <div className="h-[44%] border-b border-gray-700">
-        <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+      {/* Teclado Numérico */}
+      <div className="h-[44%] border-b border-slate-700">
+        <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
           <MemoizedNumberPad onSubmit={handleNumberPadSubmit} onClear={() => setPesoInput("")} value={pesoInput} />
         </React.Suspense>
       </div>
 
-      {/* Grade de Materiais - Aumentada em 30% */}
-      <div className="h-[20.8%] border-b border-gray-700">
+      {/* Grade de Materiais */}
+      <div className="h-[20.8%] border-b border-slate-700">
         <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
             <MemoizedMaterialGrid materials={materials} onMaterialSelect={handleSelectMaterial} onManualInsert={() => {}} isSaleMode={isSaleMode} hasActiveOrder={!!activeOrder} onNewOrderRequest={handleNewOrderRequest} />
           </React.Suspense>
         </ScrollArea>
       </div>
 
-      {/* Detalhes do Pedido - 100% da largura */}
+      {/* Detalhes do Pedido */}
       <div className="flex-1">
         <ScrollArea className="h-full">
-          <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+          <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
             <MemoizedOrderDetails customer={currentCustomer} activeOrder={activeOrder} onCompleteOrder={handleInitiateCompleteOrder} formatPeso={formatPeso} onDeleteItem={handleDeleteOrderItem} />
           </React.Suspense>
         </ScrollArea>
       </div>
 
       {/* Footer */}
-      <React.Suspense fallback={<div className="bg-pdv-dark text-white p-2">Carregando...</div>}>
+      <React.Suspense fallback={<div className="bg-slate-800 text-slate-300 p-2">Carregando...</div>}>
         <MemoizedFooter onMenuClick={handleMenuClick} currentBalance={currentBalance} onBalanceUpdate={updateCashRegisterBalance} />
       </React.Suspense>
     </div>;
   const renderDesktopLayout = () => <>
-      <div className="flex items-center justify-between p-2 bg-pdv-dark gap-3">
+      <div className="flex items-center justify-between p-2 bg-slate-800 border-b border-slate-700 gap-3">
         <div className="flex items-center gap-3">
-          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" />
-          <Label htmlFor="modo-venda-switch" className="text-white font-semibold select-none">
+          <Switch checked={isSaleMode} onCheckedChange={handleSaleModeToggle} id="modo-venda-switch" className="data-[state=checked]:bg-amber-500" />
+          <Label htmlFor="modo-venda-switch" className={`font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-300'}`}>
             {isSaleMode ? "Modo Venda ATIVADO" : "Modo Venda"}
           </Label>
         </div>
@@ -1091,13 +1091,13 @@ const Index: React.FC = () => {
             onClick={() => setShowNotificationsModal(true)}
             className={`p-1 border transition-all duration-300 text-white rounded-md relative ${
               unreadCount > 0 
-                ? 'border-yellow-500 hover:border-yellow-400 animate-pulse bg-yellow-500/20 shadow-lg shadow-yellow-500/30' 
-                : 'border-gray-600 hover:border-gray-500 bg-transparent'
+                ? 'border-amber-500 hover:border-amber-400 animate-pulse bg-amber-500/20 shadow-lg shadow-amber-500/30' 
+                : 'border-slate-600 hover:border-slate-500 bg-transparent'
             }`}
             title={unreadCount > 0 ? `${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}` : "Notificações"}
           >
             <Bell className={`w-4 h-4 transition-colors duration-300 ${
-              unreadCount > 0 ? 'text-yellow-300' : 'text-gray-400'
+              unreadCount > 0 ? 'text-amber-300' : 'text-slate-400'
             }`} />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-fade-in">
@@ -1107,25 +1107,25 @@ const Index: React.FC = () => {
           </button>
           <button 
             onClick={() => setShowPrintConfirmModal(true)} 
-            className="p-1 border border-purple-500 hover:border-purple-400 bg-transparent text-white rounded-md transition-colors duration-200"
+            className="p-1 border border-slate-600 hover:border-emerald-500 bg-transparent text-slate-300 hover:text-white rounded-md transition-colors duration-200"
             title="Imprimir tabela"
           >
             <Printer className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-green-900/50 hover:bg-green-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-green-500/30 text-green-300">Dar Sugestão</button>
+          <button onClick={() => setShowErrorReportModal(true)} className="text-xs bg-emerald-900/50 hover:bg-emerald-800/50 px-2 py-1 rounded-md transition-colors duration-200 border border-emerald-500/30 text-emerald-300">Dar Sugestão</button>
         </div>
       </div>
       
-      <div className="flex-1 flex overflow-hidden">
-        <div className="w-1/4 flex flex-col border-r border-gray-700">
+      <div className="flex-1 flex overflow-hidden bg-slate-900">
+        <div className="w-1/4 flex flex-col border-r border-slate-700">
           <div className="h-3/5">
-            <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+            <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
               <MemoizedNumberPad onSubmit={handleNumberPadSubmit} onClear={() => setPesoInput("")} value={pesoInput} />
             </React.Suspense>
           </div>
-          <div className="h-2/5 border-t border-gray-700">
+          <div className="h-2/5 border-t border-slate-700">
             <ScrollArea className="h-full touch-auto">
-              <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+              <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
                 <MemoizedOrderList customers={customers} activeCustomer={currentCustomer} setCurrentCustomer={handleSelectCustomer} setCurrentOrder={setCurrentOrder} onCustomerDeleted={handleCustomerDeleted} onOrderDeleted={handleOrderDeleted} />
               </React.Suspense>
             </ScrollArea>
@@ -1135,15 +1135,15 @@ const Index: React.FC = () => {
         <div className="w-3/4 flex flex-col">
           <div className="h-1/2">
             <ScrollArea className="h-full touch-auto">
-              <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+              <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
                 <MemoizedMaterialGrid materials={materials} onMaterialSelect={handleSelectMaterial} onManualInsert={() => {}} isSaleMode={isSaleMode} hasActiveOrder={!!activeOrder} onNewOrderRequest={handleNewOrderRequest} />
               </React.Suspense>
             </ScrollArea>
           </div>
           
-          <div className="h-1/2 border-t border-gray-700">
+          <div className="h-1/2 border-t border-slate-700">
             <ScrollArea className="h-full touch-auto">
-              <React.Suspense fallback={<div className="bg-pdv-dark text-white p-4">Carregando...</div>}>
+              <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
                 <MemoizedOrderDetails customer={currentCustomer} activeOrder={activeOrder} onCompleteOrder={handleInitiateCompleteOrder} formatPeso={formatPeso} onDeleteItem={handleDeleteOrderItem} />
               </React.Suspense>
             </ScrollArea>
@@ -1151,12 +1151,12 @@ const Index: React.FC = () => {
         </div>
       </div>
       
-      <React.Suspense fallback={<div className="bg-pdv-dark text-white p-2">Carregando...</div>}>
+      <React.Suspense fallback={<div className="bg-slate-800 text-slate-300 p-2">Carregando...</div>}>
         <MemoizedFooter onMenuClick={handleMenuClick} currentBalance={currentBalance} onBalanceUpdate={updateCashRegisterBalance} />
       </React.Suspense>
     </>;
-  return <div className="flex flex-col h-screen touch-auto">
-      <React.Suspense fallback={<div className="bg-pdv-dark text-white p-2">Carregando...</div>}>
+  return <div className="flex flex-col h-screen touch-auto bg-slate-900">
+      <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-2">Carregando...</div>}>
         <CashRegisterOpeningModal open={showCashRegisterOpeningModal} onOpenChange={setShowCashRegisterOpeningModal} onComplete={handleCashRegisterOpened} />
       </React.Suspense>
       

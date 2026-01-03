@@ -153,60 +153,59 @@ const Footer: React.FC<FooterProps> = ({
     });
   };
 
-  // Layout específico para mobile e tablet baseado na imagem
+  // Layout específico para mobile e tablet
   if (isMobileOrTablet) {
     return <>
-        <footer className="bg-pdv-dark text-white border-t border-gray-700">
+        <footer className="bg-slate-800 text-white border-t border-slate-700">
           {/* Primeira linha - Status e informações */}
-          <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700">
+          <div className="flex justify-between items-center px-4 py-2 border-b border-slate-700">
             <div className="flex items-center space-x-4">
-              {/* Status de conexão com ícones apenas */}
               <div className="flex items-center gap-2">
                 <div title={isServerOnline ? 'Servidor Online' : 'Servidor Offline'}>
-                  <Server className={`h-4 w-4 ${isServerOnline ? 'text-green-500' : 'text-red-500'}`} />
+                  <Server className={`h-4 w-4 ${isServerOnline ? 'text-emerald-500' : 'text-red-500'}`} />
                 </div>
                 <div title={isInternetOnline ? 'Internet Online' : 'Internet Offline'}>
-                  <Wifi className={`h-4 w-4 ${isInternetOnline ? 'text-green-500' : 'text-red-500'}`} />
+                  <Wifi className={`h-4 w-4 ${isInternetOnline ? 'text-emerald-500' : 'text-red-500'}`} />
                 </div>
               </div>
               
               <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-300 text-xs">{formatTime(currentTime)}</span>
+                <Clock className="h-4 w-4 text-slate-400" />
+                <span className="text-slate-300 text-xs">{formatTime(currentTime)}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <BalanceProtection balance={currentBalance} />
-              <button onClick={() => setIsButtonsExpanded(!isButtonsExpanded)} className="p-1 hover:bg-gray-800 rounded transition-colors bg-emerald-500 hover:bg-emerald-600">
+              <button onClick={() => setIsButtonsExpanded(!isButtonsExpanded)} className="p-1 rounded transition-colors bg-emerald-600 hover:bg-emerald-700">
                 {isButtonsExpanded ? <ChevronDown className="h-4 w-4 text-white" /> : <ChevronUp className="h-4 w-4 text-white" />}
               </button>
             </div>
           </div>
 
           {/* Segunda linha - Botões principais (expansível) */}
-          {isButtonsExpanded && <div className="flex justify-between items-center px-2 py-3">
-              <button onClick={handleCloseDayClick} className="flex flex-col items-center justify-center p-2 text-red-500 hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+          {isButtonsExpanded && <div className="flex justify-between items-center px-2 py-3 bg-slate-800">
+              <button onClick={handleCloseDayClick} className="flex flex-col items-center justify-center p-2 text-red-400 hover:bg-slate-700 rounded transition-colors min-w-[60px]">
                 <X className="h-5 w-5 mb-1" />
                 <span className="text-xs font-medium">Fechar</span>
               </button>
               
-              <button onClick={handleAddFundsClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+              <button onClick={handleAddFundsClick} className="flex flex-col items-center justify-center p-2 text-slate-300 hover:bg-slate-700 hover:text-white rounded transition-colors min-w-[60px]">
                 <DollarSign className="h-5 w-5 mb-1" />
                 <span className="text-xs text-center">Saldo</span>
               </button>
               
-              <button onClick={handleExpenseClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+              <button onClick={handleExpenseClick} className="flex flex-col items-center justify-center p-2 text-slate-300 hover:bg-slate-700 hover:text-white rounded transition-colors min-w-[60px]">
                 <Receipt className="h-5 w-5 mb-1" />
                 <span className="text-xs text-center">Despesa</span>
               </button>
               
-              <button onClick={handleCalculatorClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+              <button onClick={handleCalculatorClick} className="flex flex-col items-center justify-center p-2 text-slate-300 hover:bg-slate-700 hover:text-white rounded transition-colors min-w-[60px]">
                 <Calculator className="h-5 w-5 mb-1" />
                 <span className="text-xs text-center">Calc</span>
               </button>
               
-              <button onClick={handleMenuClick} className="flex flex-col items-center justify-center p-2 text-white hover:bg-gray-800 rounded transition-colors min-w-[60px]">
+              <button onClick={handleMenuClick} className="flex flex-col items-center justify-center p-2 text-slate-300 hover:bg-slate-700 hover:text-white rounded transition-colors min-w-[60px]">
                 <Menu className="h-5 w-5 mb-1" />
                 <span className="text-xs text-center">Menu</span>
               </button>
@@ -228,53 +227,52 @@ const Footer: React.FC<FooterProps> = ({
 
   // Layout original para desktop
   return <>
-      <footer className="bg-pdv-dark text-white p-3 border-t border-gray-700">
+      <footer className="bg-slate-800 text-white p-3 border-t border-slate-700">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            {/* Fechar Dia button with special styling */}
-            <button onClick={handleCloseDayClick} className="border border-red-500 hover:bg-red-500 hover:border-red-500 text-red-500 hover:text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleCloseDayClick} className="border border-red-500 hover:bg-red-600 hover:border-red-600 text-red-400 hover:text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
               <X className="h-4 w-4" />
               Fechar Dia
             </button>
             
-            <button onClick={handleAddFundsClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleAddFundsClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               Adicionar Saldo
             </button>
             
-            <button onClick={handleExpenseClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleExpenseClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
               <Receipt className="h-4 w-4" />
               Adicionar Despesa
             </button>
             
-            <button onClick={handleCalculatorClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleCalculatorClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
               <Calculator className="h-4 w-4" />
               Calculadora
             </button>
             
-            <button onClick={handleMenuClick} className="border-2 border-transparent hover:border-white text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
-              ≡ Menu
+            <button onClick={handleMenuClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+              <Menu className="h-4 w-4" />
+              Menu
             </button>
             
-            {/* Status do Sistema com ícones apenas para desktop */}
-            <div className="flex items-center space-x-3 text-sm">
+            <div className="flex items-center space-x-3 text-sm border-l border-slate-600 pl-4">
               <div className="flex items-center gap-2">
                 <div title={isServerOnline ? 'Servidor Online' : 'Servidor Offline'}>
-                  <Server className={`h-4 w-4 ${isServerOnline ? 'text-green-500' : 'text-red-500'}`} />
+                  <Server className={`h-4 w-4 ${isServerOnline ? 'text-emerald-500' : 'text-red-500'}`} />
                 </div>
                 <div title={isInternetOnline ? 'Internet Online' : 'Internet Offline'}>
-                  <Wifi className={`h-4 w-4 ${isInternetOnline ? 'text-green-500' : 'text-red-500'}`} />
+                  <Wifi className={`h-4 w-4 ${isInternetOnline ? 'text-emerald-500' : 'text-red-500'}`} />
                 </div>
               </div>
               
               <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-300">{formatDate(currentTime)}</span>
+                <Calendar className="h-4 w-4 text-slate-400" />
+                <span className="text-slate-300">{formatDate(currentTime)}</span>
               </div>
               
               <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-300">{formatTime(currentTime)}</span>
+                <Clock className="h-4 w-4 text-slate-400" />
+                <span className="text-slate-300">{formatTime(currentTime)}</span>
               </div>
             </div>
 

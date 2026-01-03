@@ -256,31 +256,31 @@ const OrderList: React.FC<OrderListProps> = ({
     return Array.from(customersMap.values());
   }, [customers, openOrders]);
   if (loading) {
-    return <div className="h-full flex flex-col">
-        <div className="flex justify-between items-center p-4 bg-pdv-dark">
+    return <div className="h-full flex flex-col bg-slate-900">
+        <div className="flex justify-between items-center p-4 bg-slate-800 border-b border-slate-700">
           <h1 className="text-xl font-bold text-white">Pedidos</h1>
         </div>
-        <div className="flex items-center justify-center h-full text-gray-400">
+        <div className="flex items-center justify-center h-full text-slate-400">
           <p>Carregando pedidos...</p>
         </div>
       </div>;
   }
-  return <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center p-4 bg-pdv-dark">
+  return <div className="h-full flex flex-col bg-slate-900">
+      <div className="flex justify-between items-center p-4 bg-slate-800 border-b border-slate-700">
         <h1 className="text-xl font-bold text-white">Pedidos</h1>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" onClick={() => setIsHistoryModalOpen(true)} className="text-white cursor-pointer py-1 text-sm px-[8px] rounded bg-transparent">
+          <Badge variant="outline" onClick={() => setIsHistoryModalOpen(true)} className="text-slate-300 cursor-pointer py-1 text-sm px-[8px] rounded bg-slate-700 border-slate-600 hover:bg-slate-600 hover:text-white transition-colors">
             <History className="h-4 w-4 mr-1" />
             Histórico
           </Badge>
-          <button onClick={handleCreateNewOrder} className="bg-pdv-green text-white px-2 py-1 rounded flex items-center text-sm font-semibold ">
+          <button onClick={handleCreateNewOrder} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded flex items-center text-sm font-semibold transition-colors">
             <span className="mr-1">+</span> Novo Pedido
           </button>
         </div>
       </div>
       
       <div className="overflow-auto flex-1" style={{ height: 'calc(100vh - 120px)' }}>
-        {allCustomers.length === 0 ? <div className="flex items-center justify-center h-full text-gray-400 text-center p-4">
+        {allCustomers.length === 0 ? <div className="flex items-center justify-center h-full text-slate-400 text-center p-4">
             <div>
               <p className="text-lg font-medium mb-2">Nenhum pedido em aberto</p>
               <p className="text-sm">Clique em "Novo Pedido" para começar</p>
@@ -295,24 +295,24 @@ const OrderList: React.FC<OrderListProps> = ({
       }).slice(0, 50).map(customer => {
         const isSelected = activeCustomer?.id === customer.id;
         const openOrder = customer.orders.find(o => o.status === 'open');
-        return <div key={customer.id} onClick={() => handleSelectCustomer(customer)} className={`flex justify-between items-center p-3 border-b border-gray-700 cursor-pointer ${isSelected ? 'bg-[#194530]' : 'hover:bg-pdv-dark'}`}>
+        return <div key={customer.id} onClick={() => handleSelectCustomer(customer)} className={`flex justify-between items-center p-3 border-b border-slate-700 cursor-pointer transition-colors ${isSelected ? 'bg-emerald-900/40 border-l-4 border-l-emerald-500' : 'hover:bg-slate-800'}`}>
                 <div className="text-left flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-white font-medium">{customer.name}</p>
-                    {openOrder && <Badge variant={openOrder.type === 'venda' ? 'default' : 'secondary'} className={`text-xs px-2 py-0.5 ${openOrder.type === 'venda' ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
+                    {openOrder && <Badge variant={openOrder.type === 'venda' ? 'default' : 'secondary'} className={`text-xs px-2 py-0.5 ${openOrder.type === 'venda' ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}>
                         {openOrder.type === 'venda' ? 'Venda' : 'Compra'}
                       </Badge>}
                   </div>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-slate-400 text-sm">
                     {openOrder ? `${openOrder.items.length} itens` : '0 itens'}
                   </p>
                 </div>
                 <div className="flex items-center">
                   <div className="text-right mr-4">
-                    <p className="text-green-500 font-bold">
+                    <p className="text-emerald-400 font-bold">
                       {openOrder ? `R$ ${openOrder.total.toFixed(2)}` : 'R$ 0.00'}
                     </p>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-slate-400 text-sm">
                       {openOrder ? new Date(openOrder.timestamp).toLocaleDateString('pt-BR', {
                   day: '2-digit',
                   month: '2-digit'
@@ -322,7 +322,7 @@ const OrderList: React.FC<OrderListProps> = ({
                 }) : '--/-- --:--'}
                     </p>
                   </div>
-                  <button className="bg-red-600 hover:bg-red-700 text-white w-8 h-8 flex items-center justify-center rounded" onClick={e => confirmDeleteOrder(e, customer)}>
+                  <button className="bg-red-600 hover:bg-red-700 text-white w-8 h-8 flex items-center justify-center rounded transition-colors" onClick={e => confirmDeleteOrder(e, customer)}>
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -335,20 +335,20 @@ const OrderList: React.FC<OrderListProps> = ({
       setIsNewOrderModalOpen(open);
       if (!open) setNewCustomerName("");
     }}>
-        <AlertDialogContent className="bg-pdv-dark border-gray-700">
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-white">Novo Pedido</AlertDialogTitle>
-            <AlertDialogDescription className="text-white">
+            <AlertDialogDescription className="text-slate-300">
               <div className="mt-2">
                 <KeyboardInput id="customerName" label="Nome do Cliente (opcional)" placeholder="# Nome do Cliente" value={newCustomerName} onChange={setNewCustomerName} onKeyboardClose={() => {}} />
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex space-x-2 mt-4">
-            <AlertDialogAction onClick={handleCancelNewOrder} className="bg-gray-600 hover:bg-gray-700 text-white">
+            <AlertDialogAction onClick={handleCancelNewOrder} className="bg-slate-700 hover:bg-slate-600 text-white">
               Cancelar
             </AlertDialogAction>
-            <AlertDialogAction onClick={handleConfirmNewOrder} className="bg-pdv-green hover:bg-pdv-green/90">
+            <AlertDialogAction onClick={handleConfirmNewOrder} className="bg-emerald-600 hover:bg-emerald-700 text-white">
               Criar Pedido
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -357,16 +357,16 @@ const OrderList: React.FC<OrderListProps> = ({
 
       {/* Delete Confirmation Modal */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent className="bg-pdv-dark border-gray-700">
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-white">Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-white">
+            <AlertDialogDescription className="text-slate-300">
               Tem certeza que deseja excluir o pedido atual de {customerToDelete?.name}?
               Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex gap-2">
-            <AlertDialogAction onClick={() => setDeleteConfirmOpen(false)} className="bg-gray-600 hover:bg-gray-700 text-white">
+            <AlertDialogAction onClick={() => setDeleteConfirmOpen(false)} className="bg-slate-700 hover:bg-slate-600 text-white">
               Cancelar
             </AlertDialogAction>
             <AlertDialogAction onClick={handleDeleteOrder} className="bg-red-600 hover:bg-red-700 text-white">

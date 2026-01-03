@@ -277,15 +277,14 @@ const NumberPad: React.FC<NumberPadProps> = ({ onSubmit, onClear, value, disable
   }, [internalValue, onSubmit]);
 
   return (
-    <div className="flex flex-col h-full w-full p-[2%]">
-      {/* Display com formatação de balança e foco condicional */}
+    <div className="flex flex-col h-full w-full p-[2%] bg-slate-900">
+      {/* Display com formatação de balança - mantendo verde original */}
       <div 
         ref={displayRef}
-        className="h-32 bg-black flex items-center justify-center p-4 outline-none cursor-text"
+        className="h-32 bg-slate-950 flex items-center justify-center p-4 outline-none cursor-text border border-slate-700 rounded-sm"
         tabIndex={disableAutoFocus || hasModalOpen ? -1 : 0}
         onKeyDown={handleKeyDown}
         onBlur={(e) => {
-          // Só tenta manter foco se não estiver indo para um input ou modal
           const relatedTarget = e.relatedTarget as Element;
           if (relatedTarget && (
             relatedTarget.tagName === 'INPUT' || 
@@ -300,87 +299,35 @@ const NumberPad: React.FC<NumberPadProps> = ({ onSubmit, onClear, value, disable
             maintainFocus();
           }
         }}
-        onFocus={() => {
-          // Log removido para performance
-        }}
+        onFocus={() => {}}
         style={{ userSelect: 'none' }}
       >
-        <span className="text-6xl font-sans font-bold text-green-500">
+        <span className="text-6xl font-sans font-bold text-emerald-400">
           {formatDisplay(internalValue)}
         </span>
       </div>
 
-      {/* Teclado numérico com layout corrigido */}
-      <div className="flex-1 grid grid-cols-3 gap-[1px] p-[1px]">
-        {/* Primeira linha: 1, 2, 3 */}
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('1')}
-        >
-          1
-        </button>
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('2')}
-        >
-          2
-        </button>
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('3')}
-        >
-          3
-        </button>
-        
-        {/* Segunda linha: 4, 5, 6 */}
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('4')}
-        >
-          4
-        </button>
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('5')}
-        >
-          5
-        </button>
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('6')}
-        >
-          6
-        </button>
-        
-        {/* Terceira linha: 7, 8, 9 */}
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('7')}
-        >
-          7
-        </button>
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('8')}
-        >
-          8
-        </button>
-        <button 
-          className="numpad-btn hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
-          onClick={() => handleDigitClick('9')}
-        >
-          9
-        </button>
+      {/* Teclado numérico */}
+      <div className="flex-1 grid grid-cols-3 gap-[2px] p-[2px] bg-slate-800 mt-1">
+        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
+          <button 
+            key={digit}
+            className="numpad-btn transform active:scale-95 transition-all duration-150" 
+            onClick={() => handleDigitClick(digit)}
+          >
+            {digit}
+          </button>
+        ))}
         
         {/* Quarta linha: 0 (2 colunas) e C (1 coluna) */}
         <button 
-          className="numpad-btn col-span-2 hover:bg-gray-600 active:bg-gray-500 transform active:scale-95 transition-all duration-150" 
+          className="numpad-btn col-span-2 transform active:scale-95 transition-all duration-150" 
           onClick={() => handleDigitClick('0')}
         >
           0
         </button>
         <button 
-          className="numpad-btn hover:bg-red-600 active:bg-red-500 transform active:scale-95 transition-all duration-150 bg-red-700" 
+          className="numpad-btn clear-btn transform active:scale-95 transition-all duration-150" 
           onClick={handleClear}
         >
           C
@@ -388,9 +335,9 @@ const NumberPad: React.FC<NumberPadProps> = ({ onSubmit, onClear, value, disable
       </div>
 
       {/* Botão Zerar Balança */}
-      <div className="grid grid-cols-1 gap-[1px] p-[1px]">
+      <div className="grid grid-cols-1 gap-[2px] p-[2px] bg-slate-800 mt-1">
         <button 
-          className="numpad-btn zero-scale-btn text-zerar-scale text-xl hover:bg-yellow-600 active:bg-yellow-500 transform active:scale-95 transition-all duration-150" 
+          className="numpad-btn zero-scale-btn text-zerar-scale text-xl transform active:scale-95 transition-all duration-150" 
           onClick={handleZeroScale}
         >
           ZERAR BALANÇA

@@ -125,27 +125,27 @@ const MaterialGrid = React.memo(({
 
   return (
     <>
-      <div className={`grid ${getGridCols()} gap-[1px] ${getMinHeight()} bg-gray-700 relative`}>
+      <div className={`grid ${getGridCols()} gap-[2px] ${getMinHeight()} bg-slate-800 relative p-[2px]`}>
         {materials.map((material) => (
           <button
             key={material.id}
             onClick={() => handleMaterialClick(material)}
-            className={`${getMaterialButtonClass()} ${isMobile ? 'p-1' : 'p-2'}`}
+            className={`${getMaterialButtonClass()} ${isMobile ? 'p-1' : 'p-2'} hover:scale-[1.02] active:scale-95`}
           >
-            <span className={`${getNameFontSizeClass()} font-bold text-center leading-tight block`}>
+            <span className={`${getNameFontSizeClass()} font-bold text-center leading-tight block text-white`}>
               {material.name}
             </span>
             {config.showPricePerKg && (
-              <span className={`${getFontSizeClass()} block mt-1`}>
+              <span className={`${getFontSizeClass()} block mt-1 ${isSaleMode ? 'text-amber-200' : 'text-emerald-300'}`}>
                 {formatPrice(material)}
               </span>
             )}
           </button>
         ))}
         
-        {/* Preencher espaços vazios se necessário */}
+        {/* Preencher espaços vazios */}
         {Array.from({ length: Math.max(0, totalSlots - materials.length) }).map((_, index) => (
-          <div key={`empty-${index}`} className="bg-gray-800"></div>
+          <div key={`empty-${index}`} className="bg-slate-900 border border-slate-700"></div>
         ))}
       </div>
 

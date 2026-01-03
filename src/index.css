@@ -142,58 +142,83 @@
 }
 
 .numpad-btn {
-  @apply flex items-center justify-center h-full bg-pdv-dark hover:bg-opacity-70 text-white text-3xl font-bold m-[1px] transition-all border border-white;
-  /* Enhanced hover and click effects */
+  @apply flex items-center justify-center h-full text-white text-3xl font-bold m-[1px] transition-all;
+  background-color: hsl(215 28% 17%);
+  border: 1px solid hsl(215 19% 35%);
   cursor: pointer;
   user-select: none;
 }
 
 .numpad-btn:hover {
-  @apply bg-gray-600 shadow-lg;
+  background-color: hsl(215 25% 25%);
+  border-color: hsl(160 84% 39% / 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transform: translateY(-1px);
 }
 
 .numpad-btn:active {
-  @apply bg-gray-500;
+  background-color: hsl(215 25% 30%);
   transform: scale(0.95) translateY(0);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .calc-btn {
-  @apply flex items-center justify-center h-full bg-gray-800 hover:bg-gray-700 text-white text-3xl font-bold transition-all;
+  @apply flex items-center justify-center h-full text-white text-3xl font-bold transition-all;
+  background-color: hsl(215 28% 17%);
+}
+
+.calc-btn:hover {
+  background-color: hsl(215 25% 25%);
 }
 
 .clear-btn {
-  @apply bg-pdv-dark hover:bg-opacity-70 text-[#fc0000] border border-[#fc0000];
+  background-color: hsl(0 62% 35%) !important;
+  border-color: hsl(0 62% 45%) !important;
+  color: white !important;
+}
+
+.clear-btn:hover {
+  background-color: hsl(0 62% 45%) !important;
 }
 
 .zero-scale-btn {
-  @apply bg-pdv-dark hover:bg-opacity-70 text-[#fcce03] border border-[#fcce03];
+  background-color: hsl(45 93% 47% / 0.15) !important;
+  border: 1px solid hsl(45 93% 47%) !important;
+  color: hsl(45 93% 55%) !important;
 }
 
 .zero-scale-btn:hover {
-  @apply bg-yellow-600 shadow-lg;
+  background-color: hsl(45 93% 47% / 0.3) !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
   transform: translateY(-1px);
 }
 
 .zero-scale-btn:active {
-  @apply bg-yellow-500;
+  background-color: hsl(45 93% 47% / 0.4) !important;
   transform: scale(0.95) translateY(0);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .material-btn {
-  @apply flex flex-col items-center justify-center bg-pdv-green hover:bg-opacity-70 text-white p-2 rounded-none transition-all;
+  @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
+  background-color: hsl(215 28% 26%);
+  border: 1px solid hsl(215 19% 35%);
+}
+
+.material-btn:hover {
+  background-color: hsl(215 28% 32%);
+  border-color: hsl(160 84% 39% / 0.5);
 }
 
 /* Botões de material quando modo venda está ativado */
 .material-btn-sale-mode {
   @apply flex flex-col items-center justify-center text-white p-2 rounded-none transition-all;
-  background-color: #dbac1d !important;
+  background-color: hsl(45 93% 47% / 0.2) !important;
+  border: 1px solid hsl(45 93% 47%) !important;
 }
 
 .material-btn-sale-mode:hover {
-  background-color: #c49a1a !important;
+  background-color: hsl(45 93% 47% / 0.35) !important;
 }
 
 .insert-manually-btn {

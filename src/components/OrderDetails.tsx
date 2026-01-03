@@ -79,17 +79,17 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
 
   if (!customer || !activeOrder) {
     return (
-      <div className="flex items-center justify-center h-full text-center p-4">
-        <p className="text-gray-400">Selecione um cliente e adicione itens ao pedido</p>
+      <div className="flex items-center justify-center h-full text-center p-4 bg-slate-900">
+        <p className="text-slate-400">Selecione um cliente e adicione itens ao pedido</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-slate-900">
       {customer && (
-        <div className="bg-pdv-dark p-4 flex justify-center items-center border-t-[3px] border-[#4fd683]">
-          <h2 className="text-[#4fd683] font-bold" style={{ fontSize: "calc(1.1em * 1.1)" }}>
+        <div className="bg-slate-800 p-4 flex justify-center items-center border-t-2 border-emerald-500">
+          <h2 className="text-emerald-400 font-bold" style={{ fontSize: "calc(1.1em * 1.1)" }}>
             {customer.name} - Pedido
           </h2>
         </div>
@@ -97,7 +97,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
       
       {activeOrder.items.length === 0 ? (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-gray-400">Nenhum item adicionado</p>
+          <p className="text-slate-400">Nenhum item adicionado</p>
         </div>
       ) : (
         <div className="flex flex-col h-full">
@@ -105,33 +105,33 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             {activeOrder.items.length > 0 && (
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className={`w-[35%] text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-2' : ''}`}>Material</TableHead>
-                    <TableHead className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>Qtd</TableHead>
-                    <TableHead className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$/kg</TableHead>
-                    <TableHead className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>Total</TableHead>
+                  <TableRow className="bg-slate-800 hover:bg-slate-800">
+                    <TableHead className={`w-[35%] text-slate-300 ${isMobileOrTablet ? 'text-[10px] py-1 px-2' : ''}`}>Material</TableHead>
+                    <TableHead className={`text-slate-300 ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>Qtd</TableHead>
+                    <TableHead className={`text-slate-300 ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$/kg</TableHead>
+                    <TableHead className={`text-slate-300 ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>Total</TableHead>
                     <TableHead className="w-[8%]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {activeOrder.items.map((item, index) => (
-                    <TableRow key={index} className="no-hover">
+                    <TableRow key={index} className="no-hover border-b border-slate-700">
                       <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-2' : ''}`}>
                         {cleanMaterialName(item.materialName)}
                         {item.tara && item.tara > 0 && (
-                          <div className={`text-yellow-400 ${isMobileOrTablet ? 'text-[8px]' : 'text-xs'}`}>
+                          <div className={`text-amber-400 ${isMobileOrTablet ? 'text-[8px]' : 'text-xs'}`}>
                             Tara: {formatPeso(item.tara).replace('/kg', '')}
                           </div>
                         )}
                       </TableCell>
                       <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>{formatPeso(item.quantity).replace('/kg', '')}</TableCell>
-                      <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.price.toFixed(2)}</TableCell>
-                      <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.total.toFixed(2)}</TableCell>
+                      <TableCell className={`text-slate-300 ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.price.toFixed(2)}</TableCell>
+                      <TableCell className={`text-emerald-400 font-medium ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.total.toFixed(2)}</TableCell>
                       <TableCell className="py-1 px-1">
                         <Button 
                           variant="ghost" 
                           onClick={() => handleDeleteClick(index)}
-                          className={`p-0 ${isMobileOrTablet ? 'h-6 w-6' : 'h-8 w-8'}`}
+                          className={`p-0 hover:bg-red-600/20 ${isMobileOrTablet ? 'h-6 w-6' : 'h-8 w-8'}`}
                         >
                           <Trash2 className={`text-red-500 ${isMobileOrTablet ? 'h-3 w-3' : 'h-4 w-4'}`} />
                         </Button>
@@ -143,24 +143,21 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             )}
           </ScrollArea>
           
-          {/* Fixed total at bottom - Layout específico para mobile/tablet */}
+          {/* Fixed total at bottom */}
           {activeOrder.items.length > 0 && (
-            <div className="bg-pdv-dark p-4 border-t border-gray-700 sticky bottom-0">
+            <div className="bg-slate-800 p-4 border-t border-slate-700 sticky bottom-0">
               {isMobileOrTablet ? (
-                // Layout para mobile e tablet - INVERTIDO E AUMENTADO 15%
                 <div className="flex flex-col gap-3">
                   <div className="flex justify-between items-center">
-                    {/* Peso Total primeiro (antes era segundo) */}
                     <div className="flex items-center">
-                      <p className="text-white font-bold mr-2" style={{ fontSize: 'calc(0.75rem * 1.15)' }}>Peso Total</p>
-                      <p className="text-[#40f597] font-bold" style={{ fontSize: 'calc(0.875rem * 1.15)' }}>
+                      <p className="text-slate-300 font-bold mr-2" style={{ fontSize: 'calc(0.75rem * 1.15)' }}>Peso Total</p>
+                      <p className="text-emerald-400 font-bold" style={{ fontSize: 'calc(0.875rem * 1.15)' }}>
                         {formatPeso(calculateTotalWeight()).replace('/kg', '')} kg
                       </p>
                     </div>
-                    {/* Total segundo (antes era primeiro) */}
                     <div className="flex items-center">
-                      <p className="text-white font-bold mr-2" style={{ fontSize: 'calc(0.75rem * 1.15)' }}>Total</p>
-                      <p className="text-[#40f597] font-bold" style={{ fontSize: 'calc(1rem * 1.15)' }}>
+                      <p className="text-slate-300 font-bold mr-2" style={{ fontSize: 'calc(0.75rem * 1.15)' }}>Total</p>
+                      <p className="text-emerald-400 font-bold" style={{ fontSize: 'calc(1rem * 1.15)' }}>
                         R$ {activeOrder.total.toFixed(2)}
                       </p>
                     </div>
@@ -169,8 +166,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   {hasTaraItems() && (
                     <div className="flex justify-center">
                       <div className="flex items-center">
-                        <p className="text-yellow-400 font-bold mr-2" style={{ fontSize: 'calc(0.75rem * 1.15)' }}>Tara Total</p>
-                        <p className="text-yellow-400 font-bold" style={{ fontSize: 'calc(0.875rem * 1.15)' }}>
+                        <p className="text-amber-400 font-bold mr-2" style={{ fontSize: 'calc(0.75rem * 1.15)' }}>Tara Total</p>
+                        <p className="text-amber-400 font-bold" style={{ fontSize: 'calc(0.875rem * 1.15)' }}>
                           {formatPeso(calculateTotalTara()).replace('/kg', '')} kg
                         </p>
                       </div>
@@ -179,7 +176,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   
                   <button 
                     onClick={onCompleteOrder}
-                    className={`bg-pdv-green text-white px-4 py-2 rounded flex items-center justify-center w-full ${
+                    className={`bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded flex items-center justify-center w-full transition-colors ${
                       isMobileOrTablet 
                         ? 'fixed bottom-0 left-0 right-0 z-50 shadow-lg' 
                         : ''
@@ -192,25 +189,24 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   </button>
                 </div>
               ) : (
-                
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col md:flex-row md:items-center">
                     <div className="flex items-center">
-                      <p className="text-white font-bold mr-2">Total</p>
-                      <p className="text-[#40f597] text-[32.5px] font-bold">
+                      <p className="text-slate-300 font-bold mr-2">Total</p>
+                      <p className="text-emerald-400 text-[32.5px] font-bold">
                         R$ {activeOrder.total.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex items-center md:ml-6 mt-1 md:mt-0">
-                      <p className="text-white font-bold mr-2">Peso Total</p>
-                      <p className="text-[#40f597] text-[24px] font-bold">
+                      <p className="text-slate-300 font-bold mr-2">Peso Total</p>
+                      <p className="text-emerald-400 text-[24px] font-bold">
                         {formatPeso(calculateTotalWeight()).replace('/kg', '')} kg
                       </p>
                       
                       {hasTaraItems() && (
                         <div className="flex items-center ml-4">
-                          <p className="text-yellow-400 font-bold mr-2">Tara Total</p>
-                          <p className="text-yellow-400 text-[18px] font-bold">
+                          <p className="text-amber-400 font-bold mr-2">Tara Total</p>
+                          <p className="text-amber-400 text-[18px] font-bold">
                             {formatPeso(calculateTotalTara()).replace('/kg', '')} kg
                           </p>
                         </div>
@@ -219,7 +215,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   </div>
                   <button 
                     onClick={onCompleteOrder}
-                    className="bg-pdv-green text-white px-4 py-2 rounded flex items-center"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded flex items-center transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
@@ -235,17 +231,17 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent className="bg-pdv-dark border-gray-700">
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-white">Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-white">
+            <AlertDialogDescription className="text-slate-300">
               Tem certeza que deseja excluir este item?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex gap-2">
             <AlertDialogAction
               onClick={() => setDeleteConfirmOpen(false)}
-              className="bg-gray-600 hover:bg-gray-700 text-white"
+              className="bg-slate-700 hover:bg-slate-600 text-white"
             >
               Cancelar
             </AlertDialogAction>
