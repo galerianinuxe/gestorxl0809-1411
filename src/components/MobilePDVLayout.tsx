@@ -223,8 +223,8 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
 
             {/* Detalhes do Pedido Ativo */}
             {activeOrder && (
-              <div className="flex-1 border-t border-slate-700">
-                <ScrollArea className="h-full">
+              <div className="flex-1 border-t border-slate-700 flex flex-col">
+                <ScrollArea className="flex-1">
                   <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-4">Carregando...</div>}>
                     <MemoizedOrderDetails 
                       customer={currentCustomer} 
@@ -235,6 +235,18 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
                     />
                   </React.Suspense>
                 </ScrollArea>
+                
+                {/* Botão Finalizar Pedido */}
+                {activeOrder.items.length > 0 && (
+                  <div className="bg-slate-800 border-t border-slate-700 p-3">
+                    <button
+                      onClick={handleInitiateCompleteOrder}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-base"
+                    >
+                      Finalizar Pedido
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
