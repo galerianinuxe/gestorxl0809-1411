@@ -6,8 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Logo XLATA em base64 para overlay (versão simplificada - círculo verde com X)
-const XLATA_LOGO_URL = 'https://oxawvjcckmbevjztyfgp.supabase.co/storage/v1/object/public/landing-images/xlata-logo.png';
+// Logo XLATA oficial para overlay
+const XLATA_LOGO_URL = 'https://xlata.site/lovable-uploads/XLATALOGO.png';
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -114,10 +114,10 @@ Style Requirements:
     const aiData = await aiResponse.json();
     console.log('AI Response received');
 
-    // Extract image from response
-    const imageData = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    // Extract base image from response
+    const baseImageData = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     
-    if (!imageData) {
+    if (!baseImageData) {
       console.error('No image in AI response:', JSON.stringify(aiData).substring(0, 500));
       return new Response(
         JSON.stringify({ error: 'No image generated' }),
@@ -125,13 +125,71 @@ Style Requirements:
       );
     }
 
-    // Upload image to Supabase Storage
+    console.log('Base image generated, adding XLATA logo overlay...');
+
+    // Second call: Add XLATA logo overlay to the generated image
+    const logoOverlayResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-image',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: `Add the XLATA logo (from the second image) to the bottom-right corner of the first image.
+                
+Requirements:
+- Position the logo in the bottom-right corner with approximately 20-30px padding from edges
+- Make the logo approximately 12-15% of the image width
+- Maintain the logo's original colors and any transparency
+- Integrate the logo smoothly without covering important content
+- Keep the rest of the image EXACTLY as it is - do not modify anything else
+- The logo should look professional and subtle, not overwhelming`
+              },
+              {
+                type: 'image_url',
+                image_url: { url: baseImageData }
+              },
+              {
+                type: 'image_url',
+                image_url: { url: XLATA_LOGO_URL }
+              }
+            ]
+          }
+        ],
+        modalities: ['image', 'text']
+      })
+    });
+
+    let finalImageData = baseImageData; // Fallback to base image if overlay fails
+
+    if (logoOverlayResponse.ok) {
+      const logoOverlayData = await logoOverlayResponse.json();
+      const overlayedImage = logoOverlayData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      
+      if (overlayedImage) {
+        finalImageData = overlayedImage;
+        console.log('Logo overlay applied successfully');
+      } else {
+        console.warn('Logo overlay response did not contain image, using base image');
+      }
+    } else {
+      console.warn('Logo overlay request failed, using base image without logo:', logoOverlayResponse.status);
+    }
+
+    // Upload final image to Supabase Storage
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Extract base64 data
-    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+    // Extract base64 data from final image (with logo)
+    const base64Data = finalImageData.replace(/^data:image\/\w+;base64,/, '');
     const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
     
     // Generate unique filename
