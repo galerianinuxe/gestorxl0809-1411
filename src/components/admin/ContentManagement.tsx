@@ -15,6 +15,7 @@ import { Plus, Edit, Trash2, Eye, EyeOff, FileText, HelpCircle, Lightbulb, BookO
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "@/hooks/use-toast";
 import { marked } from 'marked';
+import { sanitizeRichHtml } from '@/utils/sanitization';
 
 // Types
 interface BlogCategory {
@@ -1128,7 +1129,7 @@ export const ContentManagement: React.FC = () => {
                         {showPreview ? (
                           <div 
                             className="prose prose-sm max-w-none p-4 border rounded-md bg-muted min-h-[300px]"
-                            dangerouslySetInnerHTML={{ __html: marked(postForm.content_md) as string }}
+                            dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(marked(postForm.content_md) as string) }}
                           />
                         ) : (
                           <Textarea

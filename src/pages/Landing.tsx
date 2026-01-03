@@ -223,7 +223,7 @@ const Landing: React.FC = () => {
         ogImage: contentSettings.logo_url,
         twitterCard: 'summary_large_image',
         robots: 'index, follow',
-        canonical: 'https://xlata.lovable.app'
+        canonical: 'https://xlata.site'
       });
 
       // Atualizar title da página diretamente

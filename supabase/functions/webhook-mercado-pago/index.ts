@@ -41,8 +41,8 @@ const validateWebhookSignature = async (
   try {
     const secret = Deno.env.get('MERCADOPAGO_WEBHOOK_SECRET');
     if (!secret) {
-      console.warn('⚠️ MERCADOPAGO_WEBHOOK_SECRET not configured - webhook validation skipped');
-      return Deno.env.get('ENVIRONMENT') !== 'production';
+      console.error('❌ MERCADOPAGO_WEBHOOK_SECRET not configured - rejecting webhook');
+      return false;
     }
 
     const parts = xSignature.split(',');

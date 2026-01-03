@@ -1342,6 +1342,9 @@ export type Database = {
         Row: {
           created_at: string
           external_reference: string | null
+          followup_1h_sent: boolean | null
+          followup_24h_sent: boolean | null
+          followup_48h_sent: boolean | null
           id: string
           payer_email: string
           payment_id: string
@@ -1357,6 +1360,9 @@ export type Database = {
         Insert: {
           created_at?: string
           external_reference?: string | null
+          followup_1h_sent?: boolean | null
+          followup_24h_sent?: boolean | null
+          followup_48h_sent?: boolean | null
           id?: string
           payer_email: string
           payment_id: string
@@ -1372,6 +1378,9 @@ export type Database = {
         Update: {
           created_at?: string
           external_reference?: string | null
+          followup_1h_sent?: boolean | null
+          followup_24h_sent?: boolean | null
+          followup_48h_sent?: boolean | null
           id?: string
           payer_email?: string
           payment_id?: string
@@ -1646,6 +1655,45 @@ export type Database = {
           },
         ]
       }
+      payment_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          metadata: Json | null
+          operation_type: string
+          provider: string
+          provider_event_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          metadata?: Json | null
+          operation_type: string
+          provider: string
+          provider_event_id?: string | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          metadata?: Json | null
+          operation_type?: string
+          provider?: string
+          provider_event_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pillar_pages: {
         Row: {
           benefits: Json | null
@@ -1782,6 +1830,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rate_limit_attempts: {
+        Row: {
+          action: string
+          attempt_count: number | null
+          blocked_until: string | null
+          created_at: string | null
+          first_attempt_at: string | null
+          id: string
+          identifier: string
+        }
+        Insert: {
+          action: string
+          attempt_count?: number | null
+          blocked_until?: string | null
+          created_at?: string | null
+          first_attempt_at?: string | null
+          id?: string
+          identifier: string
+        }
+        Update: {
+          action?: string
+          attempt_count?: number | null
+          blocked_until?: string | null
+          created_at?: string | null
+          first_attempt_at?: string | null
+          id?: string
+          identifier?: string
+        }
+        Relationships: []
       }
       receipt_format_settings: {
         Row: {
@@ -2325,6 +2403,45 @@ export type Database = {
           },
         ]
       }
+      user_consents: {
+        Row: {
+          consent_type: string
+          consent_version: string
+          consented_at: string | null
+          created_at: string | null
+          id: string
+          ip_address: unknown
+          revoked_at: string | null
+          revoked_reason: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          consent_type: string
+          consent_version: string
+          consented_at?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          consent_type?: string
+          consent_version?: string
+          consented_at?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_direct_messages: {
         Row: {
           created_at: string
@@ -2358,6 +2475,51 @@ export type Database = {
           sender_id?: string
           sender_name?: string
           title?: string
+        }
+        Relationships: []
+      }
+      user_lifecycle: {
+        Row: {
+          churn_reason: string | null
+          created_at: string | null
+          current_stage: string | null
+          id: string
+          last_active_at: string | null
+          metadata: Json | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
+          stage_changed_at: string | null
+          trial_ends_at: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          churn_reason?: string | null
+          created_at?: string | null
+          current_stage?: string | null
+          id?: string
+          last_active_at?: string | null
+          metadata?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          stage_changed_at?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          churn_reason?: string | null
+          created_at?: string | null
+          current_stage?: string | null
+          id?: string
+          last_active_at?: string | null
+          metadata?: Json | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          stage_changed_at?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2502,6 +2664,17 @@ export type Database = {
         Args: { password_hash: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: {
+          p_action: string
+          p_block_minutes?: number
+          p_identifier: string
+          p_max_attempts?: number
+          p_window_minutes?: number
+        }
+        Returns: Json
+      }
+      cleanup_expired_rate_limits: { Args: never; Returns: undefined }
       cleanup_inactive_unidade_sessions: { Args: never; Returns: undefined }
       cleanup_old_presence: { Args: never; Returns: undefined }
       deactivate_unidade_session: {
@@ -2756,6 +2929,14 @@ export type Database = {
         | "transacoes"
         | "assinatura"
         | "geral"
+      user_lifecycle_stage:
+        | "registered"
+        | "activated"
+        | "trial"
+        | "trial_ending"
+        | "paying"
+        | "at_risk"
+        | "churned"
       user_status: "user" | "admin"
     }
     CompositeTypes: {
@@ -2896,6 +3077,15 @@ export const Constants = {
         "transacoes",
         "assinatura",
         "geral",
+      ],
+      user_lifecycle_stage: [
+        "registered",
+        "activated",
+        "trial",
+        "trial_ending",
+        "paying",
+        "at_risk",
+        "churned",
       ],
       user_status: ["user", "admin"],
     },
