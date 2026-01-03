@@ -1,7 +1,5 @@
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { RealtimeMessageModal } from '@/components/RealtimeMessageModal';
 
 interface DirectMessage {
   id: string;
@@ -14,8 +12,12 @@ interface DirectMessage {
 export const useDirectMessages = () => {
   const [currentMessage, setCurrentMessage] = useState<DirectMessage | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isProcessingRef = useRef(false);
+  const processedMessagesRef = useRef<Set<string>>(new Set());
 
-  const checkForDirectMessages = async () => {
+  const checkForDirectMessages = useCallback(async () => {
+    if (isProcessingRef.current) return;
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -35,6 +37,12 @@ export const useDirectMessages = () => {
 
       if (messages && messages.length > 0) {
         const message = messages[0];
+        
+        // Evitar processar mensagem já em processamento
+        if (processedMessagesRef.current.has(message.id)) {
+          return;
+        }
+        
         setCurrentMessage({
           id: message.id,
           title: message.title,
@@ -47,45 +55,65 @@ export const useDirectMessages = () => {
     } catch (error) {
       console.error('Erro ao buscar mensagens diretas:', error);
     }
-  };
+  }, []);
 
-  const markMessageAsRead = async (messageId: string) => {
+  const markMessageAsRead = useCallback(async (messageId: string): Promise<boolean> => {
     try {
-      await supabase
+      const { error } = await supabase
         .from('user_direct_messages')
         .update({ read_at: new Date().toISOString() })
         .eq('id', messageId);
+
+      if (error) {
+        console.error('Erro ao marcar mensagem como lida:', error);
+        return false;
+      }
+      
+      return true;
     } catch (error) {
       console.error('Erro ao marcar mensagem como lida:', error);
+      return false;
     }
-  };
+  }, []);
 
-  const handleCloseMessage = () => {
-    if (currentMessage) {
-      markMessageAsRead(currentMessage.id);
-    }
-    setIsModalOpen(false);
-    setCurrentMessage(null);
+  const handleCloseMessage = useCallback(async () => {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     
-    // Verificar se há mais mensagens após fechar a atual
-    setTimeout(() => {
-      checkForDirectMessages();
-    }, 500);
-  };
+    try {
+      if (currentMessage) {
+        // Marcar como processada para evitar re-exibição
+        processedMessagesRef.current.add(currentMessage.id);
+        
+        // Fechar o modal imediatamente
+        setIsModalOpen(false);
+        setCurrentMessage(null);
+        
+        // Aguardar a marcação como lida
+        await markMessageAsRead(currentMessage.id);
+        
+        // Pequena pausa para garantir que o banco atualizou
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Verificar se há mais mensagens
+        await checkForDirectMessages();
+      }
+    } finally {
+      isProcessingRef.current = false;
+    }
+  }, [currentMessage, markMessageAsRead, checkForDirectMessages]);
 
   useEffect(() => {
-    const checkMessages = () => {
-      checkForDirectMessages();
-    };
+    checkForDirectMessages();
 
-    // Verificar mensagens ao carregar
-    checkMessages();
-
-    // Configurar intervalo para verificar periodicamente
-    const interval = setInterval(checkMessages, 30000); // A cada 30 segundos
+    const interval = setInterval(() => {
+      if (!isProcessingRef.current && !isModalOpen) {
+        checkForDirectMessages();
+      }
+    }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [checkForDirectMessages, isModalOpen]);
 
   return {
     currentMessage,
