@@ -64,6 +64,7 @@ interface UserData {
   subscription_type: string | null;
   expires_at: string | null;
   is_active: boolean;
+  profile_is_active: boolean; // Status da conta do usuário (profile.is_active)
   remaining_days: number | null;
   plan_display_name: string | null;
   user_status: 'active' | 'inactive';
@@ -169,6 +170,7 @@ export const UserManagement = () => {
           subscription_type: userSubscription?.plan_type || null,
           expires_at: userSubscription?.expires_at || null,
           is_active: userSubscription?.is_active || false,
+          profile_is_active: profile.is_active !== false, // Status da conta do profile
           remaining_days: remainingDays,
           plan_display_name: planDisplayName,
           user_status: userStatus,
@@ -409,6 +411,63 @@ export const UserManagement = () => {
       toast({
         title: "Erro ao resetar senha",
         description: "Não foi possível resetar a senha do usuário.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleActivateTrial = async (userId: string, userName: string) => {
+    try {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      
+      await upsertSubscription({
+        user_id: userId,
+        is_active: true,
+        plan_type: 'trial',
+        expires_at: expiresAt.toISOString(),
+        activated_at: now.toISOString(),
+        activation_method: 'admin_manual',
+        period_days: 7
+      });
+
+      toast({
+        title: "Teste grátis ativado",
+        description: `Teste de 7 dias ativado para ${userName}.`,
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao ativar teste grátis:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível ativar o teste grátis.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeactivateTrial = async (userId: string, userName: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_subscriptions')
+        .update({ is_active: false })
+        .eq('user_id', userId)
+        .eq('plan_type', 'trial');
+
+      if (error) throw error;
+
+      toast({
+        title: "Teste desativado",
+        description: `Teste grátis desativado para ${userName}.`,
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Erro ao desativar teste:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível desativar o teste.",
         variant: "destructive",
       });
     }
@@ -907,6 +966,25 @@ export const UserManagement = () => {
                                 <Crown className="h-4 w-4 mr-2" />
                                 Ativar Plano
                               </DropdownMenuItem>
+
+                              {/* Ativar/Desativar Teste Grátis */}
+                              {user.subscription_status === 'inactive' || user.subscription_status === 'expired' ? (
+                                <DropdownMenuItem 
+                                  onClick={() => handleActivateTrial(user.id, user.name || user.email)}
+                                  className="text-blue-400 hover:bg-muted cursor-pointer"
+                                >
+                                  <TestTube className="h-4 w-4 mr-2" />
+                                  Ativar Teste 7 Dias
+                                </DropdownMenuItem>
+                              ) : user.subscription_status === 'trial' ? (
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeactivateTrial(user.id, user.name || user.email)}
+                                  className="text-orange-400 hover:bg-muted cursor-pointer"
+                                >
+                                  <TestTube className="h-4 w-4 mr-2" />
+                                  Desativar Teste
+                                </DropdownMenuItem>
+                              ) : null}
                               
                               <DropdownMenuItem 
                                 onClick={() => handleResetPassword(user.id, user.email)}
@@ -934,7 +1012,8 @@ export const UserManagement = () => {
                                 </DropdownMenuItem>
                               )}
                               
-                              {user.is_active !== false ? (
+                              {/* Ativar/Desativar Conta do Usuário */}
+                              {user.profile_is_active ? (
                                 <DropdownMenuItem 
                                   onClick={() => handleDeactivateUser(user.id, user.name || user.email)}
                                   className="text-yellow-400 hover:bg-muted cursor-pointer"

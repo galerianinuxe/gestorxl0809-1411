@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Play, Clock, Users, Star, CheckCircle, BookOpen, Edit, Plus, Trash2, Settings, Cog } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, Play, Clock, CheckCircle, BookOpen, Edit, Plus, Trash2, Settings, Cog } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "@/hooks/use-toast";
@@ -52,6 +53,7 @@ const GuiaCompleto: React.FC = () => {
   const [isAdminEditOpen, setIsAdminEditOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<GuideVideo | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [watchedVideos, setWatchedVideos] = useState<Set<string>>(new Set());
   const [pageSettings, setPageSettings] = useState<GuidePageSettings>({
     user_id: '',
     badge_text: 'GUIA COMPLETO EXCLUSIVO',
@@ -72,6 +74,7 @@ const GuiaCompleto: React.FC = () => {
     checkAdminStatus();
     loadVideos();
     loadPageSettings();
+    loadWatchedVideos();
   }, []);
 
   const checkAdminStatus = async () => {
@@ -138,18 +141,79 @@ const GuiaCompleto: React.FC = () => {
     }
   };
 
+  const loadWatchedVideos = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_video_progress')
+        .select('video_id')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Erro ao carregar progresso:', error);
+        return;
+      }
+
+      if (data) {
+        setWatchedVideos(new Set(data.map(p => p.video_id)));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar vídeos assistidos:', error);
+    }
+  };
+
+  const markAsWatched = async (videoId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('user_video_progress')
+        .upsert({ 
+          user_id: user.id, 
+          video_id: videoId,
+          watched_at: new Date().toISOString(),
+          is_completed: true 
+        });
+
+      if (error) {
+        console.error('Erro ao marcar como assistido:', error);
+        return;
+      }
+
+      setWatchedVideos(prev => new Set([...prev, videoId]));
+    } catch (error) {
+      console.error('Erro ao registrar progresso:', error);
+    }
+  };
+
+  const isWatched = (videoId: string) => watchedVideos.has(videoId);
+  const watchedCount = watchedVideos.size;
+  const totalVideos = videos.length;
+  const progressPercent = totalVideos > 0 ? (watchedCount / totalVideos) * 100 : 0;
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Iniciante': return 'bg-green-600';
+      case 'Iniciante': return 'bg-emerald-600';
       case 'Intermediário': return 'bg-yellow-600';
       case 'Avançado': return 'bg-red-600';
-      default: return 'bg-gray-600';
+      default: return 'bg-slate-600';
     }
   };
 
   const openVideo = (video: GuideVideo) => {
     setSelectedVideo(video);
     setIsVideoPlayerOpen(true);
+  };
+
+  const handleCloseVideo = () => {
+    if (selectedVideo) {
+      markAsWatched(selectedVideo.id);
+    }
+    setIsVideoPlayerOpen(false);
+    setSelectedVideo(null);
   };
 
   const openEditModal = (video?: GuideVideo) => {
@@ -187,236 +251,206 @@ const GuiaCompleto: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      {/* Header */}
-      <header className="bg-black/70 backdrop-blur-md border-b border-gray-700/50 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/')}
-              className="text-white hover:text-gray-300"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar
-            </Button>
-          </div>
-          
-          {isAdmin && (
-            <div className="flex items-center gap-2">
-              <Badge className="bg-orange-600 text-white">
-                <Settings className="h-3 w-3 mr-1" />
-                Modo Admin
-              </Badge>
+    <div className="min-h-screen bg-slate-900">
+      {/* Header Compacto */}
+      <header className="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            {/* Lado esquerdo - Voltar + Título */}
+            <div className="flex items-center gap-3">
               <Button
-                onClick={() => setIsSettingsOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="text-slate-300 hover:text-white hover:bg-slate-700"
               >
-                <Cog className="h-4 w-4 mr-2" />
-                Configurar Textos
+                <ArrowLeft className="h-4 w-4" />
               </Button>
-              <Button
-                onClick={() => openEditModal()}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Vídeo
-              </Button>
+              <div>
+                <h1 className="text-lg font-bold text-white">Guia Completo</h1>
+                <p className="text-xs text-slate-400 hidden sm:block">{pageSettings.subtitle}</p>
+              </div>
             </div>
-          )}
+            
+            {/* Centro - Barra de Progresso */}
+            <div className="flex-1 max-w-xs hidden md:flex items-center gap-3">
+              <div className="flex-1">
+                <Progress value={progressPercent} className="h-2 bg-slate-700" />
+              </div>
+              <span className="text-sm text-slate-400 whitespace-nowrap">
+                {watchedCount}/{totalVideos}
+              </span>
+            </div>
+
+            {/* Lado direito - Admin controls */}
+            <div className="flex items-center gap-2">
+              {/* Progresso mobile */}
+              <div className="flex md:hidden items-center gap-2 text-sm text-slate-400">
+                <CheckCircle className="h-4 w-4 text-emerald-500" />
+                <span>{watchedCount}/{totalVideos}</span>
+              </div>
+
+              {isAdmin && (
+                <>
+                  <Badge className="bg-orange-600 text-white text-xs hidden sm:flex">
+                    <Settings className="h-3 w-3 mr-1" />
+                    Admin
+                  </Badge>
+                  <Button
+                    size="sm"
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Cog className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => openEditModal()}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
-          {/* Logo Principal */}
-          <div className="flex justify-center mb-12">
-            <img
-              src="/lovable-uploads/xlata.site_logotipo.png"
-              alt="Logo XLata.site - Guia-Completo"
-              className="h-32 w-auto drop-shadow-2xl"
-            />
+      {/* Conteúdo Principal */}
+      <main className="container mx-auto px-4 py-6">
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500 mx-auto mb-3"></div>
+            <p className="text-slate-400 text-sm">Carregando vídeos...</p>
           </div>
-
-          <div className="flex justify-center mb-8">
-            <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg px-8 py-3">
-              <Play className="h-5 w-5 mr-3" />
-              {pageSettings.badge_text}
-            </Badge>
+        ) : videos.length === 0 ? (
+          <div className="text-center py-12">
+            <BookOpen className="h-12 w-12 mx-auto mb-3 text-slate-500" />
+            <h3 className="text-lg font-semibold text-slate-400 mb-1">Nenhum vídeo disponível</h3>
+            <p className="text-slate-500 text-sm">Os vídeos do guia estão sendo preparados.</p>
           </div>
-          
-          <h1 className="text-4xl md:text-6xl font-black mb-8 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-            {pageSettings.main_title}
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-12 font-semibold">
-            {pageSettings.subtitle}
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Play className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">{pageSettings.feature1_title}</h3>
-              <p className="text-gray-400">{pageSettings.feature1_subtitle}</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">{pageSettings.feature2_title}</h3>
-              <p className="text-gray-400">{pageSettings.feature2_subtitle}</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">{pageSettings.feature3_title}</h3>
-              <p className="text-gray-400">{pageSettings.feature3_subtitle}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Videos Grid */}
-      <section className="py-12 md:py-20 px-3 md:px-4">
-        <div className="container mx-auto">
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-              <p className="text-slate-400">Carregando vídeos...</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+        ) : (
+          <>
+            {/* Grid de Vídeos Compacto */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
               {videos.map((video, index) => (
                 <Card 
                   key={video.id} 
-                  className="bg-slate-800/90 border border-slate-700/50 hover:border-emerald-500/50 transition-all duration-300 shadow-lg hover:shadow-emerald-500/10 relative group overflow-hidden"
+                  className={`bg-slate-800 border transition-all duration-200 overflow-hidden cursor-pointer group hover:scale-[1.02] ${
+                    isWatched(video.id) 
+                      ? 'border-emerald-500/50 ring-1 ring-emerald-500/20' 
+                      : 'border-slate-700 hover:border-slate-600'
+                  }`}
+                  onClick={() => openVideo(video)}
                 >
-                  {/* Admin Controls */}
-                  {isAdmin && (
-                    <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="flex gap-1">
+                  {/* Thumbnail */}
+                  <div className="relative aspect-video">
+                    <img
+                      src={video.cover_image_url || video.thumbnail_url || "/lovable-uploads/7e573df6-43ec-4eac-a025-777ac1ecdd0f.png"}
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Overlay de play */}
+                    <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <Play className="h-5 w-5 text-white ml-0.5" />
+                      </div>
+                    </div>
+
+                    {/* Badge Assistido */}
+                    {isWatched(video.id) && (
+                      <div className="absolute top-1.5 right-1.5">
+                        <Badge className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.5">
+                          <CheckCircle className="h-2.5 w-2.5 mr-0.5" />
+                          Visto
+                        </Badge>
+                      </div>
+                    )}
+
+                    {/* Número do vídeo */}
+                    <div className="absolute top-1.5 left-1.5">
+                      <Badge className="bg-slate-900/80 text-white text-[10px] px-1.5 py-0.5 font-bold">
+                        #{index + 1}
+                      </Badge>
+                    </div>
+
+                    {/* Duração */}
+                    {video.duration && (
+                      <div className="absolute bottom-1.5 right-1.5">
+                        <Badge className="bg-slate-900/80 text-white text-[10px] px-1.5 py-0.5">
+                          <Clock className="h-2.5 w-2.5 mr-0.5" />
+                          {video.duration}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {/* Admin Controls */}
+                    {isAdmin && (
+                      <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
                         <Button
                           size="sm"
-                          variant="outline"
                           onClick={(e) => {
                             e.stopPropagation();
                             openEditModal(video);
                           }}
-                          className="bg-blue-600 hover:bg-blue-700 border-blue-600 text-white h-8 w-8 p-0"
+                          className="bg-blue-600 hover:bg-blue-700 text-white h-6 w-6 p-0"
                         >
                           <Edit className="h-3 w-3" />
                         </Button>
                         <Button
                           size="sm"
-                          variant="outline"
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteVideo(video.id);
                           }}
-                          className="bg-red-600 hover:bg-red-700 border-red-600 text-white h-8 w-8 p-0"
+                          className="bg-red-600 hover:bg-red-700 text-white h-6 w-6 p-0"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
-                    </div>
-                  )}
-
-                  <div 
-                    className="relative cursor-pointer"
-                    onClick={() => openVideo(video)}
-                  >
-                    <img
-                      src={video.cover_image_url || video.thumbnail_url || "/lovable-uploads/7e573df6-43ec-4eac-a025-777ac1ecdd0f.png"}
-                      alt={video.title}
-                      className="w-full h-36 sm:h-40 md:h-48 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-14 h-14 md:w-16 md:h-16 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                        <Play className="h-6 w-6 md:h-8 md:w-8 text-white ml-1" />
-                      </div>
-                    </div>
-                    {video.duration && (
-                      <div className="absolute top-2 right-2 md:top-4 md:right-4">
-                        <Badge className="bg-slate-900/80 text-slate-100 text-xs px-2 py-1">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {video.duration}
-                        </Badge>
-                      </div>
                     )}
-                    <div className="absolute top-2 left-2 md:top-4 md:left-4">
-                      <Badge className="bg-emerald-600 text-white text-xs font-bold px-2 py-1">
-                        #{index + 1}
-                      </Badge>
-                    </div>
                   </div>
                   
-                  <CardHeader className="p-3 md:p-4 pb-2">
-                    <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                      <Badge className="bg-emerald-600/20 text-emerald-400 border border-emerald-600/30 text-xs px-2 py-0.5">
+                  {/* Conteúdo do Card */}
+                  <CardContent className="p-2.5">
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1 mb-1.5">
+                      <Badge className="bg-emerald-600/20 text-emerald-400 border-0 text-[10px] px-1.5 py-0">
                         {video.category}
                       </Badge>
-                      <Badge className={`${getDifficultyColor(video.difficulty)} text-white text-xs px-2 py-0.5`}>
+                      <Badge className={`${getDifficultyColor(video.difficulty)} text-white text-[10px] px-1.5 py-0`}>
                         {video.difficulty}
                       </Badge>
                     </div>
-                    <CardTitle className="text-white text-sm md:text-base font-bold leading-tight line-clamp-2">
+                    
+                    {/* Título */}
+                    <h3 className="text-white text-xs font-semibold leading-tight line-clamp-2">
                       {video.title}
-                    </CardTitle>
-                  </CardHeader>
-                  
-                  <CardContent className="p-3 md:p-4 pt-0">
-                    <p className="text-slate-400 text-xs md:text-sm leading-relaxed line-clamp-2">
-                      {video.description}
-                    </p>
+                    </h3>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          )}
 
-          {!loading && videos.length === 0 && (
-            <div className="text-center py-12">
-              <BookOpen className="h-16 w-16 mx-auto mb-4 text-slate-500" />
-              <h3 className="text-xl font-bold mb-2 text-slate-400">Nenhum vídeo disponível</h3>
-              <p className="text-slate-500">Os vídeos do guia estão sendo preparados.</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40">
-        <div className="container mx-auto text-center">
-          <h2 className="text-4xl font-black mb-8 text-white">
-            {pageSettings.cta_title}
-          </h2>
-          <p className="text-xl mb-12 max-w-2xl mx-auto text-green-100">
-            {pageSettings.cta_subtitle}
-          </p>
-          
-          <Button
-            size="lg"
-            onClick={() => navigate('/')}
-            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-xl px-12 py-6 font-black shadow-2xl transform hover:scale-110 transition-all duration-300"
-          >
-            <CheckCircle className="mr-3 h-6 w-6" />
-            {pageSettings.cta_button_text}
-          </Button>
-        </div>
-      </section>
+            {/* Rodapé com progresso completo */}
+            {watchedCount === totalVideos && totalVideos > 0 && (
+              <div className="mt-8 text-center py-6 bg-emerald-900/20 rounded-lg border border-emerald-500/30">
+                <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto mb-2" />
+                <h3 className="text-lg font-bold text-white mb-1">🎉 Parabéns!</h3>
+                <p className="text-slate-400 text-sm">Você assistiu todos os vídeos do guia!</p>
+              </div>
+            )}
+          </>
+        )}
+      </main>
 
       {/* Video Player Modal */}
       {selectedVideo && (
         <VideoPlayerModal
           isOpen={isVideoPlayerOpen}
-          onClose={() => {
-            setIsVideoPlayerOpen(false);
-            setSelectedVideo(null);
-          }}
+          onClose={handleCloseVideo}
           videoUrl={selectedVideo.video_url}
           title={selectedVideo.title}
         />
