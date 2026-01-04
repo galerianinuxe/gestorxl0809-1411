@@ -354,7 +354,7 @@ const Landing: React.FC = () => {
     },
     {
       question: "E se eu não gostar?",
-      answer: "Teste 7 dias grátis, sem cartão. Não gostou? Cancela sem explicar nada."
+      answer: "Teste 7 dias grátis, sem cartão e sem compromisso. Não gostou? Cancela sem explicar nada. E se assinar, não tem fidelidade — você pode cancelar quando quiser, sem multa."
     }
   ];
 
@@ -382,7 +382,7 @@ const Landing: React.FC = () => {
       {/* Hero Section - Loads immediately */}
       <section 
         id="hero"
-        className="pt-16 pb-10 lg:pt-24 lg:pb-16 px-4 relative min-h-[60vh] lg:min-h-[75vh] flex items-center"
+        className="pt-16 pb-10 lg:pt-24 lg:pb-16 px-4 relative min-h-screen flex items-center"
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(3, 7, 18, 0.85), rgba(3, 7, 18, 0.95)), url('${contentSettings.background_image_url}')`,
           backgroundSize: 'cover',
