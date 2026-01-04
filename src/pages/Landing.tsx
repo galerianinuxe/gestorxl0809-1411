@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Clock, Calculator, Shield, TrendingUp, Users, Star, ArrowRight, Zap, DollarSign, Award, Rocket, AlertTriangle, XCircle, Calendar, Crown, Check, Scale, Printer, HelpCircle, Smartphone, MessageCircle, RefreshCcw } from 'lucide-react';
+import { CheckCircle, Clock, Calculator, Shield, TrendingUp, Users, Star, ArrowRight, Zap, DollarSign, Award, Rocket, AlertTriangle, XCircle, Calendar, Crown, Check, Scale, Printer, HelpCircle, Smartphone, MessageCircle, RefreshCcw, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSEO } from '@/hooks/useSEO';
@@ -11,6 +11,9 @@ import { useAuth } from '@/hooks/useAuth';
 import ResponsiveNavigation from '@/components/ResponsiveNavigation';
 import MercadoPagoCheckout from '@/components/MercadoPagoCheckout';
 import { PlanData } from '@/types/mercadopago';
+import { LazySection } from '@/components/landing/LazySection';
+import { ScrollCTA } from '@/components/landing/ScrollCTA';
+import { ProgressIndicator } from '@/components/landing/ProgressIndicator';
 
 interface TestimonialData {
   id?: string;
@@ -365,10 +368,14 @@ const Landing: React.FC = () => {
         companyName={contentSettings.company_name} 
         companyPhone={contentSettings.company_phone} 
       />
+      
+      {/* Progress Indicator */}
+      <ProgressIndicator />
 
       <main role="main">
-      {/* Hero Section - Clean & Professional */}
+      {/* Hero Section - Loads immediately */}
       <section 
+        id="hero"
         className="pt-16 pb-10 lg:pt-24 lg:pb-16 px-4 relative min-h-[60vh] lg:min-h-[75vh] flex items-center"
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(3, 7, 18, 0.85), rgba(3, 7, 18, 0.95)), url('${contentSettings.background_image_url}')`,
@@ -402,7 +409,7 @@ const Landing: React.FC = () => {
           </Button>
 
           {/* Social Proof Pills */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400 mb-8">
             <div className="flex items-center gap-1.5 bg-gray-800/60 px-3 py-1.5 rounded-full border border-gray-700/50">
               <Users className="h-3.5 w-3.5 text-green-400" />
               <span className="text-gray-300">130+ depósitos</span>
@@ -416,361 +423,433 @@ const Landing: React.FC = () => {
               <span className="text-gray-300">Suporte WhatsApp</span>
             </div>
           </div>
+          
+          {/* Scroll CTA */}
+          <ScrollCTA 
+            text="Veja como funciona" 
+            targetSection="como-funciona" 
+            variant="subtle"
+          />
         </div>
       </section>
 
       {/* How it Works - 3 Steps */}
-      <section className="py-12 lg:py-20 px-4 bg-gray-900/50">
-        <div className="container mx-auto max-w-4xl">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-10 lg:mb-14 text-white">
-            Como funciona
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 lg:gap-12">
-            {howItWorks.map((item, index) => (
-              <div key={index} className="text-center flex flex-col items-center">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-600/20">
-                  <item.icon className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+      <LazySection id="como-funciona" animation="fade-up">
+        <section className="py-12 lg:py-20 px-4 bg-gray-900/50">
+          <div className="container mx-auto max-w-4xl">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-10 lg:mb-14 text-white">
+              Como funciona
+            </h2>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 lg:gap-12">
+              {howItWorks.map((item, index) => (
+                <div key={index} className="text-center flex flex-col items-center">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-600/20">
+                    <item.icon className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+                  </div>
+                  <span className="inline-block text-green-400 font-semibold text-xs mb-2 bg-green-400/10 px-3 py-1 rounded-full">{item.step}</span>
+                  <h3 className="text-white font-semibold text-base sm:text-lg mb-1">{item.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed max-w-[200px]">{item.description}</p>
                 </div>
-                <span className="inline-block text-green-400 font-semibold text-xs mb-2 bg-green-400/10 px-3 py-1 rounded-full">{item.step}</span>
-                <h3 className="text-white font-semibold text-base sm:text-lg mb-1">{item.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed max-w-[200px]">{item.description}</p>
-              </div>
-            ))}
+              ))}
+            </div>
+            
+            <ScrollCTA 
+              text="Descubra quanto você perde" 
+              targetSection="problemas" 
+              variant="subtle"
+              className="mt-10"
+            />
           </div>
-        </div>
-      </section>
+        </section>
+      </LazySection>
 
       {/* Problems Section - Clean */}
-      <section className="py-12 lg:py-20 px-4 bg-gray-950">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-10 lg:mb-14">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
-              Onde você está perdendo dinheiro
-            </h2>
-            <p className="text-gray-400 text-sm lg:text-base">
-              A maioria dos depósitos nem sabe quanto perde por mês.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5 mb-8 lg:mb-10">
-            {problems.map((problem, index) => (
-              <Card key={index} className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-all">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-8 h-8 bg-red-500/10 rounded-lg flex items-center justify-center">
-                      <problem.icon className="h-4 w-4 text-red-400" />
+      <LazySection id="problemas" animation="fade-up" delay={100}>
+        <section className="py-12 lg:py-20 px-4 bg-gray-950">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-10 lg:mb-14">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
+                Onde você está perdendo dinheiro
+              </h2>
+              <p className="text-gray-400 text-sm lg:text-base">
+                A maioria dos depósitos nem sabe quanto perde por mês.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5 mb-8 lg:mb-10">
+              {problems.map((problem, index) => (
+                <Card key={index} className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-all">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className="w-8 h-8 bg-red-500/10 rounded-lg flex items-center justify-center">
+                        <problem.icon className="h-4 w-4 text-red-400" />
+                      </div>
+                      <CardTitle className="text-white text-sm sm:text-base font-medium">{problem.title}</CardTitle>
                     </div>
-                    <CardTitle className="text-white text-sm sm:text-base font-medium">{problem.title}</CardTitle>
-                  </div>
-                  <p className="text-red-400 font-bold text-xl sm:text-2xl">{problem.loss}<span className="text-gray-500 text-sm font-normal">/mês</span></p>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-gray-400 text-sm leading-relaxed">{problem.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <p className="text-red-400 font-bold text-xl sm:text-2xl">{problem.loss}<span className="text-gray-500 text-sm font-normal">/mês</span></p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-400 text-sm leading-relaxed">{problem.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
-          <div className="text-center">
-            <p className="text-gray-300 mb-5 text-sm lg:text-base">
-              Total: até <span className="text-red-400 font-semibold">R$ 10.500/mês</span> perdidos
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/register')}
-              className="border-gray-700 text-gray-200 hover:bg-green-600 hover:text-white hover:border-green-600 bg-transparent px-6"
-            >
-              QUERO RESOLVER ISSO
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="text-center">
+              <p className="text-gray-300 mb-5 text-sm lg:text-base">
+                Total: até <span className="text-red-400 font-semibold">R$ 10.500/mês</span> perdidos
+              </p>
+              
+              {/* Identificação + CTA Direto */}
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 max-w-md mx-auto mb-6">
+                <p className="text-gray-300 text-sm mb-4">
+                  Se identificou com algum desses problemas?
+                </p>
+                <Button 
+                  onClick={() => navigate('/register')}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 font-medium"
+                >
+                  Quero resolver agora
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <p className="text-gray-500 text-xs mt-3">
+                  ou continue lendo para ver como funciona
+                </p>
+              </div>
+              
+              <ScrollCTA 
+                text="Veja a solução" 
+                targetSection="beneficios" 
+                variant="subtle"
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </LazySection>
 
       {/* Benefits Section - Clean */}
-      <section className="py-12 lg:py-20 px-4 bg-gray-900/50">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-10 lg:mb-14">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
-              O XLata coloca dinheiro de volta no seu bolso
-            </h2>
-            <p className="text-gray-400 text-sm lg:text-base">
-              Resultados reais de quem já usa o sistema.
-            </p>
+      <LazySection id="beneficios" animation="fade-up">
+        <section className="py-12 lg:py-20 px-4 bg-gray-900/50">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-10 lg:mb-14">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
+                O XLata coloca dinheiro de volta no seu bolso
+              </h2>
+              <p className="text-gray-400 text-sm lg:text-base">
+                Resultados reais de quem já usa o sistema.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+              {benefits.map((benefit, index) => (
+                <Card key={index} className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-all">
+                  <CardHeader className="pb-3">
+                    <div className="w-10 h-10 bg-green-600/15 rounded-xl flex items-center justify-center mb-4">
+                      <benefit.icon className="h-5 w-5 text-green-400" />
+                    </div>
+                    <CardTitle className="text-white text-base sm:text-lg font-semibold mb-2">{benefit.title}</CardTitle>
+                    <Badge className="bg-green-600/15 text-green-400 border-0 text-xs w-fit">
+                      {benefit.impact}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-400 text-sm leading-relaxed">{benefit.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <ScrollCTA 
+              text="Veja o retorno" 
+              targetSection="roi" 
+              variant="subtle"
+              className="mt-10"
+            />
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
-            {benefits.map((benefit, index) => (
-              <Card key={index} className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-all">
-                <CardHeader className="pb-3">
-                  <div className="w-10 h-10 bg-green-600/15 rounded-xl flex items-center justify-center mb-4">
-                    <benefit.icon className="h-5 w-5 text-green-400" />
-                  </div>
-                  <CardTitle className="text-white text-base sm:text-lg font-semibold mb-2">{benefit.title}</CardTitle>
-                  <Badge className="bg-green-600/15 text-green-400 border-0 text-xs w-fit">
-                    {benefit.impact}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-gray-400 text-sm leading-relaxed">{benefit.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </LazySection>
 
       {/* ROI Section */}
-      <section className="py-12 lg:py-20 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-8 lg:mb-12 text-white">
-            Investimento que se paga no primeiro dia
-          </h2>
-          
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 mb-6 lg:mb-10">
-            <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
-              <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">+300%</p>
-              <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">produtividade</p>
+      <LazySection id="roi" animation="scale-in">
+        <section className="py-12 lg:py-20 px-4 bg-gray-900">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-8 lg:mb-12 text-white">
+              Investimento que se paga no primeiro dia
+            </h2>
+            
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 mb-6 lg:mb-10">
+              <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
+                <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">+300%</p>
+                <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">produtividade</p>
+              </div>
+              <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
+                <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">3 min</p>
+                <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">por descarga</p>
+              </div>
+              <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
+                <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">0</p>
+                <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">erros de conta</p>
+              </div>
             </div>
-            <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
-              <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">3 min</p>
-              <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">por descarga</p>
-            </div>
-            <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-6">
-              <p className="text-xl sm:text-2xl lg:text-4xl font-bold text-green-400 mb-0.5 sm:mb-1">0</p>
-              <p className="text-gray-500 text-[10px] sm:text-xs lg:text-sm">erros de conta</p>
-            </div>
-          </div>
 
-          <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-xs sm:text-sm lg:text-base">
-            <span className="text-red-400">Você perde: R$ 10.500/mês</span>
-            <span className="text-gray-700 hidden sm:inline">•</span>
-            <span className="text-green-400">XLata custa: {plans.find(p => p.id === 'mensal')?.price || 'R$ 137,90'}/mês</span>
-            <span className="text-gray-700 hidden sm:inline">•</span>
-            <span className="text-white font-semibold">Retorno: {plans.find(p => p.id === 'mensal')?.amount ? Math.round(10500 / plans.find(p => p.id === 'mensal')!.amount) : 76}x</span>
+            <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-xs sm:text-sm lg:text-base mb-8">
+              <span className="text-red-400">Você perde: R$ 10.500/mês</span>
+              <span className="text-gray-700 hidden sm:inline">•</span>
+              <span className="text-green-400">XLata custa: {plans.find(p => p.id === 'mensal')?.price || 'R$ 137,90'}/mês</span>
+              <span className="text-gray-700 hidden sm:inline">•</span>
+              <span className="text-white font-semibold">Retorno: {plans.find(p => p.id === 'mensal')?.amount ? Math.round(10500 / plans.find(p => p.id === 'mensal')!.amount) : 76}x</span>
+            </div>
+            
+            <ScrollCTA 
+              text="Quem já usa, aprova" 
+              targetSection="depoimentos" 
+              variant="subtle"
+            />
           </div>
-        </div>
-      </section>
+        </section>
+      </LazySection>
 
       {/* Testimonials Section */}
-      <section className="py-12 lg:py-20 px-4 bg-gray-950">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-10 lg:mb-14">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
-              Quem usa, aprova
-            </h2>
-            <p className="text-gray-400 text-sm lg:text-base">
-              Resultados reais de donos de depósito.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
-            {testimonials.map((testimonial, index) => {
-              const IconComponent = getIconComponent(testimonial.icon);
-              return (
-                <Card key={index} className="bg-gray-900 border-gray-800">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-0.5 mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    
-                    <div className="flex items-center gap-3 mb-4">
-                    {testimonial.profileImage ? (
-                        <img 
-                          src={testimonial.profileImage} 
-                          alt={testimonial.name}
-                          width={40}
-                          height={40}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-700" 
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-                          <IconComponent className="h-5 w-5 text-white" />
+      <LazySection id="depoimentos" animation="fade-up">
+        <section className="py-12 lg:py-20 px-4 bg-gray-950">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-10 lg:mb-14">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
+                Quem usa, aprova
+              </h2>
+              <p className="text-gray-400 text-sm lg:text-base">
+                Resultados reais de donos de depósito.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+              {testimonials.map((testimonial, index) => {
+                const IconComponent = getIconComponent(testimonial.icon);
+                return (
+                  <Card key={index} className="bg-gray-900 border-gray-800">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-0.5 mb-4">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center gap-3 mb-4">
+                      {testimonial.profileImage ? (
+                          <img 
+                            src={testimonial.profileImage} 
+                            alt={testimonial.name}
+                            width={40}
+                            height={40}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-gray-700" 
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                            <IconComponent className="h-5 w-5 text-white" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium text-white text-sm">{testimonial.name}</p>
+                          <p className="text-xs text-gray-500">{testimonial.location}</p>
                         </div>
-                      )}
-                      <div>
-                        <p className="font-medium text-white text-sm">{testimonial.name}</p>
-                        <p className="text-xs text-gray-500">{testimonial.location}</p>
+                      </div>
+                      
+                      <Badge className="bg-green-600/15 text-green-400 border-0 text-xs w-fit mb-3">
+                        {testimonial.revenue}
+                      </Badge>
+                      
+                      <p className="text-gray-300 text-sm leading-relaxed">"{testimonial.text}"</p>
+                    </CardHeader>
+                  </Card>
+                );
+              })}
+            </div>
+            
+            <ScrollCTA 
+              text="Escolha seu plano" 
+              targetSection="planos" 
+              variant="primary"
+              className="mt-10"
+            />
+          </div>
+        </section>
+      </LazySection>
+
+      {/* Plans Section */}
+      <LazySection id="planos" animation="fade-up">
+        <section className="py-12 lg:py-20 px-4 bg-gray-900/50">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-10 lg:mb-14">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
+                Escolha seu plano
+              </h2>
+              <p className="text-gray-400 text-sm lg:text-base">
+                Todos incluem acesso completo. <span className="text-green-400">Sem fidelidade - cancele quando quiser.</span>
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
+              {plans.map((plan) => (
+                <Card 
+                  key={plan.id} 
+                  className={`relative transition-all ${
+                    plan.promotional 
+                      ? 'bg-gray-900 border-2 border-green-600 shadow-lg shadow-green-600/10' 
+                      : 'bg-gray-900 border-gray-800 hover:border-gray-700'
+                  }`}
+                >
+                  {plan.promotional && (
+                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-3 py-1">
+                      RECOMENDADO
+                    </Badge>
+                  )}
+                  
+                  <CardHeader className="text-center pb-3 pt-6">
+                    <CardTitle className="text-white text-lg font-semibold">{plan.name}</CardTitle>
+                    <p className="text-gray-500 text-xs">{plan.description}</p>
+                    <div className="mt-4">
+                      <span className="text-2xl sm:text-3xl font-bold text-white">{plan.price}</span>
+                      <span className="text-gray-500 text-sm">{plan.period}</span>
+                    </div>
+                    {plan.savings && (
+                      <Badge variant="outline" className="mt-3 text-xs text-green-400 border-green-600/30 bg-green-600/10">
+                        {plan.savings}
+                      </Badge>
+                    )}
+                  </CardHeader>
+                  
+                  <CardContent className="pt-3">
+                    <div className="space-y-2.5 mb-5 text-sm">
+                      <div className="flex items-center gap-2.5 text-gray-300">
+                        <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <span>PDV completo</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-gray-300">
+                        <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <span>Controle de estoque</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-gray-300">
+                        <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <span>Relatórios</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-gray-300">
+                        <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <span>Suporte WhatsApp</span>
                       </div>
                     </div>
                     
-                    <Badge className="bg-green-600/15 text-green-400 border-0 text-xs w-fit mb-3">
-                      {testimonial.revenue}
-                    </Badge>
-                    
-                    <p className="text-gray-300 text-sm leading-relaxed">"{testimonial.text}"</p>
-                  </CardHeader>
+                    <Button 
+                      onClick={() => handleSelectPlan(plan.id)}
+                      className={`w-full h-11 font-medium ${
+                        plan.promotional 
+                          ? 'bg-green-600 hover:bg-green-700 text-white' 
+                          : 'bg-gray-800 hover:bg-gray-700 text-gray-200'
+                      }`}
+                    >
+                      Começar agora
+                    </Button>
+                  </CardContent>
                 </Card>
-              );
-            })}
+              ))}
+            </div>
+            
+            <ScrollCTA 
+              text="Ainda tem dúvidas?" 
+              targetSection="faq" 
+              variant="subtle"
+              className="mt-10"
+            />
           </div>
-        </div>
-      </section>
-
-      {/* Plans Section */}
-      <section className="py-12 lg:py-20 px-4 bg-gray-900/50">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-10 lg:mb-14">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
-              Escolha seu plano
-            </h2>
-            <p className="text-gray-400 text-sm lg:text-base">
-              Todos incluem acesso completo. <span className="text-green-400">Sem fidelidade - cancele quando quiser.</span>
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5">
-            {plans.map((plan) => (
-              <Card 
-                key={plan.id} 
-                className={`relative transition-all ${
-                  plan.promotional 
-                    ? 'bg-gray-900 border-2 border-green-600 shadow-lg shadow-green-600/10' 
-                    : 'bg-gray-900 border-gray-800 hover:border-gray-700'
-                }`}
-              >
-                {plan.promotional && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-3 py-1">
-                    RECOMENDADO
-                  </Badge>
-                )}
-                
-                <CardHeader className="text-center pb-3 pt-6">
-                  <CardTitle className="text-white text-lg font-semibold">{plan.name}</CardTitle>
-                  <p className="text-gray-500 text-xs">{plan.description}</p>
-                  <div className="mt-4">
-                    <span className="text-2xl sm:text-3xl font-bold text-white">{plan.price}</span>
-                    <span className="text-gray-500 text-sm">{plan.period}</span>
-                  </div>
-                  {plan.savings && (
-                    <Badge variant="outline" className="mt-3 text-xs text-green-400 border-green-600/30 bg-green-600/10">
-                      {plan.savings}
-                    </Badge>
-                  )}
-                </CardHeader>
-                
-                <CardContent className="pt-3">
-                  <div className="space-y-2.5 mb-5 text-sm">
-                    <div className="flex items-center gap-2.5 text-gray-300">
-                      <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
-                      <span>PDV completo</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-gray-300">
-                      <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
-                      <span>Controle de estoque</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-gray-300">
-                      <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
-                      <span>Relatórios</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-gray-300">
-                      <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
-                      <span>Suporte WhatsApp</span>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    onClick={() => handleSelectPlan(plan.id)}
-                    className={`w-full h-11 font-medium ${
-                      plan.promotional 
-                        ? 'bg-green-600 hover:bg-green-700 text-white' 
-                        : 'bg-gray-800 hover:bg-gray-700 text-gray-200'
-                    }`}
-                  >
-                    Começar agora
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </LazySection>
 
       {/* FAQ Section */}
-      <section className="py-12 lg:py-20 px-4 bg-gray-950">
-        <div className="container mx-auto max-w-2xl">
-          <div className="text-center mb-10">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
-              Perguntas frequentes
-            </h2>
-          </div>
-          
-          <Accordion type="single" collapsible className="space-y-2">
-            {faqItems.map((item, index) => (
-              <AccordionItem 
-                key={index} 
-                value={`item-${index}`}
-                className="bg-gray-900 border border-gray-800 rounded-xl px-4"
-              >
-                <AccordionTrigger className="text-white text-sm sm:text-base hover:no-underline py-4">
-                  <span className="flex items-center gap-2.5 text-left">
-                    <HelpCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
-                    {item.question}
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-400 text-sm pb-4 leading-relaxed">
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+      <LazySection id="faq" animation="fade-up">
+        <section className="py-12 lg:py-20 px-4 bg-gray-950">
+          <div className="container mx-auto max-w-2xl">
+            <div className="text-center mb-10">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-white">
+                Perguntas frequentes
+              </h2>
+            </div>
+            
+            <Accordion type="single" collapsible className="space-y-2">
+              {faqItems.map((item, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`item-${index}`}
+                  className="bg-gray-900 border border-gray-800 rounded-xl px-4"
+                >
+                  <AccordionTrigger className="text-white text-sm sm:text-base hover:no-underline py-4">
+                    <span className="flex items-center gap-2.5 text-left">
+                      <HelpCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
+                      {item.question}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-400 text-sm pb-4 leading-relaxed">
+                    {item.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
 
-          <div className="text-center mt-8">
-            <p className="text-gray-500 text-sm mb-3">Ainda tem dúvida?</p>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => window.open('https://wa.me/5511963512105', '_blank')}
-              className="border-gray-700 text-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600 bg-transparent"
-            >
-              <MessageCircle className="mr-2 h-4 w-4" />
-              Chamar no WhatsApp
-            </Button>
+            <div className="text-center mt-8">
+              <p className="text-gray-500 text-sm mb-3">Ainda tem dúvida?</p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.open('https://wa.me/5511963512105', '_blank')}
+                className="border-gray-700 text-gray-300 hover:bg-green-600 hover:text-white hover:border-green-600 bg-transparent"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Chamar no WhatsApp
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </LazySection>
 
       {/* Final CTA Section */}
-      <section className="py-14 lg:py-24 px-4 bg-gradient-to-br from-green-700 via-green-600 to-emerald-600">
-        <div className="container mx-auto text-center max-w-2xl">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 text-white leading-tight">
-            Cada dia sem sistema é dinheiro jogado fora.
-          </h2>
-          <p className="text-green-100/80 mb-8 text-sm sm:text-base lg:text-lg">
-            Comece agora em 2 minutos. Teste grátis por 7 dias.
-          </p>
-          
-          <Button 
-            size="lg" 
-            onClick={() => navigate('/register')}
-            className="bg-white text-green-700 hover:bg-gray-100 text-base sm:text-lg px-8 sm:px-10 py-5 sm:py-6 font-semibold shadow-lg rounded-xl"
-          >
-            <Zap className="mr-2 h-5 w-5" />
-            PARAR DE PERDER AGORA
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+      <LazySection animation="scale-in">
+        <section className="py-14 lg:py-24 px-4 bg-gradient-to-br from-green-700 via-green-600 to-emerald-600">
+          <div className="container mx-auto text-center max-w-2xl">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 text-white leading-tight">
+              Cada dia sem sistema é dinheiro jogado fora.
+            </h2>
+            <p className="text-green-100/80 mb-8 text-sm sm:text-base lg:text-lg">
+              Comece agora em 2 minutos. Teste grátis por 7 dias.
+            </p>
+            
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/register')}
+              className="bg-white text-green-700 hover:bg-gray-100 text-base sm:text-lg px-8 sm:px-10 py-5 sm:py-6 font-semibold shadow-lg rounded-xl"
+            >
+              <Zap className="mr-2 h-5 w-5" />
+              PARAR DE PERDER AGORA
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
 
-          <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8 text-sm text-green-100/80 flex-wrap">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle className="h-4 w-4" />
-              7 dias grátis
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle className="h-4 w-4" />
-              Sem cartão
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle className="h-4 w-4" />
-              Cancela quando quiser
-            </span>
+            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8 text-sm text-green-100/80 flex-wrap">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle className="h-4 w-4" />
+                7 dias grátis
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle className="h-4 w-4" />
+                Sem cartão
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle className="h-4 w-4" />
+                Cancela quando quiser
+              </span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </LazySection>
       </main>
 
       {/* Footer */}
