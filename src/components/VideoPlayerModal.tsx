@@ -19,24 +19,20 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   const getYouTubeEmbedUrl = (url: string) => {
     if (!url) return null;
     
-    // Se já for um embed URL
-    if (url.includes('youtube.com/embed/')) {
-      return url.includes('?') ? url : `${url}?rel=0&modestbranding=1`;
-    }
-    
-    // Diferentes formatos de URL do YouTube
+    // Diferentes formatos de URL do YouTube - incluindo IDs que começam com hífen
     const patterns = [
-      /youtu\.be\/([a-zA-Z0-9_-]{11})/,
-      /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
-      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
-      /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
-      /[?&]v=([a-zA-Z0-9_-]{11})/,
+      /youtu\.be\/([a-zA-Z0-9_-]+)/,
+      /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+      /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/,
+      /youtube\.com\/v\/([a-zA-Z0-9_-]+)/,
+      /[?&]v=([a-zA-Z0-9_-]+)/,
     ];
     
     for (const pattern of patterns) {
       const match = url.match(pattern);
       if (match && match[1]) {
-        return `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0&modestbranding=1`;
+        // Usar youtube-nocookie.com para evitar bloqueios e melhor privacidade
+        return `https://www.youtube-nocookie.com/embed/${match[1]}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
       }
     }
     
