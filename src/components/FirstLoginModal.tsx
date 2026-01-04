@@ -59,17 +59,13 @@ export const FirstLoginModal: React.FC<FirstLoginModalProps> = ({
     }
   };
   
-  const handleActivateLater = () => {
-    toast({
-      title: "📌 Lembrete",
-      description: "Você pode ativar seu teste grátis a qualquer momento através das configurações.",
-    });
-    onClose();
-  };
-  
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-purple-600">
+    <Dialog open={open} onOpenChange={() => {}}>
+      <DialogContent 
+        className="max-w-2xl bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-purple-600 [&>button]:hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-center text-white text-3xl font-bold mb-4">
             🎉 Bem-vindo(a) ao XLata, {userName}!
@@ -130,7 +126,7 @@ export const FirstLoginModal: React.FC<FirstLoginModalProps> = ({
             </CardContent>
           </Card>
           
-          {/* Botões de ação */}
+          {/* Botão de ativação */}
           <div className="flex flex-col gap-3 pt-4">
             <Button
               onClick={handleActivateTrial}
@@ -154,21 +150,12 @@ export const FirstLoginModal: React.FC<FirstLoginModalProps> = ({
                 </>
               )}
             </Button>
-            
-            <Button
-              onClick={handleActivateLater}
-              disabled={isActivating || trialActivated}
-              variant="outline"
-              className="w-full bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
-            >
-              Ativar Depois
-            </Button>
           </div>
           
           <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-3 mt-2">
             <p className="text-center text-purple-300 text-sm flex items-center justify-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Após ativar, você será direcionado ao guia completo com tutoriais em vídeo
+              Após ativar, você será guiado passo a passo na configuração do sistema
             </p>
           </div>
         </div>
