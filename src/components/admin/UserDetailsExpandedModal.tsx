@@ -521,7 +521,7 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] bg-card border-border overflow-hidden flex flex-col p-0">
+      <DialogContent hideCloseButton className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] bg-card border-border overflow-hidden flex flex-col p-0">
         <DialogHeader className="flex flex-row items-center justify-between border-b border-border p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
