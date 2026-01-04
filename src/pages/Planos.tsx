@@ -33,16 +33,13 @@ const Planos = () => {
   const [renewalsHistory, setRenewalsHistory] = useState<any[]>([]);
 
   useEffect(() => {
-    // Carregar planos e dados do usuário em paralelo
     const loadData = async () => {
-      // Timeout de segurança para evitar loading infinito
       const timeoutId = setTimeout(() => {
         setLoading(false);
       }, 5000);
 
       try {
         if (user) {
-          // Carregar tudo em paralelo
           await Promise.all([loadPlans(), loadSubscriptionData()]);
         } else {
           await loadPlans();
@@ -80,7 +77,7 @@ const Planos = () => {
               : plan.period,
           description: plan.description,
           icon: plan.is_promotional ? (
-            <Badge className="h-6 w-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs">
+            <Badge className="h-6 w-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs">
               🔥
             </Badge>
           ) : plan.is_popular ? (
@@ -110,7 +107,6 @@ const Planos = () => {
     if (!user) return;
     
     try {
-      // Buscar assinatura ativa, histórico e perfil em paralelo
       const [subscriptionResult, renewalsResult, profileResult] = await Promise.all([
         supabase
           .from('user_subscriptions')
@@ -240,51 +236,52 @@ const Planos = () => {
   const daysRemaining = getDaysRemaining();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-slate-900">
+      {/* Header Padrão do Sistema */}
+      <div className="bg-slate-800 border-b border-slate-700 p-4">
+        <div className="flex items-center gap-3 max-w-7xl mx-auto">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <CreditCard className="h-6 w-6 text-emerald-500" />
+          <h1 className="text-lg sm:text-xl font-bold text-white">Planos e Preços</h1>
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="text-white hover:bg-white/10"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
-        </div>
-
-        {/* PLANS SECTION - NOW AT TOP */}
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* PLANS SECTION */}
         <div className="text-center mb-10">
-          <Badge className="bg-green-600 text-white px-4 py-2 mb-4">
+          <Badge className="bg-emerald-600 text-white px-4 py-2 mb-4">
             🔥 ESCOLHA SEU PLANO
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Planos e Preços
-          </h1>
-          <p className="text-xl text-gray-300">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
             Escolha o plano ideal para o seu negócio
+          </h2>
+          <p className="text-slate-400">
+            Sem fidelidade ou compromisso. Cancele quando quiser.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-12">
           {plans.map((plan) => (
             <Card
               key={plan.id}
-              className={`relative bg-gray-800/50 border-2 backdrop-blur-sm hover:scale-105 transition-all ${
-                plan.popular ? 'border-green-500' : 'border-gray-700'
+              className={`relative bg-slate-800 border-2 hover:scale-105 transition-all ${
+                plan.popular ? 'border-emerald-500' : 'border-slate-700'
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-green-600">Mais Popular</Badge>
+                  <Badge className="bg-emerald-600">Mais Popular</Badge>
                 </div>
               )}
               <CardHeader className="text-center pb-4">
-                <div className="flex justify-center mb-4 text-green-400">
+                <div className="flex justify-center mb-4 text-emerald-400">
                   {plan.icon}
                 </div>
                 <CardTitle className="text-2xl text-white">
@@ -293,23 +290,23 @@ const Planos = () => {
                 <div className="text-4xl font-bold text-white">
                   {plan.price}
                 </div>
-                <p className="text-gray-400 text-sm">{plan.period}</p>
+                <p className="text-slate-400 text-sm">{plan.period}</p>
                 {plan.savings && (
-                  <p className="text-green-400 text-sm mt-2 font-semibold">
+                  <p className="text-emerald-400 text-sm mt-2 font-semibold">
                     {plan.savings}
                   </p>
                 )}
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-gray-300 text-center min-h-[3rem]">
+                <p className="text-slate-300 text-center min-h-[3rem]">
                   {plan.description}
                 </p>
                 <Button
                   onClick={() => handleSelectPlan(plan)}
                   className={
                     plan.popular
-                      ? 'w-full bg-green-600 hover:bg-green-700'
-                      : 'w-full bg-gray-700 hover:bg-gray-600'
+                      ? 'w-full bg-emerald-600 hover:bg-emerald-500'
+                      : 'w-full bg-slate-700 hover:bg-slate-600'
                   }
                 >
                   Assinar Agora
@@ -320,7 +317,7 @@ const Planos = () => {
         </div>
 
         {/* Benefits Card */}
-        <Card className="bg-gray-800/50 border-gray-700 mb-12">
+        <Card className="bg-slate-800 border-slate-700 mb-12">
           <CardHeader>
             <CardTitle className="text-2xl text-white text-center">
               Todos os planos incluem:
@@ -330,15 +327,15 @@ const Planos = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {benefits.map((b, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
-                  <span className="text-gray-300">{b}</span>
+                  <Check className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+                  <span className="text-slate-300">{b}</span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* USER SUBSCRIPTION DETAILS - NOW AT BOTTOM */}
+        {/* USER SUBSCRIPTION DETAILS */}
         {user && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white">
@@ -347,15 +344,15 @@ const Planos = () => {
 
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400" />
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400" />
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Current Subscription */}
-                <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
+                <Card className="bg-slate-800 border-slate-700">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-white flex items-center gap-2 text-lg">
-                      <CreditCard className="h-5 w-5 text-green-400" />
+                      <CreditCard className="h-5 w-5 text-emerald-400" />
                       Assinatura Atual
                     </CardTitle>
                   </CardHeader>
@@ -364,17 +361,17 @@ const Planos = () => {
                       <>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-gray-400 text-xs uppercase tracking-wide">Plano</p>
+                            <p className="text-slate-400 text-xs uppercase tracking-wide">Plano</p>
                             <p className="text-white font-semibold">
                               {getPlanName(currentSubscription.plan_type)}
                             </p>
                           </div>
                           <div>
-                            <p className="text-gray-400 text-xs uppercase tracking-wide">Status</p>
+                            <p className="text-slate-400 text-xs uppercase tracking-wide">Status</p>
                             <Badge
                               className={
                                 daysRemaining > 7
-                                  ? 'bg-green-600'
+                                  ? 'bg-emerald-600'
                                   : daysRemaining > 0
                                   ? 'bg-yellow-600'
                                   : 'bg-red-600'
@@ -384,13 +381,13 @@ const Planos = () => {
                             </Badge>
                           </div>
                           <div>
-                            <p className="text-gray-400 text-xs uppercase tracking-wide">
+                            <p className="text-slate-400 text-xs uppercase tracking-wide">
                               Dias Restantes
                             </p>
                             <p
                               className={`font-bold text-xl ${
                                 daysRemaining > 7
-                                  ? 'text-green-400'
+                                  ? 'text-emerald-400'
                                   : daysRemaining > 0
                                   ? 'text-yellow-400'
                                   : 'text-red-400'
@@ -400,7 +397,7 @@ const Planos = () => {
                             </p>
                           </div>
                           <div>
-                            <p className="text-gray-400 text-xs uppercase tracking-wide">Expira em</p>
+                            <p className="text-slate-400 text-xs uppercase tracking-wide">Expira em</p>
                             <p className="text-white">
                               {new Date(
                                 currentSubscription.expires_at
@@ -411,17 +408,17 @@ const Planos = () => {
 
                         <Button
                           onClick={handleRenewCurrentPlan}
-                          className="w-full bg-green-600 hover:bg-green-700"
+                          className="w-full bg-emerald-600 hover:bg-emerald-500"
                         >
                           <RefreshCw className="h-4 w-4 mr-2" /> Renovar Assinatura
                         </Button>
                       </>
                     ) : (
                       <div className="text-center py-6">
-                        <p className="text-gray-400">
+                        <p className="text-slate-400">
                           Você não possui uma assinatura ativa
                         </p>
-                        <p className="text-gray-500 text-sm mt-1">
+                        <p className="text-slate-500 text-sm mt-1">
                           Escolha um plano acima para começar
                         </p>
                       </div>
@@ -430,7 +427,7 @@ const Planos = () => {
                 </Card>
 
                 {/* Account Info */}
-                <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
+                <Card className="bg-slate-800 border-slate-700">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-white flex items-center gap-2 text-lg">
                       <User className="h-5 w-5 text-blue-400" />
@@ -440,13 +437,13 @@ const Planos = () => {
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide">Membro desde</p>
+                        <p className="text-slate-400 text-xs uppercase tracking-wide">Membro desde</p>
                         <p className="text-white font-semibold">
                           {accountAge || 'Carregando...'}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide">
+                        <p className="text-slate-400 text-xs uppercase tracking-wide">
                           Total de Renovações
                         </p>
                         <p className="text-white font-semibold">
@@ -459,7 +456,7 @@ const Planos = () => {
 
                 {/* Renewals History */}
                 {renewalsHistory.length > 0 && (
-                  <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm lg:col-span-2">
+                  <Card className="bg-slate-800 border-slate-700 lg:col-span-2">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-white flex items-center gap-2 text-lg">
                         <History className="h-5 w-5 text-purple-400" />
@@ -471,13 +468,13 @@ const Planos = () => {
                         {renewalsHistory.map((renewal) => (
                           <div
                             key={renewal.id}
-                            className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg"
+                            className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg"
                           >
                             <div className="flex-1 min-w-0">
                               <p className="text-white font-medium truncate">
                                 {getPlanName(renewal.plan_type)}
                               </p>
-                              <p className="text-gray-400 text-sm">
+                              <p className="text-slate-400 text-sm">
                                 {new Date(renewal.activated_at).toLocaleDateString('pt-BR')} - {new Date(renewal.expires_at).toLocaleDateString('pt-BR')}
                               </p>
                             </div>
@@ -485,9 +482,9 @@ const Planos = () => {
                               className={
                                 renewal.payment_method === 'mercadopago_pix' &&
                                 new Date(renewal.expires_at) > new Date()
-                                  ? 'bg-green-600 ml-2'
+                                  ? 'bg-emerald-600 ml-2'
                                   : renewal.payment_method === 'mercadopago_pix'
-                                  ? 'bg-gray-600 ml-2'
+                                  ? 'bg-slate-600 ml-2'
                                   : 'bg-blue-600 ml-2'
                               }
                             >
