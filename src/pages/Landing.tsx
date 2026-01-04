@@ -14,6 +14,7 @@ import { PlanData } from '@/types/mercadopago';
 import { LazySection } from '@/components/landing/LazySection';
 import { ScrollCTA } from '@/components/landing/ScrollCTA';
 import { ProgressIndicator } from '@/components/landing/ProgressIndicator';
+import ActionChoiceModal from '@/components/landing/ActionChoiceModal';
 
 interface TestimonialData {
   id?: string;
@@ -52,6 +53,11 @@ const Landing: React.FC = () => {
   const { user } = useAuth();
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+
+  const handleCTAClick = () => {
+    setIsActionModalOpen(true);
+  };
   const [contentSettings, setContentSettings] = useState<LandingContentSettings>({
     user_id: '',
     hero_badge_text: '130+ depósitos • 4.9★ • Suporte WhatsApp',
@@ -400,7 +406,7 @@ const Landing: React.FC = () => {
           {/* CTA Button */}
           <Button 
             size="lg" 
-            onClick={() => navigate('/register')} 
+            onClick={handleCTAClick} 
             className="bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg px-8 sm:px-10 py-5 sm:py-6 font-semibold shadow-lg shadow-green-600/20 rounded-xl mb-8"
           >
             <Zap className="mr-2 h-5 w-5" />
@@ -507,7 +513,7 @@ const Landing: React.FC = () => {
                   Se identificou com algum desses problemas?
                 </p>
                 <Button 
-                  onClick={() => navigate('/register')}
+                  onClick={handleCTAClick}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 font-medium"
                 >
                   Quero resolver agora
@@ -825,7 +831,7 @@ const Landing: React.FC = () => {
             
             <Button 
               size="lg" 
-              onClick={() => navigate('/register')}
+              onClick={handleCTAClick}
               className="bg-white text-green-700 hover:bg-gray-100 text-base sm:text-lg px-8 sm:px-10 py-5 sm:py-6 font-semibold shadow-lg rounded-xl"
             >
               <Zap className="mr-2 h-5 w-5" />
@@ -889,6 +895,13 @@ const Landing: React.FC = () => {
           selectedPlan={selectedPlan} 
         />
       )}
+
+      {/* Action Choice Modal */}
+      <ActionChoiceModal 
+        isOpen={isActionModalOpen}
+        onClose={() => setIsActionModalOpen(false)}
+        whatsappNumber="5511963512105"
+      />
     </div>
   );
 };
