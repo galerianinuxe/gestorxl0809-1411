@@ -327,7 +327,7 @@ const Landing: React.FC = () => {
     {
       step: "2",
       icon: Calculator,
-      title: "Calculo Automático",
+      title: "Cálculo Automático",
       description: "Escolha o material de compra e o cálculo será automático"
     },
     {
