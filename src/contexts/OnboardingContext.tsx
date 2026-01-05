@@ -116,8 +116,17 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       if (error) throw error;
 
       if (data) {
-        const progressData = data.onboarding_progress as unknown as OnboardingProgress | null;
-        setProgress(progressData || defaultProgress);
+        const progressData = data.onboarding_progress as unknown as Partial<OnboardingProgress> | null;
+        // Merge with defaults to ensure all required fields exist
+        const mergedProgress: OnboardingProgress = {
+          ...defaultProgress,
+          ...(progressData || {}),
+          // Ensure these are always properly typed
+          subStepsCompleted: progressData?.subStepsCompleted && typeof progressData.subStepsCompleted === 'object' 
+            ? progressData.subStepsCompleted 
+            : {},
+        };
+        setProgress(mergedProgress);
         setOnboardingCompleted(data.onboarding_completed || false);
       }
     } catch (error) {
@@ -286,15 +295,27 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const isSubStepCompleted = useCallback((stepId: number, subStepId: string) => {
-    const subSteps = progress.subStepsCompleted[stepId] || [];
+    if (!progress.subStepsCompleted || typeof progress.subStepsCompleted !== 'object') {
+      return false;
+    }
+    const subSteps = progress.subStepsCompleted[stepId];
+    if (!Array.isArray(subSteps)) {
+      return false;
+    }
     return subSteps.includes(subStepId);
   }, [progress.subStepsCompleted]);
 
   const getSubStepProgress = useCallback((stepId: number) => {
-    const stepSubSteps = STEP_SUB_STEPS[stepId] || [];
-    const completedSubSteps = progress.subStepsCompleted[stepId] || [];
+    const stepSubSteps = STEP_SUB_STEPS[stepId];
+    if (!stepSubSteps || !Array.isArray(stepSubSteps)) {
+      return { completed: 0, total: 0 };
+    }
+    
+    const completedSubSteps = progress.subStepsCompleted?.[stepId];
+    const completedCount = Array.isArray(completedSubSteps) ? completedSubSteps.length : 0;
+    
     return {
-      completed: completedSubSteps.length,
+      completed: completedCount,
       total: stepSubSteps.length
     };
   }, [progress.subStepsCompleted]);
