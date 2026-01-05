@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { X, Calendar } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileFilterChip } from "./MobileFilterChip";
+import { MobileFilterSheet } from "./MobileFilterSheet";
 
 export type FilterPeriod = "daily" | "weekly" | "monthly" | "yearly" | "custom" | "all";
 
@@ -36,6 +40,48 @@ export function StandardFilter({
   showAllOption = false,
   extraFilters,
 }: StandardFilterProps) {
+  const isMobile = useIsMobile();
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  // Mobile: Compact chip + bottom sheet
+  if (isMobile) {
+    return (
+      <>
+        <div className="flex items-center justify-between mb-3 gap-2">
+          <MobileFilterChip
+            selectedPeriod={selectedPeriod}
+            startDate={startDate}
+            endDate={endDate}
+            onClick={() => setSheetOpen(true)}
+            onClear={onClear}
+          />
+          
+          {/* Extra filters inline on mobile if simple */}
+          {extraFilters && (
+            <div className="flex-1 flex justify-end">
+              {extraFilters}
+            </div>
+          )}
+        </div>
+
+        <MobileFilterSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={onPeriodChange}
+          startDate={startDate}
+          onStartDateChange={onStartDateChange}
+          endDate={endDate}
+          onEndDateChange={onEndDateChange}
+          onApply={() => setSheetOpen(false)}
+          onClear={onClear}
+          showAllOption={showAllOption}
+        />
+      </>
+    );
+  }
+
+  // Desktop/Tablet: Full filter card
   return (
     <Card className="bg-slate-700 border-slate-600 mb-3">
       <CardContent className="p-3">

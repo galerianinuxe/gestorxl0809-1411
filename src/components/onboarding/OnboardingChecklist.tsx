@@ -81,133 +81,142 @@ export function OnboardingChecklist() {
     );
   }
 
-  // Mobile: Full-width bottom sheet style
+  // Mobile: Minimal FAB that opens a modal - NOT blocking content
   if (isMobile) {
     return (
-      <div className="fixed inset-x-0 bottom-16 z-50 animate-slide-in-bottom safe-area-bottom">
-        <Card className="mx-2 bg-gray-900/98 border-gray-700 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-sm">
-          {/* Handle bar */}
-          <div className="flex justify-center pt-2 pb-1">
-            <div className="w-10 h-1 bg-gray-600 rounded-full" />
-          </div>
-
-          {/* Header */}
-          <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                <Settings className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="text-white font-bold text-base">Configuração Inicial</span>
-                <p className="text-white/70 text-xs">{completedCount}/{totalSteps} etapas completas</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 p-0 text-white/80 hover:text-white hover:bg-white/20 rounded-xl"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 p-0 text-white/80 hover:text-white hover:bg-white/20 rounded-xl"
-                onClick={() => setIsMinimized(true)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="px-4 py-3 border-b border-gray-800">
-            <Progress value={progressPercent} className="h-2.5" />
-          </div>
-
-          {/* Steps - Scrollable on mobile */}
-          {isExpanded && (
-            <div className="px-4 py-3 space-y-3 max-h-[40vh] overflow-y-auto hide-scrollbar">
-              {ONBOARDING_STEPS.slice(1).map((step) => {
-                const Icon = stepIcons[step.id as keyof typeof stepIcons];
-                const completed = isStepCompleted(step.id);
-                const isCurrent = progress.currentStep === step.id;
-                const subStepProgress = getSubStepProgress(step.id);
-                const subSteps = STEP_SUB_STEPS[step.id] || [];
-
-                return (
-                  <div key={step.id}>
-                    <button
-                      onClick={() => handleStepClick(step.id)}
-                      className={cn(
-                        "w-full flex items-center gap-4 p-4 rounded-xl transition-all text-left active:scale-[0.98]",
-                        completed 
-                          ? "bg-green-500/15 border border-green-500/30" 
-                          : isCurrent 
-                            ? "bg-gray-800 ring-2 ring-green-500/50" 
-                            : "bg-gray-800/50 hover:bg-gray-800"
-                      )}
-                    >
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
-                        completed ? "bg-green-500" : isCurrent ? "bg-green-600" : "bg-gray-700"
-                      )}>
-                        {completed ? (
-                          <CheckCircle2 className="w-6 h-6 text-white" />
-                        ) : Icon ? (
-                          <Icon className="w-6 h-6 text-white" />
-                        ) : (
-                          <Circle className="w-6 h-6 text-gray-400" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={cn(
-                          "text-base font-semibold",
-                          completed ? "text-green-400" : "text-white"
-                        )}>
-                          {step.name}
-                        </p>
-                        <p className="text-sm text-gray-400 line-clamp-1">{step.description}</p>
-                      </div>
-                      {isCurrent && !completed && (
-                        <span className="text-sm bg-green-500/20 text-green-400 px-3 py-1 rounded-lg font-medium">
-                          {subStepProgress.completed}/{subStepProgress.total}
-                        </span>
-                      )}
-                    </button>
-
-                    {/* Sub-step progress for current step */}
-                    {isCurrent && !completed && subSteps && subSteps.length > 0 && (
-                      <OnboardingStepProgress
-                        stepName={step.name}
-                        subSteps={subSteps.map(s => ({
-                          id: s.id,
-                          label: s.label,
-                          completed: isSubStepCompleted(step.id, s.id)
-                        }))}
-                        className="mt-3 ml-16"
-                        isMobile={true}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-
-              {/* Skip button */}
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={handleSkip}
-                className="w-full text-gray-400 hover:text-gray-200 text-sm mt-3 h-12"
-              >
-                Pular configuração
-              </Button>
-            </div>
+      <>
+        {/* FAB Button */}
+        <Button
+          onClick={() => setIsMinimized(false)}
+          className={cn(
+            "fixed z-40 bottom-20 right-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-xl transition-all duration-300",
+            isMinimized 
+              ? "rounded-full w-14 h-14 p-0" 
+              : "hidden"
           )}
-        </Card>
-      </div>
+        >
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-xs font-bold">{Math.round(progressPercent)}%</span>
+          </div>
+        </Button>
+
+        {/* Bottom Sheet Modal - Only shows when not minimized */}
+        {!isMinimized && (
+          <div className="fixed inset-0 z-50">
+            {/* Backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setIsMinimized(true)}
+            />
+            
+            {/* Sheet */}
+            <div className="absolute bottom-0 left-0 right-0 animate-slide-in-bottom safe-area-bottom">
+              <Card className="bg-slate-900 border-slate-700 rounded-t-3xl overflow-hidden shadow-2xl max-h-[70vh] flex flex-col">
+                {/* Handle bar */}
+                <div className="flex justify-center pt-3 pb-2">
+                  <div className="w-12 h-1.5 bg-slate-600 rounded-full" />
+                </div>
+
+                {/* Header */}
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
+                      <Settings className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <span className="text-white font-bold text-lg">Configuração</span>
+                      <p className="text-white/70 text-sm">{completedCount}/{totalSteps} etapas</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-11 w-11 p-0 text-white/80 hover:text-white hover:bg-white/20 rounded-xl"
+                    onClick={() => setIsMinimized(true)}
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                {/* Progress bar */}
+                <div className="px-5 py-3 border-b border-slate-800">
+                  <div className="flex items-center justify-between text-sm text-slate-400 mb-2">
+                    <span>Progresso</span>
+                    <span className="font-medium text-emerald-400">{Math.round(progressPercent)}%</span>
+                  </div>
+                  <Progress value={progressPercent} className="h-2.5" />
+                </div>
+
+                {/* Steps - Scrollable */}
+                <div className="px-5 py-4 space-y-3 overflow-y-auto flex-1 hide-scrollbar">
+                  {ONBOARDING_STEPS.slice(1).map((step) => {
+                    const Icon = stepIcons[step.id as keyof typeof stepIcons];
+                    const completed = isStepCompleted(step.id);
+                    const isCurrent = progress.currentStep === step.id;
+                    const subStepProgress = getSubStepProgress(step.id);
+
+                    return (
+                      <button
+                        key={step.id}
+                        onClick={() => {
+                          handleStepClick(step.id);
+                          setIsMinimized(true);
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-4 p-4 rounded-2xl transition-all text-left active:scale-[0.98]",
+                          completed 
+                            ? "bg-emerald-500/15 border border-emerald-500/30" 
+                            : isCurrent 
+                              ? "bg-slate-800 ring-2 ring-emerald-500/50" 
+                              : "bg-slate-800/50"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
+                          completed ? "bg-emerald-500" : isCurrent ? "bg-emerald-600" : "bg-slate-700"
+                        )}>
+                          {completed ? (
+                            <CheckCircle2 className="w-6 h-6 text-white" />
+                          ) : Icon ? (
+                            <Icon className="w-6 h-6 text-white" />
+                          ) : (
+                            <Circle className="w-6 h-6 text-slate-400" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn(
+                            "text-base font-semibold",
+                            completed ? "text-emerald-400" : "text-white"
+                          )}>
+                            {step.name}
+                          </p>
+                          <p className="text-sm text-slate-400 line-clamp-1">{step.description}</p>
+                        </div>
+                        {isCurrent && !completed && (
+                          <span className="text-sm bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl font-semibold">
+                            {subStepProgress.completed}/{subStepProgress.total}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Skip button */}
+                <div className="px-5 py-4 border-t border-slate-800">
+                  <Button
+                    variant="ghost"
+                    onClick={handleSkip}
+                    className="w-full text-slate-400 hover:text-slate-200 h-12 rounded-xl"
+                  >
+                    Pular configuração
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 
