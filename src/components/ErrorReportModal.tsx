@@ -306,11 +306,11 @@ const ErrorReportModal: React.FC<ErrorReportModalProps> = ({ open, onClose }) =>
             />
           </div>
 
-          <div className="flex gap-3 justify-end pt-4">
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
             <Button
               variant="ghost"
               onClick={onClose}
-              className="text-gray-300 hover:text-white hover:bg-gray-700"
+              className="w-full sm:w-auto h-12 text-gray-300 hover:text-white hover:bg-gray-700 rounded-xl"
               disabled={isSubmitting}
             >
               Cancelar
@@ -318,7 +318,7 @@ const ErrorReportModal: React.FC<ErrorReportModalProps> = ({ open, onClose }) =>
             <Button
               onClick={handleSubmit}
               disabled={!errorType || !errorTitle || !errorDescription || isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:w-auto h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
             >
               <Send className="h-4 w-4 mr-2" />
               {isSubmitting ? 'Enviando...' : 'Enviar Relatório'}
