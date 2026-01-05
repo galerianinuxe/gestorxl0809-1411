@@ -321,20 +321,20 @@ const Landing: React.FC = () => {
     {
       step: "1",
       icon: Scale,
-      title: "Pese",
-      description: "Insira o peso no sistema"
+      title: "Pesagem",
+      description: "Digite o peso do material na balança"
     },
     {
       step: "2",
       icon: Calculator,
-      title: "Calcule",
-      description: "Preço, tara, total automático"
+      title: "Calculo Automático",
+      description: "Escolha o material de compra, o cálculo acontece automaticamente"
     },
     {
       step: "3",
       icon: Printer,
-      title: "Pague",
-      description: "Comprovante profissional impresso"
+      title: "Finalize a Compra",
+      description: "Encerre o pedido e imprima o comprovante ao cliente"
     }
   ];
 
