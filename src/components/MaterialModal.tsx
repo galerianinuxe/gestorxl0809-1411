@@ -21,6 +21,7 @@ interface MaterialModalProps {
   onCancel: () => void;
   isSaleMode?: boolean;       // Add isSaleMode prop
   onRequestWeight?: () => void; // Handler to redirect to weight input (mobile)
+  onNavigateToOrders?: () => void; // Handler to navigate to orders tab (mobile)
 }
 
 const MaterialModal: React.FC<MaterialModalProps> = ({
@@ -31,14 +32,15 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
   onAdd,
   onCancel,
   isSaleMode = false,
-  onRequestWeight
+  onRequestWeight,
+  onNavigateToOrders
 }) => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
   const isMobileOrTablet = isMobile || isTablet;
   const [showTaraPopover, setShowTaraPopover] = useState(false);
   const [showDiferencaPopover, setShowDiferencaPopover] = useState(false);
-  const [activeSection, setActiveSection] = useState<'main' | 'tara' | 'diferenca'>('main');
+  const [activeSection, setActiveSection] = useState<'main' | 'tara' | 'diferenca' | 'addMoreConfirm'>('main');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [diferencaTipo, setDiferencaTipo] = useState<'acrescimo' | 'desconto'>('acrescimo');
   const [taraValue, setTaraValue] = useState<number>(0);
@@ -52,6 +54,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
   const [stockWeight, setStockWeight] = useState<number>(0);
   const [hasStockApplied, setHasStockApplied] = useState<boolean>(false);
   const [currentPeso, setCurrentPeso] = useState<string | number>(peso);
+  const [pendingAddData, setPendingAddData] = useState<{taraValue: number, valorFinal: number, pesoLiquido: number} | null>(null);
   
   const { calculateMaterialStock, isLoadingStock } = useStockCalculation();
   
@@ -92,11 +95,51 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
       setHasStockApplied(false);
       setCurrentPeso(peso);
       setActiveSection('main');
+      setPendingAddData(null);
       const pesoNum = typeof peso === 'string' ? parseFloat(peso) : peso;
       setPesoLiquido(pesoNum);
       setValorFinal(material.price);
     }
   }, [open, material, peso]);
+
+  // Handle add button click - for mobile/tablet, show confirmation first
+  const handleAddClick = useCallback(() => {
+    if (isMobileOrTablet) {
+      // Store the data for later and show confirmation
+      setPendingAddData({ taraValue, valorFinal, pesoLiquido });
+      setActiveSection('addMoreConfirm');
+    } else {
+      // Desktop: add directly
+      onAdd(taraValue, valorFinal, pesoLiquido);
+    }
+  }, [isMobileOrTablet, taraValue, valorFinal, pesoLiquido, onAdd]);
+
+  // Handle "Yes" - add more materials
+  const handleAddMoreYes = useCallback(() => {
+    if (pendingAddData) {
+      onAdd(pendingAddData.taraValue, pendingAddData.valorFinal, pendingAddData.pesoLiquido);
+    }
+    setPendingAddData(null);
+    setActiveSection('main');
+    // Navigate to scale (handled by onCancel which closes modal and returns to scale view)
+    onCancel();
+    if (onRequestWeight) {
+      onRequestWeight();
+    }
+  }, [pendingAddData, onAdd, onCancel, onRequestWeight]);
+
+  // Handle "No" - go to orders
+  const handleAddMoreNo = useCallback(() => {
+    if (pendingAddData) {
+      onAdd(pendingAddData.taraValue, pendingAddData.valorFinal, pendingAddData.pesoLiquido);
+    }
+    setPendingAddData(null);
+    setActiveSection('main');
+    onCancel();
+    if (onNavigateToOrders) {
+      onNavigateToOrders();
+    }
+  }, [pendingAddData, onAdd, onCancel, onNavigateToOrders]);
 
   // Handle Enter key press for the main modal's "Adicionar" button
   useEffect(() => {
@@ -383,6 +426,33 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
     </div>
   );
 
+  // Add More Confirmation Content - Mobile/Tablet only
+  const AddMoreConfirmContent = () => (
+    <div className="flex flex-col gap-6 py-4">
+      <div className="text-center">
+        <h3 className="text-2xl font-bold text-white mb-2">Material Adicionado!</h3>
+        <p className="text-lg text-gray-300">
+          Deseja adicionar mais materiais?
+        </p>
+      </div>
+      
+      <div className="flex flex-col gap-3">
+        <Button 
+          className="w-full h-16 text-xl bg-pdv-green hover:bg-pdv-green/90 font-semibold"
+          onClick={handleAddMoreYes}
+        >
+          Sim, adicionar mais
+        </Button>
+        <Button 
+          className="w-full h-16 text-xl bg-amber-600 hover:bg-amber-700 font-semibold"
+          onClick={handleAddMoreNo}
+        >
+          Não, ir para Pedidos
+        </Button>
+      </div>
+    </div>
+  );
+
   // Tara Popover Component - Desktop only
   const TaraPopoverContent = () => (
     <div className="bg-pdv-dark text-white rounded-lg shadow-lg px-6 py-4 w-[400px]">
@@ -476,6 +546,8 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
             <TaraInlineContent />
           ) : isMobileOrTablet && activeSection === 'diferenca' ? (
             <DiferencaInlineContent />
+          ) : isMobileOrTablet && activeSection === 'addMoreConfirm' ? (
+            <AddMoreConfirmContent />
           ) : (
             <>
               <DialogHeader>
@@ -646,7 +718,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                   </Button>
                 ) : (
                   <Button 
-                    onClick={() => onAdd(taraValue, valorFinal, pesoLiquido)} 
+                    onClick={handleAddClick} 
                     disabled={!isPesoValido}
                     className={`w-full sm:w-auto h-12 rounded-xl ${isPesoValido ? 'bg-pdv-green hover:bg-pdv-green/90' : 'bg-gray-500'}`}
                   >

@@ -123,6 +123,13 @@ const Index: React.FC = () => {
     }
   }, []);
   
+  // Callback para navegar para a aba de pedidos (usado pelo MaterialModal)
+  const handleNavigateToOrders = useCallback(() => {
+    if (mobileTabSetterRef.current) {
+      mobileTabSetterRef.current('orders');
+    }
+  }, []);
+  
   // Callback para armazenar o setter da aba mobile
   const setMobileTabSetter = useCallback((setter: (tab: 'scale' | 'materials' | 'orders' | 'menu') => void) => {
     mobileTabSetterRef.current = setter;
@@ -1076,7 +1083,7 @@ const Index: React.FC = () => {
           
           {/* Modals com Suspense para carregamento assíncrono */}
           <React.Suspense fallback={null}>
-            {selectedMaterialModal && <MaterialModal open={!!selectedMaterialModal} material={selectedMaterialModal} peso={pesoModal} total={totalMaterial} onAdd={handleAddMaterialToOrder} onCancel={() => setSelectedMaterialModal(null)} isSaleMode={isSaleMode} onRequestWeight={handleNavigateToScale} />}
+            {selectedMaterialModal && <MaterialModal open={!!selectedMaterialModal} material={selectedMaterialModal} peso={pesoModal} total={totalMaterial} onAdd={handleAddMaterialToOrder} onCancel={() => setSelectedMaterialModal(null)} isSaleMode={isSaleMode} onRequestWeight={handleNavigateToScale} onNavigateToOrders={handleNavigateToOrders} />}
           </React.Suspense>
           
           <React.Suspense fallback={null}>
