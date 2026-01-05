@@ -180,7 +180,7 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
                   htmlFor="modo-venda-switch" 
                   className={`text-xs font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-400'}`}
                 >
-                  {isSaleMode ? "Venda" : "Compra"}
+                  {isSaleMode ? "Modo Venda Ativado" : "Modo Compra Ativado"}
                 </Label>
               </div>
               
@@ -259,7 +259,7 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
                   htmlFor="modo-venda-switch-materials" 
                   className={`text-xs font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-400'}`}
                 >
-                  {isSaleMode ? "Venda" : "Compra"}
+                  {isSaleMode ? "Modo Venda Ativado" : "Modo Compra Ativado"}
                 </Label>
               </div>
               <span className="text-slate-400 text-xs">{materials.length} cadastrados</span>
@@ -309,7 +309,7 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
                   htmlFor="modo-venda-switch-orders" 
                   className={`text-xs font-semibold select-none ${isSaleMode ? 'text-amber-400' : 'text-slate-400'}`}
                 >
-                  {isSaleMode ? "Venda" : "Compra"}
+                  {isSaleMode ? "Modo Venda Ativado" : "Modo Compra Ativado"}
                 </Label>
               </div>
               <span className="text-slate-400 text-xs">{openOrdersCount} pedidos abertos</span>
