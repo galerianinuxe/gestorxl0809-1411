@@ -624,73 +624,77 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
             </div>
           )}
 
-          {/* Layout para Mobile e Tablet - Com tamanhos de fonte aumentados em 10% */}
+          {/* Layout para Mobile e Tablet - Design nativo elegante */}
           {(isMobile || isTablet) && (
-            <div className="space-y-1 overflow-hidden">
-              {/* Items Table com altura reduzida e scroll - tamanhos aumentados */}
-              <ScrollArea className="h-[20vh] border border-gray-700 rounded">
-                <Table>
-                  <TableHeader className="bg-gray-800">
-                    <TableRow>
-                      <TableHead className="text-white text-[11px] p-1">Material</TableHead>
-                      <TableHead className="text-white text-right text-[11px] p-1">Qtd</TableHead>
-                      <TableHead className="text-white text-right text-[11px] p-1">R$/kg</TableHead>
-                      <TableHead className="text-white text-right text-[11px] p-1">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {order.items.map((item, index) => (
-                      <TableRow key={index} className="border-gray-700">
-                        <TableCell className="text-white text-[11px] p-1">
-                          <div className="truncate max-w-[80px]">{cleanMaterialName(item.materialName)}</div>
-                          {item.tara && item.tara > 0 && (
-                            <div className="text-[9px] text-yellow-400">
-                              Tara: {formatPeso(item.tara).replace('/kg', '')} kg
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-white text-right text-[11px] p-1">{formatPeso(item.quantity).replace('/kg', '')} kg</TableCell>
-                        <TableCell className="text-white text-right text-[11px] p-1">R$ {item.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-white text-right text-[11px] p-1">R$ {item.total.toFixed(2)}</TableCell>
+            <div className="space-y-3 overflow-hidden animate-fade-in">
+              {/* Items Table com visual moderno */}
+              <div className="bg-gradient-to-b from-slate-800/80 to-slate-900/80 rounded-xl border border-slate-700/50 overflow-hidden shadow-lg">
+                <ScrollArea className="h-[22vh]">
+                  <Table>
+                    <TableHeader className="bg-slate-800/90 sticky top-0 z-10">
+                      <TableRow className="border-b border-slate-700/50">
+                        <TableHead className="text-slate-300 text-xs font-semibold p-2">Material</TableHead>
+                        <TableHead className="text-slate-300 text-right text-xs font-semibold p-2">Qtd</TableHead>
+                        <TableHead className="text-slate-300 text-right text-xs font-semibold p-2">R$/kg</TableHead>
+                        <TableHead className="text-slate-300 text-right text-xs font-semibold p-2">Total</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
-
-              {/* Payment Options com tamanho aumentado e consistente */}
-              <div className="py-1">
-                <div className="bg-gray-800 p-2 rounded border border-gray-700">
-                  <h3 className="text-white font-bold text-sm mb-1">Forma de Pagamento:</h3>
-                  <PaymentOptions 
-                    isSaleMode={isSaleMode}
-                    onPaymentChange={setPaymentData}
-                    paymentData={paymentData}
-                  />
-                </div>
+                    </TableHeader>
+                    <TableBody>
+                      {order.items.map((item, index) => (
+                        <TableRow 
+                          key={index} 
+                          className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors"
+                        >
+                          <TableCell className="text-white text-xs p-2">
+                            <div className="font-medium truncate max-w-[100px]">{cleanMaterialName(item.materialName)}</div>
+                            {item.tara && item.tara > 0 && (
+                              <div className="text-[10px] text-amber-400/80 mt-0.5">
+                                Tara: {formatPeso(item.tara).replace('/kg', '')} kg
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-white text-right text-xs p-2 font-medium">{formatPeso(item.quantity).replace('/kg', '')} kg</TableCell>
+                          <TableCell className="text-slate-300 text-right text-xs p-2">R$ {item.price.toFixed(2)}</TableCell>
+                          <TableCell className="text-emerald-400 text-right text-xs p-2 font-semibold">R$ {item.total.toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
               </div>
 
-              {/* Summary section com grid 2x2 - tamanhos aumentados */}
-              <div className="py-1">
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="flex flex-col p-1 border border-gray-700 rounded-md bg-gray-800">
-                    <span className="text-white font-bold text-[11px]">Peso Bruto:</span>
-                    <span className="text-white font-bold text-base">{formatPeso(totalWeight).replace('/kg', '')} kg</span>
-                  </div>
-                  <div className="flex flex-col p-1 border border-gray-700 rounded-md bg-gray-800">
-                    <span className="text-white font-bold text-[11px]">
-                      {isSaleMode ? "Total:" : "Total:"}
-                    </span>
-                    <span className="text-[#40f597] font-bold text-base">R$ {order.total.toFixed(2)}</span>
-                  </div>
-                  <div className="flex flex-col p-1 border border-gray-700 rounded-md bg-gray-800">
-                    <span className="text-yellow-400 font-bold text-[11px]">Total Tara:</span>
-                    <span className="text-white font-bold text-base">{formatPeso(totalTara).replace('/kg', '')} kg</span>
-                  </div>
-                  <div className="flex flex-col p-1 border border-gray-700 rounded-md bg-gray-800">
-                    <span className="text-white font-bold text-[11px]">Peso Líquido:</span>
-                    <span className="text-white font-bold text-base">{formatPeso(netWeight).replace('/kg', '')} kg</span>
-                  </div>
+              {/* Payment Options com visual premium */}
+              <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-xl border border-slate-700/50 p-3 shadow-lg">
+                <h3 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Forma de Pagamento:
+                </h3>
+                <PaymentOptions 
+                  isSaleMode={isSaleMode}
+                  onPaymentChange={setPaymentData}
+                  paymentData={paymentData}
+                />
+              </div>
+
+              {/* Summary section com visual moderno e elegante */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col p-3 rounded-xl bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-slate-700/50 shadow-lg">
+                  <span className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Peso Bruto:</span>
+                  <span className="text-white font-bold text-lg mt-0.5">{formatPeso(totalWeight).replace('/kg', '')} kg</span>
+                </div>
+                <div className="flex flex-col p-3 rounded-xl bg-gradient-to-br from-emerald-900/30 to-slate-900/90 border border-emerald-600/30 shadow-lg shadow-emerald-900/20">
+                  <span className="text-emerald-400 font-medium text-[11px] uppercase tracking-wide">
+                    {isSaleMode ? "Total:" : "Total:"}
+                  </span>
+                  <span className="text-emerald-400 font-bold text-lg mt-0.5">R$ {order.total.toFixed(2)}</span>
+                </div>
+                <div className="flex flex-col p-3 rounded-xl bg-gradient-to-br from-amber-900/20 to-slate-900/90 border border-amber-600/30 shadow-lg">
+                  <span className="text-amber-400 font-medium text-[11px] uppercase tracking-wide">Total Tara:</span>
+                  <span className="text-white font-bold text-lg mt-0.5">{formatPeso(totalTara).replace('/kg', '')} kg</span>
+                </div>
+                <div className="flex flex-col p-3 rounded-xl bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-slate-700/50 shadow-lg">
+                  <span className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Peso Líquido:</span>
+                  <span className="text-white font-bold text-lg mt-0.5">{formatPeso(netWeight).replace('/kg', '')} kg</span>
                 </div>
               </div>
             </div>
@@ -731,32 +735,32 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
             </>
           )}
 
-          {/* Mobile/Tablet layout - ordem reorganizada: Imprimir, Só Salvar, Cancelar com ícones */}
+          {/* Mobile/Tablet layout - visual moderno com botões elegantes */}
           {(isMobile || isTablet) && (
-            <>
+            <div className="space-y-2 pt-1">
               <Button 
-                className="bg-transparent hover:bg-opacity-20 hover:bg-[#22e697]/10 text-[#22e697] border border-[#22e697] h-[40px] text-[16px] gap-2"
+                className="w-full h-12 text-base font-semibold gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 rounded-xl shadow-lg shadow-emerald-900/30 transition-all duration-200 active:scale-[0.98]"
                 onClick={handleDirectPrint}
               >
-                <Printer size={16} />
+                <Printer size={18} />
                 Imprimir
               </Button>
               <Button 
-                className="bg-transparent hover:bg-opacity-20 hover:bg-[#f0cd22]/10 text-[#f0cd22] border border-[#f0cd22] h-[40px] text-[16px] gap-2"
+                className="w-full h-12 text-base font-semibold gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white border-0 rounded-xl shadow-lg shadow-amber-900/30 transition-all duration-200 active:scale-[0.98]"
                 onClick={handleSaveOnly}
               >
-                <Save size={16} />
+                <Save size={18} />
                 Só Salvar
               </Button>
               <Button 
                 variant="outline" 
-                className="bg-transparent text-white hover:bg-gray-600 border border-gray-600 h-[40px] text-[16px] gap-2"
+                className="w-full h-10 text-sm font-medium gap-2 bg-transparent text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700 rounded-xl transition-all duration-200"
                 onClick={onClose}
               >
                 <X size={16} />
                 Cancelar
               </Button>
-            </>
+            </div>
           )}
         </div>
       </DialogContent>

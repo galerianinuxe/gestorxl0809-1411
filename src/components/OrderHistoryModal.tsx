@@ -514,11 +514,37 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
     </div>
   );
 
+  // Ref for filter scroll container
+  const filterScrollRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to active filter button on mobile/tablet
+  const handleFilterClick = (filterSetter: () => void, buttonIndex: number) => {
+    filterSetter();
+    
+    // Auto-scroll to make the clicked button visible
+    if (filterScrollRef.current && isMobileOrTablet) {
+      const container = filterScrollRef.current;
+      const buttons = container.querySelectorAll('button');
+      const targetButton = buttons[buttonIndex];
+      
+      if (targetButton) {
+        const containerRect = container.getBoundingClientRect();
+        const buttonRect = targetButton.getBoundingClientRect();
+        const scrollLeft = buttonRect.left - containerRect.left + container.scrollLeft - (containerRect.width / 2) + (buttonRect.width / 2);
+        
+        container.scrollTo({
+          left: Math.max(0, scrollLeft),
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
       <DialogContent 
         hideCloseButton={isMobileOrTablet}
-        className={`${isMobileOrTablet ? 'w-screen h-screen max-w-none max-h-none m-0 rounded-none' : 'w-screen h-screen max-w-none max-h-none m-0 rounded-none'} p-0 bg-slate-900 border-slate-700 flex flex-col`}
+        className={`${isMobileOrTablet ? 'w-screen h-screen max-w-none max-h-none m-0 rounded-none' : '!w-[95vw] !max-w-[1200px] !max-h-[90vh]'} p-0 bg-slate-900 border-slate-700 flex flex-col`}
       >
         {/* Header */}
         <DialogHeader className={`${isMobileOrTablet ? 'px-4 py-2' : 'p-6'} border-b border-slate-700 bg-slate-800`}>
@@ -533,76 +559,79 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
           </DialogDescription>
         </DialogHeader>
 
-        {/* Filtros Mobile/Tablet - Compact Pills */}
+        {/* Filtros Mobile/Tablet - Compact Pills with Auto-Scroll */}
         {isMobileOrTablet ? (
           <div className="bg-slate-800/50 border-b border-slate-700/50 px-3 py-2">
-            <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
+            <div 
+              ref={filterScrollRef}
+              className="flex gap-1.5 overflow-x-auto hide-scrollbar scroll-smooth"
+            >
               <button
-                onClick={() => setFilterStatus('all')}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
+                onClick={() => handleFilterClick(() => setFilterStatus('all'), 0)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all duration-200 ${
                   filterStatus === 'all' 
-                    ? 'bg-emerald-600 text-white' 
+                    ? 'bg-emerald-600 text-white scale-105 shadow-lg shadow-emerald-600/30' 
                     : 'bg-slate-700/50 text-slate-400'
                 }`}
               >
                 Todos
               </button>
               <button
-                onClick={() => setFilterStatus('open')}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
+                onClick={() => handleFilterClick(() => setFilterStatus('open'), 1)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all duration-200 ${
                   filterStatus === 'open' 
-                    ? 'bg-amber-600 text-white' 
+                    ? 'bg-amber-600 text-white scale-105 shadow-lg shadow-amber-600/30' 
                     : 'bg-slate-700/50 text-slate-400'
                 }`}
               >
                 Em Aberto
               </button>
               <button
-                onClick={() => setFilterStatus('completed')}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
+                onClick={() => handleFilterClick(() => setFilterStatus('completed'), 2)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all duration-200 ${
                   filterStatus === 'completed' 
-                    ? 'bg-emerald-600 text-white' 
+                    ? 'bg-emerald-600 text-white scale-105 shadow-lg shadow-emerald-600/30' 
                     : 'bg-slate-700/50 text-slate-400'
                 }`}
               >
                 Finalizados
               </button>
-              <div className="w-px bg-slate-600/50 mx-0.5" />
+              <div className="w-px bg-slate-600/50 mx-0.5 flex-shrink-0" />
               <button
-                onClick={() => setFilterType('all')}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
+                onClick={() => handleFilterClick(() => setFilterType('all'), 4)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all duration-200 ${
                   filterType === 'all' 
-                    ? 'bg-slate-600 text-white' 
+                    ? 'bg-slate-600 text-white scale-105 shadow-lg shadow-slate-600/30' 
                     : 'bg-slate-700/50 text-slate-400'
                 }`}
               >
                 Tipos
               </button>
               <button
-                onClick={() => setFilterType('venda')}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
+                onClick={() => handleFilterClick(() => setFilterType('venda'), 5)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all duration-200 ${
                   filterType === 'venda' 
-                    ? 'bg-amber-500 text-white' 
+                    ? 'bg-amber-500 text-white scale-105 shadow-lg shadow-amber-500/30' 
                     : 'bg-slate-700/50 text-slate-400'
                 }`}
               >
                 Vendas
               </button>
               <button
-                onClick={() => setFilterType('compra')}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
+                onClick={() => handleFilterClick(() => setFilterType('compra'), 6)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all duration-200 ${
                   filterType === 'compra' 
-                    ? 'bg-emerald-500 text-white' 
+                    ? 'bg-emerald-500 text-white scale-105 shadow-lg shadow-emerald-500/30' 
                     : 'bg-slate-700/50 text-slate-400'
                 }`}
               >
                 Compras
               </button>
-              <div className="w-px bg-slate-600/50 mx-0.5" />
+              <div className="w-px bg-slate-600/50 mx-0.5 flex-shrink-0" />
               <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
-                  showFilters ? 'bg-slate-600 text-white' : 'bg-slate-700/50 text-slate-400'
+                onClick={() => handleFilterClick(() => setShowFilters(!showFilters), 8)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-1 ${
+                  showFilters ? 'bg-slate-600 text-white scale-105' : 'bg-slate-700/50 text-slate-400'
                 }`}
               >
                 <Filter className="w-2.5 h-2.5" />
