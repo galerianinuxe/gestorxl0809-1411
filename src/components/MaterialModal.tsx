@@ -533,18 +533,18 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                 {/* Tara Button - Mobile uses inline, Desktop uses Popover */}
                 {isMobileOrTablet ? (
                   <Button 
-                    className="bg-transparent border border-[#ffda21] text-[#ffda21] hover:bg-[#ffda21]/10"
+                    className="bg-transparent border border-[#ffda21] text-white hover:bg-[#ffda21]/10"
                     onClick={() => setActiveSection('tara')}
                   >
-                    Tara
+                    Add Tara
                   </Button>
                 ) : (
                   <Popover open={showTaraPopover} onOpenChange={handleTaraPopoverClose}>
                     <PopoverTrigger asChild>
                       <Button 
-                        className="bg-transparent border border-[#ffda21] text-[#ffda21] hover:bg-[#ffda21]/10"
+                        className="bg-transparent border border-[#ffda21] text-white hover:bg-[#ffda21]/10"
                       >
-                        Tara
+                        Add Tara
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-auto border-gray-700 bg-transparent shadow-xl" align="center">
@@ -563,18 +563,18 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                   </Button>
                 ) : isMobileOrTablet ? (
                   <Button 
-                    className="bg-transparent border border-[#ffffff] hover:bg-white/10"
+                    className="bg-transparent border border-[#ffffff] text-white hover:bg-white/10"
                     onClick={() => setActiveSection('diferenca')}
                   >
-                    Diferença
+                    Add Diferença
                   </Button>
                 ) : (
                   <Popover open={showDiferencaPopover} onOpenChange={handleDiferencaPopoverClose}>
                     <PopoverTrigger asChild>
                       <Button 
-                        className="bg-transparent border border-[#ffffff] hover:bg-white/10"
+                        className="bg-transparent border border-[#ffffff] text-white hover:bg-white/10"
                       >
-                        Diferença
+                        Add Diferença
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-auto border-gray-700 bg-transparent shadow-xl" align="center">
@@ -607,8 +607,10 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                 )}
               </div>
               
-              <DialogFooter className="mt-4 flex flex-row gap-2">
-                <Button variant="secondary" onClick={onCancel} type="button">Cancelar</Button>
+              <DialogFooter className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:gap-2">
+                <Button variant="secondary" onClick={onCancel} type="button" className="w-full sm:w-auto h-12 rounded-xl">
+                  Cancelar
+                </Button>
                 {/* Show "Inserir Peso" button on mobile/tablet when peso is zero */}
                 {isMobileOrTablet && !isPesoValido ? (
                   <Button 
@@ -618,7 +620,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                         onRequestWeight();
                       }
                     }}
-                    className="bg-amber-600 hover:bg-amber-700 flex items-center gap-2"
+                    className="w-full sm:w-auto h-12 rounded-xl bg-amber-600 hover:bg-amber-700 flex items-center justify-center gap-2"
                   >
                     <Scale className="h-4 w-4" />
                     Inserir Peso
@@ -627,7 +629,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                   <Button 
                     onClick={() => onAdd(taraValue, valorFinal, pesoLiquido)} 
                     disabled={!isPesoValido}
-                    className={`${isPesoValido ? 'bg-pdv-green hover:bg-pdv-green/90' : 'bg-gray-500'}`}
+                    className={`w-full sm:w-auto h-12 rounded-xl ${isPesoValido ? 'bg-pdv-green hover:bg-pdv-green/90' : 'bg-gray-500'}`}
                   >
                     Adicionar
                   </Button>
