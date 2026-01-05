@@ -678,297 +678,288 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
         <DialogContent className={`${
           isMobileOrTablet 
             ? "w-[100vw] h-[100vh] max-w-none" 
-            : "w-auto max-w-4xl h-auto max-h-[90vh]"
-        } bg-gray-900 text-white border-gray-800 overflow-hidden`}>
-          <DialogHeader className="pb-2">
-            <DialogTitle className="text-center text-white flex items-center justify-center gap-2 text-base">
-              <Clock className="h-4 w-4" /> Fechamento de Caixa
+            : "w-[90vw] max-w-5xl h-auto max-h-[85vh]"
+        } bg-gray-900 text-white border-gray-800 overflow-hidden flex flex-col`}>
+          <DialogHeader className="pb-3 shrink-0">
+            <DialogTitle className="text-center text-white flex items-center justify-center gap-2 text-lg font-semibold">
+              <Clock className="h-5 w-5" /> Fechamento de Caixa
             </DialogTitle>
-            <DialogDescription className="text-center text-gray-400 text-xs">
+            <DialogDescription className="text-center text-gray-400 text-sm">
               Resumo do dia {new Date(activeCashRegister.openingTimestamp).toLocaleDateString('pt-BR')}
             </DialogDescription>
           </DialogHeader>
           
-          <div className={`${
-            isMobileOrTablet 
-              ? "flex flex-col space-y-1.5 overflow-y-auto px-2 pb-4 h-full" 
-              : "grid grid-cols-3 gap-2 px-2 pb-2 overflow-y-auto"
-          }`}>
-            {isMobileOrTablet ? (
-              // Mobile/Tablet Layout - Vertical stacked cards
-              <>
-                <CashRegisterSummaryCard
-                  title="Valor de Abertura"
-                  value={`R$ ${totalOpening.toFixed(2)}`}
-                  subtitle={additionsCount > 0 ? `(+${additionsCount} ${additionsCount > 1 ? 'adições' : 'adição'} de saldo)` : undefined}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Vendas"
-                  value={`R$ ${cashSummary.totalSales.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Compras em Dinheiro"
-                  value={`R$ ${purchaseBreakdown.cashAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Compras em PIX"
-                  value={`R$ ${purchaseBreakdown.pixAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Vendas em Dinheiro"
-                  value={`R$ ${salesBreakdown.cashAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Vendas em PIX"
-                  value={`R$ ${salesBreakdown.pixAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Despesas"
-                  value={`R$ ${totalExpenses.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Peso"
-                  value={`${purchaseWeight.toFixed(3)} kg`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Saldo Esperado"
-                  value={`R$ ${cashSummary.expectedAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Saldo Atual"
-                  value={`R$ ${cashSummary.currentAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Transações"
-                  value={totalTransactions}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Adições de Saldo"
-                  value={additionsCount}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                
-                {/* Status do Caixa */}
-                <div className="bg-gray-800 px-3 py-2 rounded-sm">
-                  <div className="flex justify-between items-center">
-                    <div className="text-gray-300 text-[10px]">Status do Caixa</div>
-                    <div className="flex items-center gap-2">
-                      <span className={`font-bold text-base ${
-                        realTimeDifference === 0 
-                          ? "text-pdv-green" 
-                          : realTimeDifference > 0 
-                            ? "text-blue-400" 
-                            : "text-pdv-red"
-                      }`}>
-                        {realTimeDifference === 0 ? 'CONFERE' : realTimeDifference > 0 ? 'SOBRA' : 'FALTA'}
-                      </span>
-                      <span className={`font-semibold text-sm ${
-                        realTimeDifference === 0 
-                          ? "text-pdv-green" 
-                          : realTimeDifference > 0 
-                            ? "text-blue-400" 
-                            : "text-pdv-red"
-                      }`}>
-                        R$ {Math.abs(realTimeDifference).toFixed(2)}
-                      </span>
-                    </div>
+          {isMobileOrTablet ? (
+            // Mobile/Tablet Layout - Vertical stacked cards
+            <div className="flex flex-col space-y-1.5 overflow-y-auto px-2 pb-4 flex-1">
+              <CashRegisterSummaryCard
+                title="Valor de Abertura"
+                value={`R$ ${totalOpening.toFixed(2)}`}
+                subtitle={additionsCount > 0 ? `(+${additionsCount} ${additionsCount > 1 ? 'adições' : 'adição'} de saldo)` : undefined}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Total de Vendas"
+                value={`R$ ${cashSummary.totalSales.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Compras em Dinheiro"
+                value={`R$ ${purchaseBreakdown.cashAmount.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Compras em PIX"
+                value={`R$ ${purchaseBreakdown.pixAmount.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Vendas em Dinheiro"
+                value={`R$ ${salesBreakdown.cashAmount.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Vendas em PIX"
+                value={`R$ ${salesBreakdown.pixAmount.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Total de Despesas"
+                value={`R$ ${totalExpenses.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Total de Peso"
+                value={`${purchaseWeight.toFixed(3)} kg`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Saldo Esperado"
+                value={`R$ ${cashSummary.expectedAmount.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Saldo Atual"
+                value={`R$ ${cashSummary.currentAmount.toFixed(2)}`}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Total de Transações"
+                value={totalTransactions}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              <CashRegisterSummaryCard
+                title="Adições de Saldo"
+                value={additionsCount}
+                isMobileOrTablet={isMobileOrTablet}
+              />
+              
+              {/* Status do Caixa */}
+              <div className="bg-gray-800 px-3 py-2 rounded-sm">
+                <div className="flex justify-between items-center">
+                  <div className="text-gray-300 text-[10px]">Status do Caixa</div>
+                  <div className="flex items-center gap-2">
+                    <span className={`font-bold text-base ${
+                      realTimeDifference === 0 
+                        ? "text-pdv-green" 
+                        : realTimeDifference > 0 
+                          ? "text-blue-400" 
+                          : "text-pdv-red"
+                    }`}>
+                      {realTimeDifference === 0 ? 'CONFERE' : realTimeDifference > 0 ? 'SOBRA' : 'FALTA'}
+                    </span>
+                    <span className={`font-semibold text-sm ${
+                      realTimeDifference === 0 
+                        ? "text-pdv-green" 
+                        : realTimeDifference > 0 
+                          ? "text-blue-400" 
+                          : "text-pdv-red"
+                    }`}>
+                      R$ {Math.abs(realTimeDifference).toFixed(2)}
+                    </span>
                   </div>
                 </div>
-                
-                {/* Saldo Final */}
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                    <FormField
-                      control={form.control}
-                      name="finalAmount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="bg-gray-800 rounded-sm px-3 py-2">
-                            <div className="flex justify-between items-center mb-1">
-                              <div className="text-gray-300 text-[10px]">Saldo Final (R$)</div>
-                            </div>
-                            <div className="w-full mx-auto">
-                              <CashRegisterFinalAmount
-                                inputValue={inputValue}
-                                onInputChange={handleInputChange}
-                                autoFocus={true}
-                              />
-                            </div>
+              </div>
+              
+              {/* Saldo Final */}
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                  <FormField
+                    control={form.control}
+                    name="finalAmount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="bg-gray-800 rounded-sm px-3 py-2">
+                          <div className="flex justify-between items-center mb-1">
+                            <div className="text-gray-300 text-[10px]">Saldo Final (R$)</div>
                           </div>
-                          <FormMessage className="text-pdv-red text-xs" />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="flex gap-3 pt-1">
-                      <Button 
-                        type="button" 
-                        variant="outline"
-                        onClick={handleCancel}
-                        className="bg-transparent hover:bg-gray-700 text-white border-gray-600 text-base w-full h-11"
-                      >
-                        Cancelar
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        className="bg-pdv-red hover:bg-red-700 text-base w-full h-11"
-                      >
-                        Fechar Caixa
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </>
-            ) : (
-              // Desktop Layout - Keep original grid layout
-              <>
-                {/* Row 1 */}
-                <CashRegisterSummaryCard
-                  title="Valor de Abertura"
-                  value={`R$ ${totalOpening.toFixed(2)}`}
-                  subtitle={additionsCount > 0 ? `(+${additionsCount} ${additionsCount > 1 ? 'adições' : 'adição'} de saldo)` : undefined}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Vendas"
-                  value={`R$ ${cashSummary.totalSales.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Compras em Dinheiro"
-                  value={`R$ ${purchaseBreakdown.cashAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-
-                {/* Row 2 */}
-                <CashRegisterSummaryCard
-                  title="Compras em PIX"
-                  value={`R$ ${purchaseBreakdown.pixAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Vendas em Dinheiro"
-                  value={`R$ ${salesBreakdown.cashAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Vendas em PIX"
-                  value={`R$ ${salesBreakdown.pixAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Despesas"
-                  value={`R$ ${totalExpenses.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Peso"
-                  value={`${purchaseWeight.toFixed(3)} kg`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-
-                {/* Row 3 */}
-                <CashRegisterSummaryCard
-                  title="Saldo Esperado"
-                  value={`R$ ${cashSummary.expectedAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Saldo Atual"
-                  value={`R$ ${cashSummary.currentAmount.toFixed(2)}`}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-                <CashRegisterSummaryCard
-                  title="Total de Transações"
-                  value={totalTransactions}
-                  isMobileOrTablet={isMobileOrTablet}
-                />
-
-                {/* Row 4 - New layout */}
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
-                    <FormField
-                      control={form.control}
-                      name="finalAmount"
-                      render={({ field }) => (
-                        <FormItem className="contents">
-                          {/* Column 1: Adições de Saldo */}
-                          <CashRegisterSummaryCard
-                            title="Adições de Saldo"
-                            value={additionsCount}
-                            isMobileOrTablet={isMobileOrTablet}
-                          />
-                          
-                          {/* Column 2: Status do Caixa */}
-                          <div className="bg-gray-800 p-3 rounded-sm text-center flex flex-col justify-center">
-                            <div className="text-gray-300 mb-1 text-xs">Status do Caixa</div>
-                            <div className={`font-bold text-2xl ${
-                              realTimeDifference === 0 
-                                ? "text-pdv-green" 
-                                : realTimeDifference > 0 
-                                  ? "text-blue-400" 
-                                  : "text-pdv-red"
-                            }`}>
-                              {realTimeDifference === 0 ? 'CONFERE' : realTimeDifference > 0 ? 'SOBRA' : 'FALTA'}
-                            </div>
-                            <div className={`font-semibold text-sm ${
-                              realTimeDifference === 0 
-                                ? "text-pdv-green" 
-                                : realTimeDifference > 0 
-                                  ? "text-blue-400" 
-                                  : "text-pdv-red"
-                            }`}>
-                              R$ {Math.abs(realTimeDifference).toFixed(2)}
-                            </div>
-                          </div>
-                          
-                          {/* Column 3: Saldo Final */}
-                          <div className="bg-gray-800 rounded-sm p-3">
-                            <div className="text-gray-300 mb-1 text-center text-xs">Saldo Final (R$)</div>
+                          <div className="w-full mx-auto">
                             <CashRegisterFinalAmount
                               inputValue={inputValue}
                               onInputChange={handleInputChange}
                               autoFocus={true}
                             />
                           </div>
-                          
-                          <FormMessage className="text-pdv-red col-span-3" />
+                        </div>
+                        <FormMessage className="text-pdv-red text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="flex gap-3 pt-1">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={handleCancel}
+                      className="bg-transparent hover:bg-gray-700 text-white border-gray-600 text-base w-full h-11"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      className="bg-pdv-red hover:bg-red-700 text-base w-full h-11"
+                    >
+                      Fechar Caixa
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          ) : (
+            // Desktop Layout - Professional grid with 4 columns
+            <div className="flex flex-col gap-4 px-4 pb-4 overflow-y-auto flex-1">
+              {/* Main Summary Grid - 4 columns */}
+              <div className="grid grid-cols-4 gap-3">
+                <CashRegisterSummaryCard
+                  title="Valor de Abertura"
+                  value={`R$ ${totalOpening.toFixed(2)}`}
+                  subtitle={additionsCount > 0 ? `(+${additionsCount} ${additionsCount > 1 ? 'adições' : 'adição'} de saldo)` : undefined}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Total de Vendas"
+                  value={`R$ ${cashSummary.totalSales.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Compras em Dinheiro"
+                  value={`R$ ${purchaseBreakdown.cashAmount.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Compras em PIX"
+                  value={`R$ ${purchaseBreakdown.pixAmount.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Vendas em Dinheiro"
+                  value={`R$ ${salesBreakdown.cashAmount.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Vendas em PIX"
+                  value={`R$ ${salesBreakdown.pixAmount.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Total de Despesas"
+                  value={`R$ ${totalExpenses.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Total de Peso"
+                  value={`${purchaseWeight.toFixed(3)} kg`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Saldo Esperado"
+                  value={`R$ ${cashSummary.expectedAmount.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Saldo Atual"
+                  value={`R$ ${cashSummary.currentAmount.toFixed(2)}`}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Total de Transações"
+                  value={totalTransactions}
+                  isMobileOrTablet={false}
+                />
+                <CashRegisterSummaryCard
+                  title="Adições de Saldo"
+                  value={additionsCount}
+                  isMobileOrTablet={false}
+                />
+              </div>
+              
+              {/* Bottom Section - Status and Final Amount */}
+              <div className="grid grid-cols-3 gap-4">
+                {/* Status do Caixa */}
+                <div className="bg-gray-800 p-4 rounded-lg text-center flex flex-col justify-center">
+                  <div className="text-gray-400 text-sm mb-2">Status do Caixa</div>
+                  <div className={`font-bold text-3xl ${
+                    realTimeDifference === 0 
+                      ? "text-pdv-green" 
+                      : realTimeDifference > 0 
+                        ? "text-blue-400" 
+                        : "text-pdv-red"
+                  }`}>
+                    {realTimeDifference === 0 ? 'CONFERE' : realTimeDifference > 0 ? 'SOBRA' : 'FALTA'}
+                  </div>
+                  <div className={`font-semibold text-lg mt-1 ${
+                    realTimeDifference === 0 
+                      ? "text-pdv-green" 
+                      : realTimeDifference > 0 
+                        ? "text-blue-400" 
+                        : "text-pdv-red"
+                  }`}>
+                    R$ {Math.abs(realTimeDifference).toFixed(2)}
+                  </div>
+                </div>
+                
+                {/* Saldo Final Input */}
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="col-span-2 flex flex-col gap-4">
+                    <FormField
+                      control={form.control}
+                      name="finalAmount"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <div className="bg-gray-800 rounded-lg p-4 h-full flex flex-col justify-center">
+                            <div className="text-gray-400 text-sm mb-2 text-center">Saldo Final (R$)</div>
+                            <CashRegisterFinalAmount
+                              inputValue={inputValue}
+                              onInputChange={handleInputChange}
+                              autoFocus={true}
+                            />
+                          </div>
+                          <FormMessage className="text-pdv-red text-sm mt-1" />
                         </FormItem>
                       )}
                     />
                     
-                    <DialogFooter className="col-span-3 pt-2 flex gap-3">
+                    <div className="flex gap-4">
                       <Button 
                         type="button" 
                         variant="outline"
                         onClick={handleCancel}
-                        className="bg-transparent hover:bg-gray-700 text-white border-gray-600 text-sm w-full h-10"
+                        className="bg-transparent hover:bg-gray-700 text-white border-gray-600 text-base flex-1 h-12"
                       >
                         Cancelar
                       </Button>
                       <Button 
                         type="submit" 
-                        className="bg-pdv-red hover:bg-red-700 text-sm w-full h-10"
+                        className="bg-pdv-red hover:bg-red-700 text-base flex-1 h-12"
                       >
                         Fechar Caixa
                       </Button>
-                    </DialogFooter>
+                    </div>
                   </form>
                 </Form>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
