@@ -430,6 +430,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
   const AddMoreConfirmContent = () => (
     <div className="flex flex-col gap-6 py-4">
       <div className="text-center">
+        <span className="inline-block text-5xl animate-scale-in mb-2">✅</span>
         <h3 className="text-2xl font-bold text-white mb-2">Material Adicionado!</h3>
         <p className="text-lg text-gray-300">
           Deseja adicionar mais materiais?
@@ -444,7 +445,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
           Sim, adicionar mais
         </Button>
         <Button 
-          className="w-full h-16 text-xl bg-amber-600 hover:bg-amber-700 font-semibold"
+          className="w-full h-16 text-xl bg-yellow-600 hover:bg-yellow-700 font-semibold"
           onClick={handleAddMoreNo}
         >
           Não, ir para Pedidos
