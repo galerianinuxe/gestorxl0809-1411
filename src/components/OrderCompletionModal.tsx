@@ -708,25 +708,25 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
             <>
               <Button 
                 variant="outline" 
-                className="bg-transparent text-white hover:bg-gray-600 border border-gray-600 h-[60px] text-[18px] gap-2"
+                className="bg-transparent text-white hover:bg-gray-600 border border-gray-600 h-[90px] text-[18px] gap-2"
                 onClick={onClose}
               >
                 <X size={20} />
                 Cancelar
               </Button>
               <Button 
-                className="bg-transparent hover:bg-opacity-20 hover:bg-[#f0cd22]/10 text-[#f0cd22] border border-[#f0cd22] h-[60px] text-[18px] gap-2"
+                className="bg-transparent hover:bg-opacity-20 hover:bg-[#f0cd22]/10 text-[#f0cd22] border border-[#f0cd22] h-[90px] text-[18px] gap-2"
                 onClick={handleSaveOnly}
               >
                 <Save size={20} />
                 Só Salvar
               </Button>
               <Button 
-                className="bg-transparent hover:bg-opacity-20 hover:bg-[#22e697]/10 text-[#22e697] border border-[#22e697] h-[60px] text-[18px] gap-2"
+                className="bg-transparent hover:bg-opacity-20 hover:bg-[#22e697]/10 text-[#22e697] border border-[#22e697] h-[90px] text-[18px] gap-2"
                 onClick={handleDirectPrint}
               >
                 <Printer size={20} />
-                Imprimir
+                Imprimir Recibo
               </Button>
             </>
           )}
