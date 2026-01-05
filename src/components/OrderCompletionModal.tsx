@@ -542,7 +542,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
       <DialogContent className={`bg-pdv-dark border-gray-700 border-t-[7px] border-t-[#4fd683] 
         ${isMobile || isTablet 
           ? 'max-w-[98vw] max-h-[95vh] p-2 m-2' 
-          : '!w-[95vw] !max-w-[1300px]'
+          : '!w-[95vw] !max-w-[1300px] !max-h-[95vh]'
         }`}>
         <DialogHeader>
           <DialogTitle className={`text-white 
