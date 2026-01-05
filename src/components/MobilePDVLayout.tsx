@@ -220,25 +220,30 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
               </React.Suspense>
             </div>
 
-            {/* Preview do pedido atual - Compacto */}
+            {/* Preview do pedido atual - Melhorado para mobile */}
             {activeOrder && activeOrder.items.length > 0 && (
-              <div className="bg-slate-800 border-t border-slate-700 px-3 py-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 text-xs">{activeOrder.items.length} itens</span>
-                    <span className="text-emerald-400 font-bold text-sm">
-                      R$ {activeOrder.total.toFixed(2)}
-                    </span>
+              <button 
+                onClick={() => setActiveTab('orders')}
+                className="bg-gradient-to-r from-slate-800 to-slate-700 border-t border-emerald-500/30 px-4 py-3 flex items-center justify-between active:bg-slate-600 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600/20 flex items-center justify-center">
+                    <span className="text-emerald-400 font-bold text-sm">{activeOrder.items.length}</span>
                   </div>
-                  <button 
-                    onClick={() => setActiveTab('orders')}
-                    className="flex items-center gap-1 text-emerald-400 text-xs"
-                  >
-                    Ver pedido
-                    <ChevronRight className="w-3 h-3" />
-                  </button>
+                  <div className="text-left">
+                    <p className="text-white font-semibold text-sm">
+                      R$ {activeOrder.total.toFixed(2)}
+                    </p>
+                    <p className="text-slate-400 text-[10px]">
+                      {activeOrder.items.length === 1 ? '1 item' : `${activeOrder.items.length} itens`} no pedido
+                    </p>
+                  </div>
                 </div>
-              </div>
+                <div className="flex items-center gap-2 bg-emerald-600 px-3 py-1.5 rounded-lg">
+                  <span className="text-white text-xs font-medium">Ver Pedido</span>
+                  <ChevronRight className="w-4 h-4 text-white" />
+                </div>
+              </button>
             )}
           </div>
         );
