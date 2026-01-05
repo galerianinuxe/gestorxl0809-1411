@@ -148,7 +148,7 @@ export function OnboardingChecklist() {
                 </button>
 
                 {/* Sub-step progress for current step */}
-                {isCurrent && !completed && subSteps.length > 0 && (
+                {isCurrent && !completed && subSteps && subSteps.length > 0 && (
                   <OnboardingStepProgress
                     stepName={step.name}
                     subSteps={subSteps.map(s => ({

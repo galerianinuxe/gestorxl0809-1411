@@ -20,9 +20,11 @@ export function OnboardingStepProgress({
   subSteps,
   className 
 }: OnboardingStepProgressProps) {
+  if (!subSteps || subSteps.length === 0) return null;
+  
   const completedCount = subSteps.filter(s => s.completed).length;
   const totalSteps = subSteps.length;
-  const progressPercent = (completedCount / totalSteps) * 100;
+  const progressPercent = totalSteps > 0 ? (completedCount / totalSteps) * 100 : 0;
 
   return (
     <div className={cn("bg-gray-800/50 rounded-lg p-3 border border-gray-700", className)}>
