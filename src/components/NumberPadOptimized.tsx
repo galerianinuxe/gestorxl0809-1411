@@ -131,7 +131,7 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
   }, [disableAutoFocus]);
 
   return (
-    <div className="flex flex-col h-full w-full p-[2%] bg-slate-900">
+    <div className="flex flex-col h-full w-full p-[2%] pb-20 bg-slate-900">
       {/* Display */}
       <div 
         ref={displayRef}
