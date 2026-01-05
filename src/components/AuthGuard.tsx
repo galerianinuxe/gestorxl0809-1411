@@ -179,11 +179,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       
       logger.debug('User has active subscription, accessing protected route');
     } else if (user && isAuthOnlyRoute) {
-      if (location.pathname === '/' && !isAdmin && !isSubscriptionActive) {
-        logger.debug('User on home page without subscription, showing subscription blocker');
-        setShowSubscriptionBlocker(true);
-        return;
-      }
+      // Permitir acesso à home sem assinatura - o WelcomeScreen/FirstLoginModal
+      // vai guiar o usuário para ativar o teste grátis
       logger.debug('Auth-only route access granted');
       setShowSubscriptionBlocker(false);
     }
