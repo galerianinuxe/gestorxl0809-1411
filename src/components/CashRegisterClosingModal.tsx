@@ -678,7 +678,7 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
         <DialogContent className={`${
           isMobileOrTablet 
             ? "w-[100vw] h-[100vh] max-w-none" 
-            : "w-[95vw] max-w-[1330px] h-auto max-h-[85vh]"
+            : "w-[95vw] max-w-[1730px] h-auto max-h-[85vh]"
         } bg-gray-900 text-white border-gray-800 overflow-hidden flex flex-col`}>
           <DialogHeader className="pb-3 shrink-0">
             <DialogTitle className="text-center text-white flex items-center justify-center gap-2 text-lg font-semibold">
