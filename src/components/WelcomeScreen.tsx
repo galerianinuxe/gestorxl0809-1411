@@ -3,8 +3,10 @@ import React, { memo, useCallback, useState, useEffect } from 'react';
 import { HomeLayout } from './HomeLayout';
 import { FirstLoginModal } from './FirstLoginModal';
 import { OnboardingWizard } from './onboarding/OnboardingWizard';
+import SubscriptionManagementModal from './SubscriptionManagementModal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { hasUserUsedTrial } from '@/utils/subscriptionStorage';
 
 interface WelcomeScreenProps {
   onOpenCashRegister: () => void;
@@ -14,6 +16,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = memo(({ onOpenCashRegister }
   const { user } = useAuth();
   const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
+  const [showPlansModal, setShowPlansModal] = useState(false);
   const [userName, setUserName] = useState('');
   const [isCheckingFirstLogin, setIsCheckingFirstLogin] = useState(true);
 
@@ -41,9 +44,23 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = memo(({ onOpenCashRegister }
         if (profile) {
           setUserName(profile.name || '');
           
-          // Se não completou o primeiro login, mostrar modal
+          // Se não completou o primeiro login
           if (!profile.first_login_completed) {
-            setShowFirstLoginModal(true);
+            // Verificar se já usou o teste grátis
+            const trialUsed = await hasUserUsedTrial(user.id);
+            
+            if (trialUsed) {
+              // Já usou teste → mostrar modal de planos
+              setShowPlansModal(true);
+              // Marcar primeiro login como concluído
+              await supabase
+                .from('profiles')
+                .update({ first_login_completed: true })
+                .eq('id', user.id);
+            } else {
+              // Nunca usou teste → mostrar modal de ativação
+              setShowFirstLoginModal(true);
+            }
           }
         }
       } catch (error) {
@@ -115,12 +132,18 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = memo(({ onOpenCashRegister }
     <>
       <HomeLayout onOpenCashRegister={handleOpenCashRegister} />
       
-      {/* Modal de primeiro login */}
+      {/* Modal de primeiro login - apenas se nunca usou teste */}
       <FirstLoginModal
         open={showFirstLoginModal}
         onClose={handleCloseFirstLoginModal}
         userName={userName}
         onTrialActivated={handleTrialActivated}
+      />
+
+      {/* Modal de planos - se já usou teste grátis */}
+      <SubscriptionManagementModal
+        open={showPlansModal}
+        onClose={() => setShowPlansModal(false)}
       />
 
       {/* Wizard de onboarding */}
