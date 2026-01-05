@@ -13,10 +13,10 @@ import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 import { Order, Customer } from '../types/pdv';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { createLogger } from '@/utils/logger';
 import PasswordPromptModal from '@/components/PasswordPromptModal';
+import TransactionDetailsModal from '@/components/TransactionDetailsModal';
 import { cleanMaterialName } from '@/utils/materialNameCleaner';
 
 const logger = createLogger('[OrderHistory]');
@@ -48,8 +48,9 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -216,9 +217,13 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
   // Função chamada após autenticação bem-sucedida
   const handlePasswordAuthenticated = () => {
     setShowPasswordModal(false);
+    // Find the order and open the details modal
+    const order = orders.find(o => o.id === selectedOrderId);
+    if (order) {
+      setSelectedOrderForDetails(order);
+      setShowDetailsModal(true);
+    }
     setSelectedOrderId(null);
-    onClose();
-    navigate('/transactions');
   };
 
   // Função para excluir pedidos em aberto sem itens
@@ -1098,6 +1103,16 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
         onAuthenticated={handlePasswordAuthenticated}
         title="Autenticação Necessária"
         description="Digite sua senha para visualizar os detalhes do pedido."
+      />
+
+      {/* Modal de Detalhes do Pedido */}
+      <TransactionDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => {
+          setShowDetailsModal(false);
+          setSelectedOrderForDetails(null);
+        }}
+        transaction={selectedOrderForDetails}
       />
     </Dialog>
   );
