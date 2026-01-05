@@ -17,8 +17,8 @@ export const cleanMaterialName = (materialName: string): string => {
   // But don't remove zeros that are part of meaningful names like "H2O" or numbers like "100"
   if (cleanedName.length > 1 && cleanedName.endsWith('0')) {
     const secondToLast = cleanedName[cleanedName.length - 2];
-    // Only remove if the character before '0' is a letter (not a number or special char)
-    if (/[a-zA-Z]/.test(secondToLast)) {
+    // Use Unicode regex to include accented letters (e.g., ã, é, ç)
+    if (/\p{L}/u.test(secondToLast)) {
       cleanedName = cleanedName.slice(0, -1).trim();
     }
   }

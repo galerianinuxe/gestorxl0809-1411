@@ -93,12 +93,21 @@ export const restoreOpenOrdersFromSupabase = async (): Promise<{ customers: Cust
     const openOrders = ordersFromSupabase.filter(order => order.status === 'open');
     console.log('Found open orders:', openOrders.length);
 
-    // Build customers with their open orders
+    // Build customers with their open orders and clean material names
+    const { cleanMaterialName } = await import('./materialNameCleaner');
     const customersWithOpenOrders = customersFromSupabase.map(customer => {
       const customerOrders = openOrders.filter(order => order.customerId === customer.id);
+      // Clean material names in each order's items
+      const cleanedOrders = customerOrders.map(order => ({
+        ...order,
+        items: order.items.map(item => ({
+          ...item,
+          materialName: cleanMaterialName(item.materialName)
+        }))
+      }));
       return {
         ...customer,
-        orders: customerOrders
+        orders: cleanedOrders
       };
     }).filter(customer => customer.orders.length > 0);
 

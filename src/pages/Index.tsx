@@ -171,16 +171,41 @@ const Index: React.FC = () => {
           activeOrder: activeOrder?.id || 'none',
           activeOrderItems: activeOrder?.items.length || 0
         });
-        setCustomers(customers);
+        
+        // Import cleanMaterialName to clean restored data
+        const { cleanMaterialName } = await import('@/utils/materialNameCleaner');
+        
+        // Clean material names in all customer orders
+        const cleanedCustomers = customers.map(customer => ({
+          ...customer,
+          orders: customer.orders.map(order => ({
+            ...order,
+            items: order.items.map(item => ({
+              ...item,
+              materialName: cleanMaterialName(item.materialName)
+            }))
+          }))
+        }));
+        
+        // Clean activeOrder if it exists
+        const cleanedActiveOrder = activeOrder ? {
+          ...activeOrder,
+          items: activeOrder.items.map(item => ({
+            ...item,
+            materialName: cleanMaterialName(item.materialName)
+          }))
+        } : null;
+        
+        setCustomers(cleanedCustomers);
         setCurrentCustomer(activeCustomer);
-        setCurrentOrder(activeOrder);
+        setCurrentOrder(cleanedActiveOrder);
 
         // Set active states for UI sync
         if (activeCustomer) {
           setActiveCustomer(activeCustomer);
         }
-        if (activeOrder) {
-          setActiveOrder(activeOrder);
+        if (cleanedActiveOrder) {
+          setActiveOrder(cleanedActiveOrder);
         }
       }
       setIsDataLoaded(true);
@@ -399,7 +424,16 @@ const Index: React.FC = () => {
     setCurrentCustomer(targetCustomer);
     const openOrder = targetCustomer.orders.find(o => o.status === 'open');
     if (openOrder) {
-      setCurrentOrder(openOrder);
+      // Import cleanMaterialName to clean material names when selecting customer
+      const { cleanMaterialName } = await import('@/utils/materialNameCleaner');
+      const cleanedOrder = {
+        ...openOrder,
+        items: openOrder.items.map(item => ({
+          ...item,
+          materialName: cleanMaterialName(item.materialName)
+        }))
+      };
+      setCurrentOrder(cleanedOrder);
     } else {
       await createNewOrder(targetCustomer);
     }
