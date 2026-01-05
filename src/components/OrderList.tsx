@@ -284,20 +284,20 @@ const OrderList: React.FC<OrderListProps> = ({
       </div>;
   }
   return <div className="h-full flex flex-col bg-slate-900">
-      <div className="flex justify-between items-center p-4 bg-slate-800 border-b border-slate-700">
-        <h1 className="text-xl font-bold text-white">Pedidos</h1>
+      <div className="flex justify-between items-center p-3 bg-slate-800 border-b border-slate-700">
+        <h1 className="text-lg font-bold text-white">Pedidos</h1>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" onClick={() => setIsHistoryModalOpen(true)} className="text-slate-300 cursor-pointer py-1 text-sm px-[8px] rounded bg-slate-700 border-slate-600 hover:bg-slate-600 hover:text-white transition-colors">
-            <History className="h-4 w-4 mr-1" />
+          <Badge variant="outline" onClick={() => setIsHistoryModalOpen(true)} className="text-slate-300 cursor-pointer py-1 text-xs px-2 rounded bg-slate-700 border-slate-600 hover:bg-slate-600 hover:text-white transition-colors">
+            <History className="h-3 w-3 mr-1" />
             Histórico
           </Badge>
-          <button onClick={handleCreateNewOrder} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded flex items-center text-sm font-semibold transition-colors">
+          <button onClick={handleCreateNewOrder} className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded flex items-center text-xs font-semibold transition-colors">
             <span className="mr-1">+</span> Novo Pedido
           </button>
         </div>
       </div>
       
-      <div className="overflow-auto flex-1" style={{ height: 'calc(100vh - 120px)' }}>
+      <div className="overflow-auto flex-1">
         {allCustomers.length === 0 ? <div className="flex items-center justify-center h-full text-slate-400 text-center p-4">
             <div>
               <p className="text-lg font-medium mb-2">Nenhum pedido em aberto</p>
