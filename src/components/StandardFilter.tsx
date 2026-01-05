@@ -47,7 +47,7 @@ export function StandardFilter({
   if (isMobile) {
     return (
       <>
-        <div className="flex items-center justify-between mb-3 gap-2">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           <MobileFilterChip
             selectedPeriod={selectedPeriod}
             startDate={startDate}
@@ -56,12 +56,8 @@ export function StandardFilter({
             onClear={onClear}
           />
           
-          {/* Extra filters inline on mobile if simple */}
-          {extraFilters && (
-            <div className="flex-1 flex justify-end">
-              {extraFilters}
-            </div>
-          )}
+          {/* Extra filters inline - lado a lado */}
+          {extraFilters}
         </div>
 
         <MobileFilterSheet

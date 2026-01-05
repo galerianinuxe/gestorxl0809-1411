@@ -2,22 +2,24 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, ShoppingCart, Search, X, DollarSign, Scale } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Search, X, DollarSign, Scale, Filter } from 'lucide-react';
 import { getOrders, getMaterials } from '@/utils/supabaseStorage';
 import { Order, Material } from '@/types/pdv';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { StandardFilter, FilterPeriod } from '@/components/StandardFilter';
 import { MetricCard } from '@/components/MetricCard';
 import { Label } from '@/components/ui/label';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Badge } from '@/components/ui/badge';
 
 const PurchaseOrders = () => {
   const [searchParams] = useSearchParams();
   const startDate = searchParams.get('startDate') || '';
   const endDate = searchParams.get('endDate') || '';
+  const isMobile = useIsMobile();
   
   const [orders, setOrders] = useState<Order[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -198,76 +200,150 @@ const PurchaseOrders = () => {
           onEndDateChange={setFilterEndDate}
           onClear={clearFilters}
           extraFilters={
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-end">
-              <div className="flex-1 min-w-[200px]">
-                <Label className="text-slate-300 text-sm mb-1 block">Filtrar por Material</Label>
-                <Popover open={materialSearchOpen} onOpenChange={setMaterialSearchOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between bg-slate-800 border-slate-600 text-white hover:bg-slate-700 h-10"
-                    >
-                      <Search className="mr-2 h-4 w-4" />
-                      {selectedMaterials.length > 0 
-                        ? `${selectedMaterials.length} selecionado(s)`
-                        : "Selecionar materiais"
-                      }
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0 bg-slate-800 border-slate-600">
-                    <Command>
-                      <CommandInput 
-                        placeholder="Buscar..." 
-                        value={materialSearchValue}
-                        onValueChange={setMaterialSearchValue}
-                        className="text-white"
-                      />
-                      <CommandList>
-                        <CommandEmpty className="text-slate-400 text-sm p-2">Nenhum material.</CommandEmpty>
-                        <CommandGroup>
-                          {uniqueMaterials
-                            .filter(material => 
-                              material.toLowerCase().includes(materialSearchValue.toLowerCase())
-                            )
-                            .slice(0, 10)
-                            .map((material) => (
-                              <CommandItem
-                                key={material}
-                                value={material}
-                                onSelect={() => {
-                                  if (!selectedMaterials.includes(material)) {
-                                    setSelectedMaterials(prev => [...prev, material]);
-                                  }
-                                  setMaterialSearchValue('');
-                                  setMaterialSearchOpen(false);
-                                }}
-                                className="text-white hover:bg-slate-700"
-                              >
-                                {material}
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              {selectedMaterials.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {selectedMaterials.map((material) => (
-                    <span
-                      key={material}
-                      className="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded text-xs flex items-center gap-1"
-                    >
-                      {material.substring(0, 15)}
-                      <button onClick={() => removeMaterial(material)} className="hover:text-white">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
+            isMobile ? (
+              // Mobile: Botão compacto sem label
+              <Popover open={materialSearchOpen} onOpenChange={setMaterialSearchOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-10 px-3 rounded-xl bg-slate-800 border-slate-600 text-white hover:bg-slate-700 flex items-center gap-2"
+                  >
+                    <Filter className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm">Material</span>
+                    {selectedMaterials.length > 0 && (
+                      <Badge variant="secondary" className="bg-emerald-600 text-white text-xs px-1.5 py-0 h-5">
+                        {selectedMaterials.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[220px] p-0 bg-slate-800 border-slate-600">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Buscar material..." 
+                      value={materialSearchValue}
+                      onValueChange={setMaterialSearchValue}
+                      className="text-white"
+                    />
+                    <CommandList>
+                      <CommandEmpty className="text-slate-400 text-sm p-2">Nenhum material.</CommandEmpty>
+                      <CommandGroup>
+                        {uniqueMaterials
+                          .filter(material => 
+                            material.toLowerCase().includes(materialSearchValue.toLowerCase())
+                          )
+                          .slice(0, 10)
+                          .map((material) => (
+                            <CommandItem
+                              key={material}
+                              value={material}
+                              onSelect={() => {
+                                if (!selectedMaterials.includes(material)) {
+                                  setSelectedMaterials(prev => [...prev, material]);
+                                }
+                                setMaterialSearchValue('');
+                                setMaterialSearchOpen(false);
+                              }}
+                              className="text-white hover:bg-slate-700"
+                            >
+                              {material}
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                  {selectedMaterials.length > 0 && (
+                    <div className="p-2 border-t border-slate-600">
+                      <div className="flex flex-wrap gap-1">
+                        {selectedMaterials.map((material) => (
+                          <span
+                            key={material}
+                            className="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded text-xs flex items-center gap-1"
+                          >
+                            {material.substring(0, 12)}
+                            <button onClick={() => removeMaterial(material)} className="hover:text-white">
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            ) : (
+              // Desktop: Estrutura completa com Label
+              <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-end">
+                <div className="flex-1 min-w-[200px]">
+                  <Label className="text-slate-300 text-sm mb-1 block">Filtrar por Material</Label>
+                  <Popover open={materialSearchOpen} onOpenChange={setMaterialSearchOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between bg-slate-800 border-slate-600 text-white hover:bg-slate-700 h-10"
+                      >
+                        <Search className="mr-2 h-4 w-4" />
+                        {selectedMaterials.length > 0 
+                          ? `${selectedMaterials.length} selecionado(s)`
+                          : "Selecionar materiais"
+                        }
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0 bg-slate-800 border-slate-600">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Buscar..." 
+                          value={materialSearchValue}
+                          onValueChange={setMaterialSearchValue}
+                          className="text-white"
+                        />
+                        <CommandList>
+                          <CommandEmpty className="text-slate-400 text-sm p-2">Nenhum material.</CommandEmpty>
+                          <CommandGroup>
+                            {uniqueMaterials
+                              .filter(material => 
+                                material.toLowerCase().includes(materialSearchValue.toLowerCase())
+                              )
+                              .slice(0, 10)
+                              .map((material) => (
+                                <CommandItem
+                                  key={material}
+                                  value={material}
+                                  onSelect={() => {
+                                    if (!selectedMaterials.includes(material)) {
+                                      setSelectedMaterials(prev => [...prev, material]);
+                                    }
+                                    setMaterialSearchValue('');
+                                    setMaterialSearchOpen(false);
+                                  }}
+                                  className="text-white hover:bg-slate-700"
+                                >
+                                  {material}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-              )}
-            </div>
+                {selectedMaterials.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {selectedMaterials.map((material) => (
+                      <span
+                        key={material}
+                        className="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded text-xs flex items-center gap-1"
+                      >
+                        {material.substring(0, 15)}
+                        <button onClick={() => removeMaterial(material)} className="hover:text-white">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
           }
         />
 
