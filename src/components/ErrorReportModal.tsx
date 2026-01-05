@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Send, Heart } from 'lucide-react';
+import { AlertTriangle, Send, Heart, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -29,6 +29,7 @@ const ErrorReportModal: React.FC<ErrorReportModalProps> = ({ open, onClose }) =>
     whatsapp2?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Fetch user's WhatsApp numbers when modal opens
   useEffect(() => {
@@ -144,13 +145,8 @@ const ErrorReportModal: React.FC<ErrorReportModalProps> = ({ open, onClose }) =>
       setErrorDescription('');
       setReproduceSteps('');
       
-      // Close modal
-      onClose();
-      
-      toast({
-        title: "Relatório enviado!",
-        description: "Seu relatório foi enviado com sucesso. Nossa equipe será notificada e entrará em contato em breve.",
-      });
+      // Show success modal
+      setShowSuccessModal(true);
     } catch (error) {
       console.error('Erro ao enviar relatório:', error);
       toast({
@@ -164,6 +160,36 @@ const ErrorReportModal: React.FC<ErrorReportModalProps> = ({ open, onClose }) =>
   };
 
   const hasMultipleWhatsApp = userWhatsAppNumbers.whatsapp1 && userWhatsAppNumbers.whatsapp2;
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    onClose();
+  };
+
+  // Success Modal
+  if (showSuccessModal) {
+    return (
+      <Dialog open={true} onOpenChange={handleCloseSuccessModal}>
+        <DialogContent className="sm:max-w-[400px] bg-gray-900 border-gray-700">
+          <div className="flex flex-col items-center text-center py-6 space-y-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+            </div>
+            <h2 className="text-xl font-bold text-white">Solicitação Enviada!</h2>
+            <p className="text-gray-400 text-sm">
+              Seu relatório foi enviado com sucesso. Nossa equipe será notificada e entrará em contato em breve.
+            </p>
+            <Button
+              onClick={handleCloseSuccessModal}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4"
+            >
+              Terminar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
