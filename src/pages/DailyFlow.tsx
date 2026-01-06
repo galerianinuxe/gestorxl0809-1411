@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { ArrowLeft, Calendar, DollarSign, Printer, Trash2, ShoppingCart, TrendingDown, FileText, TrendingUp, User } from 'lucide-react';
 import { getCashRegisters, calculateCashSummary } from '@/utils/localStorage';
 import { useReceiptFormatSettings } from '@/hooks/useReceiptFormatSettings';
@@ -38,6 +40,7 @@ const DailyFlow = () => {
   const itemsPerPage = 10;
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [selectedOperator, setSelectedOperator] = useState<string>('all');
 
   useEffect(() => {
     const loadSystemSettings = async () => {
@@ -139,9 +142,11 @@ const DailyFlow = () => {
     }
 
     return dailyFlowData.filter(item => {
-      return item.openingDate >= filterStartDate && item.openingDate <= filterEndDate;
+      const dateInRange = item.openingDate >= filterStartDate && item.openingDate <= filterEndDate;
+      const operatorMatch = selectedOperator === 'all' || item.userName === selectedOperator;
+      return dateInRange && operatorMatch;
     });
-  }, [dailyFlowData, selectedPeriod, startDate, endDate]);
+  }, [dailyFlowData, selectedPeriod, startDate, endDate, selectedOperator]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -165,7 +170,7 @@ const DailyFlow = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedPeriod, startDate, endDate]);
+  }, [selectedPeriod, startDate, endDate, selectedOperator]);
 
   const totalSales = filteredDailyFlowData.reduce((sum, item) => sum + item.totalSales, 0);
   const totalPurchases = filteredDailyFlowData.reduce((sum, item) => sum + item.totalPurchases, 0);
@@ -258,7 +263,33 @@ const DailyFlow = () => {
     setSelectedPeriod('daily');
     setStartDate('');
     setEndDate('');
+    setSelectedOperator('all');
   };
+
+  const uniqueOperators = useMemo(() => {
+    const operators = dailyFlowData.map(item => item.userName);
+    return [...new Set(operators)].sort();
+  }, [dailyFlowData]);
+
+  const OperatorFilter = (
+    <div className="flex items-center gap-2">
+      <Label className="text-slate-300 text-sm whitespace-nowrap">Operador:</Label>
+      <Select value={selectedOperator} onValueChange={setSelectedOperator}>
+        <SelectTrigger className="bg-slate-800 border-slate-600 text-white h-10 min-w-[150px]">
+          <User className="h-4 w-4 mr-2" />
+          <SelectValue placeholder="Todos" />
+        </SelectTrigger>
+        <SelectContent className="bg-slate-800 border-slate-600">
+          <SelectItem value="all" className="text-white">Todos os Operadores</SelectItem>
+          {uniqueOperators.map((operator) => (
+            <SelectItem key={operator} value={operator} className="text-white">
+              {operator}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-800">
@@ -285,6 +316,7 @@ const DailyFlow = () => {
           endDate={endDate}
           onEndDateChange={setEndDate}
           onClear={clearFilters}
+          extraFilters={OperatorFilter}
         />
 
         {/* Resumo - Cards Compactos */}
