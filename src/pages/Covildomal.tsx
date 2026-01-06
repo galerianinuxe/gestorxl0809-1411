@@ -15,14 +15,16 @@ import {
   Settings,
   DollarSign,
   BarChart3,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw,
+  Menu
 } from 'lucide-react';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { SubscriptionManagement } from '@/components/admin/SubscriptionManagement';
 import { SystemManagement } from '@/components/admin/SystemManagement';
 import { AdminSidebar, ActiveTab } from '@/components/admin/AdminSidebar';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import LandingManagement from '@/components/admin/LandingManagement';
 import { ActiveUsersList } from '@/components/admin/ActiveUsersList';
 import { useOnlineUsersFromDB } from '@/hooks/useOnlineUsersFromDB';
@@ -37,9 +39,15 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { MaintenanceDashboard } from '@/components/admin/MaintenanceDashboard';
 import { PlansManagement } from '@/components/admin/PlansManagement';
 import { ContentManagementPanel } from '@/components/admin/ContentManagementPanel';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 const Covildomal = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isMobileOrTablet = isMobile || isTablet;
+  
   const { stats, systemStatus, loading, error, refetch } = useAdminDashboard();
   const { count: onlineUsersCount } = useOnlineUsersFromDB();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -179,6 +187,27 @@ const Covildomal = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background dark">
+        {/* Mobile Header with Hamburger */}
+        {isMobileOrTablet && (
+          <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-gray-900 border-b border-gray-700 flex items-center px-4 gap-3">
+            <SidebarTrigger className="text-white hover:bg-gray-800" />
+            <div className="flex-1 flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-red-800 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">X</span>
+              </div>
+              <span className="text-white font-bold">XLata CMS</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleRefresh}
+              className="text-white hover:bg-gray-800"
+            >
+              <RefreshCw className={cn("h-5 w-5", isRefreshing && "animate-spin")} />
+            </Button>
+          </header>
+        )}
+        
         <AdminSidebar
           activeTab={activeTab}
           onTabClick={handleTabClick}
@@ -190,8 +219,8 @@ const Covildomal = () => {
           unreadErrorReports={unreadErrorReports}
         />
         
-        <SidebarInset className="flex-1 bg-background">
-          <main className="p-6 overflow-auto bg-background min-h-screen">
+        <SidebarInset className={cn("flex-1 bg-background", isMobileOrTablet && "pt-14")}>
+          <main className={cn("p-6 overflow-auto bg-background min-h-screen", isMobileOrTablet && "p-4")}>
             {activeTab === 'dashboard' ? (
               <>
                 {/* Error Reports Alert */}

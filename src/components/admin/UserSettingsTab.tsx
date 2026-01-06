@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Save, Building, Image, Receipt, RotateCcw } from 'lucide-react';
+import { Loader2, Save, Building, Image, Receipt, RotateCcw, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+import ReceiptPreview from './ReceiptPreview';
 
 interface SystemSettings {
   id?: string;
@@ -80,10 +82,15 @@ interface UserSettingsTabProps {
 }
 
 const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) => {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isMobileOrTablet = isMobile || isTablet;
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   
   // Receipt settings
   const [receiptSettings, setReceiptSettings] = useState<Record<'50mm' | '80mm', ReceiptFormatSettings>>(defaultReceiptSettings);
@@ -398,9 +405,20 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
         {/* Receipt Settings */}
         <Card className="bg-muted border-border md:col-span-2">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2 text-foreground">
-              <Receipt className="h-4 w-4 text-blue-400" />
-              Configurações do Comprovante
+            <CardTitle className="text-sm flex items-center justify-between text-foreground">
+              <span className="flex items-center gap-2">
+                <Receipt className="h-4 w-4 text-blue-400" />
+                Configurações do Comprovante
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPreview(!showPreview)}
+                className="gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                {showPreview ? 'Ocultar Preview' : 'Ver Preview'}
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -417,64 +435,92 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
               </div>
 
               {(['50mm', '80mm'] as const).map((format) => (
-                <TabsContent key={format} value={format} className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Largura Container</Label>
-                      <Input value={receiptSettings[format].container_width} onChange={(e) => handleReceiptChange(format, 'container_width', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                <TabsContent key={format} value={format}>
+                  <div className={`${isMobileOrTablet ? 'flex flex-col gap-6' : 'grid grid-cols-2 gap-6'}`}>
+                    {/* Configuration Inputs */}
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Dimensões e Espaçamento</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Largura Container</Label>
+                          <Input value={receiptSettings[format].container_width} onChange={(e) => handleReceiptChange(format, 'container_width', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Padding</Label>
+                          <Input value={receiptSettings[format].padding} onChange={(e) => handleReceiptChange(format, 'padding', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Margins</Label>
+                          <Input value={receiptSettings[format].margins} onChange={(e) => handleReceiptChange(format, 'margins', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Logo Largura Máx</Label>
+                          <Input value={receiptSettings[format].logo_max_width} onChange={(e) => handleReceiptChange(format, 'logo_max_width', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Logo Altura Máx</Label>
+                          <Input value={receiptSettings[format].logo_max_height} onChange={(e) => handleReceiptChange(format, 'logo_max_height', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                      </div>
+                      
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mt-4">Tamanhos de Fonte</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Telefone</Label>
+                          <Input value={receiptSettings[format].phone_font_size} onChange={(e) => handleReceiptChange(format, 'phone_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Endereço</Label>
+                          <Input value={receiptSettings[format].address_font_size} onChange={(e) => handleReceiptChange(format, 'address_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Título</Label>
+                          <Input value={receiptSettings[format].title_font_size} onChange={(e) => handleReceiptChange(format, 'title_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Cliente</Label>
+                          <Input value={receiptSettings[format].customer_font_size} onChange={(e) => handleReceiptChange(format, 'customer_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Tabela</Label>
+                          <Input value={receiptSettings[format].table_font_size} onChange={(e) => handleReceiptChange(format, 'table_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Totais</Label>
+                          <Input value={receiptSettings[format].totals_font_size} onChange={(e) => handleReceiptChange(format, 'totals_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Total Final</Label>
+                          <Input value={receiptSettings[format].final_total_font_size} onChange={(e) => handleReceiptChange(format, 'final_total_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Data/Hora</Label>
+                          <Input value={receiptSettings[format].datetime_font_size} onChange={(e) => handleReceiptChange(format, 'datetime_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-muted-foreground text-xs">Citação</Label>
+                          <Input value={receiptSettings[format].quote_font_size} onChange={(e) => handleReceiptChange(format, 'quote_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Padding</Label>
-                      <Input value={receiptSettings[format].padding} onChange={(e) => handleReceiptChange(format, 'padding', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Margins</Label>
-                      <Input value={receiptSettings[format].margins} onChange={(e) => handleReceiptChange(format, 'margins', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Logo Largura Máx</Label>
-                      <Input value={receiptSettings[format].logo_max_width} onChange={(e) => handleReceiptChange(format, 'logo_max_width', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Logo Altura Máx</Label>
-                      <Input value={receiptSettings[format].logo_max_height} onChange={(e) => handleReceiptChange(format, 'logo_max_height', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Telefone</Label>
-                      <Input value={receiptSettings[format].phone_font_size} onChange={(e) => handleReceiptChange(format, 'phone_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Endereço</Label>
-                      <Input value={receiptSettings[format].address_font_size} onChange={(e) => handleReceiptChange(format, 'address_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Título</Label>
-                      <Input value={receiptSettings[format].title_font_size} onChange={(e) => handleReceiptChange(format, 'title_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Cliente</Label>
-                      <Input value={receiptSettings[format].customer_font_size} onChange={(e) => handleReceiptChange(format, 'customer_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Tabela</Label>
-                      <Input value={receiptSettings[format].table_font_size} onChange={(e) => handleReceiptChange(format, 'table_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Totais</Label>
-                      <Input value={receiptSettings[format].totals_font_size} onChange={(e) => handleReceiptChange(format, 'totals_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Total Final</Label>
-                      <Input value={receiptSettings[format].final_total_font_size} onChange={(e) => handleReceiptChange(format, 'final_total_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Data/Hora</Label>
-                      <Input value={receiptSettings[format].datetime_font_size} onChange={(e) => handleReceiptChange(format, 'datetime_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground text-xs">Fonte Citação</Label>
-                      <Input value={receiptSettings[format].quote_font_size} onChange={(e) => handleReceiptChange(format, 'quote_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
-                    </div>
+                    
+                    {/* Preview Panel */}
+                    {showPreview && settings && (
+                      <div className="border-l border-border pl-4">
+                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Preview em Tempo Real</h4>
+                        <ReceiptPreview
+                          settings={receiptSettings[format]}
+                          format={format}
+                          companySettings={{
+                            company: settings.company,
+                            address: settings.address,
+                            whatsapp1: settings.whatsapp1,
+                            whatsapp2: settings.whatsapp2,
+                            logo: settings.logo
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
               ))}

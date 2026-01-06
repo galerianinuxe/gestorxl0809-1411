@@ -20,6 +20,7 @@ import { toast } from '@/hooks/use-toast';
 import { format, formatDistanceToNow, subDays, subMonths, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import UserSettingsTab from './UserSettingsTab';
 
 interface UserData {
@@ -765,71 +766,98 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
             </TabsList>
           )}
 
-          {/* Period Filters */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className="text-xs text-muted-foreground">Período:</span>
-            <div className="flex gap-1 bg-muted rounded-lg p-1">
-              {[
-                { key: 'today', label: 'Hoje' },
-                { key: '7days', label: '7 dias' },
-                { key: '30days', label: '30 dias' },
-                { key: '3months', label: '3 meses' },
-                { key: 'all', label: 'Tudo' }
-              ].map(({ key, label }) => (
-                <Button
-                  key={key}
-                  variant={periodFilter === key ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setPeriodFilter(key as PeriodFilter)}
-                  className={`${isMobileOrTablet ? 'text-xs px-2 h-7' : 'text-xs px-3 h-8'} ${
-                    periodFilter === key 
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
+          {/* Period Filters - Pill style for native app feel */}
+          <div className="mb-3">
+            <ScrollArea className="w-full pb-2">
+              <div className="flex items-center gap-2 min-w-max px-1">
+                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                {[
+                  { key: 'today', label: 'Hoje' },
+                  { key: '7days', label: '7 dias' },
+                  { key: '30days', label: '30 dias' },
+                  { key: '3months', label: '3 meses' },
+                  { key: 'all', label: 'Tudo' }
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setPeriodFilter(key as PeriodFilter)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap",
+                      "border shadow-sm active:scale-95",
+                      periodFilter === key 
+                        ? "bg-emerald-600 text-white border-emerald-600 shadow-emerald-600/25" 
+                        : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
 
-          {/* Stats Summary */}
+          {/* Stats Summary - Native app style grid */}
           <div className={`grid ${isMobileOrTablet ? 'grid-cols-2 gap-2' : 'grid-cols-5 gap-3'} mb-4`}>
-            <Card className="bg-muted border-border">
-              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
-                <p className="text-xs text-muted-foreground">Vendas {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
-                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-emerald-400`}>
-                  {formatCurrency(periodFilter === 'all' ? stats.totalSales : filteredStats.totalSales)}
-                </p>
+            <Card className="bg-emerald-950/30 border-emerald-900/50">
+              <CardContent className={`${isMobileOrTablet ? 'p-3' : 'p-3'} flex items-center gap-2`}>
+                <div className="w-8 h-8 rounded-full bg-emerald-600/20 flex items-center justify-center flex-shrink-0">
+                  <BarChart3 className="h-4 w-4 text-emerald-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-emerald-400/80 truncate">Vendas {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
+                  <p className={`${isMobileOrTablet ? 'text-sm' : 'text-base'} font-bold text-emerald-400 truncate`}>
+                    {formatCurrency(periodFilter === 'all' ? stats.totalSales : filteredStats.totalSales)}
+                  </p>
+                </div>
               </CardContent>
             </Card>
-            <Card className="bg-muted border-border">
-              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
-                <p className="text-xs text-muted-foreground">Compras {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
-                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-amber-400`}>
-                  {formatCurrency(periodFilter === 'all' ? stats.totalPurchases : filteredStats.totalPurchases)}
-                </p>
+            <Card className="bg-amber-950/30 border-amber-900/50">
+              <CardContent className={`${isMobileOrTablet ? 'p-3' : 'p-3'} flex items-center gap-2`}>
+                <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="h-4 w-4 text-amber-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-amber-400/80 truncate">Compras {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
+                  <p className={`${isMobileOrTablet ? 'text-sm' : 'text-base'} font-bold text-amber-400 truncate`}>
+                    {formatCurrency(periodFilter === 'all' ? stats.totalPurchases : filteredStats.totalPurchases)}
+                  </p>
+                </div>
               </CardContent>
             </Card>
-            <Card className="bg-muted border-border">
-              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
-                <p className="text-xs text-muted-foreground">Pedidos {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
-                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-foreground`}>
-                  {periodFilter === 'all' ? stats.totalOrders : filteredStats.totalOrders}
-                </p>
+            <Card className="bg-blue-950/30 border-blue-900/50">
+              <CardContent className={`${isMobileOrTablet ? 'p-3' : 'p-3'} flex items-center gap-2`}>
+                <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center flex-shrink-0">
+                  <Package className="h-4 w-4 text-blue-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-blue-400/80 truncate">Pedidos {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
+                  <p className={`${isMobileOrTablet ? 'text-sm' : 'text-base'} font-bold text-blue-400`}>
+                    {periodFilter === 'all' ? stats.totalOrders : filteredStats.totalOrders}
+                  </p>
+                </div>
               </CardContent>
             </Card>
-            <Card className="bg-muted border-border">
-              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
-                <p className="text-xs text-muted-foreground">Materiais</p>
-                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-foreground`}>{stats.totalMaterials}</p>
+            <Card className="bg-purple-950/30 border-purple-900/50">
+              <CardContent className={`${isMobileOrTablet ? 'p-3' : 'p-3'} flex items-center gap-2`}>
+                <div className="w-8 h-8 rounded-full bg-purple-600/20 flex items-center justify-center flex-shrink-0">
+                  <Package className="h-4 w-4 text-purple-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-purple-400/80">Materiais</p>
+                  <p className={`${isMobileOrTablet ? 'text-sm' : 'text-base'} font-bold text-purple-400`}>{stats.totalMaterials}</p>
+                </div>
               </CardContent>
             </Card>
             {!isMobileOrTablet && (
-              <Card className="bg-muted border-border">
-                <CardContent className="p-3">
-                  <p className="text-xs text-muted-foreground">Clientes</p>
-                  <p className="text-lg font-bold text-foreground">{stats.totalCustomers}</p>
+              <Card className="bg-cyan-950/30 border-cyan-900/50">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-cyan-600/20 flex items-center justify-center flex-shrink-0">
+                    <Users className="h-4 w-4 text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-cyan-400/80">Clientes</p>
+                    <p className="text-base font-bold text-cyan-400">{stats.totalCustomers}</p>
+                  </div>
                 </CardContent>
               </Card>
             )}
