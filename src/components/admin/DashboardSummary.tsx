@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Activity, Server, Database, Shield, Percent, Settings, BarChart3, 
   TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, Clock,
-  CalendarDays, Eye, Wallet, ArrowUpRight, ArrowDownRight, RefreshCw
+  CalendarDays, Eye, Wallet, ArrowUpRight, ArrowDownRight, RefreshCw, CreditCard
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -31,6 +31,8 @@ interface PeriodStats {
   salesCount: number;
   purchases: number;
   purchasesCount: number;
+  subscriptions: number;
+  subscriptionsCount: number;
   profit: number;
   accesses: number;
   newUsers: number;
@@ -48,6 +50,8 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
     salesCount: 0,
     purchases: 0,
     purchasesCount: 0,
+    subscriptions: 0,
+    subscriptionsCount: 0,
     profit: 0,
     accesses: 0,
     newUsers: 0,
@@ -105,7 +109,7 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
         .from('orders')
         .select('id, total, created_at')
         .eq('status', 'completed')
-        .eq('type', 'sale')
+        .eq('type', 'venda')
         .gte('created_at', startISO)
         .lte('created_at', endISO);
 
@@ -116,11 +120,21 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
         .from('orders')
         .select('id, total, created_at')
         .eq('status', 'completed')
-        .eq('type', 'purchase')
+        .eq('type', 'compra')
         .gte('created_at', startISO)
         .lte('created_at', endISO);
 
       if (purchaseError) console.warn('Erro ao buscar compras:', purchaseError);
+
+      // Buscar pagamentos de assinaturas aprovados no período
+      const { data: approvedPayments, error: paymentsError } = await supabase
+        .from('mercado_pago_payments')
+        .select('id, transaction_amount, created_at, status, payer_email')
+        .eq('status', 'approved')
+        .gte('created_at', startISO)
+        .lte('created_at', endISO);
+
+      if (paymentsError) console.warn('Erro ao buscar pagamentos:', paymentsError);
 
       // Buscar acessos (analytics_events de page_view) no período
       const { data: accessEvents, error: accessError } = await supabase
@@ -144,13 +158,22 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
       // Calcular totais
       const salesTotal = salesOrders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
       const purchasesTotal = purchaseOrders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
-      const profit = salesTotal - purchasesTotal;
+      
+      // Calcular receita de assinaturas
+      const subscriptionsTotal = approvedPayments?.reduce((sum, payment) => 
+        sum + (payment.transaction_amount || 0), 0) || 0;
+      const subscriptionsCount = approvedPayments?.length || 0;
+      
+      // Lucro = Vendas de materiais + Receita de assinaturas - Compras de materiais
+      const profit = salesTotal + subscriptionsTotal - purchasesTotal;
 
       setStats({
         sales: salesTotal,
         salesCount: salesOrders?.length || 0,
         purchases: purchasesTotal,
         purchasesCount: purchaseOrders?.length || 0,
+        subscriptions: subscriptionsTotal,
+        subscriptionsCount,
         profit,
         accesses: accessEvents?.length || 0,
         newUsers: newUsersData?.length || 0,
@@ -339,11 +362,11 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
         {/* Main Financial Stats */}
         <div className={cn(
           "grid gap-4",
-          isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"
+          isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-5"
         )}>
           <StatCard
             icon={ShoppingCart}
-            label="Vendas"
+            label="Vendas (Mat.)"
             value={formatCurrency(stats.sales)}
             subValue={stats.salesCount}
             subLabel="Transações"
@@ -353,11 +376,21 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
           
           <StatCard
             icon={Wallet}
-            label="Compras"
+            label="Compras (Mat.)"
             value={formatCurrency(stats.purchases)}
             subValue={stats.purchasesCount}
             subLabel="Transações"
             color="blue"
+          />
+          
+          <StatCard
+            icon={CreditCard}
+            label="Assinaturas"
+            value={formatCurrency(stats.subscriptions)}
+            subValue={stats.subscriptionsCount}
+            subLabel="Pagamentos"
+            color="amber"
+            trend={stats.subscriptionsCount > 0 ? 'up' : 'neutral'}
           />
           
           <StatCard
