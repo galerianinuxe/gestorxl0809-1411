@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Save, Building, Image } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Save, Building, Image, Receipt, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -17,6 +18,62 @@ interface SystemSettings {
   logo: string | null;
 }
 
+interface ReceiptFormatSettings {
+  id?: string;
+  format: '50mm' | '80mm';
+  container_width: string;
+  padding: string;
+  margins: string;
+  logo_max_width: string;
+  logo_max_height: string;
+  phone_font_size: string;
+  address_font_size: string;
+  title_font_size: string;
+  customer_font_size: string;
+  table_font_size: string;
+  totals_font_size: string;
+  final_total_font_size: string;
+  datetime_font_size: string;
+  quote_font_size: string;
+}
+
+const defaultReceiptSettings: Record<'50mm' | '80mm', ReceiptFormatSettings> = {
+  '50mm': {
+    format: '50mm',
+    container_width: '45mm',
+    padding: '2mm',
+    margins: '1mm 0',
+    logo_max_width: '90%',
+    logo_max_height: '17mm',
+    phone_font_size: '14px',
+    address_font_size: '12px',
+    title_font_size: '13px',
+    customer_font_size: '12px',
+    table_font_size: '10px',
+    totals_font_size: '12px',
+    final_total_font_size: '16px',
+    datetime_font_size: '12px',
+    quote_font_size: '11px',
+  },
+  '80mm': {
+    format: '80mm',
+    container_width: '66mm',
+    padding: '2mm',
+    margins: '1mm 0',
+    logo_max_width: '90%',
+    logo_max_height: '50mm',
+    phone_font_size: '22px',
+    address_font_size: '13.25px',
+    title_font_size: '18px',
+    customer_font_size: '19.327px',
+    table_font_size: '11px',
+    totals_font_size: '18px',
+    final_total_font_size: '22px',
+    datetime_font_size: '20.124px',
+    quote_font_size: '14px',
+  }
+};
+
 interface UserSettingsTabProps {
   userId: string;
   userName: string;
@@ -27,9 +84,16 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // Receipt settings
+  const [receiptSettings, setReceiptSettings] = useState<Record<'50mm' | '80mm', ReceiptFormatSettings>>(defaultReceiptSettings);
+  const [activeReceiptTab, setActiveReceiptTab] = useState<'50mm' | '80mm'>('80mm');
+  const [savingReceipt, setSavingReceipt] = useState(false);
+  const [hasReceiptChanges, setHasReceiptChanges] = useState(false);
 
   useEffect(() => {
     loadSettings();
+    loadReceiptSettings();
   }, [userId]);
 
   const loadSettings = async () => {
@@ -54,7 +118,6 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
           logo: data.logo,
         });
       } else {
-        // User has no settings yet
         setSettings({
           user_id: userId,
           company: '',
@@ -76,10 +139,50 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
     }
   };
 
+  const loadReceiptSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('receipt_format_settings')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const userSettings = { ...defaultReceiptSettings };
+        data.forEach((setting) => {
+          if (setting.format === '50mm' || setting.format === '80mm') {
+            userSettings[setting.format] = setting as ReceiptFormatSettings;
+          }
+        });
+        setReceiptSettings(userSettings);
+      }
+    } catch (error) {
+      console.error('Error loading receipt settings:', error);
+    }
+  };
+
   const handleChange = (field: keyof SystemSettings, value: string | null) => {
     if (!settings) return;
     setSettings({ ...settings, [field]: value });
     setHasChanges(true);
+  };
+
+  const handleReceiptChange = (format: '50mm' | '80mm', field: keyof ReceiptFormatSettings, value: string) => {
+    setReceiptSettings(prev => ({
+      ...prev,
+      [format]: { ...prev[format], [field]: value }
+    }));
+    setHasReceiptChanges(true);
+  };
+
+  const handleResetReceiptDefaults = (format: '50mm' | '80mm') => {
+    setReceiptSettings(prev => ({
+      ...prev,
+      [format]: { ...defaultReceiptSettings[format], id: prev[format].id }
+    }));
+    setHasReceiptChanges(true);
+    toast({ title: "Configurações resetadas", description: `Formato ${format} restaurado para valores padrão.` });
   };
 
   const handleSave = async () => {
@@ -98,19 +201,15 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
       };
 
       if (settings.id) {
-        // Update existing
         const { error } = await supabase
           .from('system_settings')
           .update(dataToSave)
           .eq('id', settings.id);
-        
         if (error) throw error;
       } else {
-        // Insert new
         const { error } = await supabase
           .from('system_settings')
           .insert(dataToSave);
-        
         if (error) throw error;
       }
 
@@ -119,7 +218,7 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
         description: `As configurações de ${userName} foram atualizadas com sucesso.`
       });
       setHasChanges(false);
-      loadSettings(); // Reload to get ID if new
+      loadSettings();
     } catch (error) {
       console.error('Error saving settings:', error);
       toast({
@@ -129,6 +228,62 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveReceiptSettings = async () => {
+    setSavingReceipt(true);
+    try {
+      for (const format of ['50mm', '80mm'] as const) {
+        const settingData = {
+          user_id: userId,
+          format,
+          container_width: receiptSettings[format].container_width,
+          padding: receiptSettings[format].padding,
+          margins: receiptSettings[format].margins,
+          logo_max_width: receiptSettings[format].logo_max_width,
+          logo_max_height: receiptSettings[format].logo_max_height,
+          phone_font_size: receiptSettings[format].phone_font_size,
+          address_font_size: receiptSettings[format].address_font_size,
+          title_font_size: receiptSettings[format].title_font_size,
+          customer_font_size: receiptSettings[format].customer_font_size,
+          table_font_size: receiptSettings[format].table_font_size,
+          totals_font_size: receiptSettings[format].totals_font_size,
+          final_total_font_size: receiptSettings[format].final_total_font_size,
+          datetime_font_size: receiptSettings[format].datetime_font_size,
+          quote_font_size: receiptSettings[format].quote_font_size,
+          updated_at: new Date().toISOString(),
+        };
+
+        if (receiptSettings[format].id) {
+          const { error } = await supabase
+            .from('receipt_format_settings')
+            .update(settingData)
+            .eq('id', receiptSettings[format].id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('receipt_format_settings')
+            .insert(settingData);
+          if (error) throw error;
+        }
+      }
+
+      toast({
+        title: "Configurações de comprovante salvas",
+        description: `As configurações de impressão de ${userName} foram atualizadas.`
+      });
+      setHasReceiptChanges(false);
+      loadReceiptSettings();
+    } catch (error) {
+      console.error('Error saving receipt settings:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as configurações de comprovante.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingReceipt(false);
     }
   };
 
@@ -148,26 +303,30 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
     );
   }
 
+  const currentReceiptSettings = receiptSettings[activeReceiptTab];
+
   return (
     <div className="space-y-4">
       {/* Save Button Header */}
-      {hasChanges && (
+      {(hasChanges || hasReceiptChanges) && (
         <div className="sticky top-0 z-10 bg-card border border-amber-500/50 rounded-lg p-3 flex items-center justify-between">
           <span className="text-amber-400 text-sm font-medium">
             Você tem alterações não salvas
           </span>
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Save className="h-4 w-4 mr-2" />
+          <div className="flex gap-2">
+            {hasChanges && (
+              <Button onClick={handleSave} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                Salvar Config
+              </Button>
             )}
-            Salvar Alterações
-          </Button>
+            {hasReceiptChanges && (
+              <Button onClick={handleSaveReceiptSettings} disabled={savingReceipt} className="bg-blue-600 hover:bg-blue-700">
+                {savingReceipt ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Receipt className="h-4 w-4 mr-2" />}
+                Salvar Comprovante
+              </Button>
+            )}
+          </div>
         </div>
       )}
 
@@ -183,23 +342,11 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="company" className="text-muted-foreground">Nome da Empresa</Label>
-              <Input
-                id="company"
-                value={settings.company}
-                onChange={(e) => handleChange('company', e.target.value)}
-                placeholder="Nome da empresa"
-                className="bg-card border-border"
-              />
+              <Input id="company" value={settings.company} onChange={(e) => handleChange('company', e.target.value)} placeholder="Nome da empresa" className="bg-card border-border" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="address" className="text-muted-foreground">Endereço</Label>
-              <Input
-                id="address"
-                value={settings.address}
-                onChange={(e) => handleChange('address', e.target.value)}
-                placeholder="Endereço completo"
-                className="bg-card border-border"
-              />
+              <Input id="address" value={settings.address} onChange={(e) => handleChange('address', e.target.value)} placeholder="Endereço completo" className="bg-card border-border" />
             </div>
           </CardContent>
         </Card>
@@ -217,23 +364,11 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="whatsapp1" className="text-muted-foreground">WhatsApp Principal</Label>
-              <Input
-                id="whatsapp1"
-                value={settings.whatsapp1}
-                onChange={(e) => handleChange('whatsapp1', e.target.value)}
-                placeholder="(00) 00000-0000"
-                className="bg-card border-border"
-              />
+              <Input id="whatsapp1" value={settings.whatsapp1} onChange={(e) => handleChange('whatsapp1', e.target.value)} placeholder="(00) 00000-0000" className="bg-card border-border" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="whatsapp2" className="text-muted-foreground">WhatsApp Secundário</Label>
-              <Input
-                id="whatsapp2"
-                value={settings.whatsapp2}
-                onChange={(e) => handleChange('whatsapp2', e.target.value)}
-                placeholder="(00) 00000-0000"
-                className="bg-card border-border"
-              />
+              <Input id="whatsapp2" value={settings.whatsapp2} onChange={(e) => handleChange('whatsapp2', e.target.value)} placeholder="(00) 00000-0000" className="bg-card border-border" />
             </div>
           </CardContent>
         </Card>
@@ -249,44 +384,116 @@ const UserSettingsTab: React.FC<UserSettingsTabProps> = ({ userId, userName }) =
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="logo" className="text-muted-foreground">URL do Logotipo</Label>
-              <Input
-                id="logo"
-                value={settings.logo || ''}
-                onChange={(e) => handleChange('logo', e.target.value || null)}
-                placeholder="https://exemplo.com/logo.png"
-                className="bg-card border-border"
-              />
+              <Input id="logo" value={settings.logo || ''} onChange={(e) => handleChange('logo', e.target.value || null)} placeholder="https://exemplo.com/logo.png" className="bg-card border-border" />
             </div>
             {settings.logo && (
               <div className="flex items-center gap-4">
                 <span className="text-muted-foreground text-sm">Preview:</span>
-                <img 
-                  src={settings.logo} 
-                  alt="Logo preview" 
-                  className="h-12 w-auto object-contain bg-white rounded p-1"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
+                <img src={settings.logo} alt="Logo preview" className="h-12 w-auto object-contain bg-white rounded p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Receipt Settings */}
+        <Card className="bg-muted border-border md:col-span-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+              <Receipt className="h-4 w-4 text-blue-400" />
+              Configurações do Comprovante
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeReceiptTab} onValueChange={(v) => setActiveReceiptTab(v as '50mm' | '80mm')}>
+              <div className="flex items-center justify-between mb-4">
+                <TabsList className="bg-card">
+                  <TabsTrigger value="50mm" className="data-[state=active]:bg-blue-600">50mm</TabsTrigger>
+                  <TabsTrigger value="80mm" className="data-[state=active]:bg-blue-600">80mm</TabsTrigger>
+                </TabsList>
+                <Button variant="outline" size="sm" onClick={() => handleResetReceiptDefaults(activeReceiptTab)}>
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Resetar Padrão
+                </Button>
+              </div>
+
+              {(['50mm', '80mm'] as const).map((format) => (
+                <TabsContent key={format} value={format} className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Largura Container</Label>
+                      <Input value={receiptSettings[format].container_width} onChange={(e) => handleReceiptChange(format, 'container_width', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Padding</Label>
+                      <Input value={receiptSettings[format].padding} onChange={(e) => handleReceiptChange(format, 'padding', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Margins</Label>
+                      <Input value={receiptSettings[format].margins} onChange={(e) => handleReceiptChange(format, 'margins', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Logo Largura Máx</Label>
+                      <Input value={receiptSettings[format].logo_max_width} onChange={(e) => handleReceiptChange(format, 'logo_max_width', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Logo Altura Máx</Label>
+                      <Input value={receiptSettings[format].logo_max_height} onChange={(e) => handleReceiptChange(format, 'logo_max_height', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Telefone</Label>
+                      <Input value={receiptSettings[format].phone_font_size} onChange={(e) => handleReceiptChange(format, 'phone_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Endereço</Label>
+                      <Input value={receiptSettings[format].address_font_size} onChange={(e) => handleReceiptChange(format, 'address_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Título</Label>
+                      <Input value={receiptSettings[format].title_font_size} onChange={(e) => handleReceiptChange(format, 'title_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Cliente</Label>
+                      <Input value={receiptSettings[format].customer_font_size} onChange={(e) => handleReceiptChange(format, 'customer_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Tabela</Label>
+                      <Input value={receiptSettings[format].table_font_size} onChange={(e) => handleReceiptChange(format, 'table_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Totais</Label>
+                      <Input value={receiptSettings[format].totals_font_size} onChange={(e) => handleReceiptChange(format, 'totals_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Total Final</Label>
+                      <Input value={receiptSettings[format].final_total_font_size} onChange={(e) => handleReceiptChange(format, 'final_total_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Data/Hora</Label>
+                      <Input value={receiptSettings[format].datetime_font_size} onChange={(e) => handleReceiptChange(format, 'datetime_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs">Fonte Citação</Label>
+                      <Input value={receiptSettings[format].quote_font_size} onChange={(e) => handleReceiptChange(format, 'quote_font_size', e.target.value)} className="bg-card border-border h-8 text-sm" />
+                    </div>
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
           </CardContent>
         </Card>
       </div>
 
       {/* Bottom Save Button */}
-      <div className="flex justify-end pt-4">
-        <Button
-          onClick={handleSave}
-          disabled={saving || !hasChanges}
-          className="bg-emerald-600 hover:bg-emerald-700 w-full md:w-auto"
-        >
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          Salvar Configurações
+      <div className="flex justify-end gap-2 pt-4">
+        {hasReceiptChanges && (
+          <Button onClick={handleSaveReceiptSettings} disabled={savingReceipt} className="bg-blue-600 hover:bg-blue-700">
+            {savingReceipt ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Receipt className="h-4 w-4 mr-2" />}
+            Salvar Comprovante
+          </Button>
+        )}
+        <Button onClick={handleSave} disabled={saving || !hasChanges} className="bg-emerald-600 hover:bg-emerald-700">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+          Salvar Config
         </Button>
       </div>
     </div>

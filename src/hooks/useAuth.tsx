@@ -5,6 +5,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { clearUserSessionData } from '../utils/supabaseStorage';
 import { validateSupabaseConnection, clearAllLocalData } from '../utils/connectionValidator';
 import { toast } from '@/hooks/use-toast';
+import { detectDeviceType, detectBrowser, detectOS, getClientIP, generateSessionToken } from '../utils/deviceDetection';
 
 interface AuthContextType {
   user: User | null;
@@ -16,6 +17,71 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Log access event to admin_access_logs
+const logAccessEvent = async (userId: string, action: string, success: boolean, errorMessage?: string) => {
+  try {
+    const ip = await getClientIP();
+    
+    await supabase.from('admin_access_logs').insert({
+      user_id: userId,
+      action,
+      ip_address: ip,
+      user_agent: navigator.userAgent,
+      device_type: detectDeviceType(),
+      browser: detectBrowser(),
+      os: detectOS(),
+      success,
+      error_message: errorMessage || null,
+      created_at: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error logging access event:', error);
+  }
+};
+
+// Create or update active session
+const upsertActiveSession = async (userId: string, sessionToken: string) => {
+  try {
+    const ip = await getClientIP();
+    
+    // First try to deactivate any existing sessions for this user
+    await supabase
+      .from('active_sessions')
+      .update({ is_active: false })
+      .eq('user_id', userId)
+      .eq('is_active', true);
+    
+    // Create new session
+    await supabase.from('active_sessions').insert({
+      user_id: userId,
+      session_token: sessionToken,
+      ip_address: ip,
+      user_agent: navigator.userAgent,
+      device_type: detectDeviceType(),
+      browser: detectBrowser(),
+      os: detectOS(),
+      is_active: true,
+      last_activity: new Date().toISOString(),
+      created_at: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error upserting session:', error);
+  }
+};
+
+// Mark session as inactive on logout
+const deactivateSession = async (userId: string) => {
+  try {
+    await supabase
+      .from('active_sessions')
+      .update({ is_active: false })
+      .eq('user_id', userId)
+      .eq('is_active', true);
+  } catch (error) {
+    console.error('Error deactivating session:', error);
+  }
+};
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -73,8 +139,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, userData?: any) => {
     try {
-      // Iniciando cadastro
-      
       // VALIDAÇÃO: Supabase deve estar funcionando
       const connectionStatus = await validateSupabaseConnection();
       if (!connectionStatus.isConnected) {
@@ -103,8 +167,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Iniciando login
-      
       // VALIDAÇÃO: Supabase deve estar funcionando
       const connectionStatus = await validateSupabaseConnection();
       if (!connectionStatus.isConnected) {
@@ -118,6 +180,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         password
       });
 
+      // Log the login attempt
+      if (data?.user) {
+        // Successful login
+        await logAccessEvent(data.user.id, 'login', true);
+        await upsertActiveSession(data.user.id, generateSessionToken());
+      }
+
       return { data, error };
 
     } catch (networkError: any) {
@@ -129,7 +198,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      // Fazendo logout
+      // Log the logout
+      if (user?.id) {
+        await logAccessEvent(user.id, 'logout', true);
+        await deactivateSession(user.id);
+      }
       
       // Limpa dados locais
       clearUserSessionData();
