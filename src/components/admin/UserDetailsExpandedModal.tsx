@@ -11,12 +11,14 @@ import {
   Trash2, Download, Phone, Globe, Monitor, Smartphone, Tablet,
   LogIn, MapPin, X, Power, AlertTriangle, CheckCircle, XCircle,
   History, Laptop, Key, RefreshCw, ShoppingCart, Package, Users, BarChart3,
-  ChevronLeft, ChevronRight, Loader2
+  ChevronLeft, ChevronRight, Loader2, Settings
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+import UserSettingsTab from './UserSettingsTab';
 
 interface UserData {
   id: string;
@@ -129,6 +131,10 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
   user,
   onRefresh
 }) => {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isMobileOrTablet = isMobile || isTablet;
+  
   const [activeTab, setActiveTab] = useState('info');
   const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
   const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([]);
@@ -521,21 +527,38 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent hideCloseButton className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] bg-card border-border overflow-hidden flex flex-col p-0">
-        <DialogHeader className="flex flex-row items-center justify-between border-b border-border p-4">
+      <DialogContent 
+        hideCloseButton 
+        className={`
+          ${isMobileOrTablet 
+            ? "w-screen h-screen max-w-none max-h-none rounded-none" 
+            : "w-[100vw] max-w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
+          } 
+          bg-card border-0 overflow-hidden flex flex-col p-0
+        `}
+      >
+        <DialogHeader className={`flex flex-row items-center justify-between border-b border-border ${isMobileOrTablet ? 'p-3' : 'p-4'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-              <User className="h-6 w-6 text-emerald-400" />
+            <div className={`${isMobileOrTablet ? 'w-10 h-10' : 'w-12 h-12'} bg-muted rounded-full flex items-center justify-center`}>
+              <User className={`${isMobileOrTablet ? 'h-5 w-5' : 'h-6 w-6'} text-emerald-400`} />
             </div>
             <div>
-              <DialogTitle className="flex items-center gap-2 text-foreground">
+              <DialogTitle className={`flex items-center gap-2 text-foreground ${isMobileOrTablet ? 'text-sm' : ''}`}>
                 {user.name || 'Usuário sem nome'}
-                {getStatusBadge(user.subscription_status)}
-                {user.status === 'admin' && (
+                {!isMobileOrTablet && getStatusBadge(user.subscription_status)}
+                {!isMobileOrTablet && user.status === 'admin' && (
                   <Badge className="bg-amber-500 text-white border-0">Admin</Badge>
                 )}
               </DialogTitle>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className={`text-muted-foreground ${isMobileOrTablet ? 'text-xs' : 'text-sm'}`}>{user.email}</p>
+              {isMobileOrTablet && (
+                <div className="flex items-center gap-2 mt-1">
+                  {getStatusBadge(user.subscription_status)}
+                  {user.status === 'admin' && (
+                    <Badge className="bg-amber-500 text-white border-0 text-xs">Admin</Badge>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-muted-foreground hover:text-foreground hover:bg-muted">
@@ -543,74 +566,124 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
           </Button>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col p-4">
-          <TabsList className="grid w-full grid-cols-8 bg-muted border border-border rounded-lg p-1 mb-4">
-            <TabsTrigger value="info" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <User className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Info</span>
-            </TabsTrigger>
-            <TabsTrigger value="subscription" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <CreditCard className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Plano</span>
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <ShoppingCart className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Pedidos</span>
-            </TabsTrigger>
-            <TabsTrigger value="materials" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <Package className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Materiais</span>
-            </TabsTrigger>
-            <TabsTrigger value="customers" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <Users className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Clientes</span>
-            </TabsTrigger>
-            <TabsTrigger value="logins" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <History className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Logins</span>
-            </TabsTrigger>
-            <TabsTrigger value="ips" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <Globe className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">IPs</span>
-            </TabsTrigger>
-            <TabsTrigger value="sessions" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
-              <Monitor className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Sessões</span>
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className={`flex-1 overflow-hidden flex flex-col ${isMobileOrTablet ? 'p-2' : 'p-4'}`}>
+          {/* Mobile/Tablet: Horizontal scrollable tabs */}
+          {isMobileOrTablet ? (
+            <ScrollArea className="w-full mb-3">
+              <TabsList className="inline-flex h-10 items-center gap-1 bg-muted border border-border rounded-lg p-1 min-w-max">
+                <TabsTrigger value="info" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <User className="h-3 w-3 mr-1" />
+                  Info
+                </TabsTrigger>
+                <TabsTrigger value="subscription" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <CreditCard className="h-3 w-3 mr-1" />
+                  Plano
+                </TabsTrigger>
+                <TabsTrigger value="orders" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <ShoppingCart className="h-3 w-3 mr-1" />
+                  Pedidos
+                </TabsTrigger>
+                <TabsTrigger value="materials" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <Package className="h-3 w-3 mr-1" />
+                  Materiais
+                </TabsTrigger>
+                <TabsTrigger value="customers" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <Users className="h-3 w-3 mr-1" />
+                  Clientes
+                </TabsTrigger>
+                <TabsTrigger value="logins" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <History className="h-3 w-3 mr-1" />
+                  Logins
+                </TabsTrigger>
+                <TabsTrigger value="ips" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <Globe className="h-3 w-3 mr-1" />
+                  IPs
+                </TabsTrigger>
+                <TabsTrigger value="sessions" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <Monitor className="h-3 w-3 mr-1" />
+                  Sessões
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white text-muted-foreground px-3 text-xs">
+                  <Settings className="h-3 w-3 mr-1" />
+                  Config
+                </TabsTrigger>
+              </TabsList>
+            </ScrollArea>
+          ) : (
+            <TabsList className="grid w-full grid-cols-9 bg-muted border border-border rounded-lg p-1 mb-4">
+              <TabsTrigger value="info" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <User className="h-4 w-4 mr-2" />
+                Info
+              </TabsTrigger>
+              <TabsTrigger value="subscription" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <CreditCard className="h-4 w-4 mr-2" />
+                Plano
+              </TabsTrigger>
+              <TabsTrigger value="orders" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Pedidos
+              </TabsTrigger>
+              <TabsTrigger value="materials" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <Package className="h-4 w-4 mr-2" />
+                Materiais
+              </TabsTrigger>
+              <TabsTrigger value="customers" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <Users className="h-4 w-4 mr-2" />
+                Clientes
+              </TabsTrigger>
+              <TabsTrigger value="logins" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <History className="h-4 w-4 mr-2" />
+                Logins
+              </TabsTrigger>
+              <TabsTrigger value="ips" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <Globe className="h-4 w-4 mr-2" />
+                IPs
+              </TabsTrigger>
+              <TabsTrigger value="sessions" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground">
+                <Monitor className="h-4 w-4 mr-2" />
+                Sessões
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white text-muted-foreground">
+                <Settings className="h-4 w-4 mr-2" />
+                Config
+              </TabsTrigger>
+            </TabsList>
+          )}
 
           {/* Stats Summary */}
-          <div className="grid grid-cols-5 gap-3 mb-4">
+          <div className={`grid ${isMobileOrTablet ? 'grid-cols-2 gap-2' : 'grid-cols-5 gap-3'} mb-4`}>
             <Card className="bg-muted border-border">
-              <CardContent className="p-3">
+              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
                 <p className="text-xs text-muted-foreground">Vendas</p>
-                <p className="text-lg font-bold text-emerald-400">{formatCurrency(stats.totalSales)}</p>
+                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-emerald-400`}>{formatCurrency(stats.totalSales)}</p>
               </CardContent>
             </Card>
             <Card className="bg-muted border-border">
-              <CardContent className="p-3">
+              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
                 <p className="text-xs text-muted-foreground">Compras</p>
-                <p className="text-lg font-bold text-amber-400">{formatCurrency(stats.totalPurchases)}</p>
+                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-amber-400`}>{formatCurrency(stats.totalPurchases)}</p>
               </CardContent>
             </Card>
             <Card className="bg-muted border-border">
-              <CardContent className="p-3">
+              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
                 <p className="text-xs text-muted-foreground">Pedidos</p>
-                <p className="text-lg font-bold text-foreground">{stats.totalOrders}</p>
+                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-foreground`}>{stats.totalOrders}</p>
               </CardContent>
             </Card>
             <Card className="bg-muted border-border">
-              <CardContent className="p-3">
+              <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
                 <p className="text-xs text-muted-foreground">Materiais</p>
-                <p className="text-lg font-bold text-foreground">{stats.totalMaterials}</p>
+                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-foreground`}>{stats.totalMaterials}</p>
               </CardContent>
             </Card>
-            <Card className="bg-muted border-border">
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground">Clientes</p>
-                <p className="text-lg font-bold text-foreground">{stats.totalCustomers}</p>
-              </CardContent>
-            </Card>
+            {!isMobileOrTablet && (
+              <Card className="bg-muted border-border">
+                <CardContent className="p-3">
+                  <p className="text-xs text-muted-foreground">Clientes</p>
+                  <p className="text-lg font-bold text-foreground">{stats.totalCustomers}</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <ScrollArea className="flex-1">
@@ -1070,6 +1143,11 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Tab: Configurações */}
+            <TabsContent value="settings" className="space-y-4 mt-0">
+              <UserSettingsTab userId={user.id} userName={user.name || 'Usuário'} />
             </TabsContent>
           </ScrollArea>
         </Tabs>
