@@ -1049,10 +1049,12 @@ export type Database = {
           email: string
           employee_user_id: string | null
           id: string
+          initial_password_set: boolean | null
           is_active: boolean | null
           last_login_at: string | null
           name: string
           owner_user_id: string
+          password_changed_at: string | null
           phone: string | null
           role: string | null
           unidade_id: string | null
@@ -1063,10 +1065,12 @@ export type Database = {
           email: string
           employee_user_id?: string | null
           id?: string
+          initial_password_set?: boolean | null
           is_active?: boolean | null
           last_login_at?: string | null
           name: string
           owner_user_id: string
+          password_changed_at?: string | null
           phone?: string | null
           role?: string | null
           unidade_id?: string | null
@@ -1077,10 +1081,12 @@ export type Database = {
           email?: string
           employee_user_id?: string | null
           id?: string
+          initial_password_set?: boolean | null
           is_active?: boolean | null
           last_login_at?: string | null
           name?: string
           owner_user_id?: string
+          password_changed_at?: string | null
           phone?: string | null
           role?: string | null
           unidade_id?: string | null

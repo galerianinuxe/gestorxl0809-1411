@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.generate-article-image]
 verify_jwt = true
+
+[functions.create-employee-user]
+verify_jwt = false

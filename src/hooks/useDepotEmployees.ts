@@ -14,6 +14,8 @@ export interface DepotEmployee {
   role: string;
   is_active: boolean;
   last_login_at: string | null;
+  initial_password_set: boolean;
+  password_changed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -31,6 +33,11 @@ export interface EmployeeFormData {
   email: string;
   phone?: string;
   role?: string;
+}
+
+export interface CreateEmployeeResult {
+  employee: DepotEmployee | null;
+  generatedPassword: string | null;
 }
 
 export const AVAILABLE_PERMISSIONS = [
@@ -84,34 +91,49 @@ export function useDepotEmployees() {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  const createEmployee = async (formData: EmployeeFormData): Promise<DepotEmployee | null> => {
+  const createEmployee = async (formData: EmployeeFormData): Promise<CreateEmployeeResult> => {
     if (!user?.id) {
       toast.error('Usuário não autenticado');
-      return null;
+      return { employee: null, generatedPassword: null };
     }
 
     try {
-      const { data, error } = await supabase
-        .from('depot_employees')
-        .insert({
-          owner_user_id: user.id,
+      // Call edge function to create user with password
+      const { data: session } = await supabase.auth.getSession();
+      
+      const response = await supabase.functions.invoke('create-employee-user', {
+        body: {
           name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
           role: formData.role || 'operador',
-        })
-        .select()
-        .single();
+        },
+        headers: {
+          Authorization: `Bearer ${session.session?.access_token}`,
+        },
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        throw new Error(response.error.message || 'Erro ao criar funcionário');
+      }
+
+      const result = response.data;
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao criar funcionário');
+      }
       
       toast.success('Funcionário cadastrado com sucesso!');
       await fetchEmployees();
-      return data;
+      
+      return {
+        employee: result.employee,
+        generatedPassword: result.generatedPassword,
+      };
     } catch (err: any) {
       console.error('Erro ao criar funcionário:', err);
       toast.error('Erro ao cadastrar funcionário: ' + err.message);
-      return null;
+      return { employee: null, generatedPassword: null };
     }
   };
 

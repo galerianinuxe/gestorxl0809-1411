@@ -290,13 +290,13 @@ export default function Employees() {
               <strong>1.</strong> Cadastre um funcionário com nome e email.
             </p>
             <p>
-              <strong>2.</strong> Configure as permissões de acesso clicando em "Permissões".
+              <strong>2.</strong> Uma senha será gerada automaticamente e exibida na tela.
             </p>
             <p>
-              <strong>3.</strong> O funcionário receberá um convite para criar sua conta usando o email cadastrado.
+              <strong>3.</strong> Copie e envie as credenciais para o funcionário.
             </p>
             <p>
-              <strong>4.</strong> Após o cadastro, ele poderá acessar o sistema com as permissões definidas.
+              <strong>4.</strong> O funcionário poderá fazer login imediatamente com as permissões do cargo.
             </p>
           </CardContent>
         </Card>
