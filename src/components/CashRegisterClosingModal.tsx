@@ -15,6 +15,7 @@ import PasswordPromptModal from './PasswordPromptModal';
 import CashRegisterSummaryCard from './cash-register/CashRegisterSummaryCard';
 import CashRegisterStatus from './cash-register/CashRegisterStatus';
 import CashRegisterFinalAmount from './cash-register/CashRegisterFinalAmount';
+import CashRegisterExportModal from './CashRegisterExportModal';
 import { CashRegister, CashSummary } from '../types/pdv';
 import { 
   calculatePurchasePaymentBreakdown,
@@ -58,6 +59,7 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPrintConfirmation, setShowPrintConfirmation] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [pendingFinalAmount, setPendingFinalAmount] = useState<number | null>(null);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [purchaseBreakdown, setPurchaseBreakdown] = useState<PaymentBreakdown>({
@@ -257,7 +259,13 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
       printCashRegisterSummary();
     }
     
-    // Show password modal after print decision
+    // Show export modal after print decision
+    setShowExportModal(true);
+  };
+
+  const handleExportComplete = () => {
+    setShowExportModal(false);
+    // Show password modal after export modal
     setShowPasswordModal(true);
   };
 
@@ -991,6 +999,27 @@ const CashRegisterClosingModal: React.FC<CashRegisterClosingModalProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Export Modal */}
+      <CashRegisterExportModal
+        open={showExportModal}
+        onOpenChange={setShowExportModal}
+        onComplete={handleExportComplete}
+        cashRegister={activeCashRegister}
+        cashSummary={cashSummary}
+        pendingFinalAmount={pendingFinalAmount}
+        purchaseBreakdown={purchaseBreakdown}
+        salesBreakdown={salesBreakdown}
+        purchaseWeight={purchaseWeight}
+        salesWeight={salesWeight}
+        salesCount={salesCount}
+        totalTransactions={totalTransactions}
+        totalOpening={totalOpening}
+        additionsCount={additionsCount}
+        realTimeDifference={realTimeDifference}
+        userWhatsapp={settings.whatsapp1}
+        companyName={settings.company}
+      />
 
       <PasswordPromptModal
         open={showPasswordModal}
