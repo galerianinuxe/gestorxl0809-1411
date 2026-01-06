@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Progress } from '@/components/ui/progress';
 import { 
   FileText, 
   Plus, 
@@ -28,13 +29,17 @@ import {
   List,
   ImageIcon,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  Loader2,
+  X
 } from 'lucide-react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { AIImageGenerator } from './AIImageGenerator';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface BlogPost {
   id: string;
@@ -64,7 +69,25 @@ interface BlogCategory {
   sort_order: number | null;
 }
 
+const initialPostForm = {
+  title: '',
+  slug: '',
+  excerpt: '',
+  content_md: '',
+  status: 'draft' as 'draft' | 'published',
+  category_id: '',
+  seo_title: '',
+  seo_description: '',
+  og_image: '',
+  tags: '',
+  is_featured: false
+};
+
 export const BlogManagement = () => {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isSmallScreen = isMobile || isTablet;
+  
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,20 +100,11 @@ export const BlogManagement = () => {
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [initialFormState, setInitialFormState] = useState(initialPostForm);
   
-  const [postForm, setPostForm] = useState({
-    title: '',
-    slug: '',
-    excerpt: '',
-    content_md: '',
-    status: 'draft' as 'draft' | 'published',
-    category_id: '',
-    seo_title: '',
-    seo_description: '',
-    og_image: '',
-    tags: '',
-    is_featured: false
-  });
+  const [postForm, setPostForm] = useState(initialPostForm);
 
   const [categoryForm, setCategoryForm] = useState({
     name: '',
@@ -141,7 +155,28 @@ export const BlogManagement = () => {
       .trim();
   };
 
+  // Track unsaved changes
+  const updatePostForm = useCallback((updates: Partial<typeof postForm>) => {
+    setPostForm(prev => {
+      const newForm = { ...prev, ...updates };
+      const hasChanges = JSON.stringify(newForm) !== JSON.stringify(initialFormState);
+      setHasUnsavedChanges(hasChanges);
+      return newForm;
+    });
+  }, [initialFormState]);
+
+  const validatePost = () => {
+    if (!postForm.title.trim()) {
+      toast({ title: "Erro", description: "O título é obrigatório", variant: "destructive" });
+      return false;
+    }
+    return true;
+  };
+
   const handleSavePost = async () => {
+    if (!validatePost()) return;
+    
+    setIsSaving(true);
     try {
       const postData = {
         title: postForm.title,
@@ -174,12 +209,15 @@ export const BlogManagement = () => {
         toast({ title: "Sucesso", description: "Post criado com sucesso!" });
       }
 
+      setHasUnsavedChanges(false);
       setIsPostDialogOpen(false);
       resetPostForm();
       loadData();
     } catch (error) {
       console.error('Erro ao salvar post:', error);
       toast({ title: "Erro", description: "Falha ao salvar post", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -275,7 +313,7 @@ export const BlogManagement = () => {
 
   const editPost = (post: BlogPost) => {
     setEditingPost(post);
-    setPostForm({
+    const formData = {
       title: post.title,
       slug: post.slug,
       excerpt: post.excerpt || '',
@@ -287,7 +325,10 @@ export const BlogManagement = () => {
       og_image: post.og_image || '',
       tags: post.tags?.join(', ') || '',
       is_featured: post.is_featured || false
-    });
+    };
+    setPostForm(formData);
+    setInitialFormState(formData);
+    setHasUnsavedChanges(false);
     setIsPostDialogOpen(true);
   };
 
@@ -305,11 +346,20 @@ export const BlogManagement = () => {
 
   const resetPostForm = () => {
     setEditingPost(null);
-    setPostForm({
-      title: '', slug: '', excerpt: '', content_md: '', status: 'draft',
-      category_id: '', seo_title: '', seo_description: '', og_image: '', tags: '', is_featured: false
-    });
+    setPostForm(initialPostForm);
+    setInitialFormState(initialPostForm);
+    setHasUnsavedChanges(false);
     setShowPreview(false);
+  };
+
+  const handleCloseDialog = () => {
+    if (hasUnsavedChanges) {
+      if (!confirm('Você tem alterações não salvas. Deseja realmente fechar?')) {
+        return;
+      }
+    }
+    setIsPostDialogOpen(false);
+    resetPostForm();
   };
 
   const resetCategoryForm = () => {
@@ -488,65 +538,102 @@ export const BlogManagement = () => {
                 </div>
 
                 {/* New Post Button */}
-                <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
+                <Dialog open={isPostDialogOpen} onOpenChange={(open) => {
+                  if (!open) {
+                    handleCloseDialog();
+                  } else {
+                    setIsPostDialogOpen(true);
+                  }
+                }}>
                   <DialogTrigger asChild>
                     <Button onClick={resetPostForm} className="bg-emerald-600 hover:bg-emerald-700">
                       <Plus className="h-4 w-4 mr-2" />
                       Novo Post
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden bg-gray-800 border-gray-700 text-white p-0">
-                    <DialogHeader className="p-6 pb-0">
-                      <DialogTitle className="flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                          <Sparkles className="h-5 w-5 text-emerald-400" />
-                          {editingPost ? 'Editar Post' : 'Novo Post'}
-                        </span>
+                  <DialogContent 
+                    className={cn(
+                      "overflow-hidden bg-gray-800 border-gray-700 text-white p-0",
+                      isSmallScreen 
+                        ? "w-full max-w-[98vw] max-h-[95vh]" 
+                        : "max-w-5xl max-h-[95vh]"
+                    )}
+                    hideCloseButton
+                  >
+                    <DialogHeader className="p-4 md:p-6 pb-0 border-b border-gray-700 mb-0">
+                      <DialogTitle className="flex items-center justify-between gap-2 flex-wrap">
                         <div className="flex items-center gap-2">
-                          <Label className="text-sm text-gray-400">Preview</Label>
-                          <Switch
-                            checked={showPreview}
-                            onCheckedChange={setShowPreview}
-                          />
+                          <Sparkles className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+                          <span className="truncate">{editingPost ? 'Editar Post' : 'Novo Post'}</span>
+                          {hasUnsavedChanges && (
+                            <Badge variant="outline" className="text-yellow-400 border-yellow-400/50 text-xs whitespace-nowrap">
+                              ● Alterações não salvas
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {!isSmallScreen && (
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm text-gray-400">Preview</Label>
+                              <Switch
+                                checked={showPreview}
+                                onCheckedChange={setShowPreview}
+                              />
+                            </div>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleCloseDialog}
+                            className="text-gray-400 hover:text-white h-8 w-8"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
                       </DialogTitle>
                     </DialogHeader>
                     
-                    <div className="flex h-[calc(95vh-140px)]">
+                    <div className={cn(
+                      "flex",
+                      isSmallScreen ? "flex-col h-[calc(95vh-160px)]" : "h-[calc(95vh-140px)]"
+                    )}>
                       {/* Editor */}
-                      <ScrollArea className={`${showPreview ? 'w-1/2' : 'w-full'} p-6`}>
+                      <ScrollArea className={cn(
+                        "p-4 md:p-6",
+                        showPreview && !isSmallScreen ? "w-1/2" : "w-full"
+                      )}>
                         <div className="space-y-4">
                           {/* Title & Slug */}
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label>Título *</Label>
+                              <Label className="text-sm">Título *</Label>
                               <Input
                                 value={postForm.title}
-                                onChange={(e) => setPostForm({ ...postForm, title: e.target.value })}
-                                className="bg-gray-700 border-gray-600"
+                                onChange={(e) => updatePostForm({ title: e.target.value })}
+                                className="bg-gray-700 border-gray-600 mt-1"
                                 placeholder="Título do artigo"
                               />
                             </div>
                             <div>
-                              <Label>Slug (URL)</Label>
+                              <Label className="text-sm">Slug (URL)</Label>
                               <Input
                                 value={postForm.slug}
-                                onChange={(e) => setPostForm({ ...postForm, slug: e.target.value })}
+                                onChange={(e) => updatePostForm({ slug: e.target.value })}
                                 placeholder={generateSlug(postForm.title) || 'gerado-automaticamente'}
-                                className="bg-gray-700 border-gray-600"
+                                className="bg-gray-700 border-gray-600 mt-1"
                               />
                             </div>
                           </div>
                           
                           {/* Category, Status, Featured */}
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             <div>
-                              <Label>Categoria</Label>
+                              <Label className="text-sm">Categoria</Label>
                               <Select
                                 value={postForm.category_id}
-                                onValueChange={(value) => setPostForm({ ...postForm, category_id: value })}
+                                onValueChange={(value) => updatePostForm({ category_id: value })}
                               >
-                                <SelectTrigger className="bg-gray-700 border-gray-600">
+                                <SelectTrigger className="bg-gray-700 border-gray-600 mt-1">
                                   <SelectValue placeholder="Selecione" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-gray-700 border-gray-600">
@@ -557,12 +644,12 @@ export const BlogManagement = () => {
                               </Select>
                             </div>
                             <div>
-                              <Label>Status</Label>
+                              <Label className="text-sm">Status</Label>
                               <Select
                                 value={postForm.status}
-                                onValueChange={(value: 'draft' | 'published') => setPostForm({ ...postForm, status: value })}
+                                onValueChange={(value: 'draft' | 'published') => updatePostForm({ status: value })}
                               >
-                                <SelectTrigger className="bg-gray-700 border-gray-600">
+                                <SelectTrigger className="bg-gray-700 border-gray-600 mt-1">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className="bg-gray-700 border-gray-600">
@@ -571,11 +658,11 @@ export const BlogManagement = () => {
                                 </SelectContent>
                               </Select>
                             </div>
-                            <div className="flex items-end">
-                              <div className="flex items-center gap-2 p-2 bg-gray-700 rounded-md w-full">
+                            <div className="flex items-end sm:col-span-2 md:col-span-1">
+                              <div className="flex items-center gap-2 p-2 bg-gray-700 rounded-md w-full h-10">
                                 <Switch
                                   checked={postForm.is_featured}
-                                  onCheckedChange={(checked) => setPostForm({ ...postForm, is_featured: checked })}
+                                  onCheckedChange={(checked) => updatePostForm({ is_featured: checked })}
                                 />
                                 <Label className="text-sm">Destaque</Label>
                                 <Star className={`h-4 w-4 ml-auto ${postForm.is_featured ? 'text-yellow-400 fill-yellow-400' : 'text-gray-500'}`} />
@@ -583,13 +670,33 @@ export const BlogManagement = () => {
                             </div>
                           </div>
 
+                          {/* Tags */}
+                          <div>
+                            <Label className="text-sm">Tags (separadas por vírgula)</Label>
+                            <Input
+                              value={postForm.tags}
+                              onChange={(e) => updatePostForm({ tags: e.target.value })}
+                              placeholder="reciclagem, dicas, sustentabilidade"
+                              className="bg-gray-700 border-gray-600 mt-1"
+                            />
+                            {postForm.tags && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {postForm.tags.split(',').filter(Boolean).map((tag, i) => (
+                                  <Badge key={i} variant="secondary" className="bg-emerald-600/20 text-emerald-300 text-xs">
+                                    {tag.trim()}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
                           {/* Excerpt */}
                           <div>
-                            <Label>Resumo (Excerpt)</Label>
+                            <Label className="text-sm">Resumo (Excerpt)</Label>
                             <Textarea
                               value={postForm.excerpt}
-                              onChange={(e) => setPostForm({ ...postForm, excerpt: e.target.value })}
-                              className="bg-gray-700 border-gray-600"
+                              onChange={(e) => updatePostForm({ excerpt: e.target.value })}
+                              className="bg-gray-700 border-gray-600 mt-1"
                               rows={2}
                               placeholder="Breve descrição do artigo (exibido nos cards)"
                             />
@@ -597,39 +704,19 @@ export const BlogManagement = () => {
 
                           {/* Content */}
                           <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <Label>Conteúdo (Markdown)</Label>
+                            <div className="flex items-center justify-between mb-1">
+                              <Label className="text-sm">Conteúdo (Markdown)</Label>
                               <span className="text-xs text-gray-400">
                                 ~{Math.ceil((postForm.content_md?.split(' ').length || 0) / 200)} min de leitura
                               </span>
                             </div>
                             <Textarea
                               value={postForm.content_md}
-                              onChange={(e) => setPostForm({ ...postForm, content_md: e.target.value })}
+                              onChange={(e) => updatePostForm({ content_md: e.target.value })}
                               className="bg-gray-700 border-gray-600 font-mono text-sm"
-                              rows={12}
+                              rows={isSmallScreen ? 8 : 10}
                               placeholder="# Título&#10;&#10;Escreva seu conteúdo em Markdown..."
                             />
-                          </div>
-
-                          {/* Tags */}
-                          <div>
-                            <Label>Tags (separadas por vírgula)</Label>
-                            <Input
-                              value={postForm.tags}
-                              onChange={(e) => setPostForm({ ...postForm, tags: e.target.value })}
-                              placeholder="reciclagem, dicas, sustentabilidade"
-                              className="bg-gray-700 border-gray-600"
-                            />
-                            {postForm.tags && (
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {postForm.tags.split(',').filter(Boolean).map((tag, i) => (
-                                  <Badge key={i} variant="secondary" className="bg-emerald-600/20 text-emerald-300">
-                                    {tag.trim()}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
                           </div>
 
                           {/* SEO Section */}
@@ -638,45 +725,27 @@ export const BlogManagement = () => {
                               <TrendingUp className="h-4 w-4" />
                               SEO & Meta Tags
                             </h4>
-                            <div className="space-y-3">
+                            <div className="space-y-4">
+                              {/* OG Image first for visibility */}
                               <div>
-                                <div className="flex justify-between">
-                                  <Label>Título SEO</Label>
-                                  <span className={`text-xs ${(postForm.seo_title?.length || 0) > 60 ? 'text-red-400' : 'text-gray-400'}`}>
-                                    {postForm.seo_title?.length || 0}/60
-                                  </span>
-                                </div>
-                                <Input
-                                  value={postForm.seo_title}
-                                  onChange={(e) => setPostForm({ ...postForm, seo_title: e.target.value })}
-                                  className="bg-gray-700 border-gray-600"
-                                  placeholder={postForm.title || "Título para mecanismos de busca"}
-                                />
-                              </div>
-                              <div>
-                                <div className="flex justify-between">
-                                  <Label>Meta Descrição</Label>
-                                  <span className={`text-xs ${(postForm.seo_description?.length || 0) > 160 ? 'text-red-400' : 'text-gray-400'}`}>
-                                    {postForm.seo_description?.length || 0}/160
-                                  </span>
-                                </div>
-                                <Textarea
-                                  value={postForm.seo_description}
-                                  onChange={(e) => setPostForm({ ...postForm, seo_description: e.target.value })}
-                                  className="bg-gray-700 border-gray-600"
-                                  rows={2}
-                                  placeholder={postForm.excerpt || "Descrição para mecanismos de busca"}
-                                />
-                              </div>
-                              <div>
-                                <Label className="flex items-center gap-2 mb-2">
+                                <Label className="flex items-center gap-2 mb-2 text-sm">
                                   <ImageIcon className="h-4 w-4" />
                                   Imagem de Capa (OG Image)
                                 </Label>
-                                <div className="flex gap-2 mb-2">
+                                {postForm.og_image && (
+                                  <div className="mb-3 relative rounded-lg overflow-hidden">
+                                    <img
+                                      src={postForm.og_image}
+                                      alt="Preview"
+                                      className="w-full h-36 object-cover"
+                                      onError={(e) => (e.currentTarget.style.display = 'none')}
+                                    />
+                                  </div>
+                                )}
+                                <div className="flex gap-2">
                                   <Input
                                     value={postForm.og_image}
-                                    onChange={(e) => setPostForm({ ...postForm, og_image: e.target.value })}
+                                    onChange={(e) => updatePostForm({ og_image: e.target.value })}
                                     placeholder="https://exemplo.com/imagem.jpg"
                                     className="bg-gray-700 border-gray-600 flex-1"
                                   />
@@ -686,33 +755,86 @@ export const BlogManagement = () => {
                                     articleType="blog"
                                     keywords={postForm.tags}
                                     currentImage={postForm.og_image}
-                                    onImageGenerated={(url) => setPostForm({ ...postForm, og_image: url })}
+                                    onImageGenerated={(url) => updatePostForm({ og_image: url })}
                                   />
                                 </div>
-                                {postForm.og_image && (
-                                  <div className="mt-2 relative rounded-lg overflow-hidden">
-                                    <img
-                                      src={postForm.og_image}
-                                      alt="Preview"
-                                      className="w-full h-32 object-cover"
-                                      onError={(e) => (e.currentTarget.style.display = 'none')}
-                                    />
-                                  </div>
-                                )}
+                              </div>
+
+                              <div>
+                                <div className="flex justify-between items-center mb-1">
+                                  <Label className="text-sm">Título SEO</Label>
+                                  <span className={cn(
+                                    "text-xs",
+                                    (postForm.seo_title?.length || 0) > 60 ? 'text-red-400' : 'text-gray-400'
+                                  )}>
+                                    {postForm.seo_title?.length || 0}/60
+                                  </span>
+                                </div>
+                                <Input
+                                  value={postForm.seo_title}
+                                  onChange={(e) => updatePostForm({ seo_title: e.target.value })}
+                                  className="bg-gray-700 border-gray-600"
+                                  placeholder={postForm.title || "Título para mecanismos de busca"}
+                                />
+                                <Progress 
+                                  value={Math.min((postForm.seo_title?.length || 0) / 60 * 100, 100)} 
+                                  className={cn(
+                                    "h-1 mt-1",
+                                    (postForm.seo_title?.length || 0) > 60 ? "[&>div]:bg-red-500" : "[&>div]:bg-emerald-500"
+                                  )}
+                                />
+                              </div>
+
+                              <div>
+                                <div className="flex justify-between items-center mb-1">
+                                  <Label className="text-sm">Meta Descrição</Label>
+                                  <span className={cn(
+                                    "text-xs",
+                                    (postForm.seo_description?.length || 0) > 160 ? 'text-red-400' : 'text-gray-400'
+                                  )}>
+                                    {postForm.seo_description?.length || 0}/160
+                                  </span>
+                                </div>
+                                <Textarea
+                                  value={postForm.seo_description}
+                                  onChange={(e) => updatePostForm({ seo_description: e.target.value })}
+                                  className="bg-gray-700 border-gray-600"
+                                  rows={2}
+                                  placeholder={postForm.excerpt || "Descrição para mecanismos de busca"}
+                                />
+                                <Progress 
+                                  value={Math.min((postForm.seo_description?.length || 0) / 160 * 100, 100)} 
+                                  className={cn(
+                                    "h-1 mt-1",
+                                    (postForm.seo_description?.length || 0) > 160 ? "[&>div]:bg-red-500" : "[&>div]:bg-emerald-500"
+                                  )}
+                                />
                               </div>
                             </div>
                           </div>
+
+                          {/* Mobile Preview Button */}
+                          {isSmallScreen && (
+                            <Button
+                              variant="outline"
+                              onClick={() => setShowPreview(true)}
+                              className="w-full gap-2 border-gray-600"
+                            >
+                              <Eye className="h-4 w-4" />
+                              Ver Preview do Artigo
+                            </Button>
+                          )}
                         </div>
                       </ScrollArea>
 
-                      {/* Preview */}
-                      {showPreview && (
+                      {/* Desktop Preview */}
+                      {showPreview && !isSmallScreen && (
                         <div className="w-1/2 border-l border-gray-700 bg-white overflow-hidden">
-                          <div className="p-4 bg-gray-100 border-b text-gray-600 text-sm flex items-center gap-2">
+                          <div className="p-3 bg-gray-100 border-b text-gray-600 text-sm flex items-center gap-2">
                             <Eye className="h-4 w-4" />
                             Preview do Artigo
                           </div>
-                          <ScrollArea className="h-full p-6">
+                          <ScrollArea className="h-[calc(100%-44px)] p-6">
                             <article className="prose prose-lg max-w-none">
                               {postForm.og_image && (
                                 <img 
@@ -738,13 +860,75 @@ export const BlogManagement = () => {
                       )}
                     </div>
 
+                    {/* Mobile Preview Modal */}
+                    {isSmallScreen && showPreview && (
+                      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+                        <DialogContent className="max-w-full w-[98vw] h-[90vh] p-0 bg-white">
+                          <DialogHeader className="p-4 bg-gray-100 border-b sticky top-0">
+                            <DialogTitle className="flex items-center justify-between text-gray-800">
+                              <span className="flex items-center gap-2">
+                                <Eye className="h-4 w-4" />
+                                Preview do Artigo
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setShowPreview(false)}
+                                className="text-gray-600 h-8 w-8"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </DialogTitle>
+                          </DialogHeader>
+                          <ScrollArea className="h-[calc(90vh-60px)] p-6">
+                            <article className="prose prose-lg max-w-none">
+                              {postForm.og_image && (
+                                <img 
+                                  src={postForm.og_image} 
+                                  alt="Capa" 
+                                  className="w-full h-48 object-cover rounded-lg mb-4"
+                                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                                />
+                              )}
+                              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                                {postForm.title || 'Título do Artigo'}
+                              </h1>
+                              {postForm.excerpt && (
+                                <p className="text-gray-600 italic mb-4">{postForm.excerpt}</p>
+                              )}
+                              <div 
+                                className="prose-emerald"
+                                dangerouslySetInnerHTML={{ __html: getPreviewHtml() }} 
+                              />
+                            </article>
+                          </ScrollArea>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+
                     {/* Footer */}
-                    <div className="p-4 border-t border-gray-700 flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setIsPostDialogOpen(false)}>
+                    <div className="p-4 border-t border-gray-700 flex flex-col sm:flex-row justify-end gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleCloseDialog}
+                        className="order-2 sm:order-1"
+                        disabled={isSaving}
+                      >
                         Cancelar
                       </Button>
-                      <Button onClick={handleSavePost} className="bg-emerald-600 hover:bg-emerald-700">
-                        {editingPost ? 'Atualizar Post' : 'Criar Post'}
+                      <Button 
+                        onClick={handleSavePost} 
+                        disabled={isSaving || !postForm.title.trim()}
+                        className="bg-emerald-600 hover:bg-emerald-700 min-w-[140px] order-1 sm:order-2"
+                      >
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Salvando...
+                          </>
+                        ) : (
+                          editingPost ? 'Atualizar Post' : 'Criar Post'
+                        )}
                       </Button>
                     </div>
                   </DialogContent>
