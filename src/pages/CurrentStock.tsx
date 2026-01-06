@@ -278,19 +278,17 @@ const CurrentStock = () => {
     setShowMaterialDetails(true);
   };
 
-  const totalStockValue = totalStockData
-    .filter(stock => stock.currentStock > 0)
-    .reduce((sum, stock) => sum + stock.totalValue, 0);
+  const stockInPositive = totalStockData.filter(stock => stock.currentStock > 0);
 
-  const totalProfitProjection = totalStockData
-    .filter(stock => stock.currentStock > 0)
-    .reduce((sum, stock) => sum + stock.profitProjection, 0);
+  const totalStockValue = stockInPositive.reduce((sum, stock) => sum + stock.totalValue, 0);
 
-  const totalWeight = totalStockData
-    .filter(stock => stock.currentStock > 0)
-    .reduce((sum, stock) => sum + stock.currentStock, 0);
+  const totalSaleValue = stockInPositive.reduce((sum, stock) => sum + (stock.currentStock * stock.salePrice), 0);
 
-  const materialsInStock = totalStockData.filter(stock => stock.currentStock > 0).length;
+  const totalProfitProjection = stockInPositive.reduce((sum, stock) => sum + stock.profitProjection, 0);
+
+  const totalWeight = stockInPositive.reduce((sum, stock) => sum + stock.currentStock, 0);
+
+  const materialsInStock = stockInPositive.length;
 
   if (loading) {
     return (
@@ -418,24 +416,30 @@ const CurrentStock = () => {
         />
 
         {/* Resumo - Cards Compactos */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-3">
           <MetricCard
             icon={Scale}
-            iconColor="text-emerald-500"
+            iconColor="text-slate-400"
             label="Peso Total"
             value={formatWeight(totalWeight)}
           />
           <MetricCard
             icon={Package}
-            iconColor="text-emerald-500"
+            iconColor="text-slate-400"
             label="Materiais"
             value={materialsInStock}
           />
           <MetricCard
             icon={DollarSign}
-            iconColor="text-emerald-500"
-            label="Valor Total"
+            iconColor="text-yellow-500"
+            label="Valor Compra"
             value={formatCurrency(totalStockValue)}
+          />
+          <MetricCard
+            icon={DollarSign}
+            iconColor="text-blue-500"
+            label="Valor Venda"
+            value={formatCurrency(totalSaleValue)}
           />
           <MetricCard
             icon={TrendingUp}
