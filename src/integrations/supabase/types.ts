@@ -3308,6 +3308,10 @@ export type Database = {
         Returns: Json
       }
       get_database_statistics: { Args: never; Returns: Json }
+      get_effective_user_id: {
+        Args: { target_user_id: string }
+        Returns: string
+      }
       get_function_count: { Args: never; Returns: Json }
       get_online_users: {
         Args: never
@@ -3517,6 +3521,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_employee: { Args: { target_user_id: string }; Returns: boolean }
       is_feature_enabled: {
         Args: { p_feature_name: string; p_user_id?: string }
         Returns: boolean

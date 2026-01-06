@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import NoSubscriptionBlocker from './NoSubscriptionBlocker';
 import { createLogger } from '@/utils/logger';
+import { useEmployee } from '@/contexts/EmployeeContext';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useAuth();
+  const { isEmployee, hasActiveSubscription: employeeHasSubscription, loading: employeeLoading } = useEmployee();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
@@ -33,6 +35,11 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       }
     }, 5000);
 
+    // Aguardar carregamento do contexto de funcionário
+    if (employeeLoading) {
+      return () => clearTimeout(timeoutId);
+    }
+
     if (user && !loading) {
       fetchUserData();
     } else if (!loading) {
@@ -40,7 +47,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     }
 
     return () => clearTimeout(timeoutId);
-  }, [user, loading, subscriptionCheckTrigger]);
+  }, [user, loading, subscriptionCheckTrigger, employeeLoading]);
 
   // Listen for subscription events
   useEffect(() => {
@@ -101,13 +108,20 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         }
       }
 
-      // SEGURANÇA: Verificar assinatura ativa via RPC (server-side validation)
-      const { data: subscriptionActive, error: subError } = await supabase
-        .rpc('validate_subscription_access', { target_user_id: user.id });
-      
-      if (!subError && subscriptionActive !== null) {
-        setIsSubscriptionActive(subscriptionActive);
-        logger.debug('Subscription validated server-side');
+      // Se é funcionário, usar assinatura do dono (já verificada no EmployeeContext)
+      if (isEmployee) {
+        setIsSubscriptionActive(employeeHasSubscription);
+        logger.debug('Employee using owner subscription:', employeeHasSubscription);
+      } else {
+        // SEGURANÇA: Verificar assinatura ativa via RPC (server-side validation)
+        // A função validate_subscription_access já verifica se é funcionário e usa assinatura do dono
+        const { data: subscriptionActive, error: subError } = await supabase
+          .rpc('validate_subscription_access', { target_user_id: user.id });
+        
+        if (!subError && subscriptionActive !== null) {
+          setIsSubscriptionActive(subscriptionActive);
+          logger.debug('Subscription validated server-side');
+        }
       }
 
     } catch (error) {
@@ -121,13 +135,14 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   // A função foi eliminada para seguir as melhores práticas de segurança
 
   useEffect(() => {
-    if (loading || dataLoading) return;
+    if (loading || dataLoading || employeeLoading) return;
 
     logger.debug('AuthGuard checking route:', {
       pathname: location.pathname,
       user: user?.email,
       isAdmin,
-      isSubscriptionActive
+      isSubscriptionActive,
+      isEmployee
     });
 
     // Public routes that don't require authentication
@@ -144,6 +159,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     
     // Admin-only route
     const isAdminRoute = location.pathname === '/covildomal';
+
+    // Funcionários não podem acessar página de planos ou funcionários
+    if (isEmployee && (location.pathname === '/planos' || location.pathname === '/funcionarios')) {
+      logger.debug('Employee cannot access plans or employees page, redirecting to home');
+      navigate('/');
+      return;
+    }
     
     if (!user && !isPublicRoute) {
       // User not authenticated and trying to access protected content
@@ -184,10 +206,10 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       logger.debug('Auth-only route access granted');
       setShowSubscriptionBlocker(false);
     }
-  }, [user, loading, dataLoading, navigate, location.pathname, isSubscriptionActive, isAdmin]);
+  }, [user, loading, dataLoading, employeeLoading, navigate, location.pathname, isSubscriptionActive, isAdmin, isEmployee]);
 
   // Show loading while checking authentication
-  if (loading || dataLoading) {
+  if (loading || dataLoading || employeeLoading) {
     return (
       <div className="min-h-screen bg-pdv-dark flex items-center justify-center">
         <div className="text-white text-center">

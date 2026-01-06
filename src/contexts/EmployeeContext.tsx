@@ -2,6 +2,14 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
+interface OwnerSubscription {
+  id: string;
+  user_id: string;
+  plan_type: string;
+  is_active: boolean;
+  expires_at: string;
+}
+
 interface EmployeeContextType {
   isEmployee: boolean;
   isOwner: boolean;
@@ -13,6 +21,11 @@ interface EmployeeContextType {
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
   refreshPermissions: () => Promise<void>;
+  // Novos campos para herança de assinatura
+  ownerSubscription: OwnerSubscription | null;
+  hasActiveSubscription: boolean;
+  isSubscriptionFromOwner: boolean;
+  effectiveUserId: string | null;
 }
 
 const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
@@ -26,6 +39,9 @@ export function EmployeeProvider({ children }: { children: ReactNode }) {
   const [employeeRole, setEmployeeRole] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ownerSubscription, setOwnerSubscription] = useState<OwnerSubscription | null>(null);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [isSubscriptionFromOwner, setIsSubscriptionFromOwner] = useState(false);
 
   const checkUserRole = useCallback(async () => {
     if (!user) {
@@ -36,6 +52,9 @@ export function EmployeeProvider({ children }: { children: ReactNode }) {
       setEmployeeId(null);
       setEmployeeRole(null);
       setPermissions([]);
+      setOwnerSubscription(null);
+      setHasActiveSubscription(false);
+      setIsSubscriptionFromOwner(false);
       return;
     }
 
@@ -65,6 +84,7 @@ export function EmployeeProvider({ children }: { children: ReactNode }) {
         setOwnerUserId(employeeData.owner_user_id);
         setEmployeeId(employeeData.id);
         setEmployeeRole(employeeData.role);
+        setIsSubscriptionFromOwner(true);
 
         // Fetch employee permissions
         const { data: permData, error: permError } = await supabase
@@ -78,11 +98,38 @@ export function EmployeeProvider({ children }: { children: ReactNode }) {
           setPermissions(permData?.map(p => p.permission) || []);
         }
 
+        // Fetch owner's subscription (funcionário herda assinatura do dono)
+        const { data: ownerSubData, error: ownerSubError } = await supabase
+          .from('user_subscriptions')
+          .select('id, user_id, plan_type, is_active, expires_at')
+          .eq('user_id', employeeData.owner_user_id)
+          .eq('is_active', true)
+          .order('expires_at', { ascending: false })
+          .maybeSingle();
+
+        if (!ownerSubError && ownerSubData) {
+          setOwnerSubscription(ownerSubData);
+          const isActive = ownerSubData.is_active && new Date(ownerSubData.expires_at) > new Date();
+          setHasActiveSubscription(isActive);
+          console.log('✅ Funcionário herdou assinatura do dono:', { ownerSubData, isActive });
+        } else {
+          setOwnerSubscription(null);
+          setHasActiveSubscription(false);
+          console.log('⚠️ Dono não tem assinatura ativa');
+        }
+
         // Update last login
         await supabase
           .from('depot_employees')
           .update({ last_login_at: new Date().toISOString() })
           .eq('id', employeeData.id);
+
+        // Mark first login as completed for employees (they don't need trial modal)
+        await supabase
+          .from('profiles')
+          .update({ first_login_completed: true })
+          .eq('id', user.id);
+
       } else {
         // User is a depot owner
         setIsEmployee(false);
@@ -91,6 +138,24 @@ export function EmployeeProvider({ children }: { children: ReactNode }) {
         setEmployeeId(null);
         setEmployeeRole(null);
         setPermissions([]);
+        setOwnerSubscription(null);
+        setIsSubscriptionFromOwner(false);
+
+        // Check owner's own subscription
+        const { data: ownSubData, error: ownSubError } = await supabase
+          .from('user_subscriptions')
+          .select('id, user_id, plan_type, is_active, expires_at')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .order('expires_at', { ascending: false })
+          .maybeSingle();
+
+        if (!ownSubError && ownSubData) {
+          const isActive = ownSubData.is_active && new Date(ownSubData.expires_at) > new Date();
+          setHasActiveSubscription(isActive);
+        } else {
+          setHasActiveSubscription(false);
+        }
       }
     } catch (error) {
       console.error('Error in checkUserRole:', error);
@@ -123,6 +188,9 @@ export function EmployeeProvider({ children }: { children: ReactNode }) {
     await checkUserRole();
   }, [checkUserRole]);
 
+  // Effective user ID for data queries (owner's ID if employee)
+  const effectiveUserId = isEmployee ? ownerUserId : user?.id || null;
+
   const value: EmployeeContextType = {
     isEmployee,
     isOwner,
@@ -134,6 +202,10 @@ export function EmployeeProvider({ children }: { children: ReactNode }) {
     hasPermission,
     hasAnyPermission,
     refreshPermissions,
+    ownerSubscription,
+    hasActiveSubscription,
+    isSubscriptionFromOwner,
+    effectiveUserId,
   };
 
   return (

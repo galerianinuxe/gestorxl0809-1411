@@ -1,4 +1,3 @@
-
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { HomeLayout } from './HomeLayout';
 import { FirstLoginModal } from './FirstLoginModal';
@@ -7,6 +6,7 @@ import SubscriptionManagementModal from './SubscriptionManagementModal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { hasUserUsedTrial, hasActiveSubscription } from '@/utils/subscriptionStorage';
+import { useEmployee } from '@/contexts/EmployeeContext';
 
 interface WelcomeScreenProps {
   onOpenCashRegister: () => void;
@@ -14,6 +14,7 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = memo(({ onOpenCashRegister }) => {
   const { user } = useAuth();
+  const { isEmployee, hasActiveSubscription: employeeHasSubscription, loading: employeeLoading } = useEmployee();
   const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
@@ -23,7 +24,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = memo(({ onOpenCashRegister }
   // Verificar se é o primeiro login do usuário
   useEffect(() => {
     const checkFirstLogin = async () => {
-      if (!user) {
+      if (!user || employeeLoading) {
+        return;
+      }
+
+      // Se é funcionário, NÃO mostrar modal de trial - usar assinatura do dono
+      if (isEmployee) {
+        console.log('✅ Funcionário detectado, pulando modal de primeiro login');
         setIsCheckingFirstLogin(false);
         return;
       }
@@ -83,7 +90,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = memo(({ onOpenCashRegister }
     };
 
     checkFirstLogin();
-  }, [user]);
+  }, [user, isEmployee, employeeLoading]);
 
   // Callback quando o trial é ativado no FirstLoginModal
   const handleTrialActivated = useCallback(async () => {

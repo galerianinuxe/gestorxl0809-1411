@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from '@/hooks/useAuth';
 import { getActiveCashRegister } from '@/utils/supabaseStorage';
 import SystemLogo from './SystemLogo';
+import { useEmployee } from '@/contexts/EmployeeContext';
 
 interface AppSidebarProps {
   isAdmin?: boolean;
@@ -51,7 +52,10 @@ export function AppSidebar({
   const collapsed = state === 'collapsed';
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { isEmployee, ownerSubscription } = useEmployee();
 
+  // Funcionários usam assinatura do dono
+  const effectiveSubscription = isEmployee ? ownerSubscription : subscription;
   const handleCashRegisterAction = async () => {
     try {
       const activeCashRegister = await getActiveCashRegister();
@@ -102,7 +106,7 @@ export function AppSidebar({
   ];
 
   // Seção Configurações - Sistema
-  const configuracoesItems = [
+  const allConfiguracoesItems = [
     { title: "Materiais", icon: ClipboardList, href: "/materiais" },
     { title: "Clientes", icon: Users, href: "/clientes" },
     { title: "Funcionários", icon: UserCog, href: "/funcionarios" },
@@ -110,6 +114,11 @@ export function AppSidebar({
     { title: "Ajuda & Guia", icon: BookOpen, href: "/guia-completo" },
     { title: "Planos", icon: Crown, href: "/planos" },
   ];
+
+  // Funcionários não veem "Planos" e "Funcionários"
+  const configuracoesItems = isEmployee 
+    ? allConfiguracoesItems.filter(item => item.href !== '/planos' && item.href !== '/funcionarios')
+    : allConfiguracoesItems;
 
   // Items extras
   const extraItems = [
@@ -273,18 +282,18 @@ export function AppSidebar({
         )}
 
         {/* Status da Assinatura - Minimalista */}
-        {subscription && !collapsed && (
+        {effectiveSubscription && !collapsed && (
           <div className="px-2 py-1.5 mt-auto">
             <div className="flex items-center justify-between text-[10px]">
               <span className="text-slate-500">Plano</span>
               <span className="text-emerald-500 font-medium">
-                {subscription.plan_type === 'trial' ? 'Teste' : 'Ativo'}
+                {isEmployee ? 'Funcionário' : (effectiveSubscription.plan_type === 'trial' ? 'Teste' : 'Ativo')}
               </span>
             </div>
             <div className="flex items-center justify-between text-[10px] mt-0.5">
-              <span className="text-slate-500">Expira</span>
+              <span className="text-slate-500">{isEmployee ? 'Dono' : 'Expira'}</span>
               <span className="text-slate-400">
-                {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
+                {isEmployee ? 'Assinatura do dono' : new Date(effectiveSubscription.expires_at).toLocaleDateString('pt-BR')}
               </span>
             </div>
           </div>
