@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { AuthContext } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 export interface OnboardingProgress {
   currentStep: number;
@@ -88,7 +89,9 @@ export const ONBOARDING_STEPS = [
 ];
 
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  // Use optional context access to avoid crash during initial render
+  const authContext = useContext(AuthContext);
+  const user: User | null = authContext?.user ?? null;
   const [progress, setProgress] = useState<OnboardingProgress>(defaultProgress);
   const [isLoading, setIsLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
