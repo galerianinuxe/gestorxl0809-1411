@@ -114,30 +114,34 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {activeOrder.items.map((item, index) => (
-                    <TableRow key={index} className="no-hover border-b border-slate-700">
-                      <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-2' : ''}`}>
-                        {cleanMaterialName(item.materialName)}
-                        {item.tara && item.tara > 0 && (
-                          <div className={`text-amber-400 ${isMobileOrTablet ? 'text-[8px]' : 'text-xs'}`}>
-                            Tara: {formatPeso(item.tara).replace('/kg', '')}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>{formatPeso(item.quantity).replace('/kg', '')}</TableCell>
-                      <TableCell className={`text-slate-300 ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.price.toFixed(2)}</TableCell>
-                      <TableCell className={`text-emerald-400 font-medium ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.total.toFixed(2)}</TableCell>
-                      <TableCell className="py-1 px-1">
-                        <Button 
-                          variant="ghost" 
-                          onClick={() => handleDeleteClick(index)}
-                          className={`p-0 hover:bg-red-600/20 ${isMobileOrTablet ? 'h-6 w-6' : 'h-8 w-8'}`}
-                        >
-                          <Trash2 className={`text-red-500 ${isMobileOrTablet ? 'h-3 w-3' : 'h-4 w-4'}`} />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {[...activeOrder.items].reverse().map((item, reversedIndex) => {
+                    // Calculate the original index for delete functionality
+                    const originalIndex = activeOrder.items.length - 1 - reversedIndex;
+                    return (
+                      <TableRow key={originalIndex} className="no-hover border-b border-slate-700">
+                        <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-2' : ''}`}>
+                          {cleanMaterialName(item.materialName)}
+                          {item.tara && item.tara > 0 && (
+                            <div className={`text-amber-400 ${isMobileOrTablet ? 'text-[8px]' : 'text-xs'}`}>
+                              Tara: {formatPeso(item.tara).replace('/kg', '')}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className={`text-white ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>{formatPeso(item.quantity).replace('/kg', '')}</TableCell>
+                        <TableCell className={`text-slate-300 ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.price.toFixed(2)}</TableCell>
+                        <TableCell className={`text-emerald-400 font-medium ${isMobileOrTablet ? 'text-[10px] py-1 px-1' : ''}`}>R$ {item.total.toFixed(2)}</TableCell>
+                        <TableCell className="py-1 px-1">
+                          <Button 
+                            variant="ghost" 
+                            onClick={() => handleDeleteClick(originalIndex)}
+                            className={`p-0 hover:bg-red-600/20 ${isMobileOrTablet ? 'h-6 w-6' : 'h-8 w-8'}`}
+                          >
+                            <Trash2 className={`text-red-500 ${isMobileOrTablet ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
