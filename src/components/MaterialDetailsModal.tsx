@@ -1,8 +1,8 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, Package, DollarSign, Target, Clock } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { TrendingUp, Package, DollarSign, ArrowUpCircle, ArrowDownCircle, Scale, Percent, Receipt } from 'lucide-react';
 
 interface MaterialStock {
   materialName: string;
@@ -47,175 +47,174 @@ const MaterialDetailsModal = ({ open, onOpenChange, material, totalWeight }: Mat
     return new Date(timestamp).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: '2-digit'
     });
   };
 
   const percentage = totalWeight > 0 ? (material.currentStock / totalWeight * 100) : 0;
+  const totalSaleValue = material.currentStock * material.salePrice;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-800 border-gray-700">
-        <DialogHeader>
-          <DialogTitle className="text-white text-xl flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Detalhes do Material: {material.materialName}
+      <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] p-0 bg-slate-900 border-slate-700 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="px-4 py-3 bg-slate-800 border-b border-slate-700">
+          <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
+            <Package className="h-5 w-5 text-emerald-500" />
+            <span className="truncate">{material.materialName}</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Cards de Informações Principais */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="bg-blue-900 border-blue-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  Peso em Estoque
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold text-blue-100">
-                  {formatWeight(material.currentStock)}
+        <ScrollArea className="max-h-[calc(90vh-60px)]">
+          <div className="p-4 space-y-4">
+            {/* Seção: Estoque */}
+            <div>
+              <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Estoque</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Peso */}
+                <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Scale className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-xs text-slate-400">Peso</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">{formatWeight(material.currentStock)}</div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-green-900 border-green-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  Percentual do Total
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold text-green-100 mb-2">
-                  {percentage.toFixed(1)}%
+                
+                {/* Percentual */}
+                <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Percent className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-xs text-slate-400">% Total</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">{percentage.toFixed(1)}%</div>
+                  <Progress value={percentage} className="h-1 mt-1.5" />
                 </div>
-                <Progress value={percentage} className="h-2" />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-purple-900 border-purple-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Transações no Período
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold text-purple-100">
-                  {material.transactions.length}
+                
+                {/* Transações */}
+                <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Receipt className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-xs text-slate-400">Movim.</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">{material.transactions.length}</div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </div>
 
-          {/* Cards de Preços e Valores */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-yellow-900 border-yellow-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Preço de Compra
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold text-yellow-100">
-                  {formatCurrency(material.purchasePrice)}
+            {/* Seção: Preços */}
+            <div>
+              <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Preços por kg</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Preço de Compra */}
+                <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-yellow-500" />
+                    <span className="text-xs text-slate-400">Compra</span>
+                  </div>
+                  <div className="text-sm font-bold text-yellow-400">{formatCurrency(material.purchasePrice)}</div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-orange-900 border-orange-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Preço de Venda
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold text-orange-100">
-                  {formatCurrency(material.salePrice)}
+                
+                {/* Preço de Venda */}
+                <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-blue-500" />
+                    <span className="text-xs text-slate-400">Venda</span>
+                  </div>
+                  <div className="text-sm font-bold text-blue-400">{formatCurrency(material.salePrice)}</div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="bg-indigo-900 border-indigo-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Valor Total
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold text-indigo-100">
-                  {formatCurrency(material.totalValue)}
+            {/* Seção: Valores em Estoque */}
+            <div>
+              <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Valores em Estoque</h3>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                {/* Custo Total */}
+                <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-yellow-500" />
+                    <span className="text-xs text-slate-400">Custo Total</span>
+                  </div>
+                  <div className="text-sm font-bold text-yellow-400">{formatCurrency(material.totalValue)}</div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-emerald-900 border-emerald-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  Projeção de Lucro
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg font-bold text-emerald-100">
-                  {formatCurrency(material.profitProjection)}
+                
+                {/* Valor de Venda Total */}
+                <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-blue-500" />
+                    <span className="text-xs text-slate-400">Valor Venda</span>
+                  </div>
+                  <div className="text-sm font-bold text-blue-400">{formatCurrency(totalSaleValue)}</div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              
+              {/* Projeção de Lucro - Destacado */}
+              <div className="bg-emerald-900/30 rounded-lg p-3 border border-emerald-700/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm text-emerald-300">Projeção de Lucro</span>
+                  </div>
+                  <div className="text-lg font-bold text-emerald-400">{formatCurrency(material.profitProjection)}</div>
+                </div>
+              </div>
+            </div>
 
-          {/* Histórico de Transações */}
-          {material.transactions.length > 0 && (
-            <Card className="bg-gray-700 border-gray-600">
-              <CardHeader>
-                <CardTitle className="text-white">Histórico de Transações</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-60 overflow-y-auto">
+            {/* Seção: Histórico de Transações */}
+            {material.transactions.length > 0 && (
+              <div>
+                <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">
+                  Histórico ({material.transactions.length})
+                </h3>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                   {material.transactions.map((transaction, index) => (
                     <div 
                       key={index}
-                      className={`p-3 rounded-lg ${
+                      className={`flex items-center justify-between p-2.5 rounded-lg border ${
                         transaction.type === 'compra' 
-                          ? 'bg-green-900/50 border border-green-700' 
-                          : 'bg-red-900/50 border border-red-700'
+                          ? 'bg-emerald-900/20 border-emerald-800/50' 
+                          : 'bg-rose-900/20 border-rose-800/50'
                       }`}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div className="flex flex-col">
-                          <span className={`font-medium ${
-                            transaction.type === 'compra' ? 'text-green-200' : 'text-red-200'
+                      <div className="flex items-center gap-2">
+                        {transaction.type === 'compra' ? (
+                          <ArrowUpCircle className="h-4 w-4 text-emerald-500" />
+                        ) : (
+                          <ArrowDownCircle className="h-4 w-4 text-rose-500" />
+                        )}
+                        <div>
+                          <span className={`text-xs font-medium ${
+                            transaction.type === 'compra' ? 'text-emerald-400' : 'text-rose-400'
                           }`}>
                             {transaction.type === 'compra' ? 'Compra' : 'Venda'}
                           </span>
-                          <span className="text-gray-300 text-sm">
+                          <span className="text-xs text-slate-500 ml-2">
                             {formatDate(transaction.date)}
                           </span>
                         </div>
-                        <div className="flex flex-col sm:text-right">
-                          <span className="text-white font-medium">
-                            {formatWeight(transaction.quantity)}
-                          </span>
-                          <span className="text-gray-300 text-sm">
-                            {formatCurrency(transaction.price)}/kg
-                          </span>
-                          <span className="text-white font-bold">
-                            {formatCurrency(transaction.total)}
-                          </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-white font-medium">
+                          {formatWeight(transaction.quantity)}
+                        </div>
+                        <div className="text-xs text-slate-400">
+                          {formatCurrency(transaction.total)}
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              </div>
+            )}
+
+            {/* Mensagem se não houver transações */}
+            {material.transactions.length === 0 && (
+              <div className="text-center py-4 text-slate-500 text-sm">
+                Nenhuma transação registrada
+              </div>
+            )}
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
