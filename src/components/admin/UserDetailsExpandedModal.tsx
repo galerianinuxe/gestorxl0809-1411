@@ -6,16 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   User, Mail, Calendar, CreditCard, Clock, Shield, Activity, 
   Trash2, Download, Phone, Globe, Monitor, Smartphone, Tablet,
   LogIn, MapPin, X, Power, AlertTriangle, CheckCircle, XCircle,
   History, Laptop, Key, RefreshCw, ShoppingCart, Package, Users, BarChart3,
-  ChevronLeft, ChevronRight, Loader2, Settings
+  ChevronLeft, ChevronRight, Loader2, Settings, Edit3, Save, XCircle as CancelIcon
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, subDays, subMonths, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import UserSettingsTab from './UserSettingsTab';
@@ -156,6 +158,21 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
 
   const [loadingTab, setLoadingTab] = useState<string | null>(null);
 
+  // Estado para edição de dados pessoais
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editedUser, setEditedUser] = useState({
+    name: '',
+    email: '',
+    whatsapp: '',
+    company: ''
+  });
+  const [savingInfo, setSavingInfo] = useState(false);
+
+  // Estado para filtro de período
+  type PeriodFilter = 'today' | '7days' | '30days' | '3months' | 'all';
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>('all');
+  const [filteredStats, setFilteredStats] = useState<UserStats>({ totalSales: 0, totalPurchases: 0, totalOrders: 0, totalMaterials: 0, totalCustomers: 0 });
+
   useEffect(() => {
     if (open && user) {
       // Reset pagination when modal opens
@@ -174,6 +191,16 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
       setActiveSessions([]);
       setUniqueIPs([]);
       
+      // Initialize edit state
+      setEditedUser({
+        name: user.name || '',
+        email: user.email || '',
+        whatsapp: user.whatsapp || '',
+        company: user.company || ''
+      });
+      setIsEditingInfo(false);
+      setPeriodFilter('all');
+      
       fetchInitialData();
     }
   }, [open, user]);
@@ -183,6 +210,100 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
       loadTabData(activeTab, 1, true);
     }
   }, [activeTab, open, user]);
+
+  // Recalculate stats when period filter changes
+  useEffect(() => {
+    if (periodFilter && open && user) {
+      fetchFilteredStats();
+    }
+  }, [periodFilter, open, user]);
+
+  const getDateRangeForFilter = (filter: PeriodFilter): Date | null => {
+    const now = new Date();
+    switch (filter) {
+      case 'today': return startOfDay(now);
+      case '7days': return subDays(now, 7);
+      case '30days': return subDays(now, 30);
+      case '3months': return subMonths(now, 3);
+      case 'all': return null;
+    }
+  };
+
+  const fetchFilteredStats = async () => {
+    try {
+      const startDate = getDateRangeForFilter(periodFilter);
+      
+      let query = supabase
+        .from('orders')
+        .select('id, type, total, status, created_at')
+        .eq('user_id', user.id);
+      
+      if (startDate) {
+        query = query.gte('created_at', startDate.toISOString());
+      }
+      
+      const { data: ordersData } = await query;
+      
+      if (ordersData) {
+        const totalSales = ordersData.filter(o => o.type === 'venda' && o.status === 'completed').reduce((sum, o) => sum + (o.total || 0), 0);
+        const totalPurchases = ordersData.filter(o => o.type === 'compra' && o.status === 'completed').reduce((sum, o) => sum + (o.total || 0), 0);
+        
+        setFilteredStats(prev => ({
+          ...prev,
+          totalSales,
+          totalPurchases,
+          totalOrders: ordersData.length
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching filtered stats:', error);
+    }
+  };
+
+  const handleSaveUserInfo = async () => {
+    setSavingInfo(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: editedUser.name,
+          email: editedUser.email,
+          whatsapp: editedUser.whatsapp,
+          company: editedUser.company,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Dados atualizados",
+        description: "As informações do usuário foram salvas com sucesso."
+      });
+      
+      setIsEditingInfo(false);
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error saving user info:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as alterações.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingInfo(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedUser({
+      name: user.name || '',
+      email: user.email || '',
+      whatsapp: user.whatsapp || '',
+      company: user.company || ''
+    });
+    setIsEditingInfo(false);
+  };
 
   const fetchInitialData = async () => {
     setLoading(true);
@@ -644,24 +765,58 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
             </TabsList>
           )}
 
+          {/* Period Filters */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <span className="text-xs text-muted-foreground">Período:</span>
+            <div className="flex gap-1 bg-muted rounded-lg p-1">
+              {[
+                { key: 'today', label: 'Hoje' },
+                { key: '7days', label: '7 dias' },
+                { key: '30days', label: '30 dias' },
+                { key: '3months', label: '3 meses' },
+                { key: 'all', label: 'Tudo' }
+              ].map(({ key, label }) => (
+                <Button
+                  key={key}
+                  variant={periodFilter === key ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setPeriodFilter(key as PeriodFilter)}
+                  className={`${isMobileOrTablet ? 'text-xs px-2 h-7' : 'text-xs px-3 h-8'} ${
+                    periodFilter === key 
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
           {/* Stats Summary */}
           <div className={`grid ${isMobileOrTablet ? 'grid-cols-2 gap-2' : 'grid-cols-5 gap-3'} mb-4`}>
             <Card className="bg-muted border-border">
               <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
-                <p className="text-xs text-muted-foreground">Vendas</p>
-                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-emerald-400`}>{formatCurrency(stats.totalSales)}</p>
+                <p className="text-xs text-muted-foreground">Vendas {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
+                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-emerald-400`}>
+                  {formatCurrency(periodFilter === 'all' ? stats.totalSales : filteredStats.totalSales)}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-muted border-border">
               <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
-                <p className="text-xs text-muted-foreground">Compras</p>
-                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-amber-400`}>{formatCurrency(stats.totalPurchases)}</p>
+                <p className="text-xs text-muted-foreground">Compras {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
+                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-amber-400`}>
+                  {formatCurrency(periodFilter === 'all' ? stats.totalPurchases : filteredStats.totalPurchases)}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-muted border-border">
               <CardContent className={`${isMobileOrTablet ? 'p-2' : 'p-3'}`}>
-                <p className="text-xs text-muted-foreground">Pedidos</p>
-                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-foreground`}>{stats.totalOrders}</p>
+                <p className="text-xs text-muted-foreground">Pedidos {periodFilter !== 'all' && `(${periodFilter === 'today' ? 'hoje' : periodFilter})`}</p>
+                <p className={`${isMobileOrTablet ? 'text-sm' : 'text-lg'} font-bold text-foreground`}>
+                  {periodFilter === 'all' ? stats.totalOrders : filteredStats.totalOrders}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-muted border-border">
@@ -686,28 +841,111 @@ const UserDetailsExpandedModal: React.FC<UserDetailsExpandedModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="bg-muted border-border">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2 text-foreground">
-                      <User className="h-4 w-4 text-emerald-400" />
-                      Dados Pessoais
+                    <CardTitle className="text-sm flex items-center justify-between text-foreground">
+                      <span className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-emerald-400" />
+                        Dados Pessoais
+                      </span>
+                      {!isEditingInfo ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsEditingInfo(true)}
+                          className="h-7 px-2 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-600/10"
+                        >
+                          <Edit3 className="h-3 w-3 mr-1" />
+                          Editar
+                        </Button>
+                      ) : (
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancelEdit}
+                            disabled={savingInfo}
+                            className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Cancelar
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={handleSaveUserInfo}
+                            disabled={savingInfo}
+                            className="h-7 px-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          >
+                            {savingInfo ? (
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            ) : (
+                              <Save className="h-3 w-3 mr-1" />
+                            )}
+                            Salvar
+                          </Button>
+                        </div>
+                      )}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground text-sm">Nome</span>
-                      <span className="font-medium text-foreground">{user.name || 'Não informado'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground text-sm">Email</span>
-                      <span className="font-medium text-foreground">{user.email}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground text-sm">WhatsApp</span>
-                      <span className="font-medium text-foreground">{user.whatsapp || 'Não informado'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground text-sm">Empresa</span>
-                      <span className="font-medium text-foreground">{user.company || 'Não informado'}</span>
-                    </div>
+                    {isEditingInfo ? (
+                      <>
+                        <div className="space-y-1">
+                          <Label className="text-muted-foreground text-xs">Nome</Label>
+                          <Input
+                            value={editedUser.name}
+                            onChange={(e) => setEditedUser(prev => ({ ...prev, name: e.target.value }))}
+                            className="h-8 bg-card border-border text-sm"
+                            placeholder="Nome completo"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-muted-foreground text-xs">Email</Label>
+                          <Input
+                            value={editedUser.email}
+                            onChange={(e) => setEditedUser(prev => ({ ...prev, email: e.target.value }))}
+                            className="h-8 bg-card border-border text-sm"
+                            placeholder="email@exemplo.com"
+                            type="email"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-muted-foreground text-xs">WhatsApp</Label>
+                          <Input
+                            value={editedUser.whatsapp}
+                            onChange={(e) => setEditedUser(prev => ({ ...prev, whatsapp: e.target.value }))}
+                            className="h-8 bg-card border-border text-sm"
+                            placeholder="(00) 00000-0000"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-muted-foreground text-xs">Empresa</Label>
+                          <Input
+                            value={editedUser.company}
+                            onChange={(e) => setEditedUser(prev => ({ ...prev, company: e.target.value }))}
+                            className="h-8 bg-card border-border text-sm"
+                            placeholder="Nome da empresa"
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground text-sm">Nome</span>
+                          <span className="font-medium text-foreground">{user.name || 'Não informado'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground text-sm">Email</span>
+                          <span className="font-medium text-foreground">{user.email}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground text-sm">WhatsApp</span>
+                          <span className="font-medium text-foreground">{user.whatsapp || 'Não informado'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground text-sm">Empresa</span>
+                          <span className="font-medium text-foreground">{user.company || 'Não informado'}</span>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 
