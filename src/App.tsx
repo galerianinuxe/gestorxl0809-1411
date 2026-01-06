@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./hooks/useAuth";
 import { SubscriptionSyncProvider } from "./components/SubscriptionSyncProvider";
 import { OnboardingProvider } from "./contexts/OnboardingContext";
+import { EmployeeProvider } from "./contexts/EmployeeContext";
 import { useSEO } from "./hooks/useSEO";
 import AuthGuard from "./components/AuthGuard";
 import WhatsAppSupportButton from "./components/WhatsAppSupportButton";
@@ -366,15 +367,17 @@ const App = () => (
       <TooltipProvider>
         <BrowserRouter>
           <AuthProvider>
-            <OnboardingProvider>
-              <SubscriptionSyncProvider>
-                <DirectMessageProvider>
-                  <Toaster />
-                  <Sonner position="top-center" richColors closeButton duration={0} />
-                  <AppContent />
-                </DirectMessageProvider>
-              </SubscriptionSyncProvider>
-            </OnboardingProvider>
+            <EmployeeProvider>
+              <OnboardingProvider>
+                <SubscriptionSyncProvider>
+                  <DirectMessageProvider>
+                    <Toaster />
+                    <Sonner position="top-center" richColors closeButton duration={0} />
+                    <AppContent />
+                  </DirectMessageProvider>
+                </SubscriptionSyncProvider>
+              </OnboardingProvider>
+            </EmployeeProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
