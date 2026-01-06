@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { MainLayout } from '@/components/MainLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -12,11 +12,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { 
   UserCog, Plus, Search, MoreHorizontal, Edit, Trash2, ToggleLeft, ToggleRight,
-  Shield, Phone, Mail, Loader2
+  Shield, Phone, Mail, Loader2, Settings
 } from 'lucide-react';
-import { useDepotEmployees, DepotEmployee, EmployeePermission } from '@/hooks/useDepotEmployees';
+import { useDepotEmployees, DepotEmployee } from '@/hooks/useDepotEmployees';
 import { EmployeeModal } from '@/components/EmployeeModal';
 import { EmployeePermissionsModal } from '@/components/EmployeePermissionsModal';
+import { RolePermissionsModal } from '@/components/RolePermissionsModal';
 import { 
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle 
@@ -37,6 +38,7 @@ export default function Employees() {
   const [selectedEmployee, setSelectedEmployee] = useState<DepotEmployee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<DepotEmployee | null>(null);
   const [currentPermissions, setCurrentPermissions] = useState<string[]>([]);
+  const [isRolePermissionsModalOpen, setIsRolePermissionsModalOpen] = useState(false);
 
   const filteredEmployees = useMemo(() => {
     let result = employees;
@@ -129,10 +131,20 @@ export default function Employees() {
               Gerencie os funcionários do seu depósito e suas permissões
             </p>
           </div>
-          <Button onClick={handleNewEmployee}>
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Funcionário
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsRolePermissionsModalOpen(true)}
+              className="border-emerald-600 text-emerald-600 hover:bg-emerald-600/10"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Permissões
+            </Button>
+            <Button onClick={handleNewEmployee} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Funcionário
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -152,6 +164,7 @@ export default function Employees() {
                   variant={showActiveOnly ? "default" : "outline"}
                   size="sm"
                   onClick={() => setShowActiveOnly(!showActiveOnly)}
+                  className={showActiveOnly ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}
                 >
                   {showActiveOnly ? 'Apenas Ativos' : 'Todos'}
                 </Button>
@@ -303,6 +316,11 @@ export default function Employees() {
         employee={selectedEmployee}
         currentPermissions={currentPermissions}
         onSave={handleSavePermissions}
+      />
+
+      <RolePermissionsModal
+        isOpen={isRolePermissionsModalOpen}
+        onClose={() => setIsRolePermissionsModalOpen(false)}
       />
 
       <AlertDialog open={!!employeeToDelete} onOpenChange={() => setEmployeeToDelete(null)}>

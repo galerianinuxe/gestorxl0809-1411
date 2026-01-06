@@ -2477,6 +2477,30 @@ export type Database = {
           },
         ]
       }
+      role_default_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       security_blocks: {
         Row: {
           attempt_count: number | null

@@ -102,7 +102,7 @@ export function EmployeePermissionsModal({
               return (
                 <div key={category} className="space-y-3">
                   <div className="flex items-center gap-2 pb-2 border-b">
-                    <Icon className="h-4 w-4 text-primary" />
+                    <Icon className="h-4 w-4 text-emerald-600" />
                     <h4 className="font-medium text-sm">{category}</h4>
                   </div>
                   <div className="grid grid-cols-1 gap-2 pl-6">
@@ -112,6 +112,7 @@ export function EmployeePermissionsModal({
                           id={perm.key}
                           checked={selectedPermissions.includes(perm.key)}
                           onCheckedChange={() => handleTogglePermission(perm.key)}
+                          className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
                         />
                         <Label 
                           htmlFor={perm.key} 
@@ -131,7 +132,7 @@ export function EmployeePermissionsModal({
             <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button onClick={handleSubmit} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white">
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
