@@ -6,8 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Activity, Server, Database, Shield, Percent, Settings, BarChart3, 
-  TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, Clock,
-  CalendarDays, Eye, Wallet, ArrowUpRight, ArrowDownRight, RefreshCw, CreditCard
+  DollarSign, Users, Clock, Eye, RefreshCw, CreditCard, ArrowUpRight, ArrowDownRight, CalendarDays
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -104,28 +103,6 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
       const startISO = start.toISOString();
       const endISO = end.toISOString();
 
-      // Buscar vendas (orders de venda) no período
-      const { data: salesOrders, error: salesError } = await supabase
-        .from('orders')
-        .select('id, total, created_at')
-        .eq('status', 'completed')
-        .eq('type', 'venda')
-        .gte('created_at', startISO)
-        .lte('created_at', endISO);
-
-      if (salesError) console.warn('Erro ao buscar vendas:', salesError);
-
-      // Buscar compras (orders de compra) no período
-      const { data: purchaseOrders, error: purchaseError } = await supabase
-        .from('orders')
-        .select('id, total, created_at')
-        .eq('status', 'completed')
-        .eq('type', 'compra')
-        .gte('created_at', startISO)
-        .lte('created_at', endISO);
-
-      if (purchaseError) console.warn('Erro ao buscar compras:', purchaseError);
-
       // Buscar pagamentos de assinaturas aprovados no período
       const { data: approvedPayments, error: paymentsError } = await supabase
         .from('mercado_pago_payments')
@@ -136,11 +113,12 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
 
       if (paymentsError) console.warn('Erro ao buscar pagamentos:', paymentsError);
 
-      // Buscar acessos (analytics_events de page_view) no período
-      const { data: accessEvents, error: accessError } = await supabase
-        .from('analytics_events')
+      // Buscar acessos (admin_access_logs de login) no período
+      const { data: accessLogs, error: accessError } = await supabase
+        .from('admin_access_logs')
         .select('id')
-        .eq('event_type', 'page_view')
+        .eq('action', 'login')
+        .eq('success', true)
         .gte('created_at', startISO)
         .lte('created_at', endISO);
 
@@ -155,27 +133,20 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
 
       if (usersError) console.warn('Erro ao buscar novos usuários:', usersError);
 
-      // Calcular totais
-      const salesTotal = salesOrders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
-      const purchasesTotal = purchaseOrders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
-      
       // Calcular receita de assinaturas
       const subscriptionsTotal = approvedPayments?.reduce((sum, payment) => 
         sum + (payment.transaction_amount || 0), 0) || 0;
       const subscriptionsCount = approvedPayments?.length || 0;
-      
-      // Lucro = Vendas de materiais + Receita de assinaturas - Compras de materiais
-      const profit = salesTotal + subscriptionsTotal - purchasesTotal;
 
       setStats({
-        sales: salesTotal,
-        salesCount: salesOrders?.length || 0,
-        purchases: purchasesTotal,
-        purchasesCount: purchaseOrders?.length || 0,
+        sales: 0,
+        salesCount: 0,
+        purchases: 0,
+        purchasesCount: 0,
         subscriptions: subscriptionsTotal,
         subscriptionsCount,
-        profit,
-        accesses: accessEvents?.length || 0,
+        profit: subscriptionsTotal,
+        accesses: accessLogs?.length || 0,
         newUsers: newUsersData?.length || 0,
       });
 
@@ -359,46 +330,29 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {/* Main Financial Stats */}
+        {/* Main Admin Stats - Only subscription, revenue and access data */}
         <div className={cn(
           "grid gap-4",
-          isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-5"
+          isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"
         )}>
           <StatCard
-            icon={ShoppingCart}
-            label="Vendas (Mat.)"
-            value={formatCurrency(stats.sales)}
-            subValue={stats.salesCount}
-            subLabel="Transações"
-            color="emerald"
-            trend={stats.sales > 0 ? 'up' : 'neutral'}
-          />
-          
-          <StatCard
-            icon={Wallet}
-            label="Compras (Mat.)"
-            value={formatCurrency(stats.purchases)}
-            subValue={stats.purchasesCount}
-            subLabel="Transações"
-            color="blue"
-          />
-          
-          <StatCard
             icon={CreditCard}
-            label="Assinaturas"
-            value={formatCurrency(stats.subscriptions)}
-            subValue={stats.subscriptionsCount}
-            subLabel="Pagamentos"
-            color="amber"
+            label="Assinaturas Pagas"
+            value={stats.subscriptionsCount}
+            subValue={formatCurrency(stats.subscriptions)}
+            subLabel="Receita"
+            color="emerald"
             trend={stats.subscriptionsCount > 0 ? 'up' : 'neutral'}
           />
           
           <StatCard
             icon={DollarSign}
-            label={stats.profit >= 0 ? "Lucro" : "Prejuízo"}
-            value={formatCurrency(Math.abs(stats.profit))}
-            color={stats.profit >= 0 ? 'emerald' : 'red'}
-            trend={stats.profit > 0 ? 'up' : stats.profit < 0 ? 'down' : 'neutral'}
+            label="Receita do Período"
+            value={formatCurrency(stats.subscriptions)}
+            subValue={stats.subscriptionsCount > 0 ? `${(stats.subscriptions / stats.subscriptionsCount).toFixed(2)}` : '0'}
+            subLabel="Valor médio"
+            color="amber"
+            trend={stats.subscriptions > 0 ? 'up' : 'neutral'}
           />
           
           <StatCard
@@ -407,7 +361,18 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ systemStatus }) => 
             value={stats.accesses}
             subValue={stats.newUsers}
             subLabel="Novos usuários"
+            color="blue"
+            trend={stats.accesses > 0 ? 'up' : 'neutral'}
+          />
+          
+          <StatCard
+            icon={Users}
+            label="Novos Usuários"
+            value={stats.newUsers}
+            subValue={`${getPeriodLabel(period)}`}
+            subLabel="Período"
             color="purple"
+            trend={stats.newUsers > 0 ? 'up' : 'neutral'}
           />
         </div>
 
