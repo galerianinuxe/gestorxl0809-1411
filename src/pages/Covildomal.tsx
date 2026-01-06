@@ -7,17 +7,9 @@ import {
   Users, 
   CreditCard, 
   AlertCircle, 
-  Activity,
-  Server,
-  Database,
-  Shield,
-  Percent,
-  Settings,
   DollarSign,
-  BarChart3,
   AlertTriangle,
-  RefreshCw,
-  Menu
+  RefreshCw
 } from 'lucide-react';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 import { UserManagement } from '@/components/admin/UserManagement';
@@ -39,6 +31,7 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { MaintenanceDashboard } from '@/components/admin/MaintenanceDashboard';
 import { PlansManagement } from '@/components/admin/PlansManagement';
 import { ContentManagementPanel } from '@/components/admin/ContentManagementPanel';
+import DashboardSummary from '@/components/admin/DashboardSummary';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -339,107 +332,7 @@ const Covildomal = () => {
                   </Card>
                 </div>
 
-                <Card className="bg-card border-border">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-foreground flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-primary" />
-                      Resumo do Sistema
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground border-b border-border pb-2">Status do Sistema</h4>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Server className="h-3 w-3" />
-                              Servidor
-                            </span>
-                            <Badge className="bg-emerald-600 text-white text-xs">Online</Badge>
-                          </div>
-                          
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Database className="h-3 w-3" />
-                              Database
-                            </span>
-                            <Badge className="bg-emerald-600 text-white text-xs">Conectado</Badge>
-                          </div>
-                          
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Shield className="h-3 w-3" />
-                              Segurança
-                            </span>
-                            <Badge className="bg-emerald-600 text-white text-xs">RBAC Ativo</Badge>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground border-b border-border pb-2">Métricas</h4>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Percent className="h-3 w-3" />
-                              Conversão
-                            </span>
-                            <span className="text-sm text-foreground">{systemStatus.conversionRate}</span>
-                          </div>
-                          
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <BarChart3 className="h-3 w-3" />
-                              Transações
-                            </span>
-                            <span className="text-sm text-foreground">{systemStatus.totalTransactions}</span>
-                          </div>
-                          
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Users className="h-3 w-3" />
-                              Ativos/Mês
-                            </span>
-                            <span className="text-sm text-foreground">{systemStatus.monthlyActiveUsers}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground border-b border-border pb-2">Sistema</h4>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Settings className="h-3 w-3" />
-                              Versão
-                            </span>
-                            <span className="text-sm text-foreground">{systemStatus.systemVersion}</span>
-                          </div>
-                          
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Shield className="h-3 w-3" />
-                              Backup
-                            </span>
-                            <Badge className="bg-emerald-600 text-white text-xs">Ativo</Badge>
-                          </div>
-                          
-                          <div className="flex items-center justify-between py-1">
-                            <span className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Activity className="h-3 w-3" />
-                              Última Atualização
-                            </span>
-                            <span className="text-sm text-foreground">{systemStatus.lastUpdate}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <DashboardSummary systemStatus={systemStatus} />
               </>
             ) : (
               renderTabContent()
