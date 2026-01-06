@@ -53,7 +53,7 @@ const PurchaseOrders = () => {
     };
 
     loadData();
-  }, []);
+  }, [startDate, endDate]);
 
   const purchaseOrders = useMemo(() => {
     let filteredOrders = orders.filter(order => 

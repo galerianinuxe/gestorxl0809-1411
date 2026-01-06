@@ -48,7 +48,7 @@ const SalesOrders = () => {
     };
 
     loadData();
-  }, []);
+  }, [startDate, endDate]);
 
   const salesData = useMemo(() => {
     const now = new Date();

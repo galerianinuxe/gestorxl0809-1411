@@ -63,6 +63,8 @@ const DailyFlow = () => {
   }, [user]);
 
   useEffect(() => {
+    if (!user) return;
+    
     const loadDailyFlowData = async () => {
       try {
         const cashRegisters = await getCashRegisters();
@@ -95,12 +97,13 @@ const DailyFlow = () => {
     };
 
     loadDailyFlowData();
-  }, []);
+  }, [user]);
 
   const filteredDailyFlowData = useMemo(() => {
     const now = new Date();
     let filterStartDate: Date;
     let filterEndDate: Date = new Date(now);
+    filterEndDate.setHours(23, 59, 59, 999);
 
     if (selectedPeriod === 'custom' && startDate && endDate) {
       filterStartDate = new Date(startDate);
@@ -111,8 +114,6 @@ const DailyFlow = () => {
         case 'daily':
           filterStartDate = new Date(now);
           filterStartDate.setHours(0, 0, 0, 0);
-          filterEndDate = new Date(now);
-          filterEndDate.setHours(23, 59, 59, 999);
           break;
         case 'weekly':
           filterStartDate = new Date(now);
@@ -132,8 +133,6 @@ const DailyFlow = () => {
         default:
           filterStartDate = new Date(now);
           filterStartDate.setHours(0, 0, 0, 0);
-          filterEndDate = new Date(now);
-          filterEndDate.setHours(23, 59, 59, 999);
       }
     }
 

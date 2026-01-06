@@ -77,7 +77,7 @@ const CashAdditions = () => {
     };
 
     loadCashAdditions();
-  }, []);
+  }, [selectedPeriod, startDate, endDate]);
 
   const filteredAdditions = useMemo(() => {
     let filtered = cashAdditions;
