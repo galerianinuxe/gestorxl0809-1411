@@ -16,7 +16,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Log access event to admin_access_logs
 const logAccessEvent = async (userId: string, action: string, success: boolean, errorMessage?: string) => {
