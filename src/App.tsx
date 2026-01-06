@@ -80,44 +80,17 @@ const PageLoader = () => (
   </div>
 );
 
+// Loading fallback para conteúdo dentro do MainLayout (menor)
+const ContentLoader = () => (
+  <div className="flex items-center justify-center h-full bg-gray-950">
+    <div className="text-gray-400 text-lg">Carregando...</div>
+  </div>
+);
+
 const AppContent = () => {
   useSEO();
   const { currentMessage, dismissCurrentMessage } = useRealtimeMessages();
   useUserPresence(); // Track user presence globally
-
-  // Anti-debugging básico (devtools, F12, clique direito)
-  // Temporariamente removido para o remix funcionar corretamente
-  /*
-  useEffect(() => {
-    const blockActions = (e: KeyboardEvent | MouseEvent) => {
-      // F12, Ctrl+Shift+I, Ctrl+U, Ctrl+Shift+J, etc
-      if (
-        (e as KeyboardEvent).key === "F12" ||
-        ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).shiftKey && (e as KeyboardEvent).key === "I") ||
-        ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).key === "U") ||
-        ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).shiftKey && (e as KeyboardEvent).key === "J")
-      ) {
-        e.preventDefault();
-        alert("Função desativada.");
-        return false;
-      }
-    };
-
-    const blockContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      alert("Função desativada.");
-      return false;
-    };
-
-    document.addEventListener("contextmenu", blockContextMenu);
-    document.addEventListener("keydown", blockActions);
-
-    return () => {
-      document.removeEventListener("contextmenu", blockContextMenu);
-      document.removeEventListener("keydown", blockActions);
-    };
-  }, []);
-  */
 
   return (
     <>
@@ -201,8 +174,8 @@ const AppContent = () => {
             <GlossaryTerm />
           </Suspense>
         } />
-        
-        {/* Rotas protegidas - precisam passar pelo AuthGuard */}
+
+        {/* Rota principal PDV - layout próprio (não usa MainLayout) */}
         <Route path="/" element={
           <Suspense fallback={<PageLoader />}>
             <AuthGuard>
@@ -210,131 +183,89 @@ const AppContent = () => {
             </AuthGuard>
           </Suspense>
         } />
-        <Route path="/materiais" element={
+
+        {/* Rotas protegidas com MainLayout compartilhado (navegação SPA) */}
+        <Route element={
           <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <Materials />
-              </MainLayout>
-            </Suspense>
+            <MainLayout />
           </AuthGuard>
-        } />
-        <Route path="/configuracoes" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <Settings />
-              </MainLayout>
+        }>
+          <Route path="/materiais" element={
+            <Suspense fallback={<ContentLoader />}>
+              <Materials />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/dashboard" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <Dashboard />
-              </MainLayout>
+          } />
+          <Route path="/configuracoes" element={
+            <Suspense fallback={<ContentLoader />}>
+              <Settings />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/purchase-orders" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <PurchaseOrders />
-              </MainLayout>
+          } />
+          <Route path="/dashboard" element={
+            <Suspense fallback={<ContentLoader />}>
+              <Dashboard />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/current-stock" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <CurrentStock />
-              </MainLayout>
+          } />
+          <Route path="/purchase-orders" element={
+            <Suspense fallback={<ContentLoader />}>
+              <PurchaseOrders />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/sales-orders" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <SalesOrders />
-              </MainLayout>
+          } />
+          <Route path="/current-stock" element={
+            <Suspense fallback={<ContentLoader />}>
+              <CurrentStock />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/transactions" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <Transactions />
-              </MainLayout>
+          } />
+          <Route path="/sales-orders" element={
+            <Suspense fallback={<ContentLoader />}>
+              <SalesOrders />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/expenses" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <Expenses />
-              </MainLayout>
+          } />
+          <Route path="/transactions" element={
+            <Suspense fallback={<ContentLoader />}>
+              <Transactions />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/daily-flow" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <DailyFlow />
-              </MainLayout>
+          } />
+          <Route path="/expenses" element={
+            <Suspense fallback={<ContentLoader />}>
+              <Expenses />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/cash-additions" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <CashAdditions />
-              </MainLayout>
+          } />
+          <Route path="/daily-flow" element={
+            <Suspense fallback={<ContentLoader />}>
+              <DailyFlow />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/relatar-erro" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <ErrorReport />
-              </MainLayout>
+          } />
+          <Route path="/cash-additions" element={
+            <Suspense fallback={<ContentLoader />}>
+              <CashAdditions />
             </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/sistema-indicacoes" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <MainLayout>
-                <ReferralSystemPage />
-              </MainLayout>
+          } />
+          <Route path="/relatar-erro" element={
+            <Suspense fallback={<ContentLoader />}>
+              <ErrorReport />
             </Suspense>
-          </AuthGuard>
-        } />
+          } />
+          <Route path="/sistema-indicacoes" element={
+            <Suspense fallback={<ContentLoader />}>
+              <ReferralSystemPage />
+            </Suspense>
+          } />
+          <Route path="/clientes" element={
+            <Suspense fallback={<ContentLoader />}>
+              <DepotClients />
+            </Suspense>
+          } />
+          <Route path="/funcionarios" element={
+            <Suspense fallback={<ContentLoader />}>
+              <Employees />
+            </Suspense>
+          } />
+        </Route>
+
+        {/* Rota promocional - layout próprio */}
         <Route path="/promocao-xlata01" element={
           <AuthGuard>
             <PromoXlata01 />
-          </AuthGuard>
-        } />
-        <Route path="/clientes" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <DepotClients />
-            </Suspense>
-          </AuthGuard>
-        } />
-        <Route path="/funcionarios" element={
-          <AuthGuard>
-            <Suspense fallback={<PageLoader />}>
-              <Employees />
-            </Suspense>
           </AuthGuard>
         } />
         

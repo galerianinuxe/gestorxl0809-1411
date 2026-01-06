@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from './AppSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MainLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onOpenCashRegister?: () => void;
 }
 
@@ -100,7 +101,7 @@ export function MainLayout({ children, onOpenCashRegister }: MainLayoutProps) {
 
           {/* Main Content */}
           <main className="flex-1 overflow-auto">
-            {children}
+            {children || <Outlet />}
           </main>
         </div>
       </div>
