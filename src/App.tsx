@@ -19,6 +19,7 @@ import { useUserPresence } from "./hooks/useUserPresence";
 import { MainLayout } from "./components/MainLayout";
 import { DirectMessageProvider } from "./components/DirectMessageProvider";
 import { OnboardingChecklist } from "./components/onboarding/OnboardingChecklist";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 // Code splitting: lazy load de todas as páginas
 import { lazy, Suspense } from 'react';
@@ -275,6 +276,9 @@ const AppContent = () => {
       
       {/* Checklist de onboarding flutuante */}
       <OnboardingChecklist />
+      
+      {/* Prompt de instalação PWA - só aparece em mobile/tablet */}
+      <PWAInstallPrompt />
       
       <WhatsAppSupportButton />
       

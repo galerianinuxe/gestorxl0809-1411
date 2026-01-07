@@ -4,19 +4,23 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
   "theme_color": "#10B981",
   "description": "Sistema profissional para depósito de reciclagem e sucata: PDV, comprovantes, estoque, relatórios, compras e vendas.",
+  "categories": ["business", "productivity"],
   "icons": [
     {
       "src": "/lovable-uploads/xlata.site_logotipo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/lovable-uploads/xlata.site_logotipo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
