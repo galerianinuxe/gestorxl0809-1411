@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,6 +13,7 @@ export function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [neverShowAgain, setNeverShowAgain] = useState(false);
 
   useEffect(() => {
     // Verifica se já está instalado como PWA
@@ -22,9 +24,9 @@ export function PWAInstallPrompt() {
       return; // Já está instalado, não mostra nada
     }
 
-    // Verifica se já foi dispensado anteriormente
-    const wasDismissed = localStorage.getItem('pwa-install-dismissed');
-    if (wasDismissed) {
+    // Verifica se o usuário marcou "Não exibir mais"
+    const neverShow = localStorage.getItem('pwa-install-never-show');
+    if (neverShow) {
       return;
     }
 
@@ -79,9 +81,12 @@ export function PWAInstallPrompt() {
   };
 
   const handleDismiss = () => {
+    if (neverShowAgain) {
+      // Só salva permanentemente se o checkbox estiver marcado
+      localStorage.setItem('pwa-install-never-show', 'true');
+    }
     setDismissed(true);
     setShowPrompt(false);
-    localStorage.setItem('pwa-install-dismissed', 'true');
   };
 
   if (!showPrompt || dismissed) {
@@ -124,6 +129,21 @@ export function PWAInstallPrompt() {
             Instalar
           </Button>
         )}
+      </div>
+
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/20">
+        <Checkbox
+          id="never-show-pwa"
+          checked={neverShowAgain}
+          onCheckedChange={(checked) => setNeverShowAgain(checked === true)}
+          className="border-white/60 data-[state=checked]:bg-white data-[state=checked]:text-emerald-600"
+        />
+        <label 
+          htmlFor="never-show-pwa" 
+          className="text-white/80 text-xs cursor-pointer"
+        >
+          Não exibir mais
+        </label>
       </div>
     </div>
   );
