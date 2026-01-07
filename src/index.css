@@ -242,6 +242,41 @@
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Ajustes para mobile/tablet - evitar corte do botão ZERAR BALANÇA */
+@media (max-width: 1024px) {
+  .scale-display-mobile {
+    height: 5rem !important;
+  }
+  
+  .numpad-btn-optimized {
+    min-height: 3rem;
+    max-height: 4rem;
+  }
+  
+  .zero-scale-btn {
+    min-height: 2.5rem !important;
+    max-height: 3rem !important;
+  }
+}
+
+@media (max-width: 640px), (max-height: 700px) {
+  .scale-display-mobile {
+    height: 4rem !important;
+  }
+  
+  .numpad-btn-optimized {
+    min-height: 2.5rem;
+    max-height: 3rem;
+    font-size: 1.5rem;
+  }
+  
+  .zero-scale-btn {
+    min-height: 2rem !important;
+    max-height: 2.5rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
 .material-btn {
   @apply flex flex-col items-center justify-center text-white p-2 rounded-none;
   background-color: hsl(160 84% 39%);

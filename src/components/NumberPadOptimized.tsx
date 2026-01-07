@@ -120,7 +120,7 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
       {/* Display */}
       <div 
         ref={displayRef}
-        className="h-32 bg-slate-950 flex items-center justify-center p-4 outline-none cursor-text border border-slate-700 rounded-sm gpu-accelerated"
+        className="h-32 scale-display-mobile bg-slate-950 flex items-center justify-center p-4 outline-none cursor-text border border-slate-700 rounded-sm gpu-accelerated"
         tabIndex={disableAutoFocus ? -1 : 0}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
