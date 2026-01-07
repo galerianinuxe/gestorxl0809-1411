@@ -132,7 +132,7 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
       </div>
 
       {/* Teclado numérico - permite shrink */}
-      <div className="flex-1 min-h-0 grid grid-cols-3 gap-[2px] p-[2px] bg-slate-800 mt-1">
+      <div className="flex-1 min-h-0 grid grid-cols-3 gap-1 p-1 bg-slate-800 mt-1">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
           <button 
             key={digit}

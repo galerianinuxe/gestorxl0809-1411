@@ -189,7 +189,7 @@
 
 /* Versão ultra-otimizada do numpad-btn */
 .numpad-btn-optimized {
-  @apply flex items-center justify-center h-full text-white text-3xl font-bold m-[1px];
+  @apply flex items-center justify-center h-full min-h-[48px] text-white text-2xl sm:text-3xl font-bold m-[1px];
   background-color: hsl(215 28% 17%);
   border: 1px solid hsl(215 19% 35%);
   cursor: pointer;
