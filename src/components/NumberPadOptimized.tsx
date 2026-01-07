@@ -31,12 +31,13 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
     }
   }, [value]);
 
-  // Auto-focus simples - apenas no mount e blur
+  // Auto-focus apenas no mount inicial
   useEffect(() => {
     if (!disableAutoFocus && displayRef.current) {
       displayRef.current.focus();
     }
-  }, [disableAutoFocus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Formatação do visor otimizada
   const formatDisplay = useCallback((num: number): string => {
@@ -109,26 +110,10 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
     }
   }, [handleDigitClick, handleClear, handleZeroScale]);
 
-  // Handler de blur simplificado
-  const handleBlur = useCallback((e: React.FocusEvent) => {
-    if (disableAutoFocus) return;
-    
-    const relatedTarget = e.relatedTarget as Element;
-    if (relatedTarget && (
-      relatedTarget.tagName === 'INPUT' || 
-      relatedTarget.tagName === 'TEXTAREA' ||
-      relatedTarget.closest('[role="dialog"]')
-    )) {
-      return;
-    }
-    
-    // Restaura foco após um curto delay
-    requestAnimationFrame(() => {
-      if (displayRef.current && document.activeElement === document.body) {
-        displayRef.current.focus();
-      }
-    });
-  }, [disableAutoFocus]);
+  // Handler de blur - não tenta recuperar foco (o listener global cuida da entrada)
+  const handleBlur = useCallback(() => {
+    // Não faz nada - o listener global de teclado cuida da entrada
+  }, []);
 
   return (
     <div className="flex flex-col h-full w-full p-[2%] pb-1 bg-slate-900">

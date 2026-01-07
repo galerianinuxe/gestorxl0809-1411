@@ -116,6 +116,48 @@ const Index: React.FC = () => {
   // Ref para controlar a aba do mobile layout
   const mobileTabSetterRef = useRef<((tab: 'scale' | 'materials' | 'orders' | 'menu') => void) | null>(null);
   
+  // Listener global de teclado para inserir números na balança
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ignorar se há modal aberto
+      const hasOpenModal = document.querySelector('[role="dialog"]');
+      if (hasOpenModal) return;
+      
+      // Ignorar se o foco está em um input ou textarea
+      const activeElement = document.activeElement;
+      if (activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' ||
+        (activeElement as HTMLElement).isContentEditable
+      )) {
+        return;
+      }
+      
+      // Processar apenas dígitos numéricos
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+        setPesoInput(prevPeso => {
+          const currentStr = (parseFloat(prevPeso || '0') * 1000).toFixed(0).padStart(6, '0');
+          const newStr = (currentStr + e.key).slice(-9);
+          return (parseInt(newStr) / 1000).toString();
+        });
+      } else if (e.key === 'Backspace' || e.key === 'Delete') {
+        e.preventDefault();
+        setPesoInput(prevPeso => {
+          const currentStr = (parseFloat(prevPeso || '0') * 1000).toFixed(0).padStart(6, '0');
+          const newStr = ('0' + currentStr.slice(0, -1)).slice(-9);
+          return (parseInt(newStr) / 1000).toString();
+        });
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        setPesoInput('');
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+  
   // Callback para navegar para a aba da balança (usado pelo MaterialModal)
   const handleNavigateToScale = useCallback(() => {
     if (mobileTabSetterRef.current) {
