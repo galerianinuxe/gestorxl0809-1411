@@ -158,7 +158,7 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
       </div>
 
       {/* Botão Zerar Balança - altura fixa garantida */}
-      <div className="flex-shrink-0 grid grid-cols-1 gap-[2px] p-[2px] bg-slate-800 mt-1">
+      <div className="flex-shrink-0 grid grid-cols-1 gap-[2px] p-[2px] bg-slate-800 mt-1 mb-[20%] md:mb-[20%] lg:mb-0">
         <button 
           className="numpad-btn-optimized zero-scale-btn text-zerar-scale text-lg sm:text-xl h-12 sm:h-14" 
           onClick={handleZeroScale}
