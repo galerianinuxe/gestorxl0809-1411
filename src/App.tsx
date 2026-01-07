@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./hooks/useAuth";
 import { SubscriptionSyncProvider } from "./components/SubscriptionSyncProvider";
@@ -61,6 +61,45 @@ const Glossary = lazy(() => import('./pages/portal/Glossary'));
 const GlossaryTerm = lazy(() => import('./pages/portal/GlossaryTerm'));
 
 import { useEffect } from "react";
+import { useAuth } from "./hooks/useAuth";
+
+// Componente para controlar acesso PWA - redireciona para login se não autenticado
+const PWAAuthRedirect = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Verifica se está rodando como PWA instalado
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true;
+
+    if (!isStandalone) {
+      return; // Não é PWA, não faz nada
+    }
+
+    // Se é PWA e está carregando, aguarda
+    if (loading) {
+      return;
+    }
+
+    // Se é PWA e não está logado, redireciona para login
+    if (!user) {
+      if (location.pathname !== '/login' && location.pathname !== '/register') {
+        navigate('/login', { replace: true });
+      }
+      return;
+    }
+
+    // Se é PWA e está tentando acessar landing page, redireciona para home
+    const blockedRoutes = ['/landing', '/planos', '/guia-completo', '/covildomal'];
+    if (blockedRoutes.includes(location.pathname)) {
+      navigate('/', { replace: true });
+    }
+  }, [user, loading, location.pathname, navigate]);
+
+  return null;
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,6 +134,9 @@ const AppContent = () => {
 
   return (
     <>
+      {/* Controle de acesso para PWA instalado */}
+      <PWAAuthRedirect />
+      
       <SubscriptionRenewalAlert />
       <Routes>
         {/* Rotas públicas - não precisam de autenticação */}

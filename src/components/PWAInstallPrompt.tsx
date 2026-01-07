@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useAuth } from '@/hooks/useAuth';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -9,6 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallPrompt() {
+  const { user, loading } = useAuth();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -16,6 +18,12 @@ export function PWAInstallPrompt() {
   const [neverShowAgain, setNeverShowAgain] = useState(false);
 
   useEffect(() => {
+    // Só mostra prompt para usuários logados
+    if (loading || !user) {
+      setShowPrompt(false);
+      return;
+    }
+
     // Verifica se já está instalado como PWA
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;
@@ -65,7 +73,12 @@ export function PWAInstallPrompt() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [user, loading]);
+
+  // Se não estiver logado, não renderiza nada
+  if (!user) {
+    return null;
+  }
 
   const handleInstall = async () => {
     if (deferredPrompt) {
