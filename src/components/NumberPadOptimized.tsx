@@ -116,23 +116,23 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-full p-[2%] pb-1 bg-slate-900">
-      {/* Display */}
+    <div className="flex flex-col h-full w-full p-[2%] pb-1 bg-slate-900 overflow-hidden">
+      {/* Display - altura responsiva */}
       <div 
         ref={displayRef}
-        className="h-32 bg-slate-950 flex items-center justify-center p-4 outline-none cursor-text border border-slate-700 rounded-sm gpu-accelerated"
+        className="h-24 sm:h-28 md:h-32 flex-shrink-0 bg-slate-950 flex items-center justify-center p-4 outline-none cursor-text border border-slate-700 rounded-sm gpu-accelerated"
         tabIndex={disableAutoFocus ? -1 : 0}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         style={{ userSelect: 'none' }}
       >
-        <span className="text-6xl font-sans font-bold text-emerald-400">
+        <span className="text-5xl sm:text-6xl font-sans font-bold text-emerald-400">
           {formatDisplay(internalValue)}
         </span>
       </div>
 
-      {/* Teclado numérico */}
-      <div className="flex-1 grid grid-cols-3 gap-[2px] p-[2px] bg-slate-800 mt-1">
+      {/* Teclado numérico - permite shrink */}
+      <div className="flex-1 min-h-0 grid grid-cols-3 gap-[2px] p-[2px] bg-slate-800 mt-1">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
           <button 
             key={digit}
@@ -157,10 +157,10 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
         </button>
       </div>
 
-      {/* Botão Zerar Balança */}
-      <div className="grid grid-cols-1 gap-[2px] p-[2px] bg-slate-800 mt-1">
+      {/* Botão Zerar Balança - altura fixa garantida */}
+      <div className="flex-shrink-0 grid grid-cols-1 gap-[2px] p-[2px] bg-slate-800 mt-1">
         <button 
-          className="numpad-btn-optimized zero-scale-btn text-zerar-scale text-xl" 
+          className="numpad-btn-optimized zero-scale-btn text-zerar-scale text-lg sm:text-xl h-12 sm:h-14" 
           onClick={handleZeroScale}
         >
           ZERAR BALANÇA
