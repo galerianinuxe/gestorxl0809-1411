@@ -750,6 +750,11 @@
   display: none;
 }
 
+/* Padding para conteúdo acima da navegação inferior mobile */
+.pb-mobile-nav {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 16px));
+}
+
 /* Line clamp utilities */
 .line-clamp-1 {
   display: -webkit-box;
