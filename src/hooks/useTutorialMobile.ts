@@ -4,11 +4,16 @@ import { useState, useEffect, useCallback } from 'react';
  * Hook para gerenciar posicionamento responsivo em tutoriais
  */
 export function useTutorialMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
+      setIsMobile(window.innerWidth < 1024);
     };
 
     checkMobile();

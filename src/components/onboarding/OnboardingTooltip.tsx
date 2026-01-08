@@ -30,11 +30,16 @@ export function OnboardingTooltip({
 }: OnboardingTooltipProps) {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
 
-  // Estado reativo para mobile
+  // Estado reativo para mobile/tablet
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -47,7 +52,7 @@ export function OnboardingTooltip({
       const targetRect = targetRef.current!.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const isMobileNow = viewportWidth < 640;
+      const isMobileNow = viewportWidth < 1024;
       
       let top = 0;
       let left = 0;
