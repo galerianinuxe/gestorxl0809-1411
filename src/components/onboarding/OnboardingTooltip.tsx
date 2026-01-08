@@ -30,61 +30,88 @@ export function OnboardingTooltip({
 }: OnboardingTooltipProps) {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Estado reativo para mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
-    if (!targetRef.current || !tooltipRef.current || !isVisible) return;
+    if (!targetRef.current || !isVisible) return;
 
     const updatePosition = () => {
       const targetRect = targetRef.current!.getBoundingClientRect();
-      const tooltipRect = tooltipRef.current!.getBoundingClientRect();
-      const isMobile = window.innerWidth < 640;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const isMobileNow = viewportWidth < 640;
       
       let top = 0;
       let left = 0;
 
-      // Em mobile, sempre centralizar horizontalmente
-      if (isMobile) {
+      // Em mobile, SEMPRE usar left=16 e right=16 (CSS cuida da largura)
+      if (isMobileNow) {
         left = 16;
-        // Decidir se fica acima ou abaixo do target
-        const spaceBelow = window.innerHeight - targetRect.bottom;
+        
+        // Altura estimada do tooltip (será ajustada pelo CSS)
+        const tooltipHeight = 200;
+        
+        // Decidir posição vertical baseado no espaço disponível
+        const spaceBelow = viewportHeight - targetRect.bottom;
         const spaceAbove = targetRect.top;
         
-        if (spaceBelow > tooltipRect.height + 20 || spaceBelow > spaceAbove) {
+        if (spaceBelow > tooltipHeight + 20 || spaceBelow > spaceAbove) {
           top = targetRect.bottom + 12;
         } else {
-          top = targetRect.top - tooltipRect.height - 12;
+          top = Math.max(16, targetRect.top - tooltipHeight - 12);
         }
+        
+        // Garantir que não saia da tela verticalmente (considerando nav bottom)
+        top = Math.max(16, Math.min(top, viewportHeight - tooltipHeight - 80));
       } else {
-        switch (position) {
-          case 'top':
-            top = targetRect.top - tooltipRect.height - 12;
-            left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
-            break;
-          case 'bottom':
-            top = targetRect.bottom + 12;
-            left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
-            break;
-          case 'left':
-            top = targetRect.top + (targetRect.height / 2) - (tooltipRect.height / 2);
-            left = targetRect.left - tooltipRect.width - 12;
-            break;
-          case 'right':
-            top = targetRect.top + (targetRect.height / 2) - (tooltipRect.height / 2);
-            left = targetRect.right + 12;
-            break;
-        }
-      }
+        // Desktop: calcular após ter dimensões
+        requestAnimationFrame(() => {
+          if (!tooltipRef.current) return;
+          const tooltipRect = tooltipRef.current.getBoundingClientRect();
+          
+          switch (position) {
+            case 'top':
+              top = targetRect.top - tooltipRect.height - 12;
+              left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
+              break;
+            case 'bottom':
+              top = targetRect.bottom + 12;
+              left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
+              break;
+            case 'left':
+              top = targetRect.top + (targetRect.height / 2) - (tooltipRect.height / 2);
+              left = targetRect.left - tooltipRect.width - 12;
+              break;
+            case 'right':
+              top = targetRect.top + (targetRect.height / 2) - (tooltipRect.height / 2);
+              left = targetRect.right + 12;
+              break;
+          }
 
-      // Manter dentro da viewport
-      const padding = isMobile ? 16 : 16;
-      const maxWidth = isMobile ? window.innerWidth - 32 : tooltipRect.width;
-      left = Math.max(padding, Math.min(left, window.innerWidth - maxWidth - padding));
-      top = Math.max(padding, Math.min(top, window.innerHeight - tooltipRect.height - padding));
+          // Manter dentro da viewport
+          const padding = 16;
+          left = Math.max(padding, Math.min(left, viewportWidth - tooltipRect.width - padding));
+          top = Math.max(padding, Math.min(top, viewportHeight - tooltipRect.height - padding));
+
+          setCoords({ top, left });
+        });
+        return;
+      }
 
       setCoords({ top, left });
     };
 
-    updatePosition();
+    // Executar após render
+    requestAnimationFrame(updatePosition);
+
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition);
 
@@ -103,22 +130,23 @@ export function OnboardingTooltip({
     right: 'left-[-6px] top-1/2 -translate-y-1/2 border-t-transparent border-b-transparent border-l-transparent border-r-gray-800'
   };
 
-  const isMobileView = typeof window !== 'undefined' && window.innerWidth < 640;
-
   return (
     <div
       ref={tooltipRef}
-      className="fixed z-[9999] w-[calc(100vw-32px)] sm:w-80 max-w-sm bg-gray-800 border border-gray-700 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
+      className="fixed z-[9999] bg-gray-800 border border-gray-700 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200 sm:w-80 sm:max-w-sm"
       style={{ 
         top: coords.top, 
-        left: isMobileView ? 16 : coords.left 
+        left: isMobile ? 16 : coords.left,
+        right: isMobile ? 16 : 'auto'
       }}
     >
-      {/* Arrow */}
-      <div className={cn(
-        "absolute w-0 h-0 border-[6px]",
-        arrowClasses[position]
-      )} />
+      {/* Arrow - apenas em desktop */}
+      {!isMobile && (
+        <div className={cn(
+          "absolute w-0 h-0 border-[6px]",
+          arrowClasses[position]
+        )} />
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
