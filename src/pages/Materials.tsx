@@ -10,13 +10,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Plus, Save, Trash, Download, Search, Settings, AlertTriangle } from "lucide-react";
 import { getMaterials, saveMaterial, removeMaterial } from "../utils/supabaseStorage";
 import { Material } from "../types/pdv";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import DeleteMaterialModal from "../components/DeleteMaterialModal";
 import MaterialConfigModal from "../components/MaterialConfigModal";
 import { useAuth } from "@/hooks/useAuth";
 import { findMaterialMatches, wouldCreateDuplicate, MaterialSuggestion } from '@/utils/materialMatching';
 import { getDisplayName } from '@/utils/materialNormalization';
+import { useOnboarding } from '@/contexts/OnboardingContext';
+import { MaterialsTutorial } from '@/components/onboarding/tutorials/MaterialsTutorial';
 const Materials = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [filteredMaterials, setFilteredMaterials] = useState<Material[]>([]);
@@ -39,9 +41,10 @@ const Materials = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [materialSuggestions, setMaterialSuggestions] = useState<MaterialSuggestion[]>([]);
   const [showDuplicateWarning, setShowDuplicateWarning] = useState<boolean>(false);
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { isOnboardingActive, progress, completeStep, completeSubStep, skipOnboarding } = useOnboarding();
+  const isMaterialsTutorialActive = isOnboardingActive && progress.currentStep === 2;
   const defaultMaterialsList = ['Aerosol', 'Alum chap', 'Alum perfil', 'Bloco limpo', 'Bloco misto', 'Bloco sujo', 'Bronze', 'Cavaco', 'Chumbo mole', 'Chumbo duro', 'Cobre 1', 'Cobre 2', 'Cobre 3', 'Eletrônico', 'Ferro', 'Ferro fundido', 'Ferro leve', 'Ferro pesado', 'Fio inst', 'Garrafa pet', 'Inox 304', 'Latinha', 'Metal', 'Panela limpa', 'Panela suja', 'Papel alum', 'Papelão', 'Plástico', 'Radiador alum', 'Radiador cobre', 'Roda', 'Televisão', 'Torneira', 'Vergalhão', 'Vidro', 'Plástico pvc', 'Plástico ps', 'Plástico pead', 'Fio pp', 'Fio off-set'];
   useEffect(() => {
     loadMaterials();
@@ -232,6 +235,12 @@ const Materials = () => {
           title: "Sucesso",
           description: "Material atualizado com sucesso"
         });
+        
+        // Complete onboarding sub-steps when editing
+        if (isMaterialsTutorialActive) {
+          if (price > 0) await completeSubStep(2, 'price-buy');
+          if (salePrice > 0) await completeSubStep(2, 'price-sell');
+        }
       } else {
         const newMaterial: Material = {
           id: crypto.randomUUID(),
@@ -247,6 +256,13 @@ const Materials = () => {
           title: "Sucesso",
           description: "Material adicionado com sucesso"
         });
+        
+        // Complete onboarding sub-steps when adding
+        if (isMaterialsTutorialActive) {
+          await completeSubStep(2, 'add');
+          if (price > 0) await completeSubStep(2, 'price-buy');
+          if (salePrice > 0) await completeSubStep(2, 'price-sell');
+        }
       }
       await loadMaterials();
       setOpenDialog(false);
@@ -381,6 +397,7 @@ const Materials = () => {
             variant="outline"
             className="bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white flex-1 sm:flex-none" 
             disabled={loading}
+            data-tutorial="config-button"
           >
             <Settings className="h-4 w-4 sm:mr-2" /> 
             <span className="hidden sm:inline">Configurações</span>
@@ -559,6 +576,7 @@ const Materials = () => {
                   onKeyDown={handleKeyDown} 
                   disabled={loading || isSubmitting} 
                   className="bg-slate-700 border-slate-600 text-amber-400 text-xl sm:text-2xl py-3 font-bold" 
+                  data-tutorial="price-buy-input"
                 />
               </div>
               <div className="space-y-2">
@@ -572,6 +590,7 @@ const Materials = () => {
                   onKeyDown={handleKeyDown} 
                   disabled={loading || isSubmitting} 
                   className="bg-slate-700 border-slate-600 text-emerald-400 text-xl sm:text-2xl py-3 font-bold" 
+                  data-tutorial="price-sell-input"
                 />
               </div>
             </div>
@@ -589,6 +608,7 @@ const Materials = () => {
               onClick={handleSaveMaterial} 
               className="bg-emerald-600 hover:bg-emerald-500 text-white w-full sm:w-auto order-1 sm:order-2" 
               disabled={loading || isSubmitting}
+              data-tutorial="save-material-button"
             >
               <Save className="mr-2 h-4 w-4" /> 
               {isSubmitting ? "Salvando..." : "Salvar"}
@@ -605,6 +625,22 @@ const Materials = () => {
       />
 
       <MaterialConfigModal open={configModal} onClose={() => setConfigModal(false)} />
+
+      {/* Materials Tutorial */}
+      {isMaterialsTutorialActive && (
+        <MaterialsTutorial 
+          isActive={true}
+          onComplete={() => {
+            completeStep(2);
+            toast({
+              title: "Materiais configurados!",
+              description: "Agora vamos abrir o caixa para começar a operar.",
+            });
+            navigate('/');
+          }}
+          onSkip={skipOnboarding}
+        />
+      )}
     </div>
   );
 };
