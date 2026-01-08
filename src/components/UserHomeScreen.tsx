@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { User, Key, Calendar, BarChart3, Archive, ShoppingCart, Shield, LogOut, Play, BookOpen, Zap, Crown, Settings, UserCog, Terminal, Users, Gift, ArrowLeft, MessageSquare, Phone } from 'lucide-react';
+import { User, Key, Calendar, BarChart3, Archive, ShoppingCart, Shield, LogOut, Play, BookOpen, Zap, Crown, Settings, UserCog, Terminal, Users, Gift, ArrowLeft, MessageSquare, Phone, Smartphone, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +16,7 @@ import { hasUserUsedTrial } from '@/utils/subscriptionStorage';
 import ReferralSystem from '@/components/ReferralSystem';
 import ErrorReportModal from '@/components/ErrorReportModal';
 import ProfileSection from '@/components/ProfileSection';
+import { usePWAInstall } from '@/components/PWAInstallPrompt';
 
 const getSystemLogo = (): string | null => {
   try {
@@ -50,6 +51,9 @@ const UserHomeScreen: React.FC<UserHomeScreenProps> = ({ onOpenCashRegister }) =
   const [hasUsedTrialBefore, setHasUsedTrialBefore] = useState(false);
   const [showReferralSystem, setShowReferralSystem] = useState(false);
   const [showErrorReportModal, setShowErrorReportModal] = useState(false);
+
+  // PWA Install hook
+  const { canInstall, promptInstall } = usePWAInstall();
 
   // Check if user is admin - now based on profile status being 'admin'
   const isAdmin = profile?.status === 'admin';
@@ -1088,15 +1092,38 @@ const UserHomeScreen: React.FC<UserHomeScreenProps> = ({ onOpenCashRegister }) =
                     </Button>
                   </div>
                   
-                  {/* Row 3 - Guia Completo */}
-                  <Button
-                    onClick={() => navigate('/guia-completo')}
-                    className="w-full h-12 bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex-col gap-1"
-                    size="lg"
-                  >
-                    <BookOpen className="h-5 w-5" />
-                    <span className="text-xs">Guia Completo</span>
-                  </Button>
+                  {/* Row 3 - Guia Completo + Install App */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      onClick={() => navigate('/guia-completo')}
+                      className="h-12 bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex-col gap-1"
+                      size="lg"
+                    >
+                      <BookOpen className="h-5 w-5" />
+                      <span className="text-xs">Guia Completo</span>
+                    </Button>
+                    
+                    {/* Botão Instalar App - Só aparece se pode instalar */}
+                    {canInstall ? (
+                      <Button
+                        onClick={promptInstall}
+                        className="h-12 bg-gradient-to-br from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white flex-col gap-1 border border-emerald-600/50"
+                        size="lg"
+                      >
+                        <Download className="h-5 w-5 text-emerald-400" />
+                        <span className="text-xs">Instalar App</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+                        className="h-12 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white flex-col gap-1"
+                        size="lg"
+                      >
+                        <Phone className="h-5 w-5" />
+                        <span className="text-xs">Suporte</span>
+                      </Button>
+                    )}
+                  </div>
                   
                   {/* Row 4 - Suporte and Erro */}
                   <div className="grid grid-cols-2 gap-2">

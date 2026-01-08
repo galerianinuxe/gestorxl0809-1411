@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -15,7 +14,6 @@ export function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [neverShowAgain, setNeverShowAgain] = useState(false);
 
   useEffect(() => {
     // Só mostra prompt para usuários logados
@@ -30,12 +28,6 @@ export function PWAInstallPrompt() {
 
     if (isStandalone) {
       return; // Já está instalado, não mostra nada
-    }
-
-    // Verifica se o usuário marcou "Não exibir mais"
-    const neverShow = localStorage.getItem('pwa-install-never-show');
-    if (neverShow) {
-      return;
     }
 
     // Detecta iOS
@@ -94,10 +86,6 @@ export function PWAInstallPrompt() {
   };
 
   const handleDismiss = () => {
-    if (neverShowAgain) {
-      // Só salva permanentemente se o checkbox estiver marcado
-      localStorage.setItem('pwa-install-never-show', 'true');
-    }
     setDismissed(true);
     setShowPrompt(false);
   };
@@ -107,57 +95,104 @@ export function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-50 bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-xl shadow-2xl p-4 animate-in slide-in-from-bottom-5 duration-300">
-      <button 
-        onClick={handleDismiss}
-        className="absolute top-2 right-2 text-white/80 hover:text-white p-1"
-        aria-label="Fechar"
-      >
-        <X className="h-5 w-5" />
-      </button>
-      
-      <div className="flex items-center gap-3">
-        <div className="flex-shrink-0 bg-white/20 rounded-full p-2">
-          <Download className="h-6 w-6 text-white" />
+    <div className="fixed top-2 right-2 z-50 animate-in fade-in-0 slide-in-from-top-2 duration-300">
+      {isIOS ? (
+        // iOS: Texto informativo pequeno
+        <div className="bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 flex items-center gap-2 shadow-lg max-w-xs">
+          <Download className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+          <span className="text-xs text-gray-300">
+            <strong className="text-white">Compartilhar</strong> → <strong className="text-white">Adicionar à Tela</strong>
+          </span>
+          <button 
+            onClick={handleDismiss} 
+            className="ml-1 text-gray-500 hover:text-white transition-colors flex-shrink-0"
+            aria-label="Fechar"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
-        
-        <div className="flex-1 min-w-0">
-          <h3 className="text-white font-semibold text-sm">
-            Instale o XLata no celular!
-          </h3>
-          <p className="text-white/80 text-xs mt-0.5">
-            {isIOS 
-              ? 'Toque em "Compartilhar" e depois "Adicionar à Tela Inicial"'
-              : 'Acesso rápido, sem navegador, tela cheia!'
-            }
-          </p>
-        </div>
-        
-        {!isIOS && deferredPrompt && (
+      ) : (
+        // Android/Desktop: Botão discreto
+        <div className="flex items-center gap-1">
           <Button
             onClick={handleInstall}
             size="sm"
-            className="flex-shrink-0 bg-white text-emerald-600 hover:bg-white/90 font-semibold"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 h-auto shadow-lg"
           >
-            Instalar
+            <Download className="h-3.5 w-3.5 mr-1.5" />
+            Instalar App
           </Button>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/20">
-        <Checkbox
-          id="never-show-pwa"
-          checked={neverShowAgain}
-          onCheckedChange={(checked) => setNeverShowAgain(checked === true)}
-          className="border-white/60 data-[state=checked]:bg-white data-[state=checked]:text-emerald-600"
-        />
-        <label 
-          htmlFor="never-show-pwa" 
-          className="text-white/80 text-xs cursor-pointer"
-        >
-          Não exibir mais
-        </label>
-      </div>
+          <button 
+            onClick={handleDismiss}
+            className="p-1 text-gray-400 hover:text-white bg-gray-800/80 rounded-md transition-colors"
+            aria-label="Fechar"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
+}
+
+// Hook para usar em outros componentes
+export function usePWAInstall() {
+  const [canInstall, setCanInstall] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    // Verifica se já está instalado como PWA
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true;
+
+    if (isStandalone) {
+      setCanInstall(false);
+      return;
+    }
+
+    // Detecta se é mobile ou tablet
+    const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      window.innerWidth <= 1024;
+
+    if (!isMobileOrTablet) {
+      setCanInstall(false);
+      return;
+    }
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setCanInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Listener para detectar quando app é instalado
+    const handleAppInstalled = () => {
+      setCanInstall(false);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const promptInstall = async () => {
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setCanInstall(false);
+        setDeferredPrompt(null);
+      }
+      return outcome === 'accepted';
+    }
+    return false;
+  };
+
+  return { canInstall, promptInstall };
 }
