@@ -51,7 +51,7 @@ export function OnboardingWizard({ open, onClose, userName }: OnboardingWizardPr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg bg-gray-900 border-gray-800 text-white p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-lg bg-gray-900 border-gray-800 text-white p-0 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header com gradiente */}
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-center">
           <div className="flex justify-center mb-3">
@@ -70,7 +70,7 @@ export function OnboardingWizard({ open, onClose, userName }: OnboardingWizardPr
         </div>
 
         {/* Conteúdo */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {/* Tempo estimado */}
           <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
             <Clock className="w-4 h-4" />
@@ -110,11 +110,11 @@ export function OnboardingWizard({ open, onClose, userName }: OnboardingWizardPr
           </div>
 
           {/* Botões */}
-          <div className="flex flex-col gap-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2 pb-safe">
             <Button 
               onClick={handleStart}
               disabled={isStarting}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-6 text-lg"
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-5 sm:py-6 text-base sm:text-lg"
             >
               {isStarting ? (
                 'Iniciando...'

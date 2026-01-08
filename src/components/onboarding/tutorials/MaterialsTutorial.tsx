@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { OnboardingTooltip } from '../OnboardingTooltip';
 import { OnboardingSpotlight } from '../OnboardingSpotlight';
 import { toast } from 'sonner';
+import { useTutorialMobile } from '@/hooks/useTutorialMobile';
 
 interface TutorialStep {
   id: string;
@@ -51,6 +52,7 @@ interface MaterialsTutorialProps {
 export function MaterialsTutorial({ isActive, onComplete, onSkip }: MaterialsTutorialProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRef, setTargetRef] = useState<React.RefObject<HTMLElement>>({ current: null });
+  const { getResponsivePosition, getResponsivePadding } = useTutorialMobile();
 
   useEffect(() => {
     if (!isActive) return;
@@ -105,7 +107,7 @@ export function MaterialsTutorial({ isActive, onComplete, onSkip }: MaterialsTut
           <OnboardingSpotlight
             targetRef={targetRef}
             isActive={true}
-            padding={12}
+            padding={getResponsivePadding(12)}
           />
           <OnboardingTooltip
             targetRef={targetRef}
@@ -113,7 +115,7 @@ export function MaterialsTutorial({ isActive, onComplete, onSkip }: MaterialsTut
             description={step.description}
             step={currentStep + 1}
             totalSteps={TUTORIAL_STEPS.length}
-            position={step.position}
+            position={getResponsivePosition(step.position)}
             onNext={handleNext}
             onPrev={currentStep > 0 ? handlePrev : undefined}
             onSkip={onSkip}

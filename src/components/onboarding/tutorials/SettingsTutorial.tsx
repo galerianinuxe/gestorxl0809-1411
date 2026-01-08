@@ -4,6 +4,7 @@ import { OnboardingSpotlight } from '../OnboardingSpotlight';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useTutorialMobile } from '@/hooks/useTutorialMobile';
 
 interface TutorialStep {
   id: string;
@@ -61,6 +62,7 @@ export function SettingsTutorial({ isActive, onComplete, onSkip }: SettingsTutor
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRef, setTargetRef] = useState<React.RefObject<HTMLElement>>({ current: null });
   const navigate = useNavigate();
+  const { getResponsivePosition, getResponsivePadding } = useTutorialMobile();
 
   useEffect(() => {
     if (!isActive) return;
@@ -115,7 +117,7 @@ export function SettingsTutorial({ isActive, onComplete, onSkip }: SettingsTutor
           <OnboardingSpotlight
             targetRef={targetRef}
             isActive={true}
-            padding={12}
+            padding={getResponsivePadding(12)}
           />
           <OnboardingTooltip
             targetRef={targetRef}
@@ -123,7 +125,7 @@ export function SettingsTutorial({ isActive, onComplete, onSkip }: SettingsTutor
             description={step.description}
             step={currentStep + 1}
             totalSteps={TUTORIAL_STEPS.length}
-            position={step.position}
+            position={getResponsivePosition(step.position)}
             onNext={handleNext}
             onPrev={currentStep > 0 ? handlePrev : undefined}
             onSkip={handleSkip}

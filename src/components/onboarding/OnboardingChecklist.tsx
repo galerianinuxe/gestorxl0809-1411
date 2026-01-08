@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, X, Settings, Package, DollarSign } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, X, Settings, Package, DollarSign, Loader2 } from 'lucide-react';
 import { useOnboarding, ONBOARDING_STEPS, STEP_SUB_STEPS } from '@/contexts/OnboardingContext';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -28,11 +28,13 @@ export function OnboardingChecklist() {
     isStepCompleted, 
     skipOnboarding,
     getSubStepProgress,
-    isSubStepCompleted 
+    isSubStepCompleted,
+    markPageVisited
   } = useOnboarding();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
@@ -42,10 +44,22 @@ export function OnboardingChecklist() {
   const totalSteps = ONBOARDING_STEPS.length - 1;
   const progressPercent = (completedCount / totalSteps) * 100;
 
-  const handleStepClick = (stepId: number) => {
+  const handleStepClick = async (stepId: number) => {
     const route = stepRoutes[stepId as keyof typeof stepRoutes];
     if (route) {
-      navigate(route);
+      setIsNavigating(true);
+      
+      // Marcar página como visitada
+      await markPageVisited(route);
+      
+      // Minimizar modal primeiro
+      setIsMinimized(true);
+      
+      // Aguardar um frame para garantir que o modal fechou e então navegar
+      requestAnimationFrame(() => {
+        navigate(route);
+        setIsNavigating(false);
+      });
     }
   };
 
@@ -53,12 +67,12 @@ export function OnboardingChecklist() {
     await skipOnboarding();
   };
 
-  // Minimized state - FAB style for mobile
+  // Minimized state - FAB style for all devices
   if (isMinimized) {
     return (
       <div className={cn(
         "fixed z-50",
-        isMobile ? "bottom-20 right-4" : "bottom-4 right-4"
+        isMobile ? "bottom-20 right-4 safe-area-bottom" : "bottom-4 right-4"
       )}>
         <Button
           onClick={() => setIsMinimized(false)}
@@ -69,12 +83,16 @@ export function OnboardingChecklist() {
               : "rounded-full px-4 py-2"
           )}
         >
-          <span className={cn(
-            "font-bold",
-            isMobile ? "text-sm" : "text-base"
-          )}>
-            {Math.round(progressPercent)}%
-          </span>
+          {isNavigating ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <span className={cn(
+              "font-bold",
+              isMobile ? "text-sm" : "text-base"
+            )}>
+              {Math.round(progressPercent)}%
+            </span>
+          )}
           {!isMobile && <ChevronUp className="w-4 h-4" />}
         </Button>
       </div>
@@ -84,59 +102,41 @@ export function OnboardingChecklist() {
   // Mobile: Minimal FAB that opens a modal - NOT blocking content
   if (isMobile) {
     return (
-      <>
-        {/* FAB Button */}
-        <Button
-          onClick={() => setIsMinimized(false)}
-          className={cn(
-            "fixed z-40 bottom-20 right-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-xl transition-all duration-300",
-            isMinimized 
-              ? "rounded-full w-14 h-14 p-0" 
-              : "hidden"
-          )}
-        >
-          <div className="flex flex-col items-center justify-center">
-            <span className="text-xs font-bold">{Math.round(progressPercent)}%</span>
-          </div>
-        </Button>
+      <div className="fixed inset-0 z-50 pointer-events-none">
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
+          onClick={() => setIsMinimized(true)}
+        />
+        
+        {/* Sheet */}
+        <div className="absolute bottom-0 left-0 right-0 animate-slide-in-bottom pointer-events-auto">
+          <Card className="bg-slate-900 border-slate-700 rounded-t-3xl overflow-hidden shadow-2xl max-h-[70vh] flex flex-col safe-area-bottom">
+            {/* Handle bar */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-12 h-1.5 bg-slate-600 rounded-full" />
+            </div>
 
-        {/* Bottom Sheet Modal - Only shows when not minimized */}
-        {!isMinimized && (
-          <div className="fixed inset-0 z-50">
-            {/* Backdrop */}
-            <div 
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              onClick={() => setIsMinimized(true)}
-            />
-            
-            {/* Sheet */}
-            <div className="absolute bottom-0 left-0 right-0 animate-slide-in-bottom safe-area-bottom">
-              <Card className="bg-slate-900 border-slate-700 rounded-t-3xl overflow-hidden shadow-2xl max-h-[70vh] flex flex-col">
-                {/* Handle bar */}
-                <div className="flex justify-center pt-3 pb-2">
-                  <div className="w-12 h-1.5 bg-slate-600 rounded-full" />
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-white" />
                 </div>
-
-                {/* Header */}
-                <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
-                      <Settings className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <span className="text-white font-bold text-lg">Configuração</span>
-                      <p className="text-white/70 text-sm">{completedCount}/{totalSteps} etapas</p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-11 w-11 p-0 text-white/80 hover:text-white hover:bg-white/20 rounded-xl"
-                    onClick={() => setIsMinimized(true)}
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
+                <div>
+                  <span className="text-white font-bold text-lg">Configuração</span>
+                  <p className="text-white/70 text-sm">{completedCount}/{totalSteps} etapas</p>
                 </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-11 w-11 p-0 text-white/80 hover:text-white hover:bg-white/20 rounded-xl"
+                onClick={() => setIsMinimized(true)}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
 
                 {/* Progress bar */}
                 <div className="px-5 py-3 border-b border-slate-800">
@@ -158,17 +158,16 @@ export function OnboardingChecklist() {
                     return (
                       <button
                         key={step.id}
-                        onClick={() => {
-                          handleStepClick(step.id);
-                          setIsMinimized(true);
-                        }}
+                        onClick={() => handleStepClick(step.id)}
+                        disabled={isNavigating}
                         className={cn(
                           "w-full flex items-center gap-4 p-4 rounded-2xl transition-all text-left active:scale-[0.98]",
                           completed 
                             ? "bg-emerald-500/15 border border-emerald-500/30" 
                             : isCurrent 
                               ? "bg-slate-800 ring-2 ring-emerald-500/50" 
-                              : "bg-slate-800/50"
+                              : "bg-slate-800/50",
+                          isNavigating && "opacity-50 cursor-not-allowed"
                         )}
                       >
                         <div className={cn(
@@ -202,21 +201,20 @@ export function OnboardingChecklist() {
                   })}
                 </div>
 
-                {/* Skip button */}
-                <div className="px-5 py-4 border-t border-slate-800">
-                  <Button
-                    variant="ghost"
-                    onClick={handleSkip}
-                    className="w-full text-slate-400 hover:text-slate-200 h-12 rounded-xl"
-                  >
-                    Pular configuração
-                  </Button>
-                </div>
-              </Card>
+            {/* Skip button */}
+            <div className="px-5 py-4 border-t border-slate-800">
+              <Button
+                variant="ghost"
+                onClick={handleSkip}
+                disabled={isNavigating}
+                className="w-full text-slate-400 hover:text-slate-200 h-12 rounded-xl"
+              >
+                Pular configuração
+              </Button>
             </div>
-          </div>
-        )}
-      </>
+          </Card>
+        </div>
+      </div>
     );
   }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { OnboardingTooltip } from '../OnboardingTooltip';
 import { OnboardingSpotlight } from '../OnboardingSpotlight';
 import { toast } from 'sonner';
+import { useTutorialMobile } from '@/hooks/useTutorialMobile';
 
 interface TutorialStep {
   id: string;
@@ -70,6 +71,7 @@ export function PDVTutorial({ isActive, isCashRegisterOpen, onComplete, onSkip }
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRef, setTargetRef] = useState<React.RefObject<HTMLElement>>({ current: null });
   const [showAfterOpenSteps, setShowAfterOpenSteps] = useState(false);
+  const { getResponsivePosition, getResponsivePadding } = useTutorialMobile();
 
   // Determinar quais steps usar
   const steps = showAfterOpenSteps ? AFTER_OPEN_STEPS : TUTORIAL_STEPS;
@@ -130,7 +132,7 @@ export function PDVTutorial({ isActive, isCashRegisterOpen, onComplete, onSkip }
           <OnboardingSpotlight
             targetRef={targetRef}
             isActive={true}
-            padding={16}
+            padding={getResponsivePadding(16)}
           />
           <OnboardingTooltip
             targetRef={targetRef}
@@ -138,7 +140,7 @@ export function PDVTutorial({ isActive, isCashRegisterOpen, onComplete, onSkip }
             description={step.description}
             step={currentStep + 1}
             totalSteps={steps.length}
-            position={step.position}
+            position={getResponsivePosition(step.position)}
             onNext={handleNext}
             onPrev={currentStep > 0 ? handlePrev : undefined}
             onSkip={onSkip}

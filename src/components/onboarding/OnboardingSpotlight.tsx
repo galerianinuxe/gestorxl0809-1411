@@ -17,6 +17,11 @@ export function OnboardingSpotlight({
   onClick
 }: OnboardingSpotlightProps) {
   const [rect, setRect] = useState<DOMRect | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 640);
+  }, []);
 
   useEffect(() => {
     if (!targetRef.current || !isActive) return;
@@ -24,12 +29,19 @@ export function OnboardingSpotlight({
     const updateRect = () => {
       const targetRect = targetRef.current!.getBoundingClientRect();
       setRect(targetRect);
+      setIsMobile(window.innerWidth < 640);
     };
 
     updateRect();
 
-    // Scroll element into view
-    targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Scroll element into view com offset para mobile
+    setTimeout(() => {
+      targetRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest'
+      });
+    }, 100);
 
     window.addEventListener('resize', updateRect);
     window.addEventListener('scroll', updateRect);
@@ -40,13 +52,16 @@ export function OnboardingSpotlight({
     };
   }, [targetRef, isActive]);
 
+  // Reduzir padding em mobile
+  const effectivePadding = isMobile ? Math.min(padding, 6) : padding;
+
   if (!isActive || !rect) return null;
 
   const spotlightStyle = {
-    top: rect.top - padding,
-    left: rect.left - padding,
-    width: rect.width + padding * 2,
-    height: rect.height + padding * 2,
+    top: rect.top - effectivePadding,
+    left: rect.left - effectivePadding,
+    width: rect.width + effectivePadding * 2,
+    height: rect.height + effectivePadding * 2,
     borderRadius: borderRadius
   };
 
@@ -59,8 +74,8 @@ export function OnboardingSpotlight({
         style={{
           background: `radial-gradient(
             ellipse at ${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px,
-            transparent ${Math.max(rect.width, rect.height) / 2 + padding}px,
-            rgba(0, 0, 0, 0.85) ${Math.max(rect.width, rect.height) / 2 + padding + 50}px
+            transparent ${Math.max(rect.width, rect.height) / 2 + effectivePadding}px,
+            rgba(0, 0, 0, 0.85) ${Math.max(rect.width, rect.height) / 2 + effectivePadding + (isMobile ? 30 : 50)}px
           )`
         }}
       />
