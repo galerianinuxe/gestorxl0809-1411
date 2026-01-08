@@ -138,11 +138,15 @@ export function OnboardingTooltip({
   return (
     <div
       ref={tooltipRef}
-      className="fixed z-[9999] bg-gray-800 border border-gray-700 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200 sm:w-80 sm:max-w-sm"
+      className={cn(
+        "fixed z-[9999] bg-gray-800 border border-gray-700 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200",
+        !isMobile && "w-80 max-w-sm"
+      )}
       style={{ 
         top: coords.top, 
         left: isMobile ? 16 : coords.left,
-        right: isMobile ? 16 : 'auto'
+        right: isMobile ? 16 : 'auto',
+        width: isMobile ? 'calc(100% - 32px)' : undefined
       }}
     >
       {/* Arrow - apenas em desktop */}
