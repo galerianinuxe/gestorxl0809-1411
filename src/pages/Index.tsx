@@ -127,6 +127,14 @@ const Index: React.FC = () => {
   } = useOnboarding();
   const isPDVTutorialActive = isOnboardingActive && progress.currentStep === 3;
   
+  // Efeito para abrir o modal de caixa quando solicitado pelo onboarding checklist
+  useEffect(() => {
+    if (shouldOpenCashRegister && !isCashRegisterOpen) {
+      clearOpenCashRegisterRequest();
+      setShowCashRegisterOpeningModal(true);
+    }
+  }, [shouldOpenCashRegister, isCashRegisterOpen, clearOpenCashRegisterRequest]);
+  
   // Ref para controlar a aba do mobile layout
   const mobileTabSetterRef = useRef<((tab: 'scale' | 'materials' | 'orders' | 'menu') => void) | null>(null);
   
@@ -1168,14 +1176,6 @@ const Index: React.FC = () => {
         <MemoizedFooter onMenuClick={handleMenuClick} currentBalance={currentBalance} onBalanceUpdate={updateCashRegisterBalance} />
       </React.Suspense>
     </>;
-
-  // Efeito para abrir o modal de caixa quando solicitado pelo onboarding checklist
-  useEffect(() => {
-    if (shouldOpenCashRegister && !isCashRegisterOpen) {
-      clearOpenCashRegisterRequest();
-      setShowCashRegisterOpeningModal(true);
-    }
-  }, [shouldOpenCashRegister, isCashRegisterOpen, clearOpenCashRegisterRequest]);
 
   return <div data-tutorial="pdv-main" className="flex flex-col h-screen touch-auto bg-slate-900">
       <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-2">Carregando...</div>}>
