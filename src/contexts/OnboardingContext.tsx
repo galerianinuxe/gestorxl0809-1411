@@ -19,6 +19,7 @@ interface OnboardingContextType {
   progress: OnboardingProgress;
   isOnboardingActive: boolean;
   isLoading: boolean;
+  shouldOpenCashRegister: boolean;
   
   // Ações
   startOnboarding: () => Promise<void>;
@@ -29,6 +30,8 @@ interface OnboardingContextType {
   unlockFeature: (feature: string) => Promise<void>;
   completeSubStep: (stepId: number, subStepId: string) => Promise<void>;
   setCurrentSubStep: (subStepId: string | null) => void;
+  requestOpenCashRegister: () => void;
+  clearOpenCashRegisterRequest: () => void;
   
   // Helpers
   isStepCompleted: (step: number) => boolean;
@@ -95,6 +98,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   const [progress, setProgress] = useState<OnboardingProgress>(defaultProgress);
   const [isLoading, setIsLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+  const [shouldOpenCashRegister, setShouldOpenCashRegister] = useState(false);
 
   // Carregar progresso do banco
   useEffect(() => {
@@ -323,6 +327,14 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     };
   }, [progress.subStepsCompleted]);
 
+  const requestOpenCashRegister = useCallback(() => {
+    setShouldOpenCashRegister(true);
+  }, []);
+
+  const clearOpenCashRegisterRequest = useCallback(() => {
+    setShouldOpenCashRegister(false);
+  }, []);
+
   const isOnboardingActive = useMemo(() => {
     return !onboardingCompleted && progress.currentStep > 0;
   }, [onboardingCompleted, progress.currentStep]);
@@ -331,6 +343,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     progress,
     isOnboardingActive,
     isLoading,
+    shouldOpenCashRegister,
     startOnboarding,
     completeStep,
     skipOnboarding,
@@ -339,6 +352,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     unlockFeature,
     completeSubStep,
     setCurrentSubStep,
+    requestOpenCashRegister,
+    clearOpenCashRegisterRequest,
     isStepCompleted,
     isFeatureUnlocked,
     hasVisitedPage,
@@ -349,6 +364,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     progress,
     isOnboardingActive,
     isLoading,
+    shouldOpenCashRegister,
     startOnboarding,
     completeStep,
     skipOnboarding,
@@ -357,6 +373,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     unlockFeature,
     completeSubStep,
     setCurrentSubStep,
+    requestOpenCashRegister,
+    clearOpenCashRegisterRequest,
     isStepCompleted,
     isFeatureUnlocked,
     hasVisitedPage,
