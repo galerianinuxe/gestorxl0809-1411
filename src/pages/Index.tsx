@@ -1260,6 +1260,7 @@ const Index: React.FC = () => {
         <PDVTutorial
           isActive={true}
           isCashRegisterOpen={isCashRegisterOpen}
+          isModalOpen={showCashRegisterOpeningModal}
           onComplete={() => completeStep(3)}
           onSkip={skipOnboarding}
         />

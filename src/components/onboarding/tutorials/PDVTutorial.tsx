@@ -104,11 +104,12 @@ const COMPLETION_MODAL_STEPS: TutorialStep[] = [
 interface PDVTutorialProps {
   isActive: boolean;
   isCashRegisterOpen: boolean;
+  isModalOpen?: boolean;
   onComplete: () => void;
   onSkip: () => void;
 }
 
-export function PDVTutorial({ isActive, isCashRegisterOpen, onComplete, onSkip }: PDVTutorialProps) {
+export function PDVTutorial({ isActive, isCashRegisterOpen, isModalOpen = false, onComplete, onSkip }: PDVTutorialProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRef, setTargetRef] = useState<React.RefObject<HTMLElement>>({ current: null });
   const [showAfterOpenSteps, setShowAfterOpenSteps] = useState(false);
@@ -218,7 +219,8 @@ export function PDVTutorial({ isActive, isCashRegisterOpen, onComplete, onSkip }
     }
   };
 
-  if (!isActive) return null;
+  // Pausar tutorial quando modal estiver aberto ou não estiver ativo
+  if (!isActive || isModalOpen) return null;
 
   const step = steps[currentStep];
 
