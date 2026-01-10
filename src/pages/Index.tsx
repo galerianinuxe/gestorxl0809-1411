@@ -15,6 +15,7 @@ import { saveOrderToLocalHistory } from '../components/OrderHistoryModal';
 import { setupAutoCleanup } from '../utils/cleanupEmptyOrders';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboarding } from '@/contexts/OnboardingContext';
+
 import { PDVTutorial } from '@/components/onboarding/tutorials/PDVTutorial';
 
 // Componentes críticos com import direto para melhor performance
@@ -1157,8 +1158,16 @@ const Index: React.FC = () => {
       </React.Suspense>
     </>;
   // Hook do onboarding
-  const { isOnboardingActive, progress, completeStep, skipOnboarding } = useOnboarding();
+  const { isOnboardingActive, progress, completeStep, skipOnboarding, shouldOpenCashRegister, clearOpenCashRegisterRequest } = useOnboarding();
   const isPDVTutorialActive = isOnboardingActive && progress.currentStep === 3;
+
+  // Efeito para abrir o modal de caixa quando solicitado pelo onboarding checklist
+  useEffect(() => {
+    if (shouldOpenCashRegister && !isCashRegisterOpen) {
+      clearOpenCashRegisterRequest();
+      setShowCashRegisterOpeningModal(true);
+    }
+  }, [shouldOpenCashRegister, isCashRegisterOpen, clearOpenCashRegisterRequest]);
 
   return <div data-tutorial="pdv-main" className="flex flex-col h-screen touch-auto bg-slate-900">
       <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-2">Carregando...</div>}>

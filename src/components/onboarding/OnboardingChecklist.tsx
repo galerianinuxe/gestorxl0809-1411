@@ -29,7 +29,8 @@ export function OnboardingChecklist() {
     skipOnboarding,
     getSubStepProgress,
     isSubStepCompleted,
-    markPageVisited
+    markPageVisited,
+    requestOpenCashRegister
   } = useOnboarding();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -51,6 +52,11 @@ export function OnboardingChecklist() {
       
       // Marcar página como visitada
       await markPageVisited(route);
+      
+      // Se for o step 3 (Abrir Caixa), sinalizar para abrir o modal
+      if (stepId === 3) {
+        requestOpenCashRegister();
+      }
       
       // Minimizar modal primeiro
       setIsMinimized(true);
