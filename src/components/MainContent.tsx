@@ -91,7 +91,8 @@ export function MainContent({
       title: "Abrir Caixa",
       description: "Iniciar ou continuar operação",
       icon: ShoppingCart,
-      action: onOpenCashRegister
+      action: onOpenCashRegister,
+      dataTutorial: "open-register-button"
     },
     {
       title: "Dashboard",
@@ -167,6 +168,7 @@ export function MainContent({
             key={index} 
             className="bg-gray-900 border-gray-800 hover:border-emerald-500/50 transition-all duration-200 cursor-pointer group"
             onClick={card.action}
+            data-tutorial={(card as any).dataTutorial}
           >
             <CardContent className="p-3">
               <div className="flex items-center justify-between mb-2">

@@ -204,7 +204,7 @@ export function HomeLayout({ onOpenCashRegister }: HomeLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-900">
+      <div data-tutorial="pdv-main" className="min-h-screen flex w-full bg-gray-900">
         {/* Sidebar */}
         <AppSidebar
           isAdmin={isAdmin}

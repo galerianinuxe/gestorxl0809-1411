@@ -86,7 +86,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full bg-slate-900">
+    <div data-tutorial="order-details" className="flex flex-col h-full bg-slate-900">
       {customer && (
         <div className="bg-slate-800 p-4 flex justify-center items-center border-t-2 border-emerald-500">
           <h2 className="text-emerald-400 font-bold" style={{ fontSize: "calc(1.1em * 1.1)" }}>
@@ -180,6 +180,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   
                   <button 
                     onClick={onCompleteOrder}
+                    data-tutorial="complete-button"
                     className={`bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded flex items-center justify-center w-full transition-colors ${
                       isMobileOrTablet 
                         ? 'fixed bottom-0 left-0 right-0 z-50 shadow-lg' 
@@ -219,6 +220,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   </div>
                   <button 
                     onClick={onCompleteOrder}
+                    data-tutorial="complete-button"
                     className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded flex items-center transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">

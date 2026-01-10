@@ -559,7 +559,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
               {/* Main content - 75% width */}
               <div className="flex-1">
                 <ScrollArea className="h-[35vh]">
-                  <Table>
+                  <Table data-tutorial="order-review-table">
                     <TableHeader className="bg-gray-800">
                       <TableRow>
                         <TableHead className="text-white">Material</TableHead>
@@ -614,7 +614,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
               </div>
 
               {/* Payment Options - 25% width */}
-              <div className="w-1/4 min-w-[280px]">
+              <div data-tutorial="payment-options" className="w-1/4 min-w-[280px]">
                 <PaymentOptions 
                   isSaleMode={isSaleMode}
                   onPaymentChange={setPaymentData}
@@ -664,7 +664,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
               </div>
 
               {/* Payment Options com visual premium */}
-              <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-xl border border-slate-700/50 p-3 shadow-lg">
+              <div data-tutorial="payment-options" className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-xl border border-slate-700/50 p-3 shadow-lg">
                 <h3 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                   Forma de Pagamento:
@@ -726,6 +726,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
                 Só Salvar
               </Button>
               <Button 
+                data-tutorial="print-button"
                 className="bg-transparent hover:bg-opacity-20 hover:bg-[#22e697]/10 text-[#22e697] border border-[#22e697] h-[90px] text-[18px] gap-2"
                 onClick={handleDirectPrint}
               >
@@ -741,6 +742,7 @@ const OrderCompletionModal: React.FC<OrderCompletionModalProps> = ({
               {/* Linha 1: Imprimir e Só Salvar lado a lado */}
               <div className="flex gap-2">
                 <Button 
+                  data-tutorial="print-button"
                   className="flex-1 h-12 text-base font-semibold gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-0 rounded-xl shadow-lg shadow-emerald-900/30 transition-all duration-200 active:scale-[0.98]"
                   onClick={handleDirectPrint}
                 >

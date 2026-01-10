@@ -116,7 +116,7 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-full p-[2%] pb-1 bg-slate-900 overflow-hidden">
+    <div data-tutorial="number-pad" className="flex flex-col h-full w-full p-[2%] pb-1 bg-slate-900 overflow-hidden">
       {/* Display - altura responsiva */}
       <div 
         ref={displayRef}

@@ -124,7 +124,7 @@ const MaterialGrid = React.memo(({
 
   return (
     <>
-      <div className={`grid ${getGridCols()} gap-[2px] ${getMinHeight()} bg-slate-800 relative p-[2px]`}>
+      <div data-tutorial="material-grid" className={`grid ${getGridCols()} gap-[2px] ${getMinHeight()} bg-slate-800 relative p-[2px]`}>
         {materials.map((material) => (
           <button
             key={material.id}

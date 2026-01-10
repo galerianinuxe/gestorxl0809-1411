@@ -14,6 +14,8 @@ import { cleanMaterialName } from '@/utils/materialNameCleaner';
 import { saveOrderToLocalHistory } from '../components/OrderHistoryModal';
 import { setupAutoCleanup } from '../utils/cleanupEmptyOrders';
 import { useAuth } from '@/hooks/useAuth';
+import { useOnboarding } from '@/contexts/OnboardingContext';
+import { PDVTutorial } from '@/components/onboarding/tutorials/PDVTutorial';
 
 // Componentes críticos com import direto para melhor performance
 import OrderList from '../components/OrderList';
@@ -1154,7 +1156,11 @@ const Index: React.FC = () => {
         <MemoizedFooter onMenuClick={handleMenuClick} currentBalance={currentBalance} onBalanceUpdate={updateCashRegisterBalance} />
       </React.Suspense>
     </>;
-  return <div className="flex flex-col h-screen touch-auto bg-slate-900">
+  // Hook do onboarding
+  const { isOnboardingActive, progress, completeStep, skipOnboarding } = useOnboarding();
+  const isPDVTutorialActive = isOnboardingActive && progress.currentStep === 3;
+
+  return <div data-tutorial="pdv-main" className="flex flex-col h-screen touch-auto bg-slate-900">
       <React.Suspense fallback={<div className="bg-slate-900 text-slate-300 p-2">Carregando...</div>}>
         <CashRegisterOpeningModal open={showCashRegisterOpeningModal} onOpenChange={setShowCashRegisterOpeningModal} onComplete={handleCashRegisterOpened} />
       </React.Suspense>
@@ -1248,6 +1254,16 @@ const Index: React.FC = () => {
             }} />}
           </React.Suspense>
         </> : null}
+
+      {/* PDV Tutorial - Onboarding guiado */}
+      {isPDVTutorialActive && (
+        <PDVTutorial
+          isActive={true}
+          isCashRegisterOpen={isCashRegisterOpen}
+          onComplete={() => completeStep(3)}
+          onSkip={skipOnboarding}
+        />
+      )}
     </div>;
 };
 export default Index;

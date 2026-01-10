@@ -624,6 +624,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                   {/* Tara Button - Mobile uses inline, Desktop uses Popover */}
                   {isMobileOrTablet ? (
                     <Button 
+                      data-tutorial="tara-button"
                       className="bg-transparent border border-[#ffda21] text-white hover:bg-[#ffda21]/10"
                       onClick={() => setActiveSection('tara')}
                     >
@@ -633,6 +634,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                     <Popover open={showTaraPopover} onOpenChange={handleTaraPopoverClose}>
                       <PopoverTrigger asChild>
                         <Button 
+                          data-tutorial="tara-button"
                           className="bg-transparent border border-[#ffda21] text-white hover:bg-[#ffda21]/10"
                         >
                           Add Tara
@@ -654,6 +656,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                     </Button>
                   ) : isMobileOrTablet ? (
                     <Button 
+                      data-tutorial="discount-button"
                       className="bg-transparent border border-[#ffffff] text-white hover:bg-white/10"
                       onClick={() => setActiveSection('diferenca')}
                     >
@@ -663,6 +666,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
                     <Popover open={showDiferencaPopover} onOpenChange={handleDiferencaPopoverClose}>
                       <PopoverTrigger asChild>
                         <Button 
+                          data-tutorial="discount-button"
                           className="bg-transparent border border-[#ffffff] text-white hover:bg-white/10"
                         >
                           Add Diferença

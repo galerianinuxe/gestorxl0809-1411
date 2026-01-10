@@ -546,7 +546,7 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-900">
+    <div data-tutorial="pdv-main" className="flex flex-col h-screen bg-slate-900">
       {/* Conteúdo principal com padding para bottom nav + safe area */}
       <div className="flex-1 pb-mobile-nav overflow-hidden">
         {renderTabContent()}
