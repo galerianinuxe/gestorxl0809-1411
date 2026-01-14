@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Plus, Save, Trash, Download, Search, Settings, AlertTriangle } from "lucide-react";
+import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getMaterials, saveMaterial, removeMaterial, getMaterialCategories, getUserMaterialSettings, seedDefaultCategoriesAndMaterials } from "../utils/supabaseStorage";
 import { Material, MaterialCategory } from "../types/pdv";
@@ -399,6 +400,7 @@ const Materials = () => {
               {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material' : 'materiais'} cadastrados
             </p>
           </div>
+          <ContextualHelpButton module="estoque" />
         </div>
         
         {/* Action Buttons */}

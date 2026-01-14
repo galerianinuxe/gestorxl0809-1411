@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, ShoppingCart, Search, X, DollarSign, Scale, Filter } from 'lucide-react';
+import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { getOrders, getMaterials } from '@/utils/supabaseStorage';
 import { Order, Material } from '@/types/pdv';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
@@ -177,15 +178,18 @@ const PurchaseOrders = () => {
   return (
     <div className="flex flex-col min-h-screen bg-slate-800">
       <header className="bg-slate-900 text-white p-3 border-b border-slate-700">
-        <div className="flex items-center gap-3">
-          <Link to="/dashboard" className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline text-sm">Voltar</span>
-          </Link>
-          <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5 text-emerald-500" />
-            Materiais Comprados
-          </h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/dashboard" className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
+              <ArrowLeft className="h-5 w-5" />
+              <span className="hidden sm:inline text-sm">Voltar</span>
+            </Link>
+            <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-emerald-500" />
+              Materiais Comprados
+            </h1>
+          </div>
+          <ContextualHelpButton module="compra" />
         </div>
       </header>
 

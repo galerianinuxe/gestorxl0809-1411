@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { ArrowLeft, FileText, ShoppingCart, DollarSign, Printer, CreditCard, Banknote, RefreshCw, Trash2 } from 'lucide-react';
+import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { getOrders, getCustomerById } from '@/utils/supabaseStorage';
 import { Order } from '@/types/pdv';
 import { useAuth } from '@/hooks/useAuth';
@@ -352,15 +353,18 @@ const Transactions = () => {
               Transações
             </h1>
           </div>
-          <Button
-            onClick={handleRefresh}
-            variant="outline"
-            size="sm"
-            className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
-            disabled={refreshing}
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <ContextualHelpButton module="transacoes" />
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+              className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </header>
 

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, Upload, Eye, Settings as SettingsIcon } from "lucide-react";
+import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { toast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -300,17 +301,20 @@ const Settings: React.FC = () => {
       
       {/* Header */}
       <div className="bg-slate-800 border-b border-slate-700 p-4">
-        <div className="flex items-center gap-3 max-w-7xl mx-auto">
-          <Link to="/">
-            <Button variant="outline" size="icon" className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600">
-              <span className="sr-only">Voltar</span>
-              &larr;
-            </Button>
-          </Link>
-          <SettingsIcon className="h-6 w-6 text-emerald-500" />
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
-            Configurações do Sistema
-          </h1>
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-3">
+            <Link to="/">
+              <Button variant="outline" size="icon" className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600">
+                <span className="sr-only">Voltar</span>
+                &larr;
+              </Button>
+            </Link>
+            <SettingsIcon className="h-6 w-6 text-emerald-500" />
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
+              Configurações do Sistema
+            </h1>
+          </div>
+          <ContextualHelpButton module="geral" />
         </div>
       </div>
 

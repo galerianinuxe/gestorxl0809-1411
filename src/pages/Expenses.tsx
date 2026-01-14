@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { ArrowLeft, TrendingDown, Loader2, FileText } from 'lucide-react';
+import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { getCashRegisters, calculateCashSummary } from '@/utils/localStorage';
 import { StandardFilter, FilterPeriod } from '@/components/StandardFilter';
 import { MetricCard } from '@/components/MetricCard';
@@ -146,15 +147,18 @@ const Expenses = () => {
   return (
     <div className="flex flex-col min-h-screen bg-slate-800">
       <header className="bg-slate-900 text-white p-3 border-b border-slate-700">
-        <div className="flex items-center gap-3">
-          <Link to="/dashboard" className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline text-sm">Voltar</span>
-          </Link>
-          <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
-            <TrendingDown className="h-5 w-5 text-rose-500" />
-            Despesas Gerais
-          </h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/dashboard" className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
+              <ArrowLeft className="h-5 w-5" />
+              <span className="hidden sm:inline text-sm">Voltar</span>
+            </Link>
+            <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 text-rose-500" />
+              Despesas Gerais
+            </h1>
+          </div>
+          <ContextualHelpButton module="despesas" />
         </div>
       </header>
 

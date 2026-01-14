@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { ArrowLeft, Archive, Search, X, Trash2, Package, TrendingUp, DollarSign, Scale } from 'lucide-react';
+import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { getOrders, getMaterials } from '@/utils/supabaseStorage';
 import PasswordPromptModal from '@/components/PasswordPromptModal';
 import ClearStockModal from '@/components/ClearStockModal';
@@ -318,15 +319,18 @@ const CurrentStock = () => {
             </h1>
           </div>
           
-          <Button
-            onClick={handleClearStockRequest}
-            size="sm"
-            variant="outline"
-            className="bg-rose-900/20 border-rose-600 text-rose-400 hover:bg-rose-900/40 text-xs px-2"
-          >
-            <Trash2 className="h-3 w-3 mr-1" />
-            Zerar
-          </Button>
+          <div className="flex items-center gap-2">
+            <ContextualHelpButton module="estoque" />
+            <Button
+              onClick={handleClearStockRequest}
+              size="sm"
+              variant="outline"
+              className="bg-rose-900/20 border-rose-600 text-rose-400 hover:bg-rose-900/40 text-xs px-2"
+            >
+              <Trash2 className="h-3 w-3 mr-1" />
+              Zerar
+            </Button>
+          </div>
         </div>
       </header>
 

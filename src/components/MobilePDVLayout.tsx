@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo, startTransition } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Bell, Printer, MessageSquare, DollarSign, Receipt, X, Clock, Wifi, Server, ChevronRight, Settings, WifiOff, ServerOff, Eye, EyeOff, LayoutDashboard } from 'lucide-react';
+import { Bell, Printer, MessageSquare, DollarSign, Receipt, X, Clock, Wifi, Server, ChevronRight, Settings, WifiOff, ServerOff, Eye, EyeOff, LayoutDashboard, HelpCircle } from 'lucide-react';
 import MobileBottomNav, { MobileTab } from './MobileBottomNav';
 import { Customer, Order, Material, MaterialCategory } from '@/types/pdv';
 import CategoryBar from './CategoryBar';
@@ -515,6 +515,11 @@ const MobilePDVLayout: React.FC<MobilePDVLayoutProps> = ({
                   icon={<MessageSquare className="w-5 h-5" />}
                   label="Enviar Sugestão/Suporte"
                   onClick={() => setShowErrorReportModal(true)}
+                />
+                <MenuItem 
+                  icon={<HelpCircle className="w-5 h-5" />}
+                  label="Central de Ajuda"
+                  onClick={() => navigate('/ajuda')}
                 />
                 </div>
 

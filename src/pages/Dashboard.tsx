@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, ptBR } from '@/utils/optimizedImports';
 import { DollarSign, Archive, ShoppingCart, FileText, TrendingDown, CalendarIcon, ArrowLeft, ClipboardList, Wallet, Filter, Eye, User, Shield, Plus, LogOut } from 'lucide-react';
+import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { cn } from '@/lib/utils';
 import { getOrders, getCashRegisters, getMaterials, getActiveCashRegister } from '@/utils/supabaseStorage';
 import { getOrdersForUser, getCashRegistersForUser, getMaterialsForUser, getActiveCashRegisterForUser } from '@/utils/adminDataAccess';
@@ -452,6 +453,7 @@ const Dashboard = () => {
                 <span className="hidden sm:inline">Voltar</span>
               </Link>}
             <h1 className="text-xl font-bold">Dashboard</h1>
+            <ContextualHelpButton module="relatorios" />
           </div>
           
           <div className="flex items-center gap-3">
