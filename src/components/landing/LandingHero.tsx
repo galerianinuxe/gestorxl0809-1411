@@ -9,6 +9,13 @@ interface LandingHeroProps {
     hero_description?: string;
     hero_button_text?: string;
     hero_badge_text?: string;
+    hero_highlight_text?: string;
+    hero_secondary_button_text?: string;
+    hero_social_proof_users?: string;
+    hero_social_proof_users_label?: string;
+    hero_social_proof_rating?: string;
+    hero_social_proof_rating_label?: string;
+    hero_security_label?: string;
     background_image_url?: string;
     video_url?: string;
   } | null;
@@ -18,11 +25,19 @@ interface LandingHeroProps {
 
 export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHeroProps) {
   const title = settings?.hero_main_title || 'Pese, Calcule e Imprima em';
-  const highlight = '3 Minutos';
+  const highlight = settings?.hero_highlight_text || '3 Minutos';
   const subtitle = settings?.hero_subtitle || 'Sem erro. Sem fila. Sem discussão.';
   const description = settings?.hero_description || 'Sistema completo para depósitos de sucata que querem parar de perder dinheiro com conta errada e cliente desconfiado.';
   const buttonText = settings?.hero_button_text || 'Começar Teste Grátis';
+  const secondaryButtonText = settings?.hero_secondary_button_text || 'Ver Como Funciona';
   const badgeText = settings?.hero_badge_text || '✨ 7 dias grátis • Sem cartão';
+  
+  // Social proof - all editable
+  const socialProofUsers = settings?.hero_social_proof_users || '130+';
+  const socialProofUsersLabel = settings?.hero_social_proof_users_label || 'depósitos ativos';
+  const socialProofRating = settings?.hero_social_proof_rating || '4.9';
+  const socialProofRatingLabel = settings?.hero_social_proof_rating_label || 'de satisfação';
+  const securityLabel = settings?.hero_security_label || 'Dados 100% seguros';
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800">
@@ -75,15 +90,15 @@ export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHer
               className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white px-8 py-6 text-lg"
             >
               <Play className="mr-2 h-5 w-5" />
-              Ver Como Funciona
+              {secondaryButtonText}
             </Button>
           </div>
           
-          {/* Social Proof */}
+          {/* Social Proof - All editable */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400 animate-fade-in">
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-emerald-400" />
-              <span><strong className="text-white">130+</strong> depósitos ativos</span>
+              <span><strong className="text-white">{socialProofUsers}</strong> {socialProofUsersLabel}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex">
@@ -91,11 +106,11 @@ export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHer
                   <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                 ))}
               </div>
-              <span><strong className="text-white">4.9</strong> de satisfação</span>
+              <span><strong className="text-white">{socialProofRating}</strong> {socialProofRatingLabel}</span>
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-emerald-400" />
-              <span>Dados <strong className="text-white">100% seguros</strong></span>
+              <span dangerouslySetInnerHTML={{ __html: securityLabel.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>') }} />
             </div>
           </div>
         </div>

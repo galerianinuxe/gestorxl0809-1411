@@ -11,6 +11,7 @@ import { PlanData } from '@/types/mercadopago';
 import { LazySection } from '@/components/landing/LazySection';
 import { ProgressIndicator } from '@/components/landing/ProgressIndicator';
 import ActionChoiceModal from '@/components/landing/ActionChoiceModal';
+import { LandingFooter } from '@/components/landing/LandingFooter';
 
 // New modular components
 import {
@@ -34,6 +35,13 @@ interface LandingContentSettings {
   hero_subtitle?: string;
   hero_description?: string;
   hero_button_text?: string;
+  hero_highlight_text?: string;
+  hero_secondary_button_text?: string;
+  hero_social_proof_users?: string;
+  hero_social_proof_users_label?: string;
+  hero_social_proof_rating?: string;
+  hero_social_proof_rating_label?: string;
+  hero_security_label?: string;
   logo_url?: string;
   background_image_url?: string;
   company_name?: string;
@@ -82,6 +90,13 @@ const Landing: React.FC = () => {
     hero_subtitle: 'Sem erro. Sem fila. Sem discussão.',
     hero_description: 'Sistema completo para depósitos de sucata que querem parar de perder dinheiro com conta errada e cliente desconfiado.',
     hero_button_text: 'Começar Teste Grátis',
+    hero_highlight_text: '3 Minutos',
+    hero_secondary_button_text: 'Ver Como Funciona',
+    hero_social_proof_users: '130+',
+    hero_social_proof_users_label: 'depósitos ativos',
+    hero_social_proof_rating: '4.9',
+    hero_social_proof_rating_label: 'de satisfação',
+    hero_security_label: 'Dados **100% seguros**',
     logo_url: '/lovable-uploads/xlata.site_logotipo.png',
     background_image_url: '/lovable-uploads/capa_xlata.jpg',
     company_name: 'XLata.site',
@@ -336,31 +351,8 @@ const Landing: React.FC = () => {
         }
       </main>
 
-      {/* Footer */}
-      <footer className="bg-slate-950 py-8 lg:py-10 px-4 border-t border-slate-800">
-        <div className="container mx-auto max-w-4xl">
-          <div className="flex flex-wrap justify-center items-center gap-2 lg:gap-6 mb-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/termos-de-uso')} className="text-slate-500 hover:text-white text-xs sm:text-sm">
-              Termos de Uso
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/guia-completo')} className="text-slate-500 hover:text-white text-xs sm:text-sm">
-              Guia Completo
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/planos')} className="text-slate-500 hover:text-white text-xs sm:text-sm">
-              Planos
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')} className="text-slate-500 hover:text-white text-xs sm:text-sm">
-              Área do Cliente
-            </Button>
-          </div>
-          
-          <div className="text-center">
-            <p className="text-slate-600 text-xs sm:text-sm">
-              {contentSettings.footer_text || `© ${new Date().getFullYear()} XLata.site • Sistema para Depósitos de Reciclagem`}
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Dynamic Footer */}
+      <LandingFooter fallbackText={contentSettings.footer_text} />
 
       {/* MercadoPago Checkout Modal */}
       {selectedPlan && (

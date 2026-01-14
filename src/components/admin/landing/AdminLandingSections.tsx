@@ -1,9 +1,25 @@
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableSectionItem } from './SortableSectionItem';
 
 interface SectionItem {
   id: string;
@@ -14,21 +30,17 @@ interface SectionItem {
   display_order: number;
 }
 
-const sectionIcons: Record<string, string> = {
-  hero: '🎯',
-  how_it_works: '⚙️',
-  requirements: '✅',
-  problems: '⚠️',
-  kpis: '📈',
-  videos: '🎬',
-  testimonials: '💬',
-  plans: '💳',
-  faq: '❓',
-  cta_final: '🚀',
-};
-
 export function AdminLandingSections() {
   const queryClient = useQueryClient();
+  const [localSections, setLocalSections] = useState<SectionItem[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const { data: sections = [], isLoading } = useQuery({
     queryKey: ['admin-landing-sections'],
@@ -39,6 +51,13 @@ export function AdminLandingSections() {
     },
   });
 
+  useEffect(() => {
+    if (sections.length > 0) {
+      setLocalSections(sections);
+      setHasChanges(false);
+    }
+  }, [sections]);
+
   const toggleMutation = useMutation({
     mutationFn: async ({ id, is_visible }: { id: string; is_visible: boolean }) => {
       const { error } = await supabase.from('landing_sections').update({ is_visible }).eq('id', id);
@@ -48,54 +67,106 @@ export function AdminLandingSections() {
       queryClient.invalidateQueries({ queryKey: ['admin-landing-sections'] });
       queryClient.invalidateQueries({ queryKey: ['landing-sections'] });
       toast.success('Visibilidade atualizada!');
+      window.dispatchEvent(new CustomEvent('landingConfigUpdated'));
     },
     onError: () => toast.error('Erro ao atualizar'),
   });
+
+  const saveOrderMutation = useMutation({
+    mutationFn: async (orderedSections: SectionItem[]) => {
+      const updates = orderedSections.map((section, index) => ({
+        id: section.id,
+        display_order: index + 1,
+      }));
+
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('landing_sections')
+          .update({ display_order: update.display_order })
+          .eq('id', update.id);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-landing-sections'] });
+      queryClient.invalidateQueries({ queryKey: ['landing-sections'] });
+      toast.success('Ordem das seções salva!');
+      setHasChanges(false);
+      window.dispatchEvent(new CustomEvent('landingConfigUpdated'));
+    },
+    onError: () => toast.error('Erro ao salvar ordem'),
+  });
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = localSections.findIndex((item) => item.id === active.id);
+      const newIndex = localSections.findIndex((item) => item.id === over.id);
+
+      const newOrder = arrayMove(localSections, oldIndex, newIndex);
+      setLocalSections(newOrder);
+      setHasChanges(true);
+    }
+  };
+
+  const handleToggleVisibility = (id: string, checked: boolean) => {
+    toggleMutation.mutate({ id, is_visible: checked });
+    setLocalSections(prev =>
+      prev.map(s => s.id === id ? { ...s, is_visible: checked } : s)
+    );
+  };
 
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-white mb-2">Controle de Seções</h3>
-        <p className="text-slate-400 text-sm">Ative ou desative seções da landing page. A ordem é definida pelo display_order no banco.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-2">Controle de Seções</h3>
+          <p className="text-slate-400 text-sm">Arraste para reordenar. Ative ou desative seções da landing page.</p>
+        </div>
+        {hasChanges && (
+          <Button
+            onClick={() => saveOrderMutation.mutate(localSections)}
+            disabled={saveOrderMutation.isPending}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            {saveOrderMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Salvar Ordem
+          </Button>
+        )}
       </div>
 
-      <div className="space-y-3">
-        {sections.map((section) => (
-          <Card key={section.id} className={`bg-slate-800 border-slate-700 ${!section.is_visible ? 'opacity-50' : ''}`}>
-            <CardContent className="p-4 flex items-center gap-4">
-              <GripVertical className="w-5 h-5 text-slate-500" />
-              <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center text-2xl">
-                {sectionIcons[section.section_key] || '📄'}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium text-white">{section.title}</h4>
-                  <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded">{section.section_key}</span>
-                </div>
-                {section.subtitle && <p className="text-sm text-slate-400">{section.subtitle}</p>}
-              </div>
-              <div className="flex items-center gap-3">
-                {section.is_visible ? (
-                  <Eye className="w-5 h-5 text-emerald-400" />
-                ) : (
-                  <EyeOff className="w-5 h-5 text-slate-500" />
-                )}
-                <Switch
-                  checked={section.is_visible}
-                  onCheckedChange={(checked) => toggleMutation.mutate({ id: section.id, is_visible: checked })}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={localSections.map(s => s.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-3">
+            {localSections.map((section) => (
+              <SortableSectionItem
+                key={section.id}
+                section={section}
+                onToggleVisibility={handleToggleVisibility}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
         <p className="text-slate-400 text-sm">
-          💡 <strong>Dica:</strong> A seção "Hero" não pode ser desativada pois é essencial para a página.
-          Para reordenar as seções, edite o campo <code className="bg-slate-700 px-1 rounded">display_order</code> no banco de dados.
+          💡 <strong>Dica:</strong> Arraste as seções para reordenar. A seção "Hero" é essencial e não pode ser desativada.
+          Clique em "Salvar Ordem" após reordenar.
         </p>
       </div>
     </div>

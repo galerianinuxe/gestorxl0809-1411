@@ -8,3 +8,4 @@ export { LandingTestimonials } from './LandingTestimonials';
 export { LandingPlans } from './LandingPlans';
 export { LandingFAQ } from './LandingFAQ';
 export { LandingCTAFinal } from './LandingCTAFinal';
+export { LandingFooter } from './LandingFooter';

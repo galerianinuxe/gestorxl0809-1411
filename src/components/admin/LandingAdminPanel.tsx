@@ -1,18 +1,9 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from 'sonner';
 import { 
-  Save, Plus, Trash2, GripVertical, Eye, EyeOff, 
-  Settings, Video, MessageSquare, HelpCircle, Megaphone,
-  Scale, AlertTriangle, TrendingUp, CheckCircle, Layers
+  Eye, Settings, Video, MessageSquare, HelpCircle, Megaphone,
+  Scale, AlertTriangle, TrendingUp, CheckCircle, Layers, CreditCard, FileText
 } from 'lucide-react';
 
 // Import sub-components
@@ -27,6 +18,8 @@ import { AdminLandingFAQ } from './landing/AdminLandingFAQ';
 import { AdminLandingCTAFinal } from './landing/AdminLandingCTAFinal';
 import { AdminLandingSections } from './landing/AdminLandingSections';
 import { AdminLandingSEO } from './landing/AdminLandingSEO';
+import { AdminLandingPlans } from './landing/AdminLandingPlans';
+import { AdminLandingFooter } from './landing/AdminLandingFooter';
 
 export function LandingAdminPanel() {
   const [activeTab, setActiveTab] = useState('hero');
@@ -80,6 +73,10 @@ export function LandingAdminPanel() {
             <MessageSquare className="w-4 h-4" />
             Depoimentos
           </TabsTrigger>
+          <TabsTrigger value="plans" className="gap-2 data-[state=active]:bg-emerald-600">
+            <CreditCard className="w-4 h-4" />
+            Planos
+          </TabsTrigger>
           <TabsTrigger value="faq" className="gap-2 data-[state=active]:bg-emerald-600">
             <HelpCircle className="w-4 h-4" />
             FAQ
@@ -91,6 +88,10 @@ export function LandingAdminPanel() {
           <TabsTrigger value="sections" className="gap-2 data-[state=active]:bg-emerald-600">
             <Layers className="w-4 h-4" />
             Seções
+          </TabsTrigger>
+          <TabsTrigger value="footer" className="gap-2 data-[state=active]:bg-emerald-600">
+            <FileText className="w-4 h-4" />
+            Footer
           </TabsTrigger>
           <TabsTrigger value="seo" className="gap-2 data-[state=active]:bg-emerald-600">
             <Settings className="w-4 h-4" />
@@ -126,6 +127,10 @@ export function LandingAdminPanel() {
           <AdminLandingTestimonials />
         </TabsContent>
 
+        <TabsContent value="plans">
+          <AdminLandingPlans />
+        </TabsContent>
+
         <TabsContent value="faq">
           <AdminLandingFAQ />
         </TabsContent>
@@ -136,6 +141,10 @@ export function LandingAdminPanel() {
 
         <TabsContent value="sections">
           <AdminLandingSections />
+        </TabsContent>
+
+        <TabsContent value="footer">
+          <AdminLandingFooter />
         </TabsContent>
 
         <TabsContent value="seo">
