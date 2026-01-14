@@ -4171,6 +4171,10 @@ export type Database = {
         | "transacoes"
         | "assinatura"
         | "geral"
+        | "campanha"
+        | "admin"
+        | "indicacoes"
+        | "ajuda"
       user_lifecycle_stage:
         | "registered"
         | "activated"
@@ -4321,6 +4325,10 @@ export const Constants = {
         "transacoes",
         "assinatura",
         "geral",
+        "campanha",
+        "admin",
+        "indicacoes",
+        "ajuda",
       ],
       user_lifecycle_stage: [
         "registered",
