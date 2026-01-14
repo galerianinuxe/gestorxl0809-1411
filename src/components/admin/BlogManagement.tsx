@@ -31,7 +31,10 @@ import {
   Sparkles,
   TrendingUp,
   Loader2,
-  X
+  X,
+  Shield,
+  Link,
+  AlertTriangle
 } from 'lucide-react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -80,7 +83,9 @@ const initialPostForm = {
   seo_description: '',
   og_image: '',
   tags: '',
-  is_featured: false
+  is_featured: false,
+  allow_indexing: true,
+  canonical_url: ''
 };
 
 export const BlogManagement = () => {
@@ -191,7 +196,9 @@ export const BlogManagement = () => {
         tags: postForm.tags ? postForm.tags.split(',').map(t => t.trim()).filter(Boolean) : null,
         is_featured: postForm.is_featured,
         reading_time_minutes: Math.ceil((postForm.content_md?.split(' ').length || 0) / 200),
-        published_at: postForm.status === 'published' ? new Date().toISOString() : null
+        published_at: postForm.status === 'published' ? new Date().toISOString() : null,
+        allow_indexing: postForm.allow_indexing,
+        canonical_url: postForm.canonical_url || null
       };
 
       if (editingPost) {
@@ -292,7 +299,9 @@ export const BlogManagement = () => {
       seo_description: post.seo_description || '',
       og_image: post.og_image || '',
       tags: post.tags?.join(', ') || '',
-      is_featured: false
+      is_featured: false,
+      allow_indexing: (post as any).allow_indexing ?? true,
+      canonical_url: ''
     });
     setIsPostDialogOpen(true);
   };
@@ -324,7 +333,9 @@ export const BlogManagement = () => {
       seo_description: post.seo_description || '',
       og_image: post.og_image || '',
       tags: post.tags?.join(', ') || '',
-      is_featured: post.is_featured || false
+      is_featured: post.is_featured || false,
+      allow_indexing: (post as any).allow_indexing ?? true,
+      canonical_url: (post as any).canonical_url || ''
     };
     setPostForm(formData);
     setInitialFormState(formData);
@@ -810,6 +821,57 @@ export const BlogManagement = () => {
                                   )}
                                 />
                               </div>
+                            </div>
+                          </div>
+
+                          {/* SEO Avançado Section */}
+                          <div className="border-t border-gray-700 pt-4 mt-4">
+                            <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                              <Shield className="h-4 w-4" />
+                              SEO Avançado
+                            </h4>
+                            
+                            <div className="space-y-4">
+                              {/* Switch de Indexação */}
+                              <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
+                                <div>
+                                  <Label className="text-white">Permitir indexação no Google</Label>
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    Quando desativado, esta página não aparecerá nos resultados de busca
+                                  </p>
+                                </div>
+                                <Switch
+                                  checked={postForm.allow_indexing}
+                                  onCheckedChange={(v) => updatePostForm({ allow_indexing: v })}
+                                />
+                              </div>
+                              
+                              {/* Campo Canonical URL */}
+                              <div>
+                                <Label className="flex items-center gap-2">
+                                  <Link className="h-4 w-4" />
+                                  Canonical URL (opcional)
+                                </Label>
+                                <Input
+                                  value={postForm.canonical_url}
+                                  onChange={(e) => updatePostForm({ canonical_url: e.target.value })}
+                                  placeholder="https://xlata.site/blog/..."
+                                  className="bg-gray-700 border-gray-600 mt-1"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Deixe vazio para usar a URL padrão. Use para evitar duplicidade de conteúdo.
+                                </p>
+                              </div>
+                              
+                              {/* Alerta visual quando noindex */}
+                              {!postForm.allow_indexing && (
+                                <div className="flex items-center gap-2 p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+                                  <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                                  <span className="text-sm text-yellow-300">
+                                    Este post NÃO será indexado pelo Google
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
 
