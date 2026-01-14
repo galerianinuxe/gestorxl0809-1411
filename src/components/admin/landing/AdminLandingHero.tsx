@@ -4,8 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Loader2, Users, Star, Shield } from 'lucide-react';
+import { Save, Loader2, Users, Star, Shield, Image as ImageIcon, Monitor, Tablet, Smartphone } from 'lucide-react';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+
+// Helper function to get preview size classes
+const getPreviewSizeClasses = (size: string) => {
+  switch (size) {
+    case 'small': return 'max-w-[80px] max-h-[50px]';
+    case 'medium': return 'max-w-[120px] max-h-[70px]';
+    case 'large': return 'max-w-[160px] max-h-[100px]';
+    case 'full': return 'max-w-[200px] max-h-[120px]';
+    default: return 'max-w-[120px] max-h-[70px]';
+  }
+};
 
 export function AdminLandingHero() {
   const [loading, setLoading] = useState(false);
@@ -26,6 +39,11 @@ export function AdminLandingHero() {
     hero_security_label: 'Dados **100% seguros**',
     background_image_url: '',
     video_url: '',
+    hero_image_url: '',
+    hero_image_size_desktop: 'medium',
+    hero_image_size_tablet: 'medium',
+    hero_image_size_mobile: 'small',
+    hero_image_alt: 'Imagem do Hero',
   });
 
   useEffect(() => {
@@ -74,6 +92,11 @@ export function AdminLandingHero() {
             hero_security_label: settings.hero_security_label,
             background_image_url: settings.background_image_url,
             video_url: settings.video_url,
+            hero_image_url: settings.hero_image_url || null,
+            hero_image_size_desktop: settings.hero_image_size_desktop,
+            hero_image_size_tablet: settings.hero_image_size_tablet,
+            hero_image_size_mobile: settings.hero_image_size_mobile,
+            hero_image_alt: settings.hero_image_alt,
             updated_at: new Date().toISOString(),
           })
           .eq('id', settings.id);
@@ -101,6 +124,11 @@ export function AdminLandingHero() {
             hero_security_label: settings.hero_security_label,
             background_image_url: settings.background_image_url,
             video_url: settings.video_url,
+            hero_image_url: settings.hero_image_url || null,
+            hero_image_size_desktop: settings.hero_image_size_desktop,
+            hero_image_size_tablet: settings.hero_image_size_tablet,
+            hero_image_size_mobile: settings.hero_image_size_mobile,
+            hero_image_alt: settings.hero_image_alt,
           });
 
         if (error) throw error;
@@ -203,6 +231,155 @@ export function AdminLandingHero() {
               />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Hero Image Settings */}
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <ImageIcon className="w-5 h-5 text-emerald-400" />
+            Imagem do Hero
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Image Upload */}
+          <div className="space-y-2">
+            <label className="text-sm text-slate-300">Imagem (aparece acima do badge)</label>
+            <ImageUploader 
+              value={settings.hero_image_url || null}
+              onChange={(url) => setSettings(prev => ({ ...prev, hero_image_url: url || '' }))}
+              bucket="landing-images"
+              folder="hero"
+            />
+          </div>
+
+          {/* Alt Text */}
+          <div className="space-y-2">
+            <label className="text-sm text-slate-300">Texto Alternativo (SEO/Acessibilidade)</label>
+            <Input
+              value={settings.hero_image_alt}
+              onChange={(e) => setSettings(prev => ({ ...prev, hero_image_alt: e.target.value }))}
+              placeholder="Descrição da imagem"
+              className="bg-slate-700 border-slate-600 text-white"
+            />
+          </div>
+
+          {/* Size Selectors */}
+          <div className="grid gap-4 md:grid-cols-3">
+            {/* Desktop */}
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300 flex items-center gap-2">
+                <Monitor className="w-4 h-4" /> Desktop
+              </label>
+              <Select 
+                value={settings.hero_image_size_desktop} 
+                onValueChange={(value) => setSettings(prev => ({ ...prev, hero_image_size_desktop: value }))}
+              >
+                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 border-slate-600">
+                  <SelectItem value="small">Pequeno (200px)</SelectItem>
+                  <SelectItem value="medium">Médio (350px)</SelectItem>
+                  <SelectItem value="large">Grande (500px)</SelectItem>
+                  <SelectItem value="full">Extra Grande (700px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Tablet */}
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300 flex items-center gap-2">
+                <Tablet className="w-4 h-4" /> Tablet
+              </label>
+              <Select 
+                value={settings.hero_image_size_tablet} 
+                onValueChange={(value) => setSettings(prev => ({ ...prev, hero_image_size_tablet: value }))}
+              >
+                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 border-slate-600">
+                  <SelectItem value="small">Pequeno (200px)</SelectItem>
+                  <SelectItem value="medium">Médio (300px)</SelectItem>
+                  <SelectItem value="large">Grande (400px)</SelectItem>
+                  <SelectItem value="full">Extra Grande (500px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Mobile */}
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300 flex items-center gap-2">
+                <Smartphone className="w-4 h-4" /> Mobile
+              </label>
+              <Select 
+                value={settings.hero_image_size_mobile} 
+                onValueChange={(value) => setSettings(prev => ({ ...prev, hero_image_size_mobile: value }))}
+              >
+                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 border-slate-600">
+                  <SelectItem value="small">Pequeno (150px)</SelectItem>
+                  <SelectItem value="medium">Médio (200px)</SelectItem>
+                  <SelectItem value="large">Grande (250px)</SelectItem>
+                  <SelectItem value="full">Extra Grande (300px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Responsive Preview */}
+          {settings.hero_image_url && (
+            <div className="space-y-4">
+              <p className="text-xs text-slate-500">Preview Responsivo:</p>
+              <div className="grid gap-4 md:grid-cols-3">
+                {/* Desktop Preview */}
+                <div className="bg-slate-900 rounded-lg p-4 border border-slate-600">
+                  <p className="text-xs text-slate-500 mb-3 flex items-center gap-1">
+                    <Monitor className="w-3 h-3" /> Desktop
+                  </p>
+                  <div className="flex justify-center items-center min-h-[80px]">
+                    <img 
+                      src={settings.hero_image_url} 
+                      alt="Preview Desktop"
+                      className={`object-contain ${getPreviewSizeClasses(settings.hero_image_size_desktop)}`}
+                    />
+                  </div>
+                </div>
+                
+                {/* Tablet Preview */}
+                <div className="bg-slate-900 rounded-lg p-4 border border-slate-600">
+                  <p className="text-xs text-slate-500 mb-3 flex items-center gap-1">
+                    <Tablet className="w-3 h-3" /> Tablet
+                  </p>
+                  <div className="flex justify-center items-center min-h-[80px]">
+                    <img 
+                      src={settings.hero_image_url}
+                      alt="Preview Tablet"
+                      className={`object-contain ${getPreviewSizeClasses(settings.hero_image_size_tablet)}`}
+                    />
+                  </div>
+                </div>
+                
+                {/* Mobile Preview */}
+                <div className="bg-slate-900 rounded-lg p-4 border border-slate-600">
+                  <p className="text-xs text-slate-500 mb-3 flex items-center gap-1">
+                    <Smartphone className="w-3 h-3" /> Mobile
+                  </p>
+                  <div className="flex justify-center items-center min-h-[80px]">
+                    <img 
+                      src={settings.hero_image_url}
+                      alt="Preview Mobile"
+                      className={`object-contain ${getPreviewSizeClasses(settings.hero_image_size_mobile)}`}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Play, Star, Users, Shield } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface LandingHeroProps {
   settings: {
@@ -18,10 +19,26 @@ interface LandingHeroProps {
     hero_security_label?: string;
     background_image_url?: string;
     video_url?: string;
+    hero_image_url?: string;
+    hero_image_size_desktop?: string;
+    hero_image_size_tablet?: string;
+    hero_image_size_mobile?: string;
+    hero_image_alt?: string;
   } | null;
   onStartTrial: () => void;
   onWatchVideo: () => void;
 }
+
+// Helper function to get image size classes
+const getImageSizeClasses = (size: string, breakpoint: 'mobile' | 'tablet' | 'desktop') => {
+  const sizes: Record<string, Record<string, string>> = {
+    small: { mobile: 'max-w-[150px] max-h-[80px]', tablet: 'md:max-w-[200px] md:max-h-[100px]', desktop: 'lg:max-w-[200px] lg:max-h-[100px]' },
+    medium: { mobile: 'max-w-[200px] max-h-[120px]', tablet: 'md:max-w-[300px] md:max-h-[160px]', desktop: 'lg:max-w-[350px] lg:max-h-[180px]' },
+    large: { mobile: 'max-w-[250px] max-h-[150px]', tablet: 'md:max-w-[400px] md:max-h-[220px]', desktop: 'lg:max-w-[500px] lg:max-h-[280px]' },
+    full: { mobile: 'max-w-[300px] max-h-[180px]', tablet: 'md:max-w-[500px] md:max-h-[300px]', desktop: 'lg:max-w-[700px] lg:max-h-[400px]' },
+  };
+  return sizes[size]?.[breakpoint] || sizes.medium[breakpoint];
+};
 
 export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHeroProps) {
   const title = settings?.hero_main_title || 'Pese, Calcule e Imprima em';
@@ -39,6 +56,13 @@ export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHer
   const socialProofRatingLabel = settings?.hero_social_proof_rating_label || 'de satisfação';
   const securityLabel = settings?.hero_security_label || 'Dados 100% seguros';
 
+  // Hero image settings
+  const heroImageUrl = settings?.hero_image_url;
+  const heroImageAlt = settings?.hero_image_alt || 'Imagem do Hero';
+  const sizeMobile = settings?.hero_image_size_mobile || 'small';
+  const sizeTablet = settings?.hero_image_size_tablet || 'medium';
+  const sizeDesktop = settings?.hero_image_size_desktop || 'medium';
+
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800">
       {/* Background effects */}
@@ -47,6 +71,22 @@ export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHer
       
       <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
+          {/* Hero Image - Above Badge */}
+          {heroImageUrl && (
+            <div className="mb-6 animate-fade-in">
+              <img 
+                src={heroImageUrl}
+                alt={heroImageAlt}
+                className={cn(
+                  'mx-auto object-contain transition-all duration-300',
+                  getImageSizeClasses(sizeMobile, 'mobile'),
+                  getImageSizeClasses(sizeTablet, 'tablet'),
+                  getImageSizeClasses(sizeDesktop, 'desktop')
+                )}
+              />
+            </div>
+          )}
+
           {/* Badge */}
           <Badge 
             variant="outline" 
