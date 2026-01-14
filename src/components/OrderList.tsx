@@ -367,7 +367,7 @@ const OrderList: React.FC<OrderListProps> = ({
           setShowManualInput(false);
         }
       }}>
-        <AlertDialogContent className="bg-slate-800 border-slate-700 top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bottom-auto inset-auto max-w-md rounded-lg">
+        <AlertDialogContent className="bg-slate-800 border-slate-700 !fixed !inset-auto !left-[50%] !top-[50%] !bottom-auto !translate-x-[-50%] !translate-y-[-50%] !max-w-[90vw] sm:!max-w-md !rounded-lg [&>div:first-child]:hidden">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-white">Novo Pedido</AlertDialogTitle>
             <AlertDialogDescription asChild>
