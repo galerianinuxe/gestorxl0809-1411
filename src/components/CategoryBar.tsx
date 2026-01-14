@@ -153,7 +153,7 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
               <span 
                 className="font-bold text-sm text-center leading-tight line-clamp-2 text-white"
                 style={{ 
-                  WebkitTextStroke: '0.5775px black',
+                  WebkitTextStroke: '2px black',
                   paintOrder: 'stroke fill'
                 }}
               >
