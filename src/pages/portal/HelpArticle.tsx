@@ -124,7 +124,7 @@ const HelpArticle = () => {
 
           {/* Content */}
           <div
-            className="prose prose-lg prose-invert max-w-none mb-12"
+            className="prose-help-article mb-12"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 

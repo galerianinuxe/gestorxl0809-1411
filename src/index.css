@@ -1,4 +1,154 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+/* ========================================
+   PROFESSIONAL HELP ARTICLE STYLES
+   ======================================== */
+
+.prose-help-article {
+  @apply text-gray-300 leading-relaxed;
+}
+
+/* Headings */
+.prose-help-article h1 {
+  @apply text-2xl md:text-3xl font-bold text-white mb-6 mt-8 pb-3 border-b border-gray-700;
+}
+
+.prose-help-article h2 {
+  @apply text-xl md:text-2xl font-semibold text-emerald-400 mb-4 mt-8;
+}
+
+.prose-help-article h3 {
+  @apply text-lg md:text-xl font-medium text-white mb-3 mt-6;
+}
+
+.prose-help-article h4 {
+  @apply text-base md:text-lg font-medium text-gray-200 mb-2 mt-4;
+}
+
+/* Paragraphs */
+.prose-help-article p {
+  @apply text-gray-300 leading-relaxed mb-4 text-base md:text-lg;
+}
+
+/* Lists */
+.prose-help-article ul {
+  @apply list-disc pl-6 space-y-2 my-4 text-gray-300;
+}
+
+.prose-help-article ol {
+  @apply list-decimal pl-6 space-y-2 my-4 text-gray-300;
+}
+
+.prose-help-article li {
+  @apply text-base md:text-lg leading-relaxed;
+}
+
+.prose-help-article li::marker {
+  @apply text-emerald-500;
+}
+
+/* Bold & Italic */
+.prose-help-article strong {
+  @apply text-white font-semibold;
+}
+
+.prose-help-article em {
+  @apply text-gray-200 italic;
+}
+
+/* Links */
+.prose-help-article a {
+  @apply text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors;
+}
+
+/* Tables */
+.prose-help-article table {
+  @apply w-full my-6 border-collapse text-sm md:text-base overflow-x-auto block md:table;
+}
+
+.prose-help-article thead {
+  @apply bg-gray-800;
+}
+
+.prose-help-article th {
+  @apply text-white font-semibold px-3 md:px-4 py-2 md:py-3 text-left border border-gray-700;
+}
+
+.prose-help-article td {
+  @apply px-3 md:px-4 py-2 md:py-3 border border-gray-700 text-gray-300;
+}
+
+.prose-help-article tbody tr:nth-child(even) {
+  @apply bg-gray-800/50;
+}
+
+.prose-help-article tbody tr:hover {
+  @apply bg-gray-800/80;
+}
+
+/* Code */
+.prose-help-article code {
+  @apply bg-gray-800 text-emerald-400 px-2 py-1 rounded text-sm font-mono;
+}
+
+.prose-help-article pre {
+  @apply bg-gray-900 p-4 rounded-lg overflow-x-auto my-4 border border-gray-700;
+}
+
+.prose-help-article pre code {
+  @apply bg-transparent p-0;
+}
+
+/* Blockquotes / Tips */
+.prose-help-article blockquote {
+  @apply border-l-4 border-emerald-500 bg-emerald-500/10 pl-4 pr-4 py-3 my-6 text-gray-300 rounded-r-lg;
+}
+
+.prose-help-article blockquote p {
+  @apply mb-0;
+}
+
+/* Horizontal Rules */
+.prose-help-article hr {
+  @apply border-gray-700 my-8;
+}
+
+/* Images */
+.prose-help-article img {
+  @apply rounded-lg my-6 max-w-full h-auto shadow-lg;
+}
+
+/* Definition Lists */
+.prose-help-article dl {
+  @apply my-4;
+}
+
+.prose-help-article dt {
+  @apply font-semibold text-white mt-4;
+}
+
+.prose-help-article dd {
+  @apply text-gray-300 pl-4 mb-2;
+}
+
+/* First paragraph after heading - no top margin */
+.prose-help-article h1 + p,
+.prose-help-article h2 + p,
+.prose-help-article h3 + p,
+.prose-help-article h4 + p {
+  @apply mt-0;
+}
+
+/* Nested lists */
+.prose-help-article ul ul,
+.prose-help-article ol ol,
+.prose-help-article ul ol,
+.prose-help-article ol ul {
+  @apply mt-2 mb-0;
+}
+
+/* ======================================== */
+
 @tailwind base;
 
 /* Animação de confetti para onboarding */
