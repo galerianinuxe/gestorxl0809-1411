@@ -288,7 +288,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-lg md:max-w-[70%] max-h-[85vh] md:max-h-[90vh]">
+      <DialogContent className="z-[60] bg-slate-800 border-slate-700 text-white w-full max-w-full h-[100dvh] max-h-[100dvh] rounded-none md:w-auto md:max-w-lg lg:max-w-[70%] md:h-auto md:max-h-[90vh] md:rounded-lg">
         <DialogHeader>
           <DialogTitle>Gerenciar Categorias</DialogTitle>
           <DialogDescription className="text-slate-400">
@@ -367,7 +367,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
           )}
 
           {/* Categories list */}
-          <ScrollArea className="h-[320px]">
+          <ScrollArea className="h-[calc(100dvh-320px)] md:h-[320px]">
             <div className="space-y-4 pr-2">
               {isLoading && categories.length === 0 ? (
                 <div className="text-center text-slate-400 py-8">
