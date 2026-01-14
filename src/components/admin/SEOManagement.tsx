@@ -168,16 +168,21 @@ Sitemap: https://xlata.site/sitemap.xml`,
   const handleRegenerateSitemap = async () => {
     setRegeneratingSitemap(true);
     try {
-      const response = await fetch('https://oxawvjcckmbevjztyfgp.supabase.co/functions/v1/generate-sitemap');
+      const response = await fetch('https://xlata.site/sitemap.xml');
       if (response.ok) {
-        toast({ title: "Sitemap Regenerado", description: "O sitemap foi atualizado com sucesso!" });
+        const xmlText = await response.text();
+        const urlCount = (xmlText.match(/<url>/g) || []).length;
+        toast({ 
+          title: "✅ Sitemap Ativo", 
+          description: `O sitemap dinâmico está funcionando com ${urlCount} URLs indexáveis. O Google verá sempre a versão atualizada automaticamente!` 
+        });
         loadContentStats();
       } else {
-        throw new Error('Falha ao regenerar sitemap');
+        throw new Error('Falha ao verificar sitemap');
       }
     } catch (error) {
-      console.error('Erro ao regenerar sitemap:', error);
-      toast({ title: "Erro", description: "Falha ao regenerar sitemap", variant: "destructive" });
+      console.error('Erro ao verificar sitemap:', error);
+      toast({ title: "Erro", description: "Falha ao verificar sitemap", variant: "destructive" });
     } finally {
       setRegeneratingSitemap(false);
     }
@@ -273,7 +278,15 @@ Sitemap: https://xlata.site/sitemap.xml`,
               <div className="flex gap-2">
                 <Button onClick={handleRegenerateSitemap} disabled={regeneratingSitemap} className="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600">
                   {regeneratingSitemap ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Globe className="h-4 w-4 mr-2" />}
-                  Atualizar Sitemap
+                  Verificar Sitemap
+                </Button>
+                <Button 
+                  onClick={() => window.open('https://xlata.site/sitemap.xml', '_blank')} 
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Ver XML
                 </Button>
                 <Button onClick={handleSave} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                   {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
