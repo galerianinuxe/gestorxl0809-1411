@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import NoSubscriptionBlocker from './NoSubscriptionBlocker';
+import { SubscriptionExpiredModal } from './SubscriptionExpiredModal';
 import { createLogger } from '@/utils/logger';
 import { useEmployee } from '@/contexts/EmployeeContext';
 
@@ -21,6 +22,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [showSubscriptionBlocker, setShowSubscriptionBlocker] = useState(false);
+  const [showSubscriptionExpiredModal, setShowSubscriptionExpiredModal] = useState(false);
   const [subscriptionCheckTrigger, setSubscriptionCheckTrigger] = useState(0);
 
   // Cache de verificações de role
@@ -194,7 +196,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       }
       
       if (!isSubscriptionActive) {
-        logger.debug('User without active subscription, redirecting to home');
+        logger.debug('User without active subscription, showing expired modal');
+        setShowSubscriptionExpiredModal(true);
         navigate('/');
         return;
       }
@@ -236,7 +239,15 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <SubscriptionExpiredModal
+        open={showSubscriptionExpiredModal}
+        onClose={() => setShowSubscriptionExpiredModal(false)}
+      />
+    </>
+  );
 };
 
 export default AuthGuard;
