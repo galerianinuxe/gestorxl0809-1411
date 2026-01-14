@@ -15,6 +15,7 @@ import { useSubscriptionSync } from '@/hooks/useSubscriptionSync';
 import { PaymentSuccessModal } from '@/components/PaymentSuccessModal';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { CardPaymentForm } from './CardPaymentForm';
 
 const formSchema = z.object({
   name: z.string()
@@ -32,7 +33,8 @@ const formSchema = z.object({
     .regex(/^\d+$/, 'CPF deve conter apenas números')
 });
 
-type CheckoutStep = 'form' | 'qrcode' | 'verifying' | 'approved' | 'rejected';
+type PaymentMethod = 'pix' | 'card';
+type CheckoutStep = 'method' | 'form' | 'qrcode' | 'verifying' | 'approved' | 'rejected' | 'card';
 
 interface CheckoutPageProps {
   selectedPlan: PlanData & { 
@@ -67,7 +69,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onClose,
   benefits = defaultBenefits
 }) => {
-  const [step, setStep] = useState<CheckoutStep>('form');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
+  const [step, setStep] = useState<CheckoutStep>('method');
   const [paymentData, setPaymentData] = useState<PixPaymentResponse | null>(null);
   const [timeLeft, setTimeLeft] = useState(600);
   const [copied, setCopied] = useState(false);
@@ -243,10 +246,54 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   const handleBack = () => {
-    setStep('form');
+    if (step === 'form' || step === 'card') {
+      setStep('method');
+    } else {
+      setStep('form');
+    }
     setPaymentData(null);
     reset();
     setTimeLeft(600);
+  };
+
+  const handleSelectPaymentMethod = (method: PaymentMethod) => {
+    setPaymentMethod(method);
+    if (method === 'pix') {
+      setStep('form');
+    } else {
+      setStep('card');
+    }
+  };
+
+  const handleCardSuccess = async () => {
+    setStep('approved');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await syncSubscriptionData();
+    
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser) {
+      const { data: subscriptions } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('is_active', true)
+        .order('activated_at', { ascending: false })
+        .limit(1);
+
+      const subscription = subscriptions?.[0];
+      if (subscription) {
+        setSubscriptionActivated(true);
+        setActivatedPlan({
+          name: selectedPlan.name || 'Plano',
+          expiresAt: subscription.expires_at
+        });
+      }
+    }
+    setShowSuccessModal(true);
+  };
+
+  const handleCardError = (error: string) => {
+    console.error('Card payment error:', error);
   };
 
   const copyPixCode = async () => {
@@ -271,8 +318,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   const getCurrentIndex = () => {
+    if (step === 'method') return 0;
+    if (step === 'card') return 1;
     if (step === 'rejected') return 2;
-    return steps.findIndex(s => s.id === step);
+    const idx = steps.findIndex(s => s.id === step);
+    return idx >= 0 ? idx : 0;
   };
 
   const currentIndex = getCurrentIndex();
@@ -397,14 +447,115 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
             {/* Content */}
             <div className="p-6 lg:p-8">
-              {step === 'form' && (
+              {/* Payment Method Selection */}
+              {step === 'method' && (
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-bold text-foreground mb-1">
-                      Dados do Pagamento
+                      Escolha a Forma de Pagamento
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Confirme seus dados para gerar o pagamento via PIX
+                      Selecione como deseja pagar
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* PIX Option */}
+                    <button
+                      onClick={() => handleSelectPaymentMethod('pix')}
+                      className={cn(
+                        "p-6 rounded-xl border-2 transition-all duration-200 hover:border-primary/50 hover:bg-muted/30",
+                        paymentMethod === 'pix' ? "border-primary bg-primary/10" : "border-border"
+                      )}
+                    >
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                          <QrCode className="h-8 w-8 text-emerald-500" />
+                        </div>
+                        <div>
+                          <h4 className="text-foreground font-semibold text-lg">PIX</h4>
+                          <p className="text-muted-foreground text-sm mt-1">
+                            Pagamento instantâneo via QR Code
+                          </p>
+                        </div>
+                        <span className="text-xs bg-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full font-medium">
+                          Aprovação imediata
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Card Option */}
+                    <button
+                      onClick={() => handleSelectPaymentMethod('card')}
+                      className={cn(
+                        "p-6 rounded-xl border-2 transition-all duration-200 hover:border-primary/50 hover:bg-muted/30",
+                        paymentMethod === 'card' ? "border-primary bg-primary/10" : "border-border"
+                      )}
+                    >
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
+                          <CreditCard className="h-8 w-8 text-blue-500" />
+                        </div>
+                        <div>
+                          <h4 className="text-foreground font-semibold text-lg">Cartão</h4>
+                          <p className="text-muted-foreground text-sm mt-1">
+                            Crédito ou débito em até 12x
+                          </p>
+                        </div>
+                        <span className="text-xs bg-blue-500/20 text-blue-500 px-3 py-1 rounded-full font-medium">
+                          Parcelamento disponível
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 pt-4">
+                    <Shield className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">
+                      Pagamento seguro processado pelo Mercado Pago
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Card Payment */}
+              {step === 'card' && user && (
+                <div className="space-y-6">
+                  <Button
+                    variant="ghost"
+                    onClick={handleBack}
+                    className="text-muted-foreground hover:text-foreground mb-2 -ml-2"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Voltar
+                  </Button>
+                  
+                  <CardPaymentForm
+                    selectedPlan={selectedPlan}
+                    userId={user.id}
+                    onSuccess={handleCardSuccess}
+                    onError={handleCardError}
+                  />
+                </div>
+              )}
+
+              {step === 'form' && (
+                <div className="space-y-6">
+                  <Button
+                    variant="ghost"
+                    onClick={handleBack}
+                    className="text-muted-foreground hover:text-foreground mb-2 -ml-2"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Voltar
+                  </Button>
+                  
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-1">
+                      Dados do Pagamento PIX
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
+                      Confirme seus dados para gerar o QR Code
                     </p>
                   </div>
 

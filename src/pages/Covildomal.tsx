@@ -17,7 +17,7 @@ import { SubscriptionManagement } from '@/components/admin/SubscriptionManagemen
 import { SystemManagement } from '@/components/admin/SystemManagement';
 import { AdminSidebar, ActiveTab } from '@/components/admin/AdminSidebar';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import LandingManagement from '@/components/admin/LandingManagement';
+import { LandingAdminPanel } from '@/components/admin/LandingAdminPanel';
 import { ActiveUsersList } from '@/components/admin/ActiveUsersList';
 import { useOnlineUsersFromDB } from '@/hooks/useOnlineUsersFromDB';
 import { useUserPresence } from '@/hooks/useUserPresence';
@@ -133,7 +133,7 @@ const Covildomal = () => {
       case 'conteudo':
         return <ContentManagementPanel />;
       case 'landing':
-        return <LandingManagement />;
+        return <LandingAdminPanel />;
       case 'seguranca':
         return <SecurityDashboard />;
       case 'sistema':
