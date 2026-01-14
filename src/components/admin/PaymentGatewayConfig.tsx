@@ -42,6 +42,7 @@ interface PaymentConfig {
   last_test_at: string | null;
   last_test_status: string | null;
   access_token_configured: boolean;
+  webhook_secret_configured: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -60,16 +61,18 @@ export const PaymentGatewayConfig: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingToken, setSavingToken] = useState(false);
+  const [savingWebhookSecret, setSavingWebhookSecret] = useState(false);
   const [testing, setTesting] = useState(false);
   const [recentPayments, setRecentPayments] = useState<RecentPayment[]>([]);
   const [accessToken, setAccessToken] = useState('');
+  const [webhookSecret, setWebhookSecret] = useState('');
   const { toast } = useToast();
 
   const fetchConfig = async () => {
     try {
       const { data, error } = await supabase
         .from('payment_gateway_config')
-        .select('id, gateway_name, is_active, environment, public_key, pix_enabled, card_enabled, max_installments, min_installment_value, notification_email, notify_on_approval, notify_on_failure, webhook_url, last_test_at, last_test_status, access_token_configured, created_at, updated_at')
+        .select('id, gateway_name, is_active, environment, public_key, pix_enabled, card_enabled, max_installments, min_installment_value, notification_email, notify_on_approval, notify_on_failure, webhook_url, last_test_at, last_test_status, access_token_configured, webhook_secret_configured, created_at, updated_at')
         .eq('gateway_name', 'mercado_pago')
         .single();
 
@@ -197,6 +200,47 @@ export const PaymentGatewayConfig: React.FC = () => {
       });
     } finally {
       setSavingToken(false);
+    }
+  };
+
+  const handleSaveWebhookSecret = async () => {
+    if (!config || !webhookSecret.trim()) {
+      toast({
+        title: 'Atenção',
+        description: 'Digite a Assinatura Secreta antes de salvar.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setSavingWebhookSecret(true);
+    try {
+      const { error } = await supabase
+        .from('payment_gateway_config')
+        .update({
+          webhook_secret: webhookSecret.trim(),
+          webhook_secret_configured: true
+        })
+        .eq('id', config.id);
+
+      if (error) throw error;
+
+      setConfig({ ...config, webhook_secret_configured: true });
+      setWebhookSecret('');
+      
+      toast({
+        title: 'Sucesso',
+        description: 'Assinatura Secreta salva com sucesso!'
+      });
+    } catch (error) {
+      console.error('Erro ao salvar assinatura:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível salvar a Assinatura Secreta.',
+        variant: 'destructive'
+      });
+    } finally {
+      setSavingWebhookSecret(false);
     }
   };
 
@@ -524,6 +568,70 @@ export const PaymentGatewayConfig: React.FC = () => {
                 <div className="p-3 bg-amber-600/10 border border-amber-600/30 rounded-lg">
                   <p className="text-xs text-muted-foreground">
                     <strong className="text-amber-400">Segurança:</strong> O token é armazenado de forma segura no banco de dados e nunca é exibido após salvo.
+                  </p>
+                </div>
+              </div>
+
+              {/* Webhook Secret Signature Section */}
+              <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${config.webhook_secret_configured ? 'bg-emerald-500' : 'bg-destructive'}`} />
+                    <div>
+                      <p className="font-medium text-foreground">Assinatura Secreta (Webhook)</p>
+                      <p className="text-sm text-muted-foreground">
+                        {config.webhook_secret_configured 
+                          ? 'Assinatura configurada e ativa' 
+                          : 'Assinatura não configurada'}
+                      </p>
+                    </div>
+                  </div>
+                  {config.webhook_secret_configured && (
+                    <Badge className="bg-emerald-600">Configurado</Badge>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>
+                    {config.webhook_secret_configured ? 'Atualizar Assinatura Secreta' : 'Inserir Assinatura Secreta'}
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="password"
+                      value={webhookSecret}
+                      onChange={(e) => setWebhookSecret(e.target.value)}
+                      placeholder="Assinatura secreta do webhook"
+                      className="font-mono text-sm"
+                    />
+                    <Button 
+                      onClick={handleSaveWebhookSecret} 
+                      disabled={savingWebhookSecret || !webhookSecret.trim()}
+                      variant={config.webhook_secret_configured ? 'outline' : 'default'}
+                    >
+                      {savingWebhookSecret ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Encontre a Assinatura Secreta em{' '}
+                    <a 
+                      href="https://www.mercadopago.com.br/developers/panel/app" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline inline-flex items-center gap-1"
+                    >
+                      Mercado Pago Developers → Webhooks → Assinatura secreta
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </p>
+                </div>
+
+                <div className="p-3 bg-blue-600/10 border border-blue-600/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground">
+                    <strong className="text-blue-400">Validação:</strong> A assinatura secreta é usada para verificar se as notificações de webhook realmente vieram do Mercado Pago.
                   </p>
                 </div>
               </div>
