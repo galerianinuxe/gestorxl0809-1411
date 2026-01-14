@@ -367,7 +367,7 @@ const OrderList: React.FC<OrderListProps> = ({
           setShowManualInput(false);
         }
       }}>
-        <AlertDialogContent className="bg-slate-800 border-slate-700">
+        <AlertDialogContent className="bg-slate-800 border-slate-700 top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bottom-auto inset-auto max-w-md rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-white">Novo Pedido</AlertDialogTitle>
             <AlertDialogDescription asChild>
@@ -408,12 +408,12 @@ const OrderList: React.FC<OrderListProps> = ({
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2 mt-4">
-            <AlertDialogAction onClick={handleCancelNewOrder} className="bg-slate-700 hover:bg-slate-600 text-white w-full sm:w-auto">
-              Cancelar
-            </AlertDialogAction>
-            <AlertDialogAction onClick={handleConfirmNewOrder} className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto">
+          <AlertDialogFooter className="flex flex-col gap-2 mt-4">
+            <AlertDialogAction onClick={handleConfirmNewOrder} className="bg-emerald-600 hover:bg-emerald-700 text-white w-full">
               Criar Pedido
+            </AlertDialogAction>
+            <AlertDialogAction onClick={handleCancelNewOrder} className="bg-slate-700 hover:bg-slate-600 text-white w-full">
+              Cancelar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
