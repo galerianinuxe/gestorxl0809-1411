@@ -104,11 +104,26 @@ serve(async (req) => {
       throw new Error('Invalid transaction amount: must be between 0.01 and 100000')
     }
 
-    // Get Mercado Pago Access Token from Supabase secrets  
-    const MERCADO_PAGO_ACCESS_TOKEN = Deno.env.get('MERCADOPAGO_ACCESS_TOKEN')
+    // Create service role client to fetch access token from database
+    const supabaseService = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Try to get Access Token from database first, then fallback to env
+    const { data: configData } = await supabaseService
+      .from('payment_gateway_config')
+      .select('access_token_encrypted')
+      .eq('gateway_name', 'mercado_pago')
+      .eq('is_active', true)
+      .single();
+
+    const MERCADO_PAGO_ACCESS_TOKEN = 
+      configData?.access_token_encrypted || 
+      Deno.env.get('MERCADOPAGO_ACCESS_TOKEN');
     
     if (!MERCADO_PAGO_ACCESS_TOKEN) {
-      throw new Error('Mercado Pago Access Token not configured')
+      throw new Error('Mercado Pago Access Token not configured. Configure via admin panel or Supabase secrets.')
     }
 
     console.log('Creating card payment:', {

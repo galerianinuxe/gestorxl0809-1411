@@ -2537,6 +2537,8 @@ export type Database = {
       }
       payment_gateway_config: {
         Row: {
+          access_token_configured: boolean | null
+          access_token_encrypted: string | null
           card_enabled: boolean | null
           created_at: string | null
           environment: string | null
@@ -2556,6 +2558,8 @@ export type Database = {
           webhook_url: string | null
         }
         Insert: {
+          access_token_configured?: boolean | null
+          access_token_encrypted?: string | null
           card_enabled?: boolean | null
           created_at?: string | null
           environment?: string | null
@@ -2575,6 +2579,8 @@ export type Database = {
           webhook_url?: string | null
         }
         Update: {
+          access_token_configured?: boolean | null
+          access_token_encrypted?: string | null
           card_enabled?: boolean | null
           created_at?: string | null
           environment?: string | null

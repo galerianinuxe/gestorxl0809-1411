@@ -41,6 +41,7 @@ interface PaymentConfig {
   webhook_url: string | null;
   last_test_at: string | null;
   last_test_status: string | null;
+  access_token_configured: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -58,15 +59,17 @@ export const PaymentGatewayConfig: React.FC = () => {
   const [config, setConfig] = useState<PaymentConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingToken, setSavingToken] = useState(false);
   const [testing, setTesting] = useState(false);
   const [recentPayments, setRecentPayments] = useState<RecentPayment[]>([]);
+  const [accessToken, setAccessToken] = useState('');
   const { toast } = useToast();
 
   const fetchConfig = async () => {
     try {
       const { data, error } = await supabase
         .from('payment_gateway_config')
-        .select('*')
+        .select('id, gateway_name, is_active, environment, public_key, pix_enabled, card_enabled, max_installments, min_installment_value, notification_email, notify_on_approval, notify_on_failure, webhook_url, last_test_at, last_test_status, access_token_configured, created_at, updated_at')
         .eq('gateway_name', 'mercado_pago')
         .single();
 
@@ -143,6 +146,57 @@ export const PaymentGatewayConfig: React.FC = () => {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveAccessToken = async () => {
+    if (!config || !accessToken.trim()) {
+      toast({
+        title: 'Atenção',
+        description: 'Digite o Access Token antes de salvar.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate token format
+    if (!accessToken.startsWith('APP_USR-') && !accessToken.startsWith('TEST-')) {
+      toast({
+        title: 'Formato inválido',
+        description: 'O Access Token deve começar com APP_USR- ou TEST-',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setSavingToken(true);
+    try {
+      const { error } = await supabase
+        .from('payment_gateway_config')
+        .update({
+          access_token_encrypted: accessToken.trim(),
+          access_token_configured: true
+        })
+        .eq('id', config.id);
+
+      if (error) throw error;
+
+      setConfig({ ...config, access_token_configured: true });
+      setAccessToken('');
+      
+      toast({
+        title: 'Sucesso',
+        description: 'Access Token salvo com sucesso!'
+      });
+    } catch (error) {
+      console.error('Erro ao salvar token:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível salvar o Access Token.',
+        variant: 'destructive'
+      });
+    } finally {
+      setSavingToken(false);
     }
   };
 
@@ -410,27 +464,67 @@ export const PaymentGatewayConfig: React.FC = () => {
                 </p>
               </div>
 
-              {/* Info about Access Token */}
-              <div className="p-4 bg-amber-600/10 border border-amber-600/30 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-amber-400">Sobre o Access Token</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      O Access Token (chave secreta) deve ser configurado como um{' '}
-                      <strong>secret do Supabase</strong> por segurança. 
-                      Configure o secret <code className="bg-muted px-1 rounded">MERCADOPAGO_ACCESS_TOKEN</code> no painel do Supabase.
-                    </p>
+              {/* Access Token Section */}
+              <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${config.access_token_configured ? 'bg-emerald-500' : 'bg-destructive'}`} />
+                    <div>
+                      <p className="font-medium text-foreground">Access Token (Chave Secreta)</p>
+                      <p className="text-sm text-muted-foreground">
+                        {config.access_token_configured 
+                          ? 'Token configurado e ativo' 
+                          : 'Token não configurado'}
+                      </p>
+                    </div>
+                  </div>
+                  {config.access_token_configured && (
+                    <Badge className="bg-emerald-600">Configurado</Badge>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>
+                    {config.access_token_configured ? 'Atualizar Access Token' : 'Inserir Access Token'}
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="password"
+                      value={accessToken}
+                      onChange={(e) => setAccessToken(e.target.value)}
+                      placeholder="APP_USR-xxxxxxxx ou TEST-xxxxxxxx"
+                      className="font-mono text-sm"
+                    />
+                    <Button 
+                      onClick={handleSaveAccessToken} 
+                      disabled={savingToken || !accessToken.trim()}
+                      variant={config.access_token_configured ? 'outline' : 'default'}
+                    >
+                      {savingToken ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Encontre seu Access Token em{' '}
                     <a 
-                      href="https://supabase.com/dashboard/project/oxawvjcckmbevjztyfgp/settings/functions" 
+                      href="https://www.mercadopago.com.br/developers/panel/app" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline text-sm inline-flex items-center gap-1 mt-2"
+                      className="text-primary hover:underline inline-flex items-center gap-1"
                     >
-                      Configurar Secrets
+                      Mercado Pago Developers → Credenciais
                       <ExternalLink className="h-3 w-3" />
                     </a>
-                  </div>
+                  </p>
+                </div>
+
+                <div className="p-3 bg-amber-600/10 border border-amber-600/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground">
+                    <strong className="text-amber-400">Segurança:</strong> O token é armazenado de forma segura no banco de dados e nunca é exibido após salvo.
+                  </p>
                 </div>
               </div>
             </CardContent>
