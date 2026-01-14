@@ -64,13 +64,8 @@ const SubscriptionPeriodModal: React.FC<SubscriptionPeriodModalProps> = ({
       
       if (error) throw error;
       
-      // Convert plans to include period_days
-      const plansWithDays = (data || []).map(plan => ({
-        ...plan,
-        period_days: getPlanDays(plan.plan_id)
-      }));
-      
-      setPlans(plansWithDays);
+      // Use period_days directly from database
+      setPlans(data || []);
     } catch (error) {
       console.error('Error loading plans:', error);
       toast({
@@ -80,17 +75,6 @@ const SubscriptionPeriodModal: React.FC<SubscriptionPeriodModalProps> = ({
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getPlanDays = (planId: string): number => {
-    switch (planId) {
-      case 'mensal': return 30;
-      case 'trimestral': return 90;
-      case 'anual': return 365;
-      case 'trienal': return 1095;
-      case 'promocional': return 90;
-      default: return 30;
     }
   };
 
