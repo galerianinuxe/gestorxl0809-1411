@@ -14,6 +14,7 @@ import { Material, MaterialCategory } from "../types/pdv";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import DeleteMaterialModal from "../components/DeleteMaterialModal";
+import DeleteAllMaterialsModal from "../components/DeleteAllMaterialsModal";
 import MaterialConfigModal from "../components/MaterialConfigModal";
 import { useAuth } from "@/hooks/useAuth";
 import { findMaterialMatches, wouldCreateDuplicate, MaterialSuggestion } from '@/utils/materialMatching';
@@ -41,6 +42,7 @@ const Materials = () => {
     material: null
   });
   const [configModal, setConfigModal] = useState<boolean>(false);
+  const [deleteAllModal, setDeleteAllModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [materialSuggestions, setMaterialSuggestions] = useState<MaterialSuggestion[]>([]);
@@ -422,6 +424,15 @@ const Materials = () => {
             <span className="hidden sm:inline">Materiais Padrão</span>
           </Button>
           <Button 
+            onClick={() => setDeleteAllModal(true)} 
+            variant="outline"
+            className="bg-slate-700 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 flex-1 sm:flex-none" 
+            disabled={loading || materials.length === 0}
+          >
+            <Trash className="h-4 w-4 sm:mr-2" /> 
+            <span className="hidden sm:inline">Excluir Todos</span>
+          </Button>
+          <Button 
             onClick={handleAddMaterial} 
             className="bg-emerald-600 hover:bg-emerald-500 text-white flex-1 sm:flex-none" 
             disabled={loading}
@@ -678,6 +689,13 @@ const Materials = () => {
       />
 
       <MaterialConfigModal open={configModal} onClose={() => setConfigModal(false)} />
+
+      <DeleteAllMaterialsModal
+        open={deleteAllModal}
+        onOpenChange={setDeleteAllModal}
+        onMaterialsDeleted={loadMaterials}
+        materialsCount={materials.length}
+      />
 
       {/* Materials Tutorial */}
       {isMaterialsTutorialActive && (
