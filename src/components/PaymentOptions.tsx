@@ -9,7 +9,7 @@ import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 
 export interface PaymentData {
   method: 'debito' | 'credito' | 'dinheiro' | 'pix' | '';
-  pixKeyType?: 'cpf' | 'celular' | 'email';
+  pixKeyType?: 'cpf' | 'cnpj' | 'celular' | 'email';
   pixKeyValue?: string;
 }
 
@@ -52,7 +52,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     }
   };
 
-  const handlePixKeyTypeChange = (keyType: 'cpf' | 'celular' | 'email') => {
+  const handlePixKeyTypeChange = (keyType: 'cpf' | 'cnpj' | 'celular' | 'email') => {
     onPaymentChange({
       ...paymentData,
       pixKeyType: keyType,
@@ -67,6 +67,16 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
     if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+  };
+
+  // Format CNPJ: 00.000.000/0000-00
+  const formatCNPJ = (value: string): string => {
+    const digits = value.replace(/\D/g, '').slice(0, 14);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+    if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+    if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
   };
 
   // Format Phone: (00) 00000-0000
@@ -87,6 +97,8 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     
     if (paymentData.pixKeyType === 'cpf') {
       formattedValue = formatCPF(value);
+    } else if (paymentData.pixKeyType === 'cnpj') {
+      formattedValue = formatCNPJ(value);
     } else if (paymentData.pixKeyType === 'celular') {
       formattedValue = formatPhone(value);
     } else if (paymentData.pixKeyType === 'email') {
@@ -220,7 +232,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
             <RadioGroup 
               value={paymentData.pixKeyType} 
               onValueChange={handlePixKeyTypeChange}
-              className={isMobileOrTablet ? 'grid grid-cols-3 gap-1' : 'space-y-2'}
+              className={isMobileOrTablet ? 'grid grid-cols-2 gap-1' : 'space-y-2'}
             >
               <div className={`flex items-center space-x-2 ${
                 paymentData.pixKeyType === 'cpf' 
@@ -231,6 +243,16 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                 <Label htmlFor="pix-cpf" className={`text-white cursor-pointer ${
                   isMobileOrTablet ? 'text-sm' : 'text-xl'
                 }`}>CPF</Label>
+              </div>
+              <div className={`flex items-center space-x-2 ${
+                paymentData.pixKeyType === 'cnpj' 
+                  ? 'border-2 border-[#10B981] bg-[#0d9156] p-1 rounded' 
+                  : ''
+              }`}>
+                <RadioGroupItem value="cnpj" id="pix-cnpj" className="border-white text-white" />
+                <Label htmlFor="pix-cnpj" className={`text-white cursor-pointer ${
+                  isMobileOrTablet ? 'text-sm' : 'text-xl'
+                }`}>CNPJ</Label>
               </div>
               <div className={`flex items-center space-x-2 ${
                 paymentData.pixKeyType === 'celular' 
@@ -255,7 +277,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
             </RadioGroup>
             
             <Input
-              placeholder={`Digite ${paymentData.pixKeyType === 'cpf' ? 'CPF' : paymentData.pixKeyType === 'celular' ? 'Celular' : 'Email'}`}
+              placeholder={`Digite ${paymentData.pixKeyType === 'cpf' ? 'CPF' : paymentData.pixKeyType === 'cnpj' ? 'CNPJ' : paymentData.pixKeyType === 'celular' ? 'Celular' : 'Email'}`}
               value={paymentData.pixKeyValue || ''}
               onChange={(e) => handlePixKeyValueChange(e.target.value)}
               className={`bg-gray-600 border-gray-500 text-white placeholder-gray-400 ${
