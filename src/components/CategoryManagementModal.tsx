@@ -346,7 +346,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="z-[60] bg-slate-800 border-slate-700 text-white w-full max-w-full h-[100dvh] max-h-[100dvh] rounded-none md:w-auto md:max-w-lg lg:max-w-[70%] md:h-auto md:max-h-[90vh] md:rounded-lg">
+      <DialogContent className="z-[60] bg-slate-800 border-slate-700 text-white w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] h-[90dvh] max-h-[90dvh] rounded-lg mx-4 md:w-auto md:max-w-lg lg:max-w-[70%] md:h-auto md:max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Gerenciar Categorias</DialogTitle>
           <DialogDescription className="text-slate-400">
@@ -583,15 +583,15 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
           </ScrollArea>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <DialogFooter className="flex-col gap-2">
           {showResetConfirm ? (
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <span className="text-xs text-amber-400">Confirmar reset?</span>
+            <div className="flex flex-wrap items-center justify-center gap-2 w-full">
+              <span className="text-xs text-amber-400 w-full text-center sm:w-auto">Confirmar reset?</span>
               <Button
                 size="sm"
                 onClick={handleResetCategories}
                 disabled={isResetting}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="bg-red-600 hover:bg-red-700 text-white flex-1 sm:flex-none"
               >
                 {isResetting ? (
                   <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Resetando...</>
@@ -603,7 +603,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                 size="sm"
                 variant="outline"
                 onClick={() => setShowResetConfirm(false)}
-                className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                className="border-slate-600 text-slate-300 hover:bg-slate-700 flex-1 sm:flex-none"
               >
                 Cancelar
               </Button>
