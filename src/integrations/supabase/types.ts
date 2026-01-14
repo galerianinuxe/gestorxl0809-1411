@@ -1696,6 +1696,39 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_footer_settings: {
+        Row: {
+          copyright_text: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          links: Json | null
+          show_social_links: boolean | null
+          social_links: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          copyright_text?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          links?: Json | null
+          show_social_links?: boolean | null
+          social_links?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          copyright_text?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          links?: Json | null
+          show_social_links?: boolean | null
+          social_links?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       landing_how_it_works: {
         Row: {
           created_at: string | null
@@ -1787,8 +1820,16 @@ export type Database = {
           hero_badge_text: string
           hero_button_text: string
           hero_description: string
+          hero_highlight_text: string | null
           hero_main_title: string
+          hero_secondary_button_text: string | null
+          hero_security_label: string | null
+          hero_social_proof_rating: string | null
+          hero_social_proof_rating_label: string | null
+          hero_social_proof_users: string | null
+          hero_social_proof_users_label: string | null
           hero_subtitle: string
+          hero_video_inline: boolean | null
           id: string
           json_ld_data: string | null
           logo_url: string | null
@@ -1822,8 +1863,16 @@ export type Database = {
           hero_badge_text?: string
           hero_button_text?: string
           hero_description?: string
+          hero_highlight_text?: string | null
           hero_main_title?: string
+          hero_secondary_button_text?: string | null
+          hero_security_label?: string | null
+          hero_social_proof_rating?: string | null
+          hero_social_proof_rating_label?: string | null
+          hero_social_proof_users?: string | null
+          hero_social_proof_users_label?: string | null
           hero_subtitle?: string
+          hero_video_inline?: boolean | null
           id?: string
           json_ld_data?: string | null
           logo_url?: string | null
@@ -1857,8 +1906,16 @@ export type Database = {
           hero_badge_text?: string
           hero_button_text?: string
           hero_description?: string
+          hero_highlight_text?: string | null
           hero_main_title?: string
+          hero_secondary_button_text?: string | null
+          hero_security_label?: string | null
+          hero_social_proof_rating?: string | null
+          hero_social_proof_rating_label?: string | null
+          hero_social_proof_users?: string | null
+          hero_social_proof_users_label?: string | null
           hero_subtitle?: string
+          hero_video_inline?: boolean | null
           id?: string
           json_ld_data?: string | null
           logo_url?: string | null
@@ -2996,9 +3053,11 @@ export type Database = {
       subscription_plans: {
         Row: {
           amount: number
+          badge_text: string | null
           created_at: string
           description: string
           display_order: number | null
+          features: Json | null
           id: string
           is_active: boolean | null
           is_popular: boolean | null
@@ -3017,9 +3076,11 @@ export type Database = {
         }
         Insert: {
           amount: number
+          badge_text?: string | null
           created_at?: string
           description: string
           display_order?: number | null
+          features?: Json | null
           id?: string
           is_active?: boolean | null
           is_popular?: boolean | null
@@ -3038,9 +3099,11 @@ export type Database = {
         }
         Update: {
           amount?: number
+          badge_text?: string | null
           created_at?: string
           description?: string
           display_order?: number | null
+          features?: Json | null
           id?: string
           is_active?: boolean | null
           is_popular?: boolean | null
