@@ -2535,6 +2535,66 @@ export type Database = {
           },
         ]
       }
+      payment_gateway_config: {
+        Row: {
+          card_enabled: boolean | null
+          created_at: string | null
+          environment: string | null
+          gateway_name: string
+          id: string
+          is_active: boolean | null
+          last_test_at: string | null
+          last_test_status: string | null
+          max_installments: number | null
+          min_installment_value: number | null
+          notification_email: string | null
+          notify_on_approval: boolean | null
+          notify_on_failure: boolean | null
+          pix_enabled: boolean | null
+          public_key: string | null
+          updated_at: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          card_enabled?: boolean | null
+          created_at?: string | null
+          environment?: string | null
+          gateway_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_test_at?: string | null
+          last_test_status?: string | null
+          max_installments?: number | null
+          min_installment_value?: number | null
+          notification_email?: string | null
+          notify_on_approval?: boolean | null
+          notify_on_failure?: boolean | null
+          pix_enabled?: boolean | null
+          public_key?: string | null
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          card_enabled?: boolean | null
+          created_at?: string | null
+          environment?: string | null
+          gateway_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_test_at?: string | null
+          last_test_status?: string | null
+          max_installments?: number | null
+          min_installment_value?: number | null
+          notification_email?: string | null
+          notify_on_approval?: boolean | null
+          notify_on_failure?: boolean | null
+          pix_enabled?: boolean | null
+          public_key?: string | null
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       payment_ledger: {
         Row: {
           amount: number

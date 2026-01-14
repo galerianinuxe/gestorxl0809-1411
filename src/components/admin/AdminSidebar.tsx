@@ -47,6 +47,7 @@ export type ActiveTab =
   | 'dashboard' 
   | 'usuarios' 
   | 'financeiro'
+  | 'pagamentos'
   | 'assinaturas' 
   | 'planos'
   | 'conteudo' 
@@ -118,6 +119,7 @@ const menuGroups: MenuGroup[] = [
     icon: DollarSign,
     items: [
       { id: 'financeiro', title: 'Dashboard', icon: DollarSign },
+      { id: 'pagamentos', title: 'Pagamentos', icon: CreditCard },
     ],
     requiredRole: 'admin_operacional'
   },

@@ -36,6 +36,7 @@ import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { DepotClientsManagement } from '@/components/admin/DepotClientsManagement';
 import { EmployeesManagement } from '@/components/admin/EmployeesManagement';
+import { PaymentGatewayConfig } from '@/components/admin/PaymentGatewayConfig';
 
 const Covildomal = () => {
   const navigate = useNavigate();
@@ -128,6 +129,8 @@ const Covildomal = () => {
         return <UserManagement />;
       case 'financeiro':
         return <FinancialDashboard />;
+      case 'pagamentos':
+        return <PaymentGatewayConfig />;
       case 'planos':
         return <PlansManagement />;
       case 'conteudo':

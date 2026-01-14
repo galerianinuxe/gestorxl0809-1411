@@ -32,9 +32,6 @@ interface CardPaymentFormProps {
   onError: (error: string) => void;
 }
 
-// Mercado Pago Public Key - você precisa configurar isso
-const MP_PUBLIC_KEY = 'APP_USR-8a9a2eca-c0dd-4e3e-8d0a-b35f9ec71c18';
-
 export const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
   selectedPlan,
   userId,
@@ -43,12 +40,40 @@ export const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
 }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Initialize Mercado Pago SDK
-    initMercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
-    setIsInitialized(true);
+    const initializePayment = async () => {
+      try {
+        // Buscar chave pública do banco de dados
+        const { data, error } = await supabase
+          .from('payment_gateway_config')
+          .select('public_key, card_enabled, max_installments')
+          .eq('gateway_name', 'mercado_pago')
+          .eq('is_active', true)
+          .single();
+
+        if (error || !data?.public_key) {
+          setInitError('Gateway de pagamento não configurado. Contate o suporte.');
+          return;
+        }
+
+        if (!data.card_enabled) {
+          setInitError('Pagamento com cartão está temporariamente indisponível.');
+          return;
+        }
+
+        // Initialize Mercado Pago SDK com a chave do banco
+        initMercadoPago(data.public_key, { locale: 'pt-BR' });
+        setIsInitialized(true);
+      } catch (err) {
+        console.error('Erro ao inicializar pagamento:', err);
+        setInitError('Erro ao carregar formulário de pagamento.');
+      }
+    };
+
+    initializePayment();
 
     return () => {
       // Cleanup brick on unmount
@@ -137,6 +162,24 @@ export const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
   const handleError = (error: any) => {
     console.error('CardPayment Brick error:', error);
   };
+
+  if (initError) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+            <div>
+              <p className="text-destructive text-sm font-medium">{initError}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Tente usar o pagamento via PIX ou entre em contato com o suporte.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isInitialized) {
     return (
