@@ -132,9 +132,8 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
         {/* Botões de categorias */}
         {activeCategories.map((category) => {
           const isSelected = selectedCategoryId === category.id;
-          const { className, style, isLight } = getCategoryStyle(category);
+          const { className, style } = getCategoryStyle(category);
           const count = materialCountByCategory[category.id] || 0;
-          const textColorClass = isLight ? 'text-slate-900' : 'text-white';
 
           return (
             <button
@@ -151,20 +150,18 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
               style={style}
             >
               {/* Nome da categoria - centralizado */}
-              <span className={cn(
-                'font-bold text-sm text-center leading-tight line-clamp-2',
-                textColorClass
-              )}>
+              <span 
+                className="font-bold text-sm text-center leading-tight line-clamp-2 text-white"
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8), 0 0 1px rgba(0,0,0,0.9)' }}
+              >
                 {category.name}
               </span>
               
               {/* Badge de quantidade - sempre abaixo do nome */}
               {count > 0 && (
                 <span 
-                  className={cn(
-                    'mt-1.5 px-2 py-0.5 text-[11px] font-bold rounded-full',
-                    isLight ? 'bg-black/15 text-slate-800' : 'bg-white/20 text-white'
-                  )}
+                  className="mt-1.5 px-2 py-0.5 text-[11px] font-bold rounded-full bg-white/20 text-white"
+                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
                 >
                   {count}
                 </span>
