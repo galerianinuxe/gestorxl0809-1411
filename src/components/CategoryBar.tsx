@@ -152,7 +152,10 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
               {/* Nome da categoria - centralizado */}
               <span 
                 className="font-bold text-sm text-center leading-tight line-clamp-2 text-white"
-                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8), 0 0 1px rgba(0,0,0,0.9)' }}
+                style={{ 
+                  WebkitTextStroke: '0.5px black',
+                  paintOrder: 'stroke fill'
+                }}
               >
                 {category.name}
               </span>
@@ -161,7 +164,10 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
               {count > 0 && (
                 <span 
                   className="mt-1.5 px-2 py-0.5 text-[11px] font-bold rounded-full bg-white/20 text-white"
-                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
+                  style={{ 
+                    WebkitTextStroke: '0.3px black',
+                    paintOrder: 'stroke fill'
+                  }}
                 >
                   {count}
                 </span>
