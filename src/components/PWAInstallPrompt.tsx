@@ -3,6 +3,8 @@ import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
+const PWA_PROMPT_DISMISSED_KEY = 'pwa_install_prompt_dismissed';
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
@@ -19,6 +21,13 @@ export function PWAInstallPrompt() {
     // Só mostra prompt para usuários logados
     if (loading || !user) {
       setShowPrompt(false);
+      return;
+    }
+
+    // Verificar se usuário já dispensou permanentemente
+    const wasPermanentlyDismissed = localStorage.getItem(PWA_PROMPT_DISMISSED_KEY) === 'true';
+    if (wasPermanentlyDismissed) {
+      setDismissed(true);
       return;
     }
 
@@ -85,7 +94,10 @@ export function PWAInstallPrompt() {
     }
   };
 
-  const handleDismiss = () => {
+  const handleDismiss = (permanent: boolean = false) => {
+    if (permanent) {
+      localStorage.setItem(PWA_PROMPT_DISMISSED_KEY, 'true');
+    }
     setDismissed(true);
     setShowPrompt(false);
   };
@@ -98,36 +110,52 @@ export function PWAInstallPrompt() {
     <div className="fixed top-2 right-2 z-50 animate-in fade-in-0 slide-in-from-top-2 duration-300">
       {isIOS ? (
         // iOS: Texto informativo pequeno
-        <div className="bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 flex items-center gap-2 shadow-lg max-w-xs">
-          <Download className="h-4 w-4 text-emerald-400 flex-shrink-0" />
-          <span className="text-xs text-gray-300">
-            <strong className="text-white">Compartilhar</strong> → <strong className="text-white">Adicionar à Tela</strong>
-          </span>
+        <div className="bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 shadow-lg max-w-xs">
+          <div className="flex items-center gap-2">
+            <Download className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+            <span className="text-xs text-gray-300">
+              <strong className="text-white">Compartilhar</strong> → <strong className="text-white">Adicionar à Tela</strong>
+            </span>
+            <button 
+              onClick={() => handleDismiss(false)} 
+              className="ml-1 text-gray-500 hover:text-white transition-colors flex-shrink-0"
+              aria-label="Fechar"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
           <button 
-            onClick={handleDismiss} 
-            className="ml-1 text-gray-500 hover:text-white transition-colors flex-shrink-0"
-            aria-label="Fechar"
+            onClick={() => handleDismiss(true)}
+            className="text-[10px] text-gray-500 hover:text-gray-300 mt-1 underline w-full text-center"
           >
-            <X className="h-3.5 w-3.5" />
+            Não mostrar novamente
           </button>
         </div>
       ) : (
         // Android/Desktop: Botão discreto
-        <div className="flex items-center gap-1">
-          <Button
-            onClick={handleInstall}
-            size="sm"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 h-auto shadow-lg"
-          >
-            <Download className="h-3.5 w-3.5 mr-1.5" />
-            Instalar App
-          </Button>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-1">
+            <Button
+              onClick={handleInstall}
+              size="sm"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 h-auto shadow-lg"
+            >
+              <Download className="h-3.5 w-3.5 mr-1.5" />
+              Instalar App
+            </Button>
+            <button 
+              onClick={() => handleDismiss(false)}
+              className="p-1 text-gray-400 hover:text-white bg-gray-800/80 rounded-md transition-colors"
+              aria-label="Fechar"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
           <button 
-            onClick={handleDismiss}
-            className="p-1 text-gray-400 hover:text-white bg-gray-800/80 rounded-md transition-colors"
-            aria-label="Fechar"
+            onClick={() => handleDismiss(true)}
+            className="text-[10px] text-gray-500 hover:text-gray-300 underline"
           >
-            <X className="h-3.5 w-3.5" />
+            Não mostrar novamente
           </button>
         </div>
       )}
