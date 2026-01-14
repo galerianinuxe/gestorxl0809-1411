@@ -1,44 +1,53 @@
-import { Play, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { LandingVideo } from '@/hooks/useLandingData';
-import { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { CustomVideoPlayer } from './CustomVideoPlayer';
 
 interface LandingVideosProps {
   items: LandingVideo[];
 }
 
-function getYouTubeId(url: string): string | null {
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/);
-  return match ? match[1] : null;
-}
-
-function getVimeoId(url: string): string | null {
-  const match = url.match(/vimeo\.com\/(\d+)/);
-  return match ? match[1] : null;
-}
-
 export function LandingVideos({ items }: LandingVideosProps) {
-  const [selectedVideo, setSelectedVideo] = useState<LandingVideo | null>(null);
-
   if (!items.length) return null;
 
-  const getEmbedUrl = (url: string) => {
-    const youtubeId = getYouTubeId(url);
-    if (youtubeId) return `https://www.youtube.com/embed/${youtubeId}?autoplay=1`;
-    
-    const vimeoId = getVimeoId(url);
-    if (vimeoId) return `https://player.vimeo.com/video/${vimeoId}?autoplay=1`;
-    
-    return url;
+  // Ordenar por display_order
+  const sortedItems = [...items].sort((a, b) => a.display_order - b.display_order);
+
+  // Determinar layout baseado na quantidade de vídeos
+  const getGridClass = () => {
+    if (sortedItems.length === 1) {
+      return 'flex justify-center';
+    }
+    if (sortedItems.length === 2) {
+      return 'grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto';
+    }
+    return 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto';
   };
 
-  const getThumbnail = (video: LandingVideo) => {
-    if (video.thumbnail_url) return video.thumbnail_url;
+  // Determinar classe da coluna para cada vídeo
+  const getItemClass = (video: LandingVideo, index: number) => {
+    // Se apenas 1 vídeo, centralizar com largura máxima
+    if (sortedItems.length === 1) {
+      return 'w-full max-w-xl';
+    }
     
-    const youtubeId = getYouTubeId(video.video_url);
-    if (youtubeId) return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+    // Se 2 vídeos, usar grid normal
+    if (sortedItems.length === 2) {
+      return '';
+    }
     
-    return null;
+    // Para 3+ vídeos, usar column_position para determinar posição
+    const position = video.column_position || 2;
+    
+    // Em desktop (lg), posicionar na coluna correta
+    return `lg:col-start-${position}`;
+  };
+
+  // Obter URL do vídeo (upload tem prioridade)
+  const getVideoSrc = (video: LandingVideo) => {
+    if (video.video_type === 'upload' && video.video_file_url) {
+      return video.video_file_url;
+    }
+    return video.video_url;
   };
 
   return (
@@ -55,74 +64,45 @@ export function LandingVideos({ items }: LandingVideosProps) {
         </div>
 
         {/* Videos Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {items.map((video) => {
-            const thumbnail = getThumbnail(video);
-            
-            return (
-              <button 
-                key={video.id}
-                onClick={() => setSelectedVideo(video)}
-                className="group relative bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden text-left hover:border-emerald-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10"
-              >
-                {/* Thumbnail */}
-                <div className="aspect-video relative bg-slate-700">
-                  {thumbnail && (
-                    <img 
-                      src={thumbnail} 
-                      alt={video.title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                  
-                  {/* Play Overlay */}
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/30 transition-colors">
-                    <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play className="w-7 h-7 text-white ml-1" />
-                    </div>
-                  </div>
-                  
-                  {/* Duration */}
-                  {video.duration && (
-                    <div className="absolute bottom-3 right-3 bg-black/70 rounded px-2 py-1 flex items-center gap-1 text-xs text-white">
-                      <Clock className="w-3 h-3" />
-                      {video.duration}
-                    </div>
-                  )}
-                </div>
+        <div className={getGridClass()}>
+          {sortedItems.map((video, index) => (
+            <div 
+              key={video.id}
+              className={`group ${getItemClass(video, index)}`}
+            >
+              {/* Custom Video Player */}
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden hover:border-emerald-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10">
+                <CustomVideoPlayer
+                  src={getVideoSrc(video)}
+                  thumbnail={video.thumbnail_url}
+                  title={video.title}
+                  isYouTube={video.video_type === 'url'}
+                />
                 
                 {/* Info */}
                 <div className="p-4">
-                  <h3 className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
-                    {video.title}
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                      {video.title}
+                    </h3>
+                    {video.duration && (
+                      <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <Clock className="w-3 h-3" />
+                        {video.duration}
+                      </div>
+                    )}
+                  </div>
                   {video.description && (
                     <p className="text-slate-400 text-sm mt-1 line-clamp-2">
                       {video.description}
                     </p>
                   )}
                 </div>
-              </button>
-            );
-          })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Video Modal */}
-      <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
-        <DialogContent className="max-w-4xl p-0 bg-black border-slate-700">
-          {selectedVideo && (
-            <div className="aspect-video">
-              <iframe
-                src={getEmbedUrl(selectedVideo.video_url)}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </section>
   );
 }

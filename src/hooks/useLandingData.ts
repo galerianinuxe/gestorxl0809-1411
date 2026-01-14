@@ -57,6 +57,9 @@ export interface LandingVideo {
   title: string;
   description: string | null;
   video_url: string;
+  video_file_url: string | null;
+  video_type: 'url' | 'upload';
+  column_position: number;
   thumbnail_url: string | null;
   duration: string | null;
   is_active: boolean;

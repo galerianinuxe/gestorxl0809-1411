@@ -2088,6 +2088,7 @@ export type Database = {
       }
       landing_videos: {
         Row: {
+          column_position: number | null
           created_at: string | null
           description: string | null
           display_order: number
@@ -2097,9 +2098,12 @@ export type Database = {
           thumbnail_url: string | null
           title: string
           updated_at: string | null
+          video_file_url: string | null
+          video_type: string | null
           video_url: string
         }
         Insert: {
+          column_position?: number | null
           created_at?: string | null
           description?: string | null
           display_order: number
@@ -2109,9 +2113,12 @@ export type Database = {
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
+          video_file_url?: string | null
+          video_type?: string | null
           video_url: string
         }
         Update: {
+          column_position?: number | null
           created_at?: string | null
           description?: string | null
           display_order?: number
@@ -2121,6 +2128,8 @@ export type Database = {
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
+          video_file_url?: string | null
+          video_type?: string | null
           video_url?: string
         }
         Relationships: []
