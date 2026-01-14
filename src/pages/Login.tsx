@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { validateSupabaseConnection } from '@/utils/connectionValidator';
 import LoginLogo from '@/components/LoginLogo';
 import { useRateLimit } from '@/hooks/useRateLimit';
+import { SEOHead } from '@/components/portal/SEOHead';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -172,6 +173,12 @@ const Login: React.FC = () => {
   }
 
   return (
+    <>
+      <SEOHead 
+        title="Login - XLata"
+        description="Acesse sua conta XLata - Sistema para Depósito de Reciclagem"
+        allowIndexing={false}
+      />
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
@@ -280,8 +287,9 @@ const Login: React.FC = () => {
             </Button>
           </p>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

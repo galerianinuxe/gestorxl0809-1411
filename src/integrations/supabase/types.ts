@@ -528,7 +528,9 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          allow_indexing: boolean | null
           author_id: string | null
+          canonical_url: string | null
           category_id: string | null
           content_html: string | null
           content_md: string | null
@@ -542,6 +544,8 @@ export type Database = {
           reading_time_minutes: number | null
           seo_description: string | null
           seo_title: string | null
+          sitemap_changefreq: string | null
+          sitemap_priority: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"]
           tags: string[] | null
@@ -550,7 +554,9 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          allow_indexing?: boolean | null
           author_id?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content_html?: string | null
           content_md?: string | null
@@ -564,6 +570,8 @@ export type Database = {
           reading_time_minutes?: number | null
           seo_description?: string | null
           seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
           tags?: string[] | null
@@ -572,7 +580,9 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          allow_indexing?: boolean | null
           author_id?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content_html?: string | null
           content_md?: string | null
@@ -586,6 +596,8 @@ export type Database = {
           reading_time_minutes?: number | null
           seo_description?: string | null
           seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
           tags?: string[] | null
@@ -1366,6 +1378,8 @@ export type Database = {
       }
       glossary_terms: {
         Row: {
+          allow_indexing: boolean | null
+          canonical_url: string | null
           created_at: string
           examples: string | null
           id: string
@@ -1375,6 +1389,8 @@ export type Database = {
           seo_description: string | null
           seo_title: string | null
           short_definition: string
+          sitemap_changefreq: string | null
+          sitemap_priority: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"]
           term: string
@@ -1382,6 +1398,8 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          allow_indexing?: boolean | null
+          canonical_url?: string | null
           created_at?: string
           examples?: string | null
           id?: string
@@ -1391,6 +1409,8 @@ export type Database = {
           seo_description?: string | null
           seo_title?: string | null
           short_definition: string
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
           term: string
@@ -1398,6 +1418,8 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          allow_indexing?: boolean | null
+          canonical_url?: string | null
           created_at?: string
           examples?: string | null
           id?: string
@@ -1407,6 +1429,8 @@ export type Database = {
           seo_description?: string | null
           seo_title?: string | null
           short_definition?: string
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
           term?: string
@@ -1528,6 +1552,8 @@ export type Database = {
       }
       help_articles: {
         Row: {
+          allow_indexing: boolean | null
+          canonical_url: string | null
           category_id: string | null
           content_html: string | null
           content_md: string | null
@@ -1539,6 +1565,8 @@ export type Database = {
           reading_time_minutes: number | null
           seo_description: string | null
           seo_title: string | null
+          sitemap_changefreq: string | null
+          sitemap_priority: number | null
           slug: string
           sort_order: number | null
           status: Database["public"]["Enums"]["content_status"]
@@ -1547,6 +1575,8 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          allow_indexing?: boolean | null
+          canonical_url?: string | null
           category_id?: string | null
           content_html?: string | null
           content_md?: string | null
@@ -1558,6 +1588,8 @@ export type Database = {
           reading_time_minutes?: number | null
           seo_description?: string | null
           seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug: string
           sort_order?: number | null
           status?: Database["public"]["Enums"]["content_status"]
@@ -1566,6 +1598,8 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          allow_indexing?: boolean | null
+          canonical_url?: string | null
           category_id?: string | null
           content_html?: string | null
           content_md?: string | null
@@ -1577,6 +1611,8 @@ export type Database = {
           reading_time_minutes?: number | null
           seo_description?: string | null
           seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug?: string
           sort_order?: number | null
           status?: Database["public"]["Enums"]["content_status"]
@@ -2657,7 +2693,9 @@ export type Database = {
       }
       pillar_pages: {
         Row: {
+          allow_indexing: boolean | null
           benefits: Json | null
+          canonical_url: string | null
           created_at: string
           cta_primary_text: string | null
           cta_primary_url: string | null
@@ -2674,6 +2712,8 @@ export type Database = {
           sections: Json | null
           seo_description: string | null
           seo_title: string | null
+          sitemap_changefreq: string | null
+          sitemap_priority: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"]
           subheadline: string | null
@@ -2682,7 +2722,9 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          allow_indexing?: boolean | null
           benefits?: Json | null
+          canonical_url?: string | null
           created_at?: string
           cta_primary_text?: string | null
           cta_primary_url?: string | null
@@ -2699,6 +2741,8 @@ export type Database = {
           sections?: Json | null
           seo_description?: string | null
           seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
           subheadline?: string | null
@@ -2707,7 +2751,9 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          allow_indexing?: boolean | null
           benefits?: Json | null
+          canonical_url?: string | null
           created_at?: string
           cta_primary_text?: string | null
           cta_primary_url?: string | null
@@ -2724,6 +2770,8 @@ export type Database = {
           sections?: Json | null
           seo_description?: string | null
           seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
           subheadline?: string | null
@@ -3128,6 +3176,57 @@ export type Database = {
           twitter_title?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      static_pages_seo: {
+        Row: {
+          allow_indexing: boolean | null
+          canonical_url: string | null
+          created_at: string | null
+          id: string
+          include_in_sitemap: boolean | null
+          is_protected: boolean | null
+          og_image: string | null
+          page_name: string
+          path: string
+          seo_description: string | null
+          seo_title: string | null
+          sitemap_changefreq: string | null
+          sitemap_priority: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          allow_indexing?: boolean | null
+          canonical_url?: string | null
+          created_at?: string | null
+          id?: string
+          include_in_sitemap?: boolean | null
+          is_protected?: boolean | null
+          og_image?: string | null
+          page_name: string
+          path: string
+          seo_description?: string | null
+          seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          allow_indexing?: boolean | null
+          canonical_url?: string | null
+          created_at?: string | null
+          id?: string
+          include_in_sitemap?: boolean | null
+          is_protected?: boolean | null
+          og_image?: string | null
+          page_name?: string
+          path?: string
+          seo_description?: string | null
+          seo_title?: string | null
+          sitemap_changefreq?: string | null
+          sitemap_priority?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }

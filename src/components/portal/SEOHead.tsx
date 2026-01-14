@@ -10,6 +10,10 @@ interface SEOHeadProps {
   modifiedTime?: string;
   author?: string;
   noindex?: boolean;
+  /** Explicitly control if this page should be indexed. When false, adds noindex meta tag. */
+  allowIndexing?: boolean;
+  /** Custom canonical URL. If not provided, uses current path. */
+  customCanonical?: string;
 }
 
 export const SEOHead = ({
@@ -22,10 +26,16 @@ export const SEOHead = ({
   modifiedTime,
   author,
   noindex = false,
+  allowIndexing = true,
+  customCanonical,
 }: SEOHeadProps) => {
   const fullTitle = title.includes('XLata') ? title : `${title} | XLata`;
-  const canonicalUrl = canonical || `https://xlata.site${window.location.pathname}`;
+  // Use customCanonical first, then canonical prop, then default
+  const canonicalUrl = customCanonical || canonical || `https://xlata.site${window.location.pathname}`;
   const ogImageUrl = ogImage?.startsWith('http') ? ogImage : `https://xlata.site${ogImage}`;
+  
+  // Should add noindex if either noindex is true OR allowIndexing is false
+  const shouldNoindex = noindex || !allowIndexing;
 
   return (
     <Helmet>
@@ -34,7 +44,7 @@ export const SEOHead = ({
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
       
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      {shouldNoindex && <meta name="robots" content="noindex, nofollow" />}
 
       {/* Open Graph */}
       <meta property="og:title" content={fullTitle} />

@@ -21,11 +21,13 @@ import {
   BookOpen,
   Layers,
   HelpCircle,
-  BarChart3
+  BarChart3,
+  ListTree
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { SEOPageManager } from './SEOPageManager';
 
 interface SEOSettings {
   site_title: string;
@@ -283,8 +285,12 @@ Sitemap: https://xlata.site/sitemap.xml`,
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="meta" className="w-full">
+      <Tabs defaultValue="pages" className="w-full">
         <TabsList className="bg-[hsl(220,13%,18%)] border border-[hsl(220,13%,26%)]">
+          <TabsTrigger value="pages" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400">
+            <ListTree className="h-4 w-4 mr-2" />
+            Páginas
+          </TabsTrigger>
           <TabsTrigger value="meta" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-gray-400">
             <Search className="h-4 w-4 mr-2" />
             Meta Tags
@@ -298,6 +304,24 @@ Sitemap: https://xlata.site/sitemap.xml`,
             Técnico
           </TabsTrigger>
         </TabsList>
+
+        {/* Pages Tab - NEW */}
+        <TabsContent value="pages" className="mt-4">
+          <Card className="bg-[hsl(220,13%,18%)] border-[hsl(220,13%,26%)]">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <ListTree className="h-5 w-5 text-emerald-400" />
+                Gerenciador de Páginas SEO
+              </CardTitle>
+              <p className="text-sm text-gray-400">
+                Controle quais páginas devem ser indexadas pelo Google e incluídas no sitemap.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <SEOPageManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Meta Tags Tab */}
         <TabsContent value="meta" className="mt-4">

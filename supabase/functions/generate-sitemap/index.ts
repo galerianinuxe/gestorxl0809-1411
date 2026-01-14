@@ -59,38 +59,38 @@ serve(async (req) => {
   const baseUrl = 'https://xlata.site'
   const now = new Date().toISOString().split('T')[0]
 
-  // Static pages with priority
-  const staticPages = [
-    { loc: '/', priority: '1.0', changefreq: 'daily' },
-    { loc: '/landing', priority: '1.0', changefreq: 'daily' },
-    { loc: '/login', priority: '0.7', changefreq: 'monthly' },
-    { loc: '/register', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/planos', priority: '0.9', changefreq: 'weekly' },
-    { loc: '/termos', priority: '0.5', changefreq: 'monthly' },
-    { loc: '/blog', priority: '0.9', changefreq: 'daily' },
-    { loc: '/ajuda', priority: '0.9', changefreq: 'weekly' },
-    { loc: '/solucoes', priority: '0.9', changefreq: 'weekly' },
-    { loc: '/glossario', priority: '0.8', changefreq: 'weekly' },
-  ]
-
-  // Fetch dynamic content in parallel
-  const [blogPosts, helpArticles, pillarPages, glossaryTerms] = await Promise.all([
+  // Fetch all data in parallel - only indexable and published content
+  const [staticPagesRes, blogPosts, helpArticles, pillarPages, glossaryTerms] = await Promise.all([
+    // Static pages from the new table - only those marked for sitemap
+    supabase
+      .from('static_pages_seo')
+      .select('path, sitemap_priority, sitemap_changefreq, updated_at, canonical_url')
+      .eq('include_in_sitemap', true)
+      .eq('allow_indexing', true),
+    // Blog posts - only published AND indexable
     supabase
       .from('blog_posts')
-      .select('slug, updated_at')
-      .eq('status', 'published'),
+      .select('slug, updated_at, canonical_url, sitemap_priority, sitemap_changefreq')
+      .eq('status', 'published')
+      .eq('allow_indexing', true),
+    // Help articles - only published AND indexable
     supabase
       .from('help_articles')
-      .select('slug, updated_at')
-      .eq('status', 'published'),
+      .select('slug, updated_at, canonical_url, sitemap_priority, sitemap_changefreq')
+      .eq('status', 'published')
+      .eq('allow_indexing', true),
+    // Pillar pages - only published AND indexable
     supabase
       .from('pillar_pages')
-      .select('slug, updated_at')
-      .eq('status', 'published'),
+      .select('slug, updated_at, canonical_url, sitemap_priority, sitemap_changefreq')
+      .eq('status', 'published')
+      .eq('allow_indexing', true),
+    // Glossary terms - only published AND indexable
     supabase
       .from('glossary_terms')
-      .select('slug, updated_at')
+      .select('slug, updated_at, canonical_url, sitemap_priority, sitemap_changefreq')
       .eq('status', 'published')
+      .eq('allow_indexing', true)
   ])
 
   // Build XML
@@ -98,62 +98,93 @@ serve(async (req) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `
 
-  // Static pages
-  for (const page of staticPages) {
+  // Static pages from database
+  for (const page of staticPagesRes.data || []) {
+    const loc = page.canonical_url || `${baseUrl}${page.path}`
+    const priority = page.sitemap_priority?.toString() || '0.5'
+    const changefreq = page.sitemap_changefreq || 'monthly'
+    const lastmod = page.updated_at?.split('T')[0] || now
+    
     xml += `  <url>
-    <loc>${baseUrl}${page.loc}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
+    <loc>${loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
   </url>
 `
   }
 
   // Blog posts
   for (const post of blogPosts.data || []) {
+    const loc = post.canonical_url || `${baseUrl}/blog/${post.slug}`
+    const priority = post.sitemap_priority?.toString() || '0.7'
+    const changefreq = post.sitemap_changefreq || 'weekly'
+    
     xml += `  <url>
-    <loc>${baseUrl}/blog/${post.slug}</loc>
+    <loc>${loc}</loc>
     <lastmod>${post.updated_at?.split('T')[0] || now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
   </url>
 `
   }
 
   // Help articles
   for (const article of helpArticles.data || []) {
+    const loc = article.canonical_url || `${baseUrl}/ajuda/artigo/${article.slug}`
+    const priority = article.sitemap_priority?.toString() || '0.6'
+    const changefreq = article.sitemap_changefreq || 'monthly'
+    
     xml += `  <url>
-    <loc>${baseUrl}/ajuda/artigo/${article.slug}</loc>
+    <loc>${loc}</loc>
     <lastmod>${article.updated_at?.split('T')[0] || now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
   </url>
 `
   }
 
   // Pillar/Solution pages
   for (const page of pillarPages.data || []) {
+    const loc = page.canonical_url || `${baseUrl}/solucoes/${page.slug}`
+    const priority = page.sitemap_priority?.toString() || '0.8'
+    const changefreq = page.sitemap_changefreq || 'weekly'
+    
     xml += `  <url>
-    <loc>${baseUrl}/solucoes/${page.slug}</loc>
+    <loc>${loc}</loc>
     <lastmod>${page.updated_at?.split('T')[0] || now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
   </url>
 `
   }
 
   // Glossary terms
   for (const term of glossaryTerms.data || []) {
+    const loc = term.canonical_url || `${baseUrl}/glossario/${term.slug}`
+    const priority = term.sitemap_priority?.toString() || '0.5'
+    const changefreq = term.sitemap_changefreq || 'monthly'
+    
     xml += `  <url>
-    <loc>${baseUrl}/glossario/${term.slug}</loc>
+    <loc>${loc}</loc>
     <lastmod>${term.updated_at?.split('T')[0] || now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
   </url>
 `
   }
 
   xml += `</urlset>`
+
+  // Log stats
+  const stats = {
+    static: staticPagesRes.data?.length || 0,
+    blog: blogPosts.data?.length || 0,
+    help: helpArticles.data?.length || 0,
+    pillar: pillarPages.data?.length || 0,
+    glossary: glossaryTerms.data?.length || 0
+  }
+  console.log(`[generate-sitemap] Generated sitemap with ${Object.values(stats).reduce((a, b) => a + b, 0)} URLs:`, stats)
 
   return new Response(xml, {
     headers: {

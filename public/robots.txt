@@ -1,11 +1,46 @@
 User-agent: *
 Allow: /
 
-# Impede indexação de arquivos internos sensíveis (boas práticas)
+# Páginas públicas e indexáveis
+Allow: /landing
+Allow: /blog
+Allow: /ajuda
+Allow: /solucoes
+Allow: /glossario
+Allow: /planos
+Allow: /termos-de-uso
+
+# Páginas privadas e técnicas - NÃO INDEXAR
+Disallow: /admin/
+Disallow: /admin
+Disallow: /covildomal/
+Disallow: /covildomal
+Disallow: /login
+Disallow: /register
+Disallow: /dashboard
+Disallow: /materiais
+Disallow: /configuracoes
+Disallow: /clientes
+Disallow: /funcionarios
+Disallow: /transacoes
+Disallow: /estoque
+Disallow: /vendas
+Disallow: /compras
+Disallow: /despesas
+Disallow: /fluxo-caixa
+Disallow: /adicoes-caixa
+Disallow: /indicacoes
+Disallow: /guia-completo
+Disallow: /relatar-erro
+Disallow: /pix-payments
+
+# Arquivos técnicos
 Disallow: /src/
 Disallow: /node_modules/
-Disallow: /package.json
-Disallow: /vite.config.js
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /*.js$
+Disallow: /*.ts$
 
 # SITEMAP OFICIAL
-Sitemap: https://www.xlata.site/sitemap.xml
+Sitemap: https://xlata.site/sitemap.xml
