@@ -41,7 +41,7 @@ export function AdminLandingFooter() {
       return {
         id: data.id,
         copyright_text: data.copyright_text,
-        links: Array.isArray(data.links) ? data.links as FooterLink[] : [],
+        links: Array.isArray(data.links) ? (data.links as unknown as FooterLink[]) : [],
         show_social_links: data.show_social_links,
         social_links: Array.isArray(data.social_links) ? data.social_links : [],
         is_active: data.is_active,
