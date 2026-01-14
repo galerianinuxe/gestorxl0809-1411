@@ -4,18 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Pencil, Trash2, GripVertical, Check, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, Pencil, Trash2, Check, X, Shield, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { MaterialCategory } from '@/types/pdv';
-import { getMaterialCategories, saveMaterialCategory, removeMaterialCategory } from '@/utils/supabaseStorage';
+import { getMaterialCategories, saveMaterialCategory, removeMaterialCategory, toggleCategoryActive, seedDefaultCategoriesAndMaterials } from '@/utils/supabaseStorage';
 import { CATEGORY_COLORS, CATEGORY_COLOR_OPTIONS } from './CategoryBar';
 import { cn } from '@/lib/utils';
+import { Badge } from "@/components/ui/badge";
 
 interface CategoryManagementModalProps {
   open: boolean;
   onClose: () => void;
   onCategoriesChanged?: () => void;
 }
+
+// Helper to check if a hex color is light
+const isLightColor = (hex: string): boolean => {
+  if (!hex || !hex.startsWith('#')) return false;
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5;
+};
 
 const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
   open,
@@ -24,6 +36,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
 }) => {
   const [categories, setCategories] = useState<MaterialCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSeedLoading, setIsSeedLoading] = useState(false);
   const [editingCategory, setEditingCategory] = useState<MaterialCategory | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -49,6 +62,28 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSeedDefaults = async () => {
+    setIsSeedLoading(true);
+    try {
+      await seedDefaultCategoriesAndMaterials();
+      await loadCategories();
+      onCategoriesChanged?.();
+      toast({
+        title: "Sucesso",
+        description: "Categorias e materiais padrão criados com sucesso!"
+      });
+    } catch (error) {
+      console.error('Error seeding defaults:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao criar categorias padrão",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSeedLoading(false);
     }
   };
 
@@ -106,6 +141,17 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
   const handleUpdateCategory = async () => {
     if (!editingCategory || !editingCategory.name.trim()) return;
 
+    // Block editing system categories
+    if (editingCategory.is_system) {
+      toast({
+        title: "Bloqueado",
+        description: "Categorias do sistema não podem ser editadas",
+        variant: "destructive"
+      });
+      setEditingCategory(null);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const updated = await saveMaterialCategory({
@@ -135,11 +181,21 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
     }
   };
 
-  const handleDeleteCategory = async (categoryId: string) => {
+  const handleDeleteCategory = async (category: MaterialCategory) => {
+    // Block deleting system categories
+    if (category.is_system) {
+      toast({
+        title: "Bloqueado",
+        description: "Categorias do sistema não podem ser excluídas",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await removeMaterialCategory(categoryId);
-      setCategories(prev => prev.filter(c => c.id !== categoryId));
+      await removeMaterialCategory(category.id);
+      setCategories(prev => prev.filter(c => c.id !== category.id));
       onCategoriesChanged?.();
 
       toast({
@@ -158,7 +214,43 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
     }
   };
 
-  const ColorPicker: React.FC<{ value: string; onChange: (color: string) => void }> = ({ value, onChange }) => (
+  const handleToggleActive = async (category: MaterialCategory) => {
+    // Block toggling required system categories
+    if (category.is_system && category.is_required) {
+      toast({
+        title: "Bloqueado",
+        description: "Categorias obrigatórias do sistema não podem ser desativadas",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const newActiveState = !category.is_active;
+      await toggleCategoryActive(category.id, newActiveState);
+      setCategories(prev => prev.map(c => 
+        c.id === category.id ? { ...c, is_active: newActiveState } : c
+      ));
+      onCategoriesChanged?.();
+
+      toast({
+        title: "Sucesso",
+        description: newActiveState ? "Categoria ativada" : "Categoria desativada"
+      });
+    } catch (error) {
+      console.error('Error toggling category:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao alterar status da categoria",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const ColorPicker: React.FC<{ value: string; onChange: (color: string) => void; disabled?: boolean }> = ({ value, onChange, disabled }) => (
     <div className="flex flex-wrap gap-1.5">
       {CATEGORY_COLOR_OPTIONS.map((option) => {
         const colors = CATEGORY_COLORS[option.value];
@@ -166,13 +258,15 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
           <button
             key={option.value}
             type="button"
-            onClick={() => onChange(option.value)}
+            onClick={() => !disabled && onChange(option.value)}
+            disabled={disabled}
             className={cn(
               'w-7 h-7 rounded-full border-2 transition-all duration-200 flex items-center justify-center',
               colors.bg,
               value === option.value 
                 ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-800 border-white' 
-                : 'border-transparent hover:scale-110'
+                : 'border-transparent hover:scale-110',
+              disabled && 'opacity-50 cursor-not-allowed'
             )}
             title={option.label}
           >
@@ -183,9 +277,26 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
     </div>
   );
 
+  // Get the color display for a category
+  const getCategoryColorDisplay = (category: MaterialCategory) => {
+    if (category.hex_color) {
+      return {
+        backgroundColor: category.hex_color,
+        color: isLightColor(category.hex_color) ? '#000000' : '#FFFFFF'
+      };
+    }
+    const colors = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.blue;
+    return { className: colors.bg };
+  };
+
+  // Separate system and user categories
+  const systemCategories = categories.filter(c => c.is_system);
+  const userCategories = categories.filter(c => !c.is_system);
+  const hasSystemCategories = systemCategories.length > 0;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-md">
+      <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-lg max-h-[85vh]">
         <DialogHeader>
           <DialogTitle>Gerenciar Categorias</DialogTitle>
           <DialogDescription className="text-slate-400">
@@ -193,7 +304,27 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-2">
+          {/* Seed default categories button */}
+          {!hasSystemCategories && (
+            <div className="bg-emerald-900/30 border border-emerald-700/50 rounded-lg p-3">
+              <p className="text-sm text-emerald-300 mb-2">
+                Deseja criar as categorias padrão do sistema com materiais pré-cadastrados?
+              </p>
+              <Button
+                onClick={handleSeedDefaults}
+                disabled={isSeedLoading}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {isSeedLoading ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Criando...</>
+                ) : (
+                  <><Shield className="w-4 h-4 mr-2" /> Criar Categorias Padrão</>
+                )}
+              </Button>
+            </div>
+          )}
+
           {/* Add new category form */}
           {isAdding ? (
             <div className="bg-slate-700/50 rounded-lg p-3 space-y-3">
@@ -202,7 +333,7 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                 <Input
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="Ex: Metais Ferrosos"
+                  placeholder="Ex: Minha Categoria"
                   className="bg-slate-700 border-slate-600 text-white"
                   autoFocus
                 />
@@ -239,13 +370,13 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
               onClick={() => setIsAdding(true)}
               className="w-full bg-slate-700 hover:bg-slate-600 text-white"
             >
-              <Plus className="w-4 h-4 mr-2" /> Adicionar Categoria
+              <Plus className="w-4 h-4 mr-2" /> Adicionar Categoria Personalizada
             </Button>
           )}
 
           {/* Categories list */}
-          <ScrollArea className="h-[280px]">
-            <div className="space-y-2 pr-2">
+          <ScrollArea className="h-[320px]">
+            <div className="space-y-4 pr-2">
               {isLoading && categories.length === 0 ? (
                 <div className="text-center text-slate-400 py-8">
                   Carregando...
@@ -255,73 +386,144 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                   Nenhuma categoria cadastrada
                 </div>
               ) : (
-                categories.map((category) => {
-                  const colors = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.blue;
-                  const isEditing = editingCategory?.id === category.id;
+                <>
+                  {/* System Categories Section */}
+                  {systemCategories.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 px-1">
+                        <Shield className="w-4 h-4 text-amber-400" />
+                        <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                          Categorias do Sistema
+                        </span>
+                      </div>
+                      {systemCategories.map((category) => {
+                        const colorDisplay = getCategoryColorDisplay(category);
+                        const isRequired = category.is_required;
 
-                  return (
-                    <div
-                      key={category.id}
-                      className={cn(
-                        'flex items-center gap-2 p-2 rounded-lg transition-all',
-                        isEditing ? 'bg-slate-700' : 'bg-slate-700/50 hover:bg-slate-700'
-                      )}
-                    >
-                      <div className={cn('w-4 h-4 rounded-full flex-shrink-0', colors.bg)} />
-                      
-                      {isEditing ? (
-                        <div className="flex-1 space-y-2">
-                          <Input
-                            value={editingCategory.name}
-                            onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
-                            className="bg-slate-600 border-slate-500 text-white h-8 text-sm"
-                            autoFocus
-                          />
-                          <ColorPicker 
-                            value={editingCategory.color} 
-                            onChange={(color) => setEditingCategory({ ...editingCategory, color })} 
-                          />
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={handleUpdateCategory}
-                              disabled={isLoading}
-                              className="bg-emerald-600 hover:bg-emerald-700 h-7 text-xs"
-                            >
-                              <Check className="w-3 h-3 mr-1" /> Salvar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setEditingCategory(null)}
-                              className="border-slate-600 text-slate-300 hover:bg-slate-600 h-7 text-xs"
-                            >
-                              Cancelar
-                            </Button>
+                        return (
+                          <div
+                            key={category.id}
+                            className={cn(
+                              'flex items-center gap-3 p-3 rounded-lg bg-slate-700/30 border border-slate-600/50',
+                              !category.is_active && 'opacity-50'
+                            )}
+                          >
+                            {/* Color indicator */}
+                            <div 
+                              className={cn(
+                                'w-5 h-5 rounded-full flex-shrink-0',
+                                'className' in colorDisplay ? colorDisplay.className : ''
+                              )}
+                              style={'backgroundColor' in colorDisplay ? { backgroundColor: colorDisplay.backgroundColor } : {}}
+                            />
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-white text-sm font-medium truncate">
+                                  {category.name}
+                                </span>
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-500/50 text-amber-400 bg-amber-500/10">
+                                  {isRequired ? 'Obrigatória' : 'Opcional'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            {/* Active toggle for optional system categories */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-400">
+                                {category.is_active ? 'Ativa' : 'Inativa'}
+                              </span>
+                              <Switch
+                                checked={category.is_active !== false}
+                                onCheckedChange={() => handleToggleActive(category)}
+                                disabled={isLoading || isRequired}
+                                className={cn(isRequired && 'opacity-50 cursor-not-allowed')}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        <>
-                          <span className="flex-1 text-white text-sm font-medium truncate">
-                            {category.name}
-                          </span>
-                          <button
-                            onClick={() => setEditingCategory(category)}
-                            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-600 rounded transition-colors"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCategory(category.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-600 rounded transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </>
-                      )}
+                        );
+                      })}
                     </div>
-                  );
-                })
+                  )}
+
+                  {/* User Categories Section */}
+                  {userCategories.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="px-1">
+                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                          Suas Categorias
+                        </span>
+                      </div>
+                      {userCategories.map((category) => {
+                        const colors = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.blue;
+                        const isEditing = editingCategory?.id === category.id;
+
+                        return (
+                          <div
+                            key={category.id}
+                            className={cn(
+                              'flex items-center gap-2 p-2 rounded-lg transition-all',
+                              isEditing ? 'bg-slate-700' : 'bg-slate-700/50 hover:bg-slate-700'
+                            )}
+                          >
+                            <div className={cn('w-4 h-4 rounded-full flex-shrink-0', colors.bg)} />
+                            
+                            {isEditing ? (
+                              <div className="flex-1 space-y-2">
+                                <Input
+                                  value={editingCategory.name}
+                                  onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                                  className="bg-slate-600 border-slate-500 text-white h-8 text-sm"
+                                  autoFocus
+                                />
+                                <ColorPicker 
+                                  value={editingCategory.color} 
+                                  onChange={(color) => setEditingCategory({ ...editingCategory, color })} 
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={handleUpdateCategory}
+                                    disabled={isLoading}
+                                    className="bg-emerald-600 hover:bg-emerald-700 h-7 text-xs"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" /> Salvar
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setEditingCategory(null)}
+                                    className="border-slate-600 text-slate-300 hover:bg-slate-600 h-7 text-xs"
+                                  >
+                                    Cancelar
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <span className="flex-1 text-white text-sm font-medium truncate">
+                                  {category.name}
+                                </span>
+                                <button
+                                  onClick={() => setEditingCategory(category)}
+                                  className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-600 rounded transition-colors"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteCategory(category)}
+                                  className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-600 rounded transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </ScrollArea>

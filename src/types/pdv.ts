@@ -31,6 +31,7 @@ export interface Material {
   unit: string;
   user_id: string;
   category_id?: string | null;
+  is_default?: boolean;
 }
 
 export interface MaterialCategory {
@@ -38,7 +39,12 @@ export interface MaterialCategory {
   user_id: string;
   name: string;
   color: string;
+  hex_color?: string | null;
   display_order: number;
+  is_system?: boolean;
+  is_required?: boolean;
+  is_active?: boolean;
+  system_key?: string | null;
 }
 
 export interface UserMaterialSettings {

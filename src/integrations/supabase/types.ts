@@ -2205,8 +2205,13 @@ export type Database = {
           color: string
           created_at: string
           display_order: number
+          hex_color: string | null
           id: string
+          is_active: boolean
+          is_required: boolean
+          is_system: boolean
           name: string
+          system_key: string | null
           updated_at: string
           user_id: string
         }
@@ -2214,8 +2219,13 @@ export type Database = {
           color?: string
           created_at?: string
           display_order?: number
+          hex_color?: string | null
           id?: string
+          is_active?: boolean
+          is_required?: boolean
+          is_system?: boolean
           name: string
+          system_key?: string | null
           updated_at?: string
           user_id: string
         }
@@ -2223,8 +2233,13 @@ export type Database = {
           color?: string
           created_at?: string
           display_order?: number
+          hex_color?: string | null
           id?: string
+          is_active?: boolean
+          is_required?: boolean
+          is_system?: boolean
           name?: string
+          system_key?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -2235,6 +2250,7 @@ export type Database = {
           category_id: string | null
           created_at: string | null
           id: string
+          is_default: boolean
           name: string
           price: number
           sale_price: number
@@ -2247,6 +2263,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           id?: string
+          is_default?: boolean
           name: string
           price?: number
           sale_price?: number
@@ -2259,6 +2276,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           id?: string
+          is_default?: boolean
           name?: string
           price?: number
           sale_price?: number
@@ -3927,6 +3945,10 @@ export type Database = {
       cleanup_expired_rate_limits: { Args: never; Returns: undefined }
       cleanup_inactive_unidade_sessions: { Args: never; Returns: undefined }
       cleanup_old_presence: { Args: never; Returns: undefined }
+      create_default_categories_and_materials: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       deactivate_unidade_session: {
         Args: { unidade_uuid: string }
         Returns: undefined
@@ -4061,6 +4083,7 @@ export type Database = {
           category_id: string | null
           created_at: string | null
           id: string
+          is_default: boolean
           name: string
           price: number
           sale_price: number
@@ -4194,6 +4217,10 @@ export type Database = {
       sanitize_input: { Args: { input_text: string }; Returns: string }
       sanitize_text_input: { Args: { input_text: string }; Returns: string }
       schedule_presence_cleanup: { Args: never; Returns: undefined }
+      seed_default_categories_for_current_user: {
+        Args: never
+        Returns: undefined
+      }
       validate_customer_name: { Args: { name_input: string }; Returns: string }
       validate_email: { Args: { email_input: string }; Returns: string }
       validate_material_name: { Args: { name_input: string }; Returns: string }

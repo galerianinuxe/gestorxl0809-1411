@@ -95,7 +95,7 @@ const MaterialConfigModal: React.FC<MaterialConfigModalProps> = ({ open, onClose
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="bg-[#202020] border-gray-700 text-white max-w-md">
+        <DialogContent className="bg-[#202020] border-gray-700 text-white max-w-xl min-h-[500px]">
           <DialogHeader>
             <DialogTitle className={`text-center ${fontSizeClass}`}>Configurações dos Materiais</DialogTitle>
             <DialogDescription className="text-gray-400 text-center">
