@@ -4,11 +4,14 @@ import { setActiveCustomer, setActiveOrder } from '../utils/supabaseStorage';
 import { cleanMaterialName } from '../utils/materialNameCleaner';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Trash2, History } from "lucide-react";
-import KeyboardInput from './KeyboardInput';
 import { supabase } from '@/integrations/supabase/client';
 import OrderHistoryModal from './OrderHistoryModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useDepotClients, DepotClient } from '@/hooks/useDepotClients';
+import { DepotClientSelect } from '@/components/DepotClientSelect';
 interface OrderListProps {
   customers: Customer[];
   activeCustomer: Customer | null;
@@ -32,8 +35,11 @@ const OrderList: React.FC<OrderListProps> = ({
   const {
     user
   } = useAuth();
+  const { clients: depotClients, loading: loadingClients } = useDepotClients();
   const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
   const [newCustomerName, setNewCustomerName] = useState("");
+  const [selectedDepotClient, setSelectedDepotClient] = useState<DepotClient | null>(null);
+  const [showManualInput, setShowManualInput] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
@@ -239,8 +245,8 @@ const OrderList: React.FC<OrderListProps> = ({
     setIsNewOrderModalOpen(true);
   };
   const handleConfirmNewOrder = () => {
-    // Create a new customer with provided name or use "# Nome do Cliente"
-    const customerName = newCustomerName.trim() || "# Nome do Cliente";
+    // Use selected depot client name or manual input name
+    const customerName = selectedDepotClient?.name || newCustomerName.trim() || "# Nome do Cliente";
     const newCustomer: Customer = {
       id: `customer-${Date.now()}`,
       name: customerName,
@@ -250,10 +256,14 @@ const OrderList: React.FC<OrderListProps> = ({
     setActiveCustomer(newCustomer);
     setIsNewOrderModalOpen(false);
     setNewCustomerName("");
+    setSelectedDepotClient(null);
+    setShowManualInput(false);
   };
   const handleCancelNewOrder = () => {
     setIsNewOrderModalOpen(false);
     setNewCustomerName("");
+    setSelectedDepotClient(null);
+    setShowManualInput(false);
   };
 
   // Combine local customers with open orders from database
@@ -350,15 +360,51 @@ const OrderList: React.FC<OrderListProps> = ({
 
       {/* New Order Modal */}
       <AlertDialog open={isNewOrderModalOpen} onOpenChange={open => {
-      setIsNewOrderModalOpen(open);
-      if (!open) setNewCustomerName("");
-    }}>
+        setIsNewOrderModalOpen(open);
+        if (!open) {
+          setNewCustomerName("");
+          setSelectedDepotClient(null);
+          setShowManualInput(false);
+        }
+      }}>
         <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-white">Novo Pedido</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-300">
-              <div className="mt-2">
-                <KeyboardInput id="customerName" label="Nome do Cliente (opcional)" placeholder="# Nome do Cliente" value={newCustomerName} onChange={setNewCustomerName} onKeyboardClose={() => {}} />
+            <AlertDialogDescription asChild>
+              <div className="text-slate-300 mt-4">
+                {!loadingClients && depotClients.length > 0 && !showManualInput ? (
+                  <DepotClientSelect
+                    clients={depotClients}
+                    selectedClient={selectedDepotClient}
+                    onSelect={(client) => {
+                      setSelectedDepotClient(client);
+                      if (client) {
+                        setNewCustomerName(client.name);
+                      }
+                    }}
+                    onAddNew={() => setShowManualInput(true)}
+                  />
+                ) : (
+                  <div className="space-y-2">
+                    <Label className="text-slate-300">Nome do Cliente (opcional)</Label>
+                    <Input
+                      placeholder="# Nome do Cliente"
+                      value={newCustomerName}
+                      onChange={(e) => setNewCustomerName(e.target.value)}
+                      className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
+                      autoFocus
+                    />
+                    {depotClients.length > 0 && showManualInput && (
+                      <button
+                        type="button"
+                        onClick={() => setShowManualInput(false)}
+                        className="text-sm text-emerald-400 hover:text-emerald-300"
+                      >
+                        ← Voltar para lista de clientes
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
