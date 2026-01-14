@@ -434,7 +434,7 @@
 @media (max-width: 768px) {
   .material-btn,
   .material-btn-sale-mode {
-    @apply text-xs p-1 min-h-[60px];
+    @apply text-xs p-1 h-[60px] max-h-[60px];
     line-height: 1.2;
   }
   
@@ -467,7 +467,7 @@
 @media (min-width: 768px) and (max-width: 1024px) {
   .material-btn,
   .material-btn-sale-mode {
-    @apply text-sm p-1.5 min-h-[70px];
+    @apply text-sm p-1.5 h-[70px] max-h-[70px];
   }
   
   .numpad-btn {
@@ -480,7 +480,7 @@
 @media (min-width: 1024px) {
   .material-btn,
   .material-btn-sale-mode {
-    @apply p-2 min-h-[80px];
+    @apply p-2 h-[80px] max-h-[80px];
   }
 }
 

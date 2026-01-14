@@ -114,12 +114,11 @@ const MaterialGrid = React.memo(({
     return 32; // 8x4 grid (desktop)
   };
 
-  // Altura mínima aumentada em 30% apenas para mobile e tablet
-  const getMinHeight = () => {
-    if (isMobile || isTablet) {
-      return 'min-h-[80vh]'; // Aumenta 30% da altura mínima original
-    }
-    return 'h-full'; // Mantém desktop como está
+  // Altura fixa dos slots vazios para manter consistência
+  const getSlotHeight = () => {
+    if (isMobile) return 'h-[60px]';
+    if (isTablet) return 'h-[70px]';
+    return 'h-[80px]';
   };
 
   // Filtrar materiais por categoria e ordenar alfabeticamente
@@ -136,7 +135,7 @@ const MaterialGrid = React.memo(({
 
   return (
     <>
-      <div data-tutorial="material-grid" className={`grid ${getGridCols()} gap-[2px] ${getMinHeight()} bg-slate-800 relative p-[2px]`}>
+      <div data-tutorial="material-grid" className={`grid ${getGridCols()} gap-[2px] bg-slate-800 relative p-[2px]`}>
         {filteredMaterials.map((material) => (
           <button
             key={material.id}
@@ -156,7 +155,7 @@ const MaterialGrid = React.memo(({
         
         {/* Preencher espaços vazios */}
         {Array.from({ length: Math.max(0, totalSlots - filteredMaterials.length) }).map((_, index) => (
-          <div key={`empty-${index}`} className="bg-slate-900 border border-slate-700"></div>
+          <div key={`empty-${index}`} className={`bg-slate-900 border border-slate-700 ${getSlotHeight()}`}></div>
         ))}
       </div>
 
