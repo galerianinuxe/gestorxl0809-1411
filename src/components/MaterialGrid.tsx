@@ -102,15 +102,15 @@ const MaterialGrid = React.memo(({
 
   // Determinar o número de colunas baseado no dispositivo
   const getGridCols = () => {
-    if (isMobile) return 'grid-cols-4';
+    if (isMobile) return 'grid-cols-3';
     if (isTablet) return 'grid-cols-4';
     return 'grid-cols-8';
   };
 
   // Determinar o número total de slots para preencher
   const getTotalSlots = () => {
-    if (isMobile) return 16; // 4x4 grid
-    if (isTablet) return 16; // 6x4(24) grid
+    if (isMobile) return 15; // 3x5 grid
+    if (isTablet) return 16; // 4x4 grid
     return 32; // 8x4 grid (desktop)
   };
 
