@@ -122,10 +122,14 @@ const MaterialGrid = React.memo(({
     return 'h-full'; // Mantém desktop como está
   };
 
-  // Filtrar materiais por categoria se necessário
+  // Filtrar materiais por categoria e ordenar alfabeticamente
   const filteredMaterials = React.useMemo(() => {
-    if (selectedCategoryId === null) return materials;
-    return materials.filter(m => m.category_id === selectedCategoryId);
+    let result = selectedCategoryId === null 
+      ? materials 
+      : materials.filter(m => m.category_id === selectedCategoryId);
+    
+    // Ordenar alfabeticamente
+    return result.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
   }, [materials, selectedCategoryId]);
 
   const totalSlots = getTotalSlots();
@@ -167,7 +171,8 @@ const MaterialGrid = React.memo(({
   return (
     prevProps.materials.length === nextProps.materials.length &&
     prevProps.isSaleMode === nextProps.isSaleMode &&
-    prevProps.hasActiveOrder === nextProps.hasActiveOrder
+    prevProps.hasActiveOrder === nextProps.hasActiveOrder &&
+    prevProps.selectedCategoryId === nextProps.selectedCategoryId
   );
 });
 

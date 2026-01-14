@@ -51,15 +51,6 @@ const isLightColor = (hex: string): boolean => {
   return luminance > 0.5;
 };
 
-// Helper to darken a hex color for border
-const darkenHex = (hex: string, percent: number = 20): string => {
-  if (!hex || !hex.startsWith('#')) return hex;
-  const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - Math.round(255 * percent / 100));
-  const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - Math.round(255 * percent / 100));
-  const b = Math.max(0, parseInt(hex.slice(5, 7), 16) - Math.round(255 * percent / 100));
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-};
-
 const CategoryBar: React.FC<CategoryBarProps> = ({
   categories,
   selectedCategoryId,
@@ -84,39 +75,37 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
     }
   }, [selectedCategoryId]);
 
-  const getCategoryStyle = (category: MaterialCategory, isSelected: boolean) => {
+  const getCategoryStyle = (category: MaterialCategory) => {
     // Use hex_color if available
     if (category.hex_color) {
-      const textColor = isLightColor(category.hex_color) ? '#000000' : '#FFFFFF';
-      
+      const isLight = isLightColor(category.hex_color);
       return {
         style: {
           backgroundColor: category.hex_color,
-          color: textColor,
         },
-        textColor
+        isLight
       };
     }
     
     // Fallback to predefined colors
     const colors = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.blue;
     return {
-      className: `${colors.bg} ${colors.text}`,
+      className: colors.bg,
       style: {},
-      textColor: '#FFFFFF'
+      isLight: category.color === 'yellow' || category.color === 'beige'
     };
   };
 
-  // Tamanhos dos botões (mesmo estilo dos materiais)
+  // Tamanhos dos botões - mais profissionais
   const buttonSize = isMobile 
-    ? 'min-w-[80px] min-h-[55px]' 
-    : 'min-w-[100px] min-h-[70px]';
+    ? 'min-w-[90px] min-h-[65px]' 
+    : 'min-w-[120px] min-h-[75px]';
 
   return (
-    <div className="bg-slate-800 p-[2px]">
+    <div className="bg-slate-800 p-1">
       <div
         ref={scrollContainerRef}
-        className="flex gap-[2px] overflow-x-auto scrollbar-hide"
+        className="flex gap-1 overflow-x-auto scrollbar-hide"
         style={{ scrollBehavior: 'smooth' }}
       >
         {/* Botão "Todos" */}
@@ -124,30 +113,28 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
           ref={selectedCategoryId === null ? selectedButtonRef : undefined}
           onClick={() => onSelectCategory(null)}
           className={cn(
-            'flex-shrink-0 flex flex-col items-center justify-center relative',
+            'flex-shrink-0 flex flex-col items-center justify-center relative px-3 py-2',
             buttonSize,
-            'rounded-none text-sm font-bold transition-all duration-200',
+            'rounded-md font-bold transition-all duration-200',
             selectedCategoryId === null
-              ? 'bg-slate-600'
+              ? 'bg-slate-600 ring-2 ring-white ring-offset-1 ring-offset-slate-800'
               : 'bg-slate-700 hover:bg-slate-600'
           )}
         >
-          <span className="text-white font-bold text-sm">Todos</span>
+          <span className="text-white font-bold text-sm text-center">Todos</span>
           {selectedCategoryId === null && (
-            <>
-              <div className="absolute inset-0 border-[3px] border-white pointer-events-none" />
-              <div className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow-md">
-                <Check className="h-3 w-3 text-slate-900" />
-              </div>
-            </>
+            <div className="absolute top-1.5 right-1.5 bg-white rounded-full p-0.5 shadow-lg">
+              <Check className="h-3 w-3 text-slate-900" />
+            </div>
           )}
         </button>
 
         {/* Botões de categorias */}
         {activeCategories.map((category) => {
           const isSelected = selectedCategoryId === category.id;
-          const { className, style, textColor } = getCategoryStyle(category, isSelected);
+          const { className, style, isLight } = getCategoryStyle(category);
           const count = materialCountByCategory[category.id] || 0;
+          const textColorClass = isLight ? 'text-slate-900' : 'text-white';
 
           return (
             <button
@@ -155,31 +142,39 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
               ref={isSelected ? selectedButtonRef : undefined}
               onClick={() => onSelectCategory(category.id)}
               className={cn(
-                'flex-shrink-0 flex flex-col items-center justify-center relative',
+                'flex-shrink-0 flex flex-col items-center justify-center relative px-3 py-2',
                 buttonSize,
-                'rounded-none text-sm font-bold transition-all duration-200',
-                className
+                'rounded-md font-bold transition-all duration-200',
+                className,
+                isSelected && 'ring-2 ring-white ring-offset-1 ring-offset-slate-800'
               )}
               style={style}
             >
-              <span className="font-bold text-sm">{category.name}</span>
+              {/* Nome da categoria - centralizado */}
+              <span className={cn(
+                'font-bold text-sm text-center leading-tight line-clamp-2',
+                textColorClass
+              )}>
+                {category.name}
+              </span>
+              
+              {/* Badge de quantidade - sempre abaixo do nome */}
               {count > 0 && (
                 <span 
-                  className="text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded-full"
-                  style={{ 
-                    backgroundColor: textColor === '#000000' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)' 
-                  }}
+                  className={cn(
+                    'mt-1.5 px-2 py-0.5 text-[11px] font-bold rounded-full',
+                    isLight ? 'bg-black/15 text-slate-800' : 'bg-white/20 text-white'
+                  )}
                 >
                   {count}
                 </span>
               )}
+              
+              {/* Indicador de seleção */}
               {isSelected && (
-                <>
-                  <div className="absolute inset-0 border-[3px] border-white pointer-events-none" />
-                  <div className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow-md">
-                    <Check className="h-3 w-3 text-slate-900" />
-                  </div>
-                </>
+                <div className="absolute top-1.5 right-1.5 bg-white rounded-full p-0.5 shadow-lg">
+                  <Check className="h-3 w-3 text-slate-900" />
+                </div>
               )}
             </button>
           );
