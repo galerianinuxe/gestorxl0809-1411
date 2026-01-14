@@ -29,6 +29,13 @@ const isLightColor = (hex: string): boolean => {
   return luminance > 0.5;
 };
 
+// Helper to get the next available color that is not already in use
+const getNextAvailableColor = (usedColors: string[]): string => {
+  const availableColors = CATEGORY_COLOR_OPTIONS.map(opt => opt.value);
+  const nextColor = availableColors.find(color => !usedColors.includes(color));
+  return nextColor || 'blue'; // Fallback if all colors are used
+};
+
 const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
   open,
   onClose,
@@ -41,6 +48,9 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryColor, setNewCategoryColor] = useState('blue');
+
+  // Calculate which colors are currently in use
+  const usedColors = categories.map(c => c.color);
 
   useEffect(() => {
     if (open) {
@@ -242,32 +252,50 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
     }
   };
 
-  const ColorPicker: React.FC<{ value: string; onChange: (color: string) => void; disabled?: boolean }> = ({ value, onChange, disabled }) => (
-    <div className="flex flex-wrap gap-1.5">
-      {CATEGORY_COLOR_OPTIONS.map((option) => {
-        const colors = CATEGORY_COLORS[option.value];
-        return (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => !disabled && onChange(option.value)}
-            disabled={disabled}
-            className={cn(
-              'w-7 h-7 rounded-full border-2 transition-all duration-200 flex items-center justify-center',
-              colors.bg,
-              value === option.value 
-                ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-800 border-white' 
-                : 'border-transparent hover:scale-110',
-              disabled && 'opacity-50 cursor-not-allowed'
-            )}
-            title={option.label}
-          >
-            {value === option.value && <Check className="w-3.5 h-3.5 text-white" />}
-          </button>
-        );
-      })}
-    </div>
-  );
+  // ColorPicker with used colors indication
+  const ColorPicker: React.FC<{ 
+    value: string; 
+    onChange: (color: string) => void; 
+    disabled?: boolean;
+    excludeCategoryId?: string; // Exclude this category from "used" check (for editing)
+  }> = ({ value, onChange, disabled, excludeCategoryId }) => {
+    // Colors used by OTHER categories (excluding the one being edited)
+    const colorsUsedByOthers = categories
+      .filter(c => c.id !== excludeCategoryId)
+      .map(c => c.color);
+
+    return (
+      <div className="flex flex-wrap gap-1.5">
+        {CATEGORY_COLOR_OPTIONS.map((option) => {
+          const colors = CATEGORY_COLORS[option.value];
+          const isUsedByOther = colorsUsedByOthers.includes(option.value);
+          const isCurrentValue = value === option.value;
+          const isDisabled = disabled || (isUsedByOther && !isCurrentValue);
+          
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => !isDisabled && onChange(option.value)}
+              disabled={isDisabled}
+              className={cn(
+                'w-7 h-7 rounded-full border-2 transition-all duration-200 flex items-center justify-center relative',
+                colors.bg,
+                isCurrentValue 
+                  ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-800 border-white' 
+                  : 'border-transparent hover:scale-110',
+                isDisabled && 'opacity-40 cursor-not-allowed',
+                isUsedByOther && !isCurrentValue && 'after:content-[""] after:absolute after:w-full after:h-0.5 after:bg-white/70 after:rotate-45'
+              )}
+              title={isUsedByOther && !isCurrentValue ? `${option.label} (já em uso)` : option.label}
+            >
+              {isCurrentValue && <Check className="w-3.5 h-3.5 text-white" />}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   // Get the color display for a category
   const getCategoryColorDisplay = (category: MaterialCategory) => {
@@ -359,7 +387,12 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
             </div>
           ) : (
             <Button
-              onClick={() => setIsAdding(true)}
+              onClick={() => {
+                // Auto-select the next available color when opening the add form
+                const nextColor = getNextAvailableColor(usedColors);
+                setNewCategoryColor(nextColor);
+                setIsAdding(true);
+              }}
               className="w-full bg-slate-700 hover:bg-slate-600 text-white"
             >
               <Plus className="w-4 h-4 mr-2" /> Adicionar Categoria Personalizada
@@ -468,7 +501,8 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
                                 />
                                 <ColorPicker 
                                   value={editingCategory.color} 
-                                  onChange={(color) => setEditingCategory({ ...editingCategory, color })} 
+                                  onChange={(color) => setEditingCategory({ ...editingCategory, color })}
+                                  excludeCategoryId={editingCategory.id}
                                 />
                                 <div className="flex gap-2">
                                   <Button
