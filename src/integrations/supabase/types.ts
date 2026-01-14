@@ -2555,6 +2555,8 @@ export type Database = {
           pix_enabled: boolean | null
           public_key: string | null
           updated_at: string | null
+          webhook_secret: string | null
+          webhook_secret_configured: boolean | null
           webhook_url: string | null
         }
         Insert: {
@@ -2576,6 +2578,8 @@ export type Database = {
           pix_enabled?: boolean | null
           public_key?: string | null
           updated_at?: string | null
+          webhook_secret?: string | null
+          webhook_secret_configured?: boolean | null
           webhook_url?: string | null
         }
         Update: {
@@ -2597,6 +2601,8 @@ export type Database = {
           pix_enabled?: boolean | null
           public_key?: string | null
           updated_at?: string | null
+          webhook_secret?: string | null
+          webhook_secret_configured?: boolean | null
           webhook_url?: string | null
         }
         Relationships: []
