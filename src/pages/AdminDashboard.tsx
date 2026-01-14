@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { PlansManagement } from '@/components/admin/PlansManagement';
 import { MaterialsConsolidation } from '@/components/admin/MaterialsConsolidation';
 import { ContentManagement } from '@/components/admin/ContentManagement';
+import { SEOHead } from '@/components/portal/SEOHead';
 
 interface GuideVideo {
   id: string;
@@ -238,7 +239,13 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <>
+      <SEOHead
+        title="Painel Administrativo - XLata"
+        description="Painel de administração do sistema XLata."
+        allowIndexing={false}
+      />
+      <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -634,6 +641,7 @@ const AdminDashboard: React.FC = () => {
         </Tabs>
       </div>
     </div>
+    </>
   );
 };
 

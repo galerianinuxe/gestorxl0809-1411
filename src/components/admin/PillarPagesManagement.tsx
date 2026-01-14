@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Layers, Plus, Edit, Trash2, Search, Eye, ExternalLink, ImageIcon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Layers, Plus, Edit, Trash2, Search, Eye, ExternalLink, ImageIcon, Shield, Link as LinkIcon, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { AIImageGenerator } from './AIImageGenerator';
@@ -25,6 +26,8 @@ interface PillarPage {
   seo_title: string | null;
   seo_description: string | null;
   og_image: string | null;
+  allow_indexing: boolean | null;
+  canonical_url: string | null;
   view_count: number | null;
   created_at: string;
 }
@@ -47,7 +50,9 @@ export const PillarPagesManagement = () => {
     status: 'draft' as 'draft' | 'published',
     seo_title: '',
     seo_description: '',
-    og_image: ''
+    og_image: '',
+    allow_indexing: true,
+    canonical_url: ''
   });
 
   useEffect(() => {
@@ -104,7 +109,9 @@ export const PillarPagesManagement = () => {
         status: form.status,
         seo_title: form.seo_title || null,
         seo_description: form.seo_description || null,
-        og_image: form.og_image || null
+        og_image: form.og_image || null,
+        allow_indexing: form.allow_indexing,
+        canonical_url: form.canonical_url || null
       };
 
       if (editingPage) {
@@ -151,7 +158,9 @@ export const PillarPagesManagement = () => {
       status: page.status,
       seo_title: page.seo_title || '',
       seo_description: page.seo_description || '',
-      og_image: page.og_image || ''
+      og_image: page.og_image || '',
+      allow_indexing: page.allow_indexing !== false,
+      canonical_url: page.canonical_url || ''
     });
     setIsDialogOpen(true);
   };
@@ -160,7 +169,8 @@ export const PillarPagesManagement = () => {
     setEditingPage(null);
     setForm({
       slug: '', headline: '', subheadline: '', features: '', how_it_works: '',
-      benefits: '', faq: '', status: 'draft', seo_title: '', seo_description: '', og_image: ''
+      benefits: '', faq: '', status: 'draft', seo_title: '', seo_description: '', og_image: '',
+      allow_indexing: true, canonical_url: ''
     });
   };
 
@@ -254,7 +264,51 @@ export const PillarPagesManagement = () => {
                       </div>
                       {form.og_image && <img src={form.og_image} alt="Preview" className="mt-2 w-full h-32 object-cover rounded-lg" onError={(e) => (e.currentTarget.style.display = 'none')} />}
                     </div>
-                    <div><Label>Imagem OG</Label><Input value={form.og_image} onChange={(e) => setForm({ ...form, og_image: e.target.value })} className="bg-gray-700 border-gray-600" placeholder="URL da imagem" /></div>
+                  </div>
+                </div>
+                
+                {/* SEO Avançado */}
+                <div className="border-t border-gray-700 pt-4 mt-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    SEO Avançado
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
+                      <div>
+                        <Label className="text-white">Permitir indexação no Google</Label>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Quando desativado, esta página não aparecerá nos resultados de busca
+                        </p>
+                      </div>
+                      <Switch
+                        checked={form.allow_indexing}
+                        onCheckedChange={(v) => setForm({ ...form, allow_indexing: v })}
+                      />
+                    </div>
+                    <div>
+                      <Label className="flex items-center gap-2">
+                        <LinkIcon className="h-4 w-4" />
+                        Canonical URL (opcional)
+                      </Label>
+                      <Input
+                        value={form.canonical_url}
+                        onChange={(e) => setForm({ ...form, canonical_url: e.target.value })}
+                        placeholder="https://xlata.site/..."
+                        className="bg-gray-700 border-gray-600 mt-1"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Deixe vazio para usar a URL padrão. Use para evitar duplicidade de conteúdo.
+                      </p>
+                    </div>
+                    {!form.allow_indexing && (
+                      <div className="flex items-center gap-2 p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+                        <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                        <span className="text-sm text-yellow-300">
+                          Esta página NÃO será indexada pelo Google
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
