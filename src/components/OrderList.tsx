@@ -74,10 +74,15 @@ const OrderList: React.FC<OrderListProps> = ({
         const customersWithOrders: Customer[] = [];
         const customersMap = new Map<string, Customer>();
         orders?.forEach(order => {
+          // VERIFICAR PRIMEIRO se o pedido tem itens - pular pedidos vazios
+          if (!order.order_items || order.order_items.length === 0) {
+            return; // Pular pedidos vazios
+          }
+
           const customerId = order.customer_id;
           const customerName = order.customers.name;
 
-          // Criar ou obter cliente
+          // Criar ou obter cliente (só se tiver itens)
           let customer = customersMap.get(customerId);
           if (!customer) {
             customer = {
@@ -89,26 +94,24 @@ const OrderList: React.FC<OrderListProps> = ({
             customersWithOrders.push(customer);
           }
 
-          // Só adicionar se o pedido tiver itens
-          if (order.order_items && order.order_items.length > 0) {
-              const orderData: Order = {
-              id: order.id,
-              customerId: order.customer_id,
-              items: order.order_items.map(item => ({
-                materialId: item.material_id,
-                materialName: cleanMaterialName(item.material_name),
-                quantity: item.quantity,
-                price: item.price,
-                total: item.total,
-                tara: item.tara || undefined
-              })),
-              total: order.total,
-              timestamp: new Date(order.created_at).getTime(),
-              status: 'open',
-              type: order.type as 'compra' | 'venda'
-            };
-            customer.orders.push(orderData);
-          }
+          // Adicionar pedido com itens
+          const orderData: Order = {
+            id: order.id,
+            customerId: order.customer_id,
+            items: order.order_items.map(item => ({
+              materialId: item.material_id,
+              materialName: cleanMaterialName(item.material_name),
+              quantity: item.quantity,
+              price: item.price,
+              total: item.total,
+              tara: item.tara || undefined
+            })),
+            total: order.total,
+            timestamp: new Date(order.created_at).getTime(),
+            status: 'open',
+            type: order.type as 'compra' | 'venda'
+          };
+          customer.orders.push(orderData);
         });
         setOpenOrders(customersWithOrders);
 

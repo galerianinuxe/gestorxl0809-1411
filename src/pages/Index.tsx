@@ -12,7 +12,7 @@ import { useStockCalculation } from '@/hooks/useStockCalculation';
 import { isGreaterThanOrEqual, formatWeight } from '@/utils/numericComparison';
 import { cleanMaterialName } from '@/utils/materialNameCleaner';
 import { saveOrderToLocalHistory } from '../components/OrderHistoryModal';
-import { setupAutoCleanup } from '../utils/cleanupEmptyOrders';
+import { setupAutoCleanup, cleanupEmptyOrdersFromDatabase } from '../utils/cleanupEmptyOrders';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 
@@ -216,6 +216,10 @@ const Index: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       console.log('Loading data with session restoration...');
+      
+      // Limpar pedidos vazios do banco antes de carregar dados
+      await cleanupEmptyOrdersFromDatabase();
+      
       setCustomers([]);
       setCurrentCustomer(null);
       setCurrentOrder(null);

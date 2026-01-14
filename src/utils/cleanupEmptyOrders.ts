@@ -3,6 +3,73 @@ import { Customer } from '../types/pdv';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
+ * Remove pedidos vazios (sem itens) diretamente do banco de dados
+ * Esta função limpa pedidos que foram criados mas nunca receberam itens
+ */
+export const cleanupEmptyOrdersFromDatabase = async (): Promise<void> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Buscar pedidos em aberto do usuário
+    const { data: openOrders, error: ordersError } = await supabase
+      .from('orders')
+      .select('id, created_at')
+      .eq('user_id', user.id)
+      .eq('status', 'open');
+
+    if (ordersError || !openOrders) {
+      console.error('Erro ao buscar pedidos para limpeza:', ordersError);
+      return;
+    }
+
+    const now = new Date();
+    const fiveMinutesAgo = now.getTime() - (5 * 60 * 1000);
+    let deletedCount = 0;
+
+    for (const order of openOrders) {
+      // Verificar se o pedido foi criado há mais de 5 minutos
+      const orderCreatedAt = new Date(order.created_at).getTime();
+      if (orderCreatedAt > fiveMinutesAgo) {
+        continue; // Pular pedidos recentes
+      }
+
+      // Verificar se o pedido tem itens
+      const { count, error: countError } = await supabase
+        .from('order_items')
+        .select('*', { count: 'exact', head: true })
+        .eq('order_id', order.id);
+
+      if (countError) {
+        console.error('Erro ao contar itens do pedido:', countError);
+        continue;
+      }
+
+      // Se não tem itens, deletar o pedido
+      if (count === 0) {
+        const { error: deleteError } = await supabase
+          .from('orders')
+          .delete()
+          .eq('id', order.id);
+
+        if (deleteError) {
+          console.error('Erro ao deletar pedido vazio:', deleteError);
+        } else {
+          deletedCount++;
+          console.log(`Pedido vazio ${order.id} removido do banco`);
+        }
+      }
+    }
+
+    if (deletedCount > 0) {
+      console.log(`Limpeza do banco: ${deletedCount} pedidos vazios removidos`);
+    }
+  } catch (error) {
+    console.error('Erro durante limpeza de pedidos vazios do banco:', error);
+  }
+};
+
+/**
  * Remove pedidos em aberto vazios (sem itens) que foram criados há mais de 5 minutos
  */
 export const cleanupEmptyOrders = async (): Promise<void> => {
