@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, Clock, Package, DollarSign, Eye, Calendar, Trash2, AlertTriangle, X, Filter, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Package, DollarSign, Eye, Calendar, Trash2, AlertTriangle, X, Filter, ChevronDown, Printer } from "lucide-react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 import { Order, Customer } from '../types/pdv';
@@ -18,6 +18,8 @@ import { createLogger } from '@/utils/logger';
 import PasswordPromptModal from '@/components/PasswordPromptModal';
 import TransactionDetailsModal from '@/components/TransactionDetailsModal';
 import { cleanMaterialName } from '@/utils/materialNameCleaner';
+import { useReceiptFormatSettings } from '@/hooks/useReceiptFormatSettings';
+import { getCustomerById } from '@/utils/supabaseStorage';
 
 const logger = createLogger('[OrderHistory]');
 
@@ -50,10 +52,20 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
   const [showFilters, setShowFilters] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+  const [showDeleteSingleConfirm, setShowDeleteSingleConfirm] = useState(false);
+  const [settings, setSettings] = useState<{
+    logo: string | null;
+    whatsapp1: string;
+    whatsapp2: string;
+    address: string;
+    company: string;
+  }>({ logo: null, whatsapp1: "", whatsapp2: "", address: "", company: "" });
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
+  const { getCurrentFormatSettings } = useReceiptFormatSettings();
 
   // Carregar histórico de pedidos
   const loadOrderHistory = async () => {
@@ -195,10 +207,34 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  // Carregar configurações do sistema
+  const loadSystemSettings = async () => {
+    if (!user?.id) return;
+    try {
+      const { data } = await supabase
+        .from('system_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data) {
+        setSettings({
+          logo: data.logo,
+          whatsapp1: data.whatsapp1 || "",
+          whatsapp2: data.whatsapp2 || "",
+          address: data.address || "",
+          company: data.company || ""
+        });
+      }
+    } catch (error) {
+      logger.error('Erro ao carregar configurações:', error);
+    }
+  };
+
   // Carregar dados quando modal abrir
   useEffect(() => {
     if (isOpen) {
       loadOrderHistory();
+      loadSystemSettings();
       setCurrentPage(1);
     }
   }, [isOpen, user?.id]);
@@ -224,6 +260,125 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
       setShowDetailsModal(true);
     }
     setSelectedOrderId(null);
+  };
+
+  // Função para reimprimir pedido
+  const handleReprintOrder = async (order: Order) => {
+    try {
+      const customer = await getCustomerById(order.customerId);
+      if (!customer) {
+        toast({
+          title: "Erro",
+          description: "Cliente não encontrado.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      const formatSettings = getCurrentFormatSettings();
+      const { logo } = settings;
+
+      const printContent = `<div style="width: ${formatSettings.container_width}; padding: ${formatSettings.padding}; font-family: Arial; font-size: 12px; color: #000; background: #fff;">
+        ${logo ? `<div style="text-align: center; margin-bottom: 10px;"><img src="${logo}" style="max-width: ${formatSettings.logo_max_width}; max-height: ${formatSettings.logo_max_height};" /></div>` : ''}
+        <div style="text-align: center; font-weight: bold; font-size: ${formatSettings.title_font_size}; margin-bottom: 5px;">${order.type === 'venda' ? "COMPROVANTE DE VENDA" : "COMPROVANTE DE COMPRA"}</div>
+        <div style="text-align: center; margin-bottom: 10px;">Cliente: ${customer.name}</div>
+        <div style="border-bottom: 2px solid #000; margin: 10px 0;"></div>
+        <table style="width: 100%; border-collapse: collapse; font-size: ${formatSettings.table_font_size};">
+          <thead><tr><th style="text-align: left;">Material</th><th style="text-align: right;">Peso</th><th style="text-align: right;">R$/kg</th><th style="text-align: right;">Total</th></tr></thead>
+          <tbody>${order.items.map(item => `<tr><td>${cleanMaterialName(item.materialName)}</td><td style="text-align: right;">${item.quantity.toFixed(3)}</td><td style="text-align: right;">${item.price.toFixed(2)}</td><td style="text-align: right;">${item.total.toFixed(2)}</td></tr>`).join("")}</tbody>
+        </table>
+        <div style="border-bottom: 2px solid #000; margin: 10px 0;"></div>
+        <div style="text-align: right; font-weight: bold; font-size: ${formatSettings.final_total_font_size};">Total: R$ ${order.total.toFixed(2)}</div>
+        <div style="text-align: center; font-size: ${formatSettings.datetime_font_size}; margin: 10px 0;">${new Date(order.timestamp).toLocaleString('pt-BR')}</div>
+      </div>`;
+
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`<!DOCTYPE html><html><head><title>Reimpressão</title></head><body onload="window.print(); setTimeout(() => window.close(), 1000);">${printContent}</body></html>`);
+        printWindow.document.close();
+      }
+      
+      // Fechar o modal de detalhes após reimprimir
+      setShowDetailsModal(false);
+      setSelectedOrderForDetails(null);
+      
+      toast({
+        title: "Reimpressão",
+        description: "Comprovante enviado para impressão."
+      });
+    } catch (error) {
+      logger.error('Erro ao reimprimir:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao reimprimir comprovante.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Função para iniciar exclusão de pedido individual
+  const handleDeleteClick = (order: Order) => {
+    setOrderToDelete(order);
+    setShowDeleteSingleConfirm(true);
+  };
+
+  // Função para excluir pedido individual
+  const handleDeleteSingleOrder = async () => {
+    if (!orderToDelete || !user?.id) return;
+    
+    setDeleting(true);
+    try {
+      // Excluir itens do pedido
+      await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderToDelete.id);
+      
+      // Excluir pagamentos relacionados
+      await supabase
+        .from('order_payments')
+        .delete()
+        .eq('order_id', orderToDelete.id)
+        .eq('user_id', user.id);
+      
+      // Excluir transações de caixa relacionadas
+      await supabase
+        .from('cash_transactions')
+        .delete()
+        .eq('order_id', orderToDelete.id)
+        .eq('user_id', user.id);
+      
+      // Excluir o pedido
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderToDelete.id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Pedido excluído",
+        description: `Pedido ${orderToDelete.id.substring(0, 8)} foi excluído.`
+      });
+      
+      // Fechar modais e recarregar dados
+      setShowDetailsModal(false);
+      setSelectedOrderForDetails(null);
+      setShowDeleteSingleConfirm(false);
+      setOrderToDelete(null);
+      await loadOrderHistory();
+      
+    } catch (error) {
+      logger.error('Erro ao excluir pedido:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir pedido.",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleting(false);
+    }
   };
 
   // Função para excluir pedidos em aberto sem itens
@@ -1127,7 +1282,46 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({ isOpen, onClose }
           setSelectedOrderForDetails(null);
         }}
         transaction={selectedOrderForDetails}
+        onReprint={handleReprintOrder}
+        onDelete={handleDeleteClick}
       />
+
+      {/* Modal de Confirmação - Excluir Pedido Individual */}
+      <AlertDialog open={showDeleteSingleConfirm} onOpenChange={setShowDeleteSingleConfirm}>
+        <AlertDialogContent className="bg-slate-800 border-slate-700 max-w-[90vw] sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-rose-400 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />
+              Confirmar Exclusão
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-300">
+              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {orderToDelete && (
+            <div className="text-sm text-slate-300 space-y-1">
+              <div><strong>ID:</strong> {orderToDelete.id.substring(0, 8)}</div>
+              <div><strong>Tipo:</strong> {orderToDelete.type === 'compra' ? 'Compra' : 'Venda'}</div>
+              <div><strong>Valor:</strong> R$ {orderToDelete.total.toFixed(2)}</div>
+            </div>
+          )}
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel 
+              onClick={() => setShowDeleteSingleConfirm(false)}
+              className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+            >
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteSingleOrder}
+              disabled={deleting}
+              className="bg-rose-600 hover:bg-rose-700 text-white"
+            >
+              {deleting ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
