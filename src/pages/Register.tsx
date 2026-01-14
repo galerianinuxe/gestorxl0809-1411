@@ -19,6 +19,7 @@ import { validateSupabaseConnection } from '@/utils/connectionValidator';
 import EmailConfirmationModal from '@/components/EmailConfirmationModal';
 import LoginLogo from '@/components/LoginLogo';
 import { supabase } from '@/integrations/supabase/client';
+import { SEOHead } from '@/components/portal/SEOHead';
 
 interface ReferralInfo {
   name: string;
@@ -244,7 +245,13 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
+    <>
+      <SEOHead
+        title="Criar Conta - XLata"
+        description="Crie sua conta no XLata e comece seu teste grátis de 7 dias."
+        allowIndexing={false}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
           <Button
@@ -466,6 +473,7 @@ const Register: React.FC = () => {
         email={formData.email}
       />
     </div>
+    </>
   );
 };
 
