@@ -989,6 +989,22 @@ export const removeMaterialCategory = async (categoryId: string): Promise<void> 
   }
 };
 
+// Reset all categories for the current user (for admin reset functionality)
+export const resetAllCategories = async (): Promise<void> => {
+  const user = await ensureAuthenticated();
+  
+  // Delete ALL categories for this user (bypassing is_system check)
+  const { error } = await supabase
+    .from('material_categories')
+    .delete()
+    .eq('user_id', user.id);
+  
+  if (error) {
+    console.error('Error resetting categories:', error);
+    throw error;
+  }
+};
+
 // Toggle category active status (only for non-required system categories or user categories)
 export const toggleCategoryActive = async (categoryId: string, isActive: boolean): Promise<void> => {
   const user = await ensureAuthenticated();

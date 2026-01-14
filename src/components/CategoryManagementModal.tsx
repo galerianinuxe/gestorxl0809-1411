@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2, Check, X, Shield, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { MaterialCategory } from '@/types/pdv';
-import { getMaterialCategories, saveMaterialCategory, removeMaterialCategory, toggleCategoryActive, seedDefaultCategoriesAndMaterials } from '@/utils/supabaseStorage';
+import { getMaterialCategories, saveMaterialCategory, removeMaterialCategory, toggleCategoryActive, seedDefaultCategoriesAndMaterials, resetAllCategories } from '@/utils/supabaseStorage';
 import { CATEGORY_COLORS, CATEGORY_COLOR_OPTIONS } from './CategoryBar';
 import { cn } from '@/lib/utils';
 import { Badge } from "@/components/ui/badge";
@@ -102,19 +102,10 @@ const CategoryManagementModal: React.FC<CategoryManagementModalProps> = ({
   const handleResetCategories = async () => {
     setIsResetting(true);
     try {
-      // Delete all user categories first
-      const userCats = categories.filter(c => !c.is_system);
-      for (const cat of userCats) {
-        await removeMaterialCategory(cat.id);
-      }
+      // Delete ALL categories (bypassing is_system check)
+      await resetAllCategories();
       
-      // Delete all system categories to recreate them fresh
-      const systemCats = categories.filter(c => c.is_system);
-      for (const cat of systemCats) {
-        await removeMaterialCategory(cat.id);
-      }
-      
-      // Re-seed default categories
+      // Re-seed default categories with correct unique colors
       await seedDefaultCategoriesAndMaterials();
       await loadCategories();
       onCategoriesChanged?.();
