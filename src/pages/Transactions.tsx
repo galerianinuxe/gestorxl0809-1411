@@ -602,8 +602,14 @@ const Transactions = () => {
           isOpen={showTransactionDetails}
           onClose={() => setShowTransactionDetails(false)}
           transaction={selectedTransaction}
-          onReprint={handleReprint}
-          onDelete={handleDeleteClick}
+          onReprint={(order) => {
+            setShowTransactionDetails(false);
+            handleReprintClick(order);
+          }}
+          onDelete={(order) => {
+            setShowTransactionDetails(false);
+            handleDeleteClick(order);
+          }}
           orderPayment={selectedTransaction ? orderPayments[selectedTransaction.id] : null}
         />
 
