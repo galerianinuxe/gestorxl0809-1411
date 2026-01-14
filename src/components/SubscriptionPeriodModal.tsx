@@ -64,10 +64,10 @@ const SubscriptionPeriodModal: React.FC<SubscriptionPeriodModalProps> = ({
       
       if (error) throw error;
       
-      // Convert plans to include period_days
+      // Convert plans to include period_days - prioritize database value
       const plansWithDays = (data || []).map(plan => ({
         ...plan,
-        period_days: getPlanDays(plan.plan_id)
+        period_days: plan.period_days || getPlanDays(plan.plan_id)
       }));
       
       setPlans(plansWithDays);
@@ -85,6 +85,13 @@ const SubscriptionPeriodModal: React.FC<SubscriptionPeriodModalProps> = ({
 
   const getPlanDays = (planId: string): number => {
     switch (planId) {
+      // IDs em inglês (atuais no banco)
+      case 'monthly': return 30;
+      case 'quarterly': return 90;
+      case 'annual': return 365;
+      case 'triennial': return 1095;
+      case 'trial': return 7;
+      // IDs em português (legado)
       case 'mensal': return 30;
       case 'trimestral': return 90;
       case 'anual': return 365;
