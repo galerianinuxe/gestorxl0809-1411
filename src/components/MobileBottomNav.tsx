@@ -34,7 +34,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center justify-center flex-1 h-full py-2 px-1 transition-all duration-200 relative ${
+              className={`flex flex-col items-center justify-center flex-1 h-full py-2 px-1 transition-colors duration-75 relative active:scale-95 ${
                 isActive 
                   ? 'text-emerald-400' 
                   : 'text-slate-400 hover:text-slate-300'
@@ -46,7 +46,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               )}
               
               <div className="relative">
-                <Icon className={`w-6 h-6 mb-1 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
+                <Icon className={`w-6 h-6 mb-1 transition-transform duration-75 ${isActive ? 'scale-110' : ''}`} />
                 
                 {/* Badge para pedidos */}
                 {tab.badge !== undefined && tab.badge > 0 && (
@@ -56,7 +56,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 )}
               </div>
               
-              <span className={`text-[10px] font-medium transition-all duration-200 ${
+              <span className={`text-[10px] font-medium transition-colors duration-75 ${
                 isActive ? 'text-emerald-400' : 'text-slate-500'
               }`}>
                 {tab.label}

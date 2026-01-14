@@ -769,3 +769,29 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* GPU Acceleration for smooth animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Ultra-fast response for instant feedback */
+.instant-response {
+  transition: transform 50ms ease-out, background-color 50ms ease-out !important;
+}
+
+.instant-response:active {
+  transform: scale(0.96) translateZ(0);
+}
+
+/* Fast transition utility */
+.fast-transition {
+  transition-duration: 100ms !important;
+}
+
+/* Duration utilities */
+.duration-50 {
+  transition-duration: 50ms !important;
+}

@@ -47,7 +47,7 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
     return `${formattedInteger},${decimalPart}`;
   }, []);
 
-  // Submit otimizado - debounce de 100ms
+  // Submit otimizado - SEM debounce para resposta instantânea
   useEffect(() => {
     // Evita submits duplicados
     if (internalValue === lastSubmittedRef.current) return;
@@ -56,13 +56,12 @@ const NumberPadOptimized: React.FC<NumberPadOptimizedProps> = ({
       cancelAnimationFrame(submitTimeoutRef.current);
     }
 
+    // Resposta instantânea sem setTimeout
     submitTimeoutRef.current = requestAnimationFrame(() => {
-      setTimeout(() => {
-        if (internalValue !== lastSubmittedRef.current) {
-          lastSubmittedRef.current = internalValue;
-          onSubmit(internalValue);
-        }
-      }, 100);
+      if (internalValue !== lastSubmittedRef.current) {
+        lastSubmittedRef.current = internalValue;
+        onSubmit(internalValue);
+      }
     });
 
     return () => {

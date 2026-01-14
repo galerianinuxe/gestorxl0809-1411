@@ -129,7 +129,7 @@ const MaterialGrid = React.memo(({
           <button
             key={material.id}
             onClick={() => handleClick(material)}
-            className={`${getMaterialButtonClass()} ${isMobile ? 'p-1' : 'p-2'} gpu-accelerated fast-transition`}
+            className={`${getMaterialButtonClass()} ${isMobile ? 'p-1' : 'p-2'} gpu-accelerated active:scale-95 transition-transform duration-50`}
           >
             <span className={`${getNameFontSizeClass()} font-bold text-center leading-tight block text-white`}>
               {material.name}

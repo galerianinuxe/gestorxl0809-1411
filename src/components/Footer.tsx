@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CashRegisterClosingModal from './CashRegisterClosingModal';
 import CashRegisterAddFundsModal from './CashRegisterAddFundsModal';
@@ -229,27 +229,27 @@ const Footer: React.FC<FooterProps> = ({
       <footer className="bg-slate-800 text-white p-3 border-t border-slate-700">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <button onClick={handleCloseDayClick} className="border border-red-500 hover:bg-red-600 hover:border-red-600 text-red-400 hover:text-white px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+          <button onClick={handleCloseDayClick} className="border border-red-500 hover:bg-red-600 hover:border-red-600 text-red-400 hover:text-white px-3 py-2 rounded text-sm transition-colors duration-100 active:scale-95 flex items-center gap-2">
               <X className="h-4 w-4" />
               Fechar Dia
             </button>
             
-            <button onClick={handleAddFundsClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleAddFundsClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-colors duration-100 active:scale-95 flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               Adicionar Saldo
             </button>
             
-            <button onClick={handleExpenseClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleExpenseClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-colors duration-100 active:scale-95 flex items-center gap-2">
               <Receipt className="h-4 w-4" />
               Adicionar Despesa
             </button>
             
-            <button onClick={handleCalculatorClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleCalculatorClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-colors duration-100 active:scale-95 flex items-center gap-2">
               <Calculator className="h-4 w-4" />
               Calculadora
             </button>
             
-            <button onClick={handleMenuClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-all duration-200 flex items-center gap-2">
+            <button onClick={handleMenuClick} className="text-slate-300 hover:text-white hover:bg-slate-700 px-3 py-2 rounded text-sm transition-colors duration-100 active:scale-95 flex items-center gap-2">
               <Menu className="h-4 w-4" />
               Menu
             </button>
