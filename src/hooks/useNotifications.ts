@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface NotificationData {
@@ -10,18 +10,37 @@ export interface NotificationData {
   type?: 'global' | 'direct';
 }
 
+// Shared state to sync across components
+let globalUnreadCount = 0;
+let globalNotifications: NotificationData[] = [];
+const listeners = new Set<() => void>();
+
+const notifyListeners = () => {
+  listeners.forEach(listener => listener());
+};
+
 export const useNotifications = () => {
-  const [notifications, setNotifications] = useState<NotificationData[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<NotificationData[]>(globalNotifications);
+  const [unreadCount, setUnreadCount] = useState(globalUnreadCount);
   const [isLoading, setIsLoading] = useState(true);
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isFetchingRef = useRef(false);
 
   const fetchNotifications = useCallback(async () => {
+    // Prevent concurrent fetches
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        globalNotifications = [];
+        globalUnreadCount = 0;
         setNotifications([]);
         setUnreadCount(0);
         setIsLoading(false);
+        isFetchingRef.current = false;
+        notifyListeners();
         return;
       }
 
@@ -34,7 +53,7 @@ export const useNotifications = () => {
       const readIds = readNotifications?.map(item => item.notification_id) || [];
 
       // Buscar notificações globais ativas
-      const { data: globalNotifications, error: globalError } = await supabase
+      const { data: globalNotificationsData, error: globalError } = await supabase
         .from('global_notifications')
         .select('id, title, message, sender_name, created_at')
         .eq('is_active', true)
@@ -45,7 +64,7 @@ export const useNotifications = () => {
       if (globalError) throw globalError;
 
       // Filtrar notificações globais não lidas
-      const unreadGlobal = (globalNotifications || [])
+      const unreadGlobal = (globalNotificationsData || [])
         .filter(n => !readIds.includes(n.id))
         .map(n => ({ ...n, type: 'global' as const }));
 
@@ -66,22 +85,48 @@ export const useNotifications = () => {
       const allNotifications = [...unreadGlobal, ...unreadDirect]
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+      // Update global state
+      globalNotifications = allNotifications;
+      globalUnreadCount = allNotifications.length;
+
       setNotifications(allNotifications);
       setUnreadCount(allNotifications.length);
+      notifyListeners();
 
     } catch (error) {
       console.error('Erro ao buscar notificações:', error);
+      globalNotifications = [];
+      globalUnreadCount = 0;
       setNotifications([]);
       setUnreadCount(0);
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
   }, []);
+
+  // Debounced fetch to prevent rapid refetching
+  const debouncedFetch = useCallback(() => {
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
+    }
+    fetchTimeoutRef.current = setTimeout(() => {
+      fetchNotifications();
+    }, 500);
+  }, [fetchNotifications]);
 
   const markAsRead = useCallback(async (notificationId: string, type: 'global' | 'direct' = 'global') => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Immediately update local state for instant feedback
+      const updatedNotifications = globalNotifications.filter(n => n.id !== notificationId);
+      globalNotifications = updatedNotifications;
+      globalUnreadCount = updatedNotifications.length;
+      setNotifications(updatedNotifications);
+      setUnreadCount(updatedNotifications.length);
+      notifyListeners();
 
       if (type === 'global') {
         const { error } = await supabase
@@ -103,26 +148,33 @@ export const useNotifications = () => {
         if (error) throw error;
       }
 
-      // Atualizar estado local
-      setNotifications(prev => prev.filter(n => n.id !== notificationId));
-      setUnreadCount(prev => Math.max(0, prev - 1));
-
     } catch (error) {
       console.error('Erro ao marcar notificação como lida:', error);
+      // Refetch on error to restore correct state
+      fetchNotifications();
     }
-  }, []);
+  }, [fetchNotifications]);
 
   const markAllAsRead = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user || notifications.length === 0) return;
+      if (!user || globalNotifications.length === 0) return;
 
-      const globalNotifications = notifications.filter(n => n.type === 'global');
-      const directNotifications = notifications.filter(n => n.type === 'direct');
+      const currentNotifications = [...globalNotifications];
+      
+      // Immediately update local state for instant feedback
+      globalNotifications = [];
+      globalUnreadCount = 0;
+      setNotifications([]);
+      setUnreadCount(0);
+      notifyListeners();
+
+      const globalNotificationsToMark = currentNotifications.filter(n => n.type === 'global');
+      const directNotifications = currentNotifications.filter(n => n.type === 'direct');
 
       // Marcar globais como lidas
-      if (globalNotifications.length > 0) {
-        const insertData = globalNotifications.map(notification => ({
+      if (globalNotificationsToMark.length > 0) {
+        const insertData = globalNotificationsToMark.map(notification => ({
           notification_id: notification.id,
           user_id: user.id
         }));
@@ -144,59 +196,65 @@ export const useNotifications = () => {
           .in('id', directIds);
       }
 
-      setNotifications([]);
-      setUnreadCount(0);
-
     } catch (error) {
       console.error('Erro ao marcar todas como lidas:', error);
+      // Refetch on error to restore correct state
+      fetchNotifications();
     }
-  }, [notifications]);
+  }, [fetchNotifications]);
 
   useEffect(() => {
-    fetchNotifications();
+    // Sync with global state
+    const syncListener = () => {
+      setNotifications(globalNotifications);
+      setUnreadCount(globalUnreadCount);
+    };
+    listeners.add(syncListener);
 
-    // Configurar listener em tempo real
+    // Initial fetch only if no data exists
+    if (globalNotifications.length === 0 && globalUnreadCount === 0) {
+      fetchNotifications();
+    } else {
+      setNotifications(globalNotifications);
+      setUnreadCount(globalUnreadCount);
+      setIsLoading(false);
+    }
+
+    // Configurar listener em tempo real with debounce
     const channel = supabase
       .channel('unified-notifications')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'global_notifications'
         },
         () => {
-          fetchNotifications();
+          debouncedFetch();
         }
       )
       .on(
         'postgres_changes',
         {
-          event: '*',
-          schema: 'public',
-          table: 'global_notification_recipients'
-        },
-        () => {
-          fetchNotifications();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'user_direct_messages'
         },
         () => {
-          fetchNotifications();
+          debouncedFetch();
         }
       )
       .subscribe();
 
     return () => {
+      listeners.delete(syncListener);
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
       supabase.removeChannel(channel);
     };
-  }, [fetchNotifications]);
+  }, [fetchNotifications, debouncedFetch]);
 
   return {
     notifications,
