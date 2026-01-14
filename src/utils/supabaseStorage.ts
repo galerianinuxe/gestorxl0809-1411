@@ -909,8 +909,19 @@ export const getMaterialCategories = async (): Promise<MaterialCategory[]> => {
     user_id: cat.user_id,
     name: cat.name,
     color: cat.color,
-    display_order: cat.display_order
+    hex_color: cat.hex_color,
+    display_order: cat.display_order,
+    is_system: cat.is_system,
+    is_required: cat.is_required,
+    is_active: cat.is_active,
+    system_key: cat.system_key
   })) || [];
+};
+
+// Get only active material categories
+export const getActiveMaterialCategories = async (): Promise<MaterialCategory[]> => {
+  const categories = await getMaterialCategories();
+  return categories.filter(c => c.is_active !== false);
 };
 
 // Save (create or update) a material category
@@ -941,13 +952,30 @@ export const saveMaterialCategory = async (category: Omit<MaterialCategory, 'use
     user_id: data.user_id,
     name: data.name,
     color: data.color,
-    display_order: data.display_order
+    hex_color: data.hex_color,
+    display_order: data.display_order,
+    is_system: data.is_system,
+    is_required: data.is_required,
+    is_active: data.is_active,
+    system_key: data.system_key
   };
 };
 
-// Remove a material category
+// Remove a material category (only non-system categories)
 export const removeMaterialCategory = async (categoryId: string): Promise<void> => {
   const user = await ensureAuthenticated();
+  
+  // First check if it's a system category
+  const { data: category } = await supabase
+    .from('material_categories')
+    .select('is_system')
+    .eq('id', categoryId)
+    .eq('user_id', user.id)
+    .single();
+  
+  if (category?.is_system) {
+    throw new Error('Categorias do sistema não podem ser excluídas');
+  }
   
   const { error } = await supabase
     .from('material_categories')
@@ -957,6 +985,47 @@ export const removeMaterialCategory = async (categoryId: string): Promise<void> 
   
   if (error) {
     console.error('Error removing material category:', error);
+    throw error;
+  }
+};
+
+// Toggle category active status (only for non-required system categories or user categories)
+export const toggleCategoryActive = async (categoryId: string, isActive: boolean): Promise<void> => {
+  const user = await ensureAuthenticated();
+  
+  // First check if it's a required system category
+  const { data: category } = await supabase
+    .from('material_categories')
+    .select('is_system, is_required')
+    .eq('id', categoryId)
+    .eq('user_id', user.id)
+    .single();
+  
+  if (category?.is_system && category?.is_required) {
+    throw new Error('Categorias obrigatórias do sistema não podem ser desativadas');
+  }
+  
+  const { error } = await supabase
+    .from('material_categories')
+    .update({ is_active: isActive })
+    .eq('id', categoryId)
+    .eq('user_id', user.id);
+  
+  if (error) {
+    console.error('Error toggling category active status:', error);
+    throw error;
+  }
+};
+
+// Seed default categories and materials for the current user
+export const seedDefaultCategoriesAndMaterials = async (): Promise<void> => {
+  const user = await ensureAuthenticated();
+  
+  // Call the database function
+  const { error } = await supabase.rpc('seed_default_categories_for_current_user');
+  
+  if (error) {
+    console.error('Error seeding default categories:', error);
     throw error;
   }
 };
