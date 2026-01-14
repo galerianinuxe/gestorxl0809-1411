@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, memo } from 'react';
 import { MaterialCategory } from '@/types/pdv';
 import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CategoryBarProps {
   categories: MaterialCategory[];
@@ -66,6 +68,7 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const selectedButtonRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useIsMobile();
 
   // Filter only active categories
   const activeCategories = categories.filter(c => c.is_active !== false);
@@ -85,35 +88,35 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
     // Use hex_color if available
     if (category.hex_color) {
       const textColor = isLightColor(category.hex_color) ? '#000000' : '#FFFFFF';
-      const borderColor = darkenHex(category.hex_color, 15);
       
       return {
         style: {
-          backgroundColor: isSelected ? category.hex_color : `${category.hex_color}CC`,
+          backgroundColor: category.hex_color,
           color: textColor,
-          borderColor: isSelected ? borderColor : 'transparent',
         },
-        className: isSelected ? 'ring-2 ring-white/30' : ''
+        textColor
       };
     }
     
     // Fallback to predefined colors
     const colors = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.blue;
     return {
-      className: cn(
-        isSelected
-          ? `${colors.bg} ${colors.text} ${colors.border} ring-2 ring-white/30`
-          : `${colors.bg}/80 ${colors.text} border-transparent hover:${colors.bg}`
-      ),
-      style: {}
+      className: `${colors.bg} ${colors.text}`,
+      style: {},
+      textColor: '#FFFFFF'
     };
   };
 
+  // Tamanhos dos botões (mesmo estilo dos materiais)
+  const buttonSize = isMobile 
+    ? 'min-w-[80px] min-h-[55px]' 
+    : 'min-w-[100px] min-h-[70px]';
+
   return (
-    <div className="bg-slate-800 border-b border-slate-700 py-2 px-2">
+    <div className="bg-slate-800 p-[2px]">
       <div
         ref={scrollContainerRef}
-        className="flex gap-2 overflow-x-auto scrollbar-hide pb-1"
+        className="flex gap-[2px] overflow-x-auto scrollbar-hide"
         style={{ scrollBehavior: 'smooth' }}
       >
         {/* Botão "Todos" */}
@@ -121,19 +124,29 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
           ref={selectedCategoryId === null ? selectedButtonRef : undefined}
           onClick={() => onSelectCategory(null)}
           className={cn(
-            'flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border-2',
+            'flex-shrink-0 flex flex-col items-center justify-center relative',
+            buttonSize,
+            'rounded-none text-sm font-bold transition-all duration-200',
             selectedCategoryId === null
-              ? 'bg-slate-600 text-white border-slate-400 ring-2 ring-slate-400/50'
-              : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600'
+              ? 'bg-slate-600'
+              : 'bg-slate-700 hover:bg-slate-600'
           )}
         >
-          Todos
+          <span className="text-white font-bold text-sm">Todos</span>
+          {selectedCategoryId === null && (
+            <>
+              <div className="absolute inset-0 border-[3px] border-white pointer-events-none" />
+              <div className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow-md">
+                <Check className="h-3 w-3 text-slate-900" />
+              </div>
+            </>
+          )}
         </button>
 
         {/* Botões de categorias */}
         {activeCategories.map((category) => {
           const isSelected = selectedCategoryId === category.id;
-          const { className, style } = getCategoryStyle(category, isSelected);
+          const { className, style, textColor } = getCategoryStyle(category, isSelected);
           const count = materialCountByCategory[category.id] || 0;
 
           return (
@@ -142,19 +155,31 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
               ref={isSelected ? selectedButtonRef : undefined}
               onClick={() => onSelectCategory(category.id)}
               className={cn(
-                'flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border-2 flex items-center gap-1.5',
+                'flex-shrink-0 flex flex-col items-center justify-center relative',
+                buttonSize,
+                'rounded-none text-sm font-bold transition-all duration-200',
                 className
               )}
               style={style}
             >
-              <span>{category.name}</span>
+              <span className="font-bold text-sm">{category.name}</span>
               {count > 0 && (
-                <span className={cn(
-                  'px-1.5 py-0.5 rounded-full text-[10px] font-bold',
-                  isSelected ? 'bg-white/20' : 'bg-black/20'
-                )}>
+                <span 
+                  className="text-[10px] font-bold mt-0.5 px-1.5 py-0.5 rounded-full"
+                  style={{ 
+                    backgroundColor: textColor === '#000000' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)' 
+                  }}
+                >
                   {count}
                 </span>
+              )}
+              {isSelected && (
+                <>
+                  <div className="absolute inset-0 border-[3px] border-white pointer-events-none" />
+                  <div className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow-md">
+                    <Check className="h-3 w-3 text-slate-900" />
+                  </div>
+                </>
               )}
             </button>
           );
