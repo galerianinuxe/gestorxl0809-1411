@@ -192,6 +192,11 @@ const AppContent = () => {
             <HelpCenter />
           </Suspense>
         } />
+        <Route path="/ajuda/categoria/:categorySlug" element={
+          <Suspense fallback={<PageLoader />}>
+            <HelpCenter />
+          </Suspense>
+        } />
         <Route path="/ajuda/artigo/:slug" element={
           <Suspense fallback={<PageLoader />}>
             <HelpArticle />

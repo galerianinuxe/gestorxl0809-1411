@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { Search, HelpCircle, BookOpen, ArrowRight, Wallet, ShoppingCart, Package, BarChart3, Receipt, Settings, Users, Megaphone, Shield, Filter, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ const moduleConfig: Record<string, { label: string; icon: any; color: string }> 
 };
 
 const HelpCenter = () => {
+  const { categorySlug } = useParams<{ categorySlug?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -35,6 +36,16 @@ const HelpCenter = () => {
   
   const { categories, loading: categoriesLoading } = useHelpCategories();
   const { articles, loading: articlesLoading } = useHelpArticles();
+
+  // Sync category from URL param
+  useEffect(() => {
+    if (categorySlug && categories.length > 0) {
+      const category = categories.find(c => c.slug === categorySlug);
+      if (category) {
+        setSelectedCategory(category.id);
+      }
+    }
+  }, [categorySlug, categories]);
 
   // Debounce search
   useEffect(() => {
