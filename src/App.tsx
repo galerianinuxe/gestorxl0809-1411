@@ -197,6 +197,11 @@ const AppContent = () => {
             <HelpArticle />
           </Suspense>
         } />
+        <Route path="/ajuda/:slug" element={
+          <Suspense fallback={<PageLoader />}>
+            <HelpArticle />
+          </Suspense>
+        } />
         <Route path="/solucoes" element={
           <Suspense fallback={<PageLoader />}>
             <Solutions />
