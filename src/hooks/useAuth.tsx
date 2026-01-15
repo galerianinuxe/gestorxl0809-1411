@@ -5,7 +5,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { clearUserSessionData } from '../utils/supabaseStorage';
 import { validateSupabaseConnection, clearAllLocalData } from '../utils/connectionValidator';
 import { toast } from '@/hooks/use-toast';
-import { detectDeviceType, detectBrowser, detectOS, getClientIP, generateSessionToken } from '../utils/deviceDetection';
+import { detectDeviceType, detectBrowser, detectOS, getClientIPWithGeo, generateSessionToken } from '../utils/deviceDetection';
 
 interface AuthContextType {
   user: User | null;
@@ -18,19 +18,21 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Log access event to admin_access_logs
+// Log access event to admin_access_logs with geolocation
 const logAccessEvent = async (userId: string, action: string, success: boolean, errorMessage?: string) => {
   try {
-    const ip = await getClientIP();
+    const geoData = await getClientIPWithGeo();
     
     await supabase.from('admin_access_logs').insert({
       user_id: userId,
       action,
-      ip_address: ip,
+      ip_address: geoData.ip,
       user_agent: navigator.userAgent,
       device_type: detectDeviceType(),
       browser: detectBrowser(),
       os: detectOS(),
+      country: geoData.country || null,
+      city: geoData.city || null,
       success,
       error_message: errorMessage || null,
       created_at: new Date().toISOString()
@@ -40,10 +42,10 @@ const logAccessEvent = async (userId: string, action: string, success: boolean, 
   }
 };
 
-// Create or update active session
+// Create or update active session with geolocation
 const upsertActiveSession = async (userId: string, sessionToken: string) => {
   try {
-    const ip = await getClientIP();
+    const geoData = await getClientIPWithGeo();
     
     // First try to deactivate any existing sessions for this user
     await supabase
@@ -52,15 +54,17 @@ const upsertActiveSession = async (userId: string, sessionToken: string) => {
       .eq('user_id', userId)
       .eq('is_active', true);
     
-    // Create new session
+    // Create new session with geolocation
     await supabase.from('active_sessions').insert({
       user_id: userId,
       session_token: sessionToken,
-      ip_address: ip,
+      ip_address: geoData.ip,
       user_agent: navigator.userAgent,
       device_type: detectDeviceType(),
       browser: detectBrowser(),
       os: detectOS(),
+      country: geoData.country || null,
+      city: geoData.city || null,
       is_active: true,
       last_activity: new Date().toISOString(),
       created_at: new Date().toISOString()
