@@ -45,16 +45,93 @@ export const detectOS = (): string => {
   return 'Unknown';
 };
 
-export const getClientIP = async (): Promise<string> => {
-  try {
-    const response = await fetch('https://api.ipify.org?format=json', {
-      signal: AbortSignal.timeout(3000)
-    });
-    const data = await response.json();
-    return data.ip;
-  } catch {
-    return '0.0.0.0';
+// Interface for geo IP data
+export interface GeoIPData {
+  ip: string;
+  country?: string;
+  city?: string;
+}
+
+// Cache to avoid multiple API calls
+let cachedGeoData: GeoIPData | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+export const getClientIPWithGeo = async (): Promise<GeoIPData> => {
+  // Check cache first
+  if (cachedGeoData && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
+    return cachedGeoData;
   }
+
+  // List of fallback APIs (priority order)
+  const APIs = [
+    {
+      url: 'https://ipapi.co/json/',
+      parse: (data: any): GeoIPData => ({
+        ip: data.ip,
+        country: data.country_name || data.country,
+        city: data.city
+      })
+    },
+    {
+      url: 'https://ipwho.is/',
+      parse: (data: any): GeoIPData => ({
+        ip: data.ip,
+        country: data.country,
+        city: data.city
+      })
+    },
+    {
+      url: 'https://api.ipify.org?format=json',
+      parse: (data: any): GeoIPData => ({
+        ip: data.ip,
+        country: undefined,
+        city: undefined
+      })
+    },
+    {
+      url: 'https://api.ip.sb/geoip',
+      parse: (data: any): GeoIPData => ({
+        ip: data.ip,
+        country: data.country,
+        city: data.city
+      })
+    }
+  ];
+
+  for (const api of APIs) {
+    try {
+      const response = await fetch(api.url, {
+        signal: AbortSignal.timeout(5000),
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const result = api.parse(data);
+        
+        if (result.ip && result.ip !== '0.0.0.0') {
+          cachedGeoData = result;
+          cacheTimestamp = Date.now();
+          console.log('✅ IP detected:', result.ip, result.country, result.city);
+          return result;
+        }
+      }
+    } catch {
+      // Try next API
+      continue;
+    }
+  }
+
+  // Final fallback
+  console.warn('⚠️ Could not detect IP from any API');
+  return { ip: '0.0.0.0', country: undefined, city: undefined };
+};
+
+// Keep original function for backward compatibility
+export const getClientIP = async (): Promise<string> => {
+  const geoData = await getClientIPWithGeo();
+  return geoData.ip;
 };
 
 export const generateSessionToken = (): string => {
