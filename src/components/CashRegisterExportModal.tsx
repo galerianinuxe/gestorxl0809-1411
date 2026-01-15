@@ -118,8 +118,13 @@ ${statusText} ${formatCurrency(Math.abs(realTimeDifference))}
     const text = generateWhatsAppText();
     const encodedText = encodeURIComponent(text);
     
-    // Limpar número do WhatsApp
-    const cleanNumber = userWhatsapp.replace(/\D/g, '');
+    // Limpar número do WhatsApp e garantir código do país
+    let cleanNumber = userWhatsapp.replace(/\D/g, '');
+    
+    // Se o número não começar com 55 (código do Brasil), adicionar
+    if (cleanNumber.length >= 10 && !cleanNumber.startsWith('55')) {
+      cleanNumber = '55' + cleanNumber;
+    }
     
     if (!cleanNumber) {
       toast({
