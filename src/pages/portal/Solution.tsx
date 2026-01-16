@@ -180,10 +180,12 @@ const Solution = () => {
               O que você pode fazer
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              {features.map((feature: string, index: number) => (
+              {features.map((feature: any, index: number) => (
                 <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-gray-800">
                   <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="text-gray-300">{feature}</span>
+                  <span className="text-gray-300">
+                    {typeof feature === 'string' ? feature : feature.title || feature.description || ''}
+                  </span>
                 </div>
               ))}
             </div>
