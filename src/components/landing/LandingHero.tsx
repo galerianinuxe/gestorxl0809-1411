@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Play, Star, Users, Shield } from 'lucide-react';
+import { ArrowRight, Play, Pause, Star, Users, Shield, SkipBack, SkipForward, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LandingHeroProps {
@@ -57,6 +57,17 @@ function getVimeoId(url: string): string | null {
 
 export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHeroProps) {
   const [showVideoEmbed, setShowVideoEmbed] = useState(false);
+  
+  // Video player states
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [showControls, setShowControls] = useState(true);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout>();
 
   const title = settings?.hero_main_title || 'Pese, Calcule e Imprima em';
   const highlight = settings?.hero_highlight_text || '3 Minutos';
@@ -87,6 +98,102 @@ export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHer
   const vimeoId = heroVideoUrl ? getVimeoId(heroVideoUrl) : null;
   const isEmbedVideo = !!youtubeId || !!vimeoId;
   const thumbUrl = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : null;
+
+  // Video control handlers
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+        setHasStarted(true);
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleSkipBack = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
+    }
+  };
+
+  const handleSkipForward = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 10);
+    }
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (videoRef.current) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      videoRef.current.currentTime = pos * duration;
+    }
+  };
+
+  const toggleFullscreen = async () => {
+    if (!containerRef.current) return;
+    
+    if (!isFullscreen) {
+      if (containerRef.current.requestFullscreen) {
+        await containerRef.current.requestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      }
+    }
+  };
+
+  const resetControlsTimeout = () => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    }
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const onTimeUpdate = () => {
+      setProgress((video.currentTime / video.duration) * 100);
+    };
+
+    const onLoadedMetadata = () => {
+      setDuration(video.duration);
+    };
+
+    const onEnded = () => {
+      setIsPlaying(false);
+      setShowControls(true);
+    };
+
+    const onFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    video.addEventListener('timeupdate', onTimeUpdate);
+    video.addEventListener('loadedmetadata', onLoadedMetadata);
+    video.addEventListener('ended', onEnded);
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+
+    return () => {
+      video.removeEventListener('timeupdate', onTimeUpdate);
+      video.removeEventListener('loadedmetadata', onLoadedMetadata);
+      video.removeEventListener('ended', onEnded);
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handlePlayVideo = () => {
     if (isEmbedVideo) {
@@ -140,15 +247,104 @@ export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHer
       );
     }
 
-    // Native video player for uploaded videos
+    // Native video player for uploaded videos with custom controls
     return (
-      <div className="relative aspect-video max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto bg-slate-900 rounded-xl overflow-hidden shadow-2xl">
+      <div 
+        ref={containerRef}
+        className="relative aspect-video max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto bg-slate-900 rounded-xl overflow-hidden shadow-2xl group"
+        onMouseMove={resetControlsTimeout}
+        onMouseLeave={() => isPlaying && setShowControls(false)}
+      >
         <video
+          ref={videoRef}
           src={heroVideoUrl}
-          className="w-full h-full object-cover"
-          controls
+          className="w-full h-full object-cover cursor-pointer"
+          onClick={handlePlayPause}
           poster={undefined}
         />
+
+        {/* Initial play overlay */}
+        {!hasStarted && (
+          <div 
+            className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer"
+            onClick={handlePlayPause}
+          >
+            <button className="w-16 h-16 md:w-20 md:h-20 bg-emerald-500 hover:bg-emerald-400 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-110">
+              <Play className="w-6 h-6 md:w-8 md:h-8 text-white ml-1" fill="white" />
+            </button>
+          </div>
+        )}
+
+        {/* Custom controls - emerald theme */}
+        {hasStarted && (
+          <div 
+            className={cn(
+              "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4 transition-opacity duration-300",
+              showControls ? "opacity-100" : "opacity-0"
+            )}
+          >
+            {/* Progress bar */}
+            <div 
+              className="w-full h-1.5 bg-white/20 rounded-full cursor-pointer mb-3 group/progress"
+              onClick={handleProgressClick}
+            >
+              <div 
+                className="h-full bg-emerald-500 rounded-full relative transition-all"
+                style={{ width: `${progress}%` }}
+              >
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-emerald-400 rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity" />
+              </div>
+            </div>
+
+            {/* Control buttons */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* Skip back 10s */}
+                <button 
+                  onClick={handleSkipBack}
+                  className="text-white/80 hover:text-emerald-400 transition-colors p-1"
+                  title="Retroceder 10s"
+                >
+                  <SkipBack className="w-5 h-5" />
+                </button>
+
+                {/* Play/Pause */}
+                <button 
+                  onClick={handlePlayPause}
+                  className="w-10 h-10 bg-emerald-500 hover:bg-emerald-400 rounded-full flex items-center justify-center transition-colors"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-5 h-5 text-white" fill="white" />
+                  ) : (
+                    <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                  )}
+                </button>
+
+                {/* Skip forward 10s */}
+                <button 
+                  onClick={handleSkipForward}
+                  className="text-white/80 hover:text-emerald-400 transition-colors p-1"
+                  title="Avançar 10s"
+                >
+                  <SkipForward className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Fullscreen */}
+              <button 
+                onClick={toggleFullscreen}
+                className="text-white/80 hover:text-emerald-400 transition-colors p-1"
+                title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="w-5 h-5" />
+                ) : (
+                  <Maximize2 className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -163,7 +359,7 @@ export function LandingHero({ settings, onStartTrial, onWatchVideo }: LandingHer
         <div className="max-w-4xl mx-auto text-center">
           {/* Hero Media - Image or Video */}
           {heroMediaType === 'video' && heroVideoUrl ? (
-            <div className="mb-6 animate-fade-in">
+            <div className="mb-4 animate-fade-in">
               {renderVideoPlayer()}
             </div>
           ) : heroImageUrl && (
