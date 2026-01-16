@@ -1748,6 +1748,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           links: Json | null
+          security_badges: Json | null
           show_social_links: boolean | null
           social_links: Json | null
           updated_at: string | null
@@ -1758,6 +1759,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           links?: Json | null
+          security_badges?: Json | null
           show_social_links?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
@@ -1768,6 +1770,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           links?: Json | null
+          security_badges?: Json | null
           show_social_links?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
