@@ -961,11 +961,22 @@ const Index: React.FC = () => {
     });
   };
   const handleSaleModeToggle = async (checked: boolean) => {
+    // Verificar se há pedido ativo com itens - bloquear troca se houver
+    if (activeOrder && activeOrder.items.length > 0) {
+      const tipoAtual = activeOrder.type === 'venda' ? 'Venda' : 'Compra';
+      toast({
+        title: "Não é possível alterar o modo",
+        description: `Este pedido já contém itens de ${tipoAtual}. Finalize ou cancele o pedido atual para trocar de modo.`,
+        variant: "destructive",
+        duration: 4000
+      });
+      return; // Bloquear a troca
+    }
+
     setIsSaleMode(checked);
     localStorage.setItem('pdv_sale_mode', String(checked));
 
-    // Don't reset current order & customer when toggling mode
-    // Just update the order type if there's an active order
+    // Atualizar o tipo do pedido vazio (se existir)
     if (activeOrder && currentCustomer) {
       const updatedOrder = {
         ...activeOrder,
