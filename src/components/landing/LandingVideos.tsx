@@ -42,7 +42,7 @@ export function LandingVideos({ items }: LandingVideosProps) {
   };
 
   return (
-    <section className="py-20 bg-slate-900">
+    <section id="videos" className="py-20 bg-slate-900 scroll-mt-20">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">

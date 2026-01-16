@@ -260,9 +260,7 @@ const Landing: React.FC = () => {
       case 'videos':
         return (
           <LazySection key="videos" animation="fade-up">
-            <div id="videos">
-              <LandingVideos items={videos} />
-            </div>
+            <LandingVideos items={videos} />
           </LazySection>
         );
       case 'testimonials':
@@ -330,9 +328,7 @@ const Landing: React.FC = () => {
                 <LandingKPIs items={kpis} />
               </LazySection>
               <LazySection animation="fade-up">
-                <div id="videos">
-                  <LandingVideos items={videos} />
-                </div>
+                <LandingVideos items={videos} />
               </LazySection>
               <LazySection animation="fade-up">
                 <LandingTestimonials items={testimonials} />

@@ -49,10 +49,19 @@ const navigationItems = [
     
     if (item.href.includes('#')) {
       const [path, hash] = item.href.split('#');
+      
+      const scrollToElement = () => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+      
       if (location.pathname === path || (path === '/landing' && location.pathname === '/')) {
-        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+        scrollToElement();
       } else {
         navigate(item.href);
+        setTimeout(scrollToElement, 300);
       }
     } else {
       navigate(item.href);
