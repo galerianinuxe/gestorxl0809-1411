@@ -27,6 +27,7 @@ export function CustomVideoPlayer({ src, thumbnail, title, isYouTube = false }: 
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [showEmbed, setShowEmbed] = useState(false);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Detectar se é um vídeo do YouTube/Vimeo
@@ -110,7 +111,6 @@ export function CustomVideoPlayer({ src, thumbnail, title, isYouTube = false }: 
 
   // Para vídeos embed (YouTube/Vimeo), usar iframe com overlay de play
   if (isEmbedVideo) {
-    const [showEmbed, setShowEmbed] = useState(false);
     const embedUrl = youtubeId 
       ? `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`
       : `https://player.vimeo.com/video/${vimeoId}?autoplay=1`;
@@ -119,7 +119,7 @@ export function CustomVideoPlayer({ src, thumbnail, title, isYouTube = false }: 
 
     if (showEmbed) {
       return (
-        <div className="relative aspect-video bg-slate-900 rounded-xl overflow-hidden">
+        <div className="relative aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden">
           <iframe
             src={embedUrl}
             className="absolute inset-0 w-full h-full"
@@ -132,7 +132,7 @@ export function CustomVideoPlayer({ src, thumbnail, title, isYouTube = false }: 
 
     return (
       <div 
-        className="relative aspect-video bg-slate-900 rounded-xl overflow-hidden cursor-pointer group"
+        className="relative aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden cursor-pointer group"
         onClick={() => setShowEmbed(true)}
       >
         {thumbUrl && (
@@ -163,7 +163,7 @@ export function CustomVideoPlayer({ src, thumbnail, title, isYouTube = false }: 
   return (
     <div 
       ref={containerRef}
-      className="relative aspect-video bg-slate-900 rounded-xl overflow-hidden group"
+      className="relative aspect-[9/16] bg-slate-900 rounded-xl overflow-hidden group"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >

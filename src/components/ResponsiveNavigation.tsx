@@ -6,7 +6,13 @@ import {
   X,
   LogIn,
   Zap,
-  ChevronRight
+  ChevronRight,
+  Home,
+  CreditCard,
+  PlayCircle,
+  Newspaper,
+  Phone,
+  HelpCircle
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SystemLogo from './SystemLogo';
@@ -25,21 +31,33 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const navigationItems = [
-    { title: "Início", href: "/landing", emoji: "🏠" },
-    { title: "Recursos", href: "/planos#recursos", emoji: "⚡" },
-    { title: "Planos", href: "/planos", emoji: "💎" },
-    { title: "Blog", href: "/blog", emoji: "📰" },
-    { title: "Ajuda", href: "/ajuda", emoji: "❓" },
+    { title: "Início", href: "/landing", icon: Home },
+    { title: "Planos", href: "/planos", icon: CreditCard },
+    { title: "Como Funciona", href: "/landing#como-funciona", icon: PlayCircle },
+    { title: "Blog", href: "/blog", icon: Newspaper },
+    { title: "Contato", href: "#contato", icon: Phone, isWhatsApp: true },
+    { title: "Ajuda", href: "/ajuda", icon: HelpCircle },
   ];
 
-  const handleNavigation = (href: string) => {
-    navigate(href);
+  const handleNavigation = (item: typeof navigationItems[0]) => {
+    if (item.isWhatsApp) {
+      const message = encodeURIComponent(`Olá! Gostaria de saber mais sobre o Sistema XLata.site.`);
+      window.open(`https://wa.me/5511963512105?text=${message}`, '_blank');
+      setIsOpen(false);
+      return;
+    }
+    
+    if (item.href.includes('#')) {
+      const [path, hash] = item.href.split('#');
+      if (location.pathname === path || (path === '/landing' && location.pathname === '/')) {
+        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigate(item.href);
+      }
+    } else {
+      navigate(item.href);
+    }
     setIsOpen(false);
-  };
-
-  const handleWhatsApp = () => {
-    const message = encodeURIComponent(`Olá! Gostaria de saber mais sobre o Sistema XLata.site.`);
-    window.open(`https://wa.me/5511963512105?text=${message}`, '_blank');
   };
 
   const isActive = (href: string) => {
@@ -59,36 +77,30 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
 
           {/* Center Navigation Links */}
           <div className="flex items-center gap-1">
-            {navigationItems.map((item) => (
-              <button
-                key={item.title}
-                onClick={() => handleNavigation(item.href)}
-                className={`relative px-3 py-2 text-sm font-medium transition-all duration-300 group ${
-                  isActive(item.href) 
-                    ? 'text-white' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <span className="mr-1.5 text-base">{item.emoji}</span>
-                {item.title}
-                {/* Animated underline */}
-                <span 
-                  className={`absolute bottom-0 left-0 h-0.5 bg-green-500 transition-all duration-300 ${
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.title}
+                  onClick={() => handleNavigation(item)}
+                  className={`relative px-3 py-2 text-sm font-medium transition-all duration-300 group flex items-center gap-1.5 ${
                     isActive(item.href) 
-                      ? 'w-full' 
-                      : 'w-0 group-hover:w-full'
-                  }`} 
-                />
-              </button>
-            ))}
-            <button
-              onClick={handleWhatsApp}
-              className="relative px-3 py-2 text-sm font-medium text-gray-400 hover:text-white transition-all duration-300 group"
-            >
-              <span className="mr-1.5 text-base">📞</span>
-              Contato
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-500 transition-all duration-300 group-hover:w-full" />
-            </button>
+                      ? 'text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.title}
+                  <span 
+                    className={`absolute bottom-0 left-0 h-0.5 bg-green-500 transition-all duration-300 ${
+                      isActive(item.href) 
+                        ? 'w-full' 
+                        : 'w-0 group-hover:w-full'
+                    }`} 
+                  />
+                </button>
+              );
+            })}
           </div>
 
           {/* Right Actions */}
@@ -144,7 +156,7 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
                 {/* Primary CTA */}
                 <div className="p-4 border-b border-gray-800">
                   <Button
-                    onClick={() => handleNavigation('/register')}
+                    onClick={() => navigate('/register')}
                     className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold h-12"
                   >
                     <Zap className="mr-2 h-4 w-4" />
@@ -154,43 +166,36 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
 
                 {/* Navigation Links */}
                 <div className="flex-1 py-2">
-                  {navigationItems.map((item) => (
-                    <button
-                      key={item.title}
-                      onClick={() => handleNavigation(item.href)}
-                      className={`w-full flex items-center justify-between px-4 py-3.5 transition-all duration-200 group ${
-                        isActive(item.href)
-                          ? 'bg-gray-800/50 text-white'
-                          : 'text-gray-200 hover:bg-gray-800/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg">{item.emoji}</span>
-                        <span className="font-medium group-hover:text-white transition-colors">{item.title}</span>
-                      </div>
-                      <ChevronRight className={`h-4 w-4 transition-all duration-200 ${
-                        isActive(item.href)
-                          ? 'text-green-400'
-                          : 'text-gray-500 group-hover:text-green-400 group-hover:translate-x-1'
-                      }`} />
-                    </button>
-                  ))}
-                  <button
-                    onClick={handleWhatsApp}
-                    className="w-full flex items-center justify-between px-4 py-3.5 text-gray-200 hover:bg-gray-800/50 transition-all duration-200 group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">📞</span>
-                      <span className="font-medium group-hover:text-white transition-colors">Contato WhatsApp</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-gray-500 group-hover:text-green-400 group-hover:translate-x-1 transition-all duration-200" />
-                  </button>
+                  {navigationItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.title}
+                        onClick={() => handleNavigation(item)}
+                        className={`w-full flex items-center justify-between px-4 py-3.5 transition-all duration-200 group ${
+                          isActive(item.href)
+                            ? 'bg-gray-800/50 text-white'
+                            : 'text-gray-200 hover:bg-gray-800/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="h-5 w-5 text-gray-400 group-hover:text-green-400 transition-colors" />
+                          <span className="font-medium group-hover:text-white transition-colors">{item.title}</span>
+                        </div>
+                        <ChevronRight className={`h-4 w-4 transition-all duration-200 ${
+                          isActive(item.href)
+                            ? 'text-green-400'
+                            : 'text-gray-500 group-hover:text-green-400 group-hover:translate-x-1'
+                        }`} />
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Footer Actions */}
                 <div className="p-4 border-t border-gray-800 mt-auto">
                   <Button
-                    onClick={() => handleNavigation('/login')}
+                    onClick={() => navigate('/login')}
                     variant="outline"
                     className="w-full bg-transparent border-gray-700 text-gray-200 hover:bg-gray-800 hover:text-white h-11"
                   >

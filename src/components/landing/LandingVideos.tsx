@@ -12,34 +12,25 @@ export function LandingVideos({ items }: LandingVideosProps) {
   // Ordenar por display_order
   const sortedItems = [...items].sort((a, b) => a.display_order - b.display_order);
 
-  // Determinar layout baseado na quantidade de vídeos
+  // Determinar layout baseado na quantidade de vídeos (otimizado para formato vertical)
   const getGridClass = () => {
     if (sortedItems.length === 1) {
       return 'flex justify-center';
     }
     if (sortedItems.length === 2) {
-      return 'grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto';
+      return 'grid grid-cols-2 gap-6 max-w-lg mx-auto';
     }
-    return 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto';
+    return 'grid grid-cols-2 lg:grid-cols-3 gap-6 max-w-2xl mx-auto';
   };
 
-  // Determinar classe da coluna para cada vídeo
+  // Determinar classe da coluna para cada vídeo (otimizado para vertical)
   const getItemClass = (video: LandingVideo, index: number) => {
-    // Se apenas 1 vídeo, centralizar com largura máxima
+    // Se apenas 1 vídeo, centralizar com largura máxima mais estreita para vertical
     if (sortedItems.length === 1) {
-      return 'w-full max-w-xl';
+      return 'w-full max-w-[280px]';
     }
     
-    // Se 2 vídeos, usar grid normal
-    if (sortedItems.length === 2) {
-      return '';
-    }
-    
-    // Para 3+ vídeos, usar column_position para determinar posição
-    const position = video.column_position || 2;
-    
-    // Em desktop (lg), posicionar na coluna correta
-    return `lg:col-start-${position}`;
+    return '';
   };
 
   // Obter URL do vídeo (upload tem prioridade)
