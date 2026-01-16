@@ -111,25 +111,26 @@ const navigationItems = [
             })}
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
+          {/* Right Actions - Estilo harmonizado com menu */}
+          <div className="flex items-center gap-2">
+            {/* Entrar - Estilo texto como menu, com destaque leve */}
+            <button
               onClick={() => navigate('/login')}
-              className="text-gray-300 hover:text-white hover:bg-gray-800"
+              className="relative px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300 group flex items-center gap-1.5"
             >
-              <LogIn className="mr-2 h-4 w-4" />
+              <LogIn className="h-4 w-4" />
               Entrar
-            </Button>
-            <Button
+              <span className="absolute bottom-0 left-0 h-0.5 bg-gray-500 w-0 group-hover:w-full transition-all duration-300" />
+            </button>
+            
+            {/* Teste Grátis - Borda verde com destaque */}
+            <button
               onClick={() => navigate('/register')}
-              size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5"
+              className="relative px-4 py-2 text-sm font-semibold text-white border border-green-500 rounded-md hover:bg-green-600 hover:border-green-600 transition-all duration-300 flex items-center gap-1.5"
             >
-              <Zap className="mr-2 h-4 w-4" />
+              <Zap className="h-4 w-4" />
               Teste Grátis
-            </Button>
+            </button>
           </div>
         </nav>
 

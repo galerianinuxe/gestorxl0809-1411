@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Phone } from 'lucide-react';
 import ResponsiveNavigation from '../ResponsiveNavigation';
 
 interface PortalLayoutProps {
@@ -64,13 +64,16 @@ export const PortalLayout = ({ children }: PortalLayoutProps) => {
             <div>
               <h4 className="font-semibold text-white mb-4">Contato</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li className="flex items-center gap-2">
-                  <span className="text-emerald-500">📱</span>
-                  (11) 96351-2105
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-emerald-500">✉️</span>
-                  contato@xlata.site
+                <li>
+                  <a 
+                    href="https://wa.me/5511963512105?text=Olá! Gostaria de saber mais sobre o Sistema XLata.site."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
+                  >
+                    <Phone className="h-4 w-4 text-emerald-500" />
+                    (11) 96351-2105
+                  </a>
                 </li>
               </ul>
             </div>
