@@ -18,8 +18,8 @@ export function VideoUploader({
   value,
   videoType,
   onChange,
-  bucket = 'landing-images',
-  folder = 'videos',
+  bucket = 'landing-videos',
+  folder = '',
   className = ''
 }: VideoUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
