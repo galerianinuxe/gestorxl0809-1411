@@ -87,9 +87,9 @@ const HelpArticle = () => {
   return (
     <PortalLayout>
       <SEOHead
-        title={article.seo_title || `${article.title} - Ajuda XLata`}
-        description={article.seo_description || article.excerpt || ''}
-        ogImage={article.og_image || undefined}
+        title={article?.seo_title || (article?.title ? `${article.title} - Ajuda XLata` : 'Carregando artigo...')}
+        description={article?.seo_description || article?.excerpt || ''}
+        ogImage={article?.og_image || undefined}
       />
 
       <article className="container mx-auto px-4 py-8 md:py-12">

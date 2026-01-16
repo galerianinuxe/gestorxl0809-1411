@@ -22,8 +22,10 @@ export const useSEO = () => {
   const { user } = useAuth();
 
   const updateMetaTags = useCallback((config: SEOConfig) => {
+    // Garantir título padrão
+    const safeTitle = config.title || 'XLata - Sistema para Depósito de Reciclagem';
     // Atualizar título
-    document.title = config.title;
+    document.title = safeTitle;
     
     // Atualizar ou criar meta tags
     const metaTags = [

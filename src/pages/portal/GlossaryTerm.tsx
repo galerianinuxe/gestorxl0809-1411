@@ -57,8 +57,8 @@ const GlossaryTerm = () => {
   return (
     <PortalLayout>
       <SEOHead
-        title={term.seo_title || `${term.term} - Glossário XLata`}
-        description={term.seo_description || term.short_definition}
+        title={term?.seo_title || (term?.term ? `${term.term} - Glossário XLata` : 'Carregando termo...')}
+        description={term?.seo_description || term?.short_definition || ''}
       />
 
       <div className="container mx-auto px-4 py-8 md:py-12">

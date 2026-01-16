@@ -126,12 +126,12 @@ const BlogPost = () => {
   return (
     <PortalLayout>
       <SEOHead
-        title={post.seo_title || post.title}
-        description={post.seo_description || post.excerpt || ''}
-        ogImage={post.og_image || undefined}
+        title={post?.seo_title || post?.title || 'Carregando artigo...'}
+        description={post?.seo_description || post?.excerpt || ''}
+        ogImage={post?.og_image || undefined}
         ogType="article"
-        publishedTime={post.published_at || undefined}
-        modifiedTime={post.updated_at}
+        publishedTime={post?.published_at || undefined}
+        modifiedTime={post?.updated_at}
       />
 
       <script

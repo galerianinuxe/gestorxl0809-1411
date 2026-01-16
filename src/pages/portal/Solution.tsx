@@ -128,9 +128,9 @@ const Solution = () => {
   return (
     <PortalLayout>
       <SEOHead
-        title={currentPage.seo_title || `${currentPage.headline} - XLata`}
-        description={currentPage.seo_description || currentPage.subheadline || ''}
-        ogImage={currentPage.og_image || currentPage.hero_image || undefined}
+        title={currentPage?.seo_title || (currentPage?.headline ? `${currentPage.headline} - XLata` : 'Carregando solução...')}
+        description={currentPage?.seo_description || currentPage?.subheadline || ''}
+        ogImage={currentPage?.og_image || currentPage?.hero_image || undefined}
       />
 
       <div className="container mx-auto px-4 py-8 md:py-12">

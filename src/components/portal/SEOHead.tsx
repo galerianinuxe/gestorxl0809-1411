@@ -29,7 +29,8 @@ export const SEOHead = ({
   allowIndexing = true,
   customCanonical,
 }: SEOHeadProps) => {
-  const fullTitle = title.includes('XLata') ? title : `${title} | XLata`;
+  const safeTitle = title || 'XLata - Sistema para Depósito de Reciclagem';
+  const fullTitle = safeTitle.includes('XLata') ? safeTitle : `${safeTitle} | XLata`;
   // Use customCanonical first, then canonical prop, then default
   const canonicalUrl = customCanonical || canonical || `https://xlata.site${window.location.pathname}`;
   const ogImageUrl = ogImage?.startsWith('http') ? ogImage : `https://xlata.site${ogImage}`;
