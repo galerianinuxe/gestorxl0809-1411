@@ -1,121 +1,18 @@
 import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import ResponsiveNavigation from '../ResponsiveNavigation';
 
 interface PortalLayoutProps {
   children: ReactNode;
 }
 
 export const PortalLayout = ({ children }: PortalLayoutProps) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const location = useLocation();
-
-  const navItems = [
-    { label: 'Blog', href: '/blog' },
-    { label: 'Ajuda', href: '/ajuda' },
-    { label: 'Soluções', href: '/solucoes' },
-    { label: 'Glossário', href: '/glossario' },
-    { label: 'Planos', href: '/planos' },
-  ];
-
-  const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/');
-
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-gray-900/80">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
-            <Link to="/landing" className="flex items-center gap-2 group">
-              <img
-                src="/lovable-uploads/XLATALOGO.png"
-                alt="XLata"
-                className="h-8 w-auto group-hover:scale-105 transition-transform"
-              />
-              <span className="font-bold text-xl bg-gradient-to-r from-emerald-500 to-emerald-400 bg-clip-text text-transparent">
-                XLata
-              </span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive(item.href)
-                      ? 'text-emerald-400 bg-emerald-500/10'
-                      : 'text-gray-300 hover:text-emerald-400 hover:bg-gray-800'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* CTA Buttons */}
-            <div className="hidden md:flex items-center gap-3">
-              <Link to="/login">
-                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-emerald-400 hover:bg-gray-800">
-                  Entrar
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-900/30 gap-1">
-                  Teste Grátis 7 Dias
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 rounded-lg hover:bg-gray-800 transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6 text-gray-300" /> : <Menu className="h-6 w-6 text-gray-300" />}
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-800 animate-fade-in">
-              <nav className="flex flex-col gap-1">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      isActive(item.href)
-                        ? 'text-emerald-400 bg-emerald-500/10'
-                        : 'text-gray-300 hover:bg-gray-800'
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-gray-800">
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-gray-700 text-gray-300 hover:bg-gray-800">
-                      Entrar
-                    </Button>
-                  </Link>
-                  <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                      Teste Grátis 7 Dias
-                    </Button>
-                  </Link>
-                </div>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
+      {/* Header - usando ResponsiveNavigation */}
+      <ResponsiveNavigation companyPhone="(11) 96351-2105" />
 
       {/* Main Content */}
       <main>{children}</main>

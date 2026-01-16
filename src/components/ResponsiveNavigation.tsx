@@ -30,10 +30,10 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const navigationItems = [
+const navigationItems = [
     { title: "Início", href: "/landing", icon: Home },
     { title: "Planos", href: "/planos", icon: CreditCard },
-    { title: "Como Funciona", href: "/landing#como-funciona", icon: PlayCircle },
+    { title: "Como Funciona", href: "/landing#videos", icon: PlayCircle },
     { title: "Blog", href: "/blog", icon: Newspaper },
     { title: "Contato", href: "#contato", icon: Phone, isWhatsApp: true },
     { title: "Ajuda", href: "/ajuda", icon: HelpCircle },
@@ -61,10 +61,18 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
   };
 
   const isActive = (href: string) => {
+    // Links com âncoras (#) e WhatsApp nunca ficam ativos
+    if (href.includes('#')) {
+      return false;
+    }
+    
+    // Início - apenas /landing ou /
     if (href === '/landing') {
       return location.pathname === '/' || location.pathname === '/landing';
     }
-    return location.pathname.startsWith(href.split('#')[0]);
+    
+    // Match exato ou sub-rotas
+    return location.pathname === href || location.pathname.startsWith(href + '/');
   };
 
   return (

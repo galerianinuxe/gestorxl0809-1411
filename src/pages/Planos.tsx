@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Calendar, CreditCard, ArrowLeft, RefreshCw, User, History, Clock, Zap } from 'lucide-react';
+import { Check, Crown, Calendar, CreditCard, RefreshCw, User, History, Clock, Zap } from 'lucide-react';
 import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { useNavigate } from 'react-router-dom';
 import CheckoutPage from '@/components/checkout/CheckoutPage';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { PublicLayout } from '@/components/PublicLayout';
 
 interface SelectedPlan {
   id: string;
@@ -257,27 +258,16 @@ const Planos = () => {
   const availablePlans = getAvailablePlans();
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      {/* Header */}
-      <div className="bg-slate-800 border-b border-slate-700 p-4">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
+    <PublicLayout>
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Título da Página */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
             <CreditCard className="h-5 w-5 text-emerald-500" />
             <h1 className="text-lg font-bold text-white">Planos e Preços</h1>
           </div>
           <ContextualHelpButton module="assinatura" />
         </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         
         {/* Seção: Minha Assinatura (primeiro se logado) */}
         {user && (
@@ -511,7 +501,7 @@ const Planos = () => {
           />
         </div>
       )}
-    </div>
+    </PublicLayout>
   );
 };
 
