@@ -9,7 +9,7 @@ import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { getOrders, getMaterials } from '@/utils/supabaseStorage';
 import PasswordPromptModal from '@/components/PasswordPromptModal';
 import ClearStockModal from '@/components/ClearStockModal';
-import MaterialDetailsModal from '@/components/MaterialDetailsModal';
+import MaterialDetailsView from '@/components/MaterialDetailsView';
 import { Order } from '@/types/pdv';
 import { StandardFilter, FilterPeriod } from '@/components/StandardFilter';
 import { MetricCard } from '@/components/MetricCard';
@@ -315,6 +315,37 @@ const CurrentStock = () => {
     );
   }
 
+  // Renderização condicional: Detalhes do Material OU Lista
+  if (selectedMaterial) {
+    return (
+      <>
+        <MaterialDetailsView
+          material={selectedMaterial}
+          totalWeight={totalWeight}
+          onBack={() => {
+            setSelectedMaterial(null);
+            setShowMaterialDetails(false);
+          }}
+        />
+        
+        {/* Modals ainda disponíveis */}
+        <PasswordPromptModal
+          open={showPasswordModal}
+          onOpenChange={setShowPasswordModal}
+          onAuthenticated={handlePasswordAuthenticated}
+          title="Zerar Estoque"
+          description="Digite a senha para confirmar a limpeza do estoque."
+        />
+
+        <ClearStockModal
+          open={showClearStockModal}
+          onOpenChange={setShowClearStockModal}
+          onStockCleared={handleStockCleared}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-800">
       <header className="bg-slate-900 text-white p-3 border-b border-slate-700">
@@ -580,17 +611,6 @@ const CurrentStock = () => {
         onStockCleared={handleStockCleared}
       />
 
-      {selectedMaterial && (
-        <MaterialDetailsModal
-          open={showMaterialDetails}
-          onOpenChange={(open) => {
-            setShowMaterialDetails(open);
-            if (!open) setSelectedMaterial(null);
-          }}
-          material={selectedMaterial}
-          totalWeight={materials.reduce((sum, m) => sum + m.currentStock, 0)}
-        />
-      )}
     </div>
   );
 };
