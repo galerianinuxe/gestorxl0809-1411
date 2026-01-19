@@ -60,9 +60,9 @@ const MaterialDetailsView = ({ material, totalWeight, onBack }: MaterialDetailsV
   const totalSaleValue = material.currentStock * material.salePrice;
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-800">
-      {/* Header */}
-      <header className="bg-slate-900 text-white p-3 border-b border-slate-700">
+    <div className="flex flex-col h-screen bg-slate-800 overflow-hidden">
+      {/* Header - Fixed */}
+      <header className="flex-shrink-0 bg-slate-900 text-white p-3 border-b border-slate-700">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -80,184 +80,185 @@ const MaterialDetailsView = ({ material, totalWeight, onBack }: MaterialDetailsV
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 p-2 md:p-4 overflow-auto">
-        {/* Seção: Estoque */}
-        <div className="mb-4">
-          <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Estoque</h3>
-          <div className="grid grid-cols-3 gap-2">
-            {/* Peso */}
-            <Card className="bg-slate-700 border-slate-600">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Scale className="h-3.5 w-3.5 text-slate-400" />
-                  <span className="text-xs text-slate-400">Peso</span>
-                </div>
-                <div className="text-sm font-bold text-white">{formatWeight(material.currentStock)}</div>
-              </CardContent>
-            </Card>
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 flex flex-col min-h-0 p-2 md:p-4 overflow-hidden">
+        {/* Fixed sections - Stock, Prices, Values */}
+        <div className="flex-shrink-0">
+          {/* Seção: Estoque */}
+          <div className="mb-4">
+            <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Estoque</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {/* Peso */}
+              <Card className="bg-slate-700 border-slate-600">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Scale className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-xs text-slate-400">Peso</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">{formatWeight(material.currentStock)}</div>
+                </CardContent>
+              </Card>
+              
+              {/* Percentual */}
+              <Card className="bg-slate-700 border-slate-600">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Percent className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-xs text-slate-400">% Total</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">{percentage.toFixed(1)}%</div>
+                  <Progress value={percentage} className="h-1 mt-1.5" />
+                </CardContent>
+              </Card>
+              
+              {/* Transações */}
+              <Card className="bg-slate-700 border-slate-600">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Receipt className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-xs text-slate-400">Movim.</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">{material.transactions.length}</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Seção: Preços */}
+          <div className="mb-4">
+            <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Preços por kg</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {/* Preço de Compra */}
+              <Card className="bg-slate-700 border-slate-600">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-yellow-500" />
+                    <span className="text-xs text-slate-400">Compra</span>
+                  </div>
+                  <div className="text-sm font-bold text-yellow-400">{formatCurrency(material.purchasePrice)}</div>
+                </CardContent>
+              </Card>
+              
+              {/* Preço de Venda */}
+              <Card className="bg-slate-700 border-slate-600">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-blue-500" />
+                    <span className="text-xs text-slate-400">Venda</span>
+                  </div>
+                  <div className="text-sm font-bold text-blue-400">{formatCurrency(material.salePrice)}</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Seção: Valores em Estoque */}
+          <div className="mb-4">
+            <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Valores em Estoque</h3>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              {/* Custo Total */}
+              <Card className="bg-slate-700 border-slate-600">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-yellow-500" />
+                    <span className="text-xs text-slate-400">Custo Total</span>
+                  </div>
+                  <div className="text-sm font-bold text-yellow-400">{formatCurrency(material.totalValue)}</div>
+                </CardContent>
+              </Card>
+              
+              {/* Valor de Venda Total */}
+              <Card className="bg-slate-700 border-slate-600">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <DollarSign className="h-3.5 w-3.5 text-blue-500" />
+                    <span className="text-xs text-slate-400">Valor Venda</span>
+                  </div>
+                  <div className="text-sm font-bold text-blue-400">{formatCurrency(totalSaleValue)}</div>
+                </CardContent>
+              </Card>
+            </div>
             
-            {/* Percentual */}
-            <Card className="bg-slate-700 border-slate-600">
+            {/* Projeção de Lucro - Destacado */}
+            <Card className="bg-emerald-900/30 border-emerald-700/50">
               <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Percent className="h-3.5 w-3.5 text-slate-400" />
-                  <span className="text-xs text-slate-400">% Total</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm text-emerald-300">Projeção de Lucro</span>
+                  </div>
+                  <div className="text-lg font-bold text-emerald-400">{formatCurrency(material.profitProjection)}</div>
                 </div>
-                <div className="text-sm font-bold text-white">{percentage.toFixed(1)}%</div>
-                <Progress value={percentage} className="h-1 mt-1.5" />
-              </CardContent>
-            </Card>
-            
-            {/* Transações */}
-            <Card className="bg-slate-700 border-slate-600">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Receipt className="h-3.5 w-3.5 text-slate-400" />
-                  <span className="text-xs text-slate-400">Movim.</span>
-                </div>
-                <div className="text-sm font-bold text-white">{material.transactions.length}</div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Seção: Preços */}
-        <div className="mb-4">
-          <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Preços por kg</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {/* Preço de Compra */}
-            <Card className="bg-slate-700 border-slate-600">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <DollarSign className="h-3.5 w-3.5 text-yellow-500" />
-                  <span className="text-xs text-slate-400">Compra</span>
-                </div>
-                <div className="text-sm font-bold text-yellow-400">{formatCurrency(material.purchasePrice)}</div>
-              </CardContent>
-            </Card>
-            
-            {/* Preço de Venda */}
-            <Card className="bg-slate-700 border-slate-600">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <DollarSign className="h-3.5 w-3.5 text-blue-500" />
-                  <span className="text-xs text-slate-400">Venda</span>
-                </div>
-                <div className="text-sm font-bold text-blue-400">{formatCurrency(material.salePrice)}</div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Seção: Valores em Estoque */}
-        <div className="mb-4">
-          <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Valores em Estoque</h3>
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            {/* Custo Total */}
-            <Card className="bg-slate-700 border-slate-600">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <DollarSign className="h-3.5 w-3.5 text-yellow-500" />
-                  <span className="text-xs text-slate-400">Custo Total</span>
-                </div>
-                <div className="text-sm font-bold text-yellow-400">{formatCurrency(material.totalValue)}</div>
-              </CardContent>
-            </Card>
-            
-            {/* Valor de Venda Total */}
-            <Card className="bg-slate-700 border-slate-600">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <DollarSign className="h-3.5 w-3.5 text-blue-500" />
-                  <span className="text-xs text-slate-400">Valor Venda</span>
-                </div>
-                <div className="text-sm font-bold text-blue-400">{formatCurrency(totalSaleValue)}</div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Projeção de Lucro - Destacado */}
-          <Card className="bg-emerald-900/30 border-emerald-700/50">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <TrendingUp className="h-4 w-4 text-emerald-500" />
-                  <span className="text-sm text-emerald-300">Projeção de Lucro</span>
-                </div>
-                <div className="text-lg font-bold text-emerald-400">{formatCurrency(material.profitProjection)}</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Seção: Histórico de Transações */}
-        <Card className="bg-slate-700 border-slate-600">
-          <CardHeader className="p-3 pb-2">
+        {/* History Section - Takes remaining space and scrolls */}
+        <Card className="flex-1 min-h-0 flex flex-col bg-slate-700 border-slate-600">
+          <CardHeader className="flex-shrink-0 p-3 pb-2">
             <CardTitle className="text-white text-sm flex items-center gap-2">
               <Clock className="h-4 w-4 text-slate-400" />
               Histórico de Transações ({material.transactions.length})
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2 md:p-3">
+          <CardContent className="flex-1 min-h-0 p-2 md:p-3 overflow-y-auto">
             {material.transactions.length > 0 ? (
-              <ScrollArea className="max-h-[400px]">
-                <div className="space-y-2">
-                  {material.transactions.map((transaction, index) => {
-                    const { date, time } = formatDateTime(transaction.date);
-                    return (
-                      <Card 
-                        key={index}
-                        className={`border ${
-                          transaction.type === 'compra' 
-                            ? 'bg-emerald-900/20 border-emerald-800/50' 
-                            : 'bg-rose-900/20 border-rose-800/50'
-                        }`}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex items-start justify-between">
-                            {/* Left side: Type, Date, Time */}
-                            <div className="flex items-start gap-2">
-                              {transaction.type === 'compra' ? (
-                                <ArrowUpCircle className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" />
-                              ) : (
-                                <ArrowDownCircle className="h-5 w-5 text-rose-500 mt-0.5 flex-shrink-0" />
-                              )}
-                              <div>
-                                <span className={`text-sm font-semibold ${
-                                  transaction.type === 'compra' ? 'text-emerald-400' : 'text-rose-400'
-                                }`}>
-                                  {transaction.type === 'compra' ? 'Compra' : 'Venda'}
-                                </span>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-xs text-slate-400">{date}</span>
-                                  <span className="text-xs text-slate-500">às</span>
-                                  <span className="text-xs text-slate-400 font-medium">{time}</span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Right side: Quantity, Price, Total */}
-                            <div className="text-right">
-                              <div className="text-sm text-white font-medium">
-                                {formatWeight(transaction.quantity)}
-                              </div>
-                              <div className="text-xs text-slate-400 mt-0.5">
-                                {formatCurrency(transaction.price)}/kg
-                              </div>
-                              <div className={`text-sm font-semibold mt-1 ${
+              <div className="space-y-2">
+                {material.transactions.map((transaction, index) => {
+                  const { date, time } = formatDateTime(transaction.date);
+                  return (
+                    <Card 
+                      key={index}
+                      className={`border ${
+                        transaction.type === 'compra' 
+                          ? 'bg-emerald-900/20 border-emerald-800/50' 
+                          : 'bg-rose-900/20 border-rose-800/50'
+                      }`}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-start justify-between">
+                          {/* Left side: Type, Date, Time */}
+                          <div className="flex items-start gap-2">
+                            {transaction.type === 'compra' ? (
+                              <ArrowUpCircle className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                            ) : (
+                              <ArrowDownCircle className="h-5 w-5 text-rose-500 mt-0.5 flex-shrink-0" />
+                            )}
+                            <div>
+                              <span className={`text-sm font-semibold ${
                                 transaction.type === 'compra' ? 'text-emerald-400' : 'text-rose-400'
                               }`}>
-                                {formatCurrency(transaction.total)}
+                                {transaction.type === 'compra' ? 'Compra' : 'Venda'}
+                              </span>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-xs text-slate-400">{date}</span>
+                                <span className="text-xs text-slate-500">às</span>
+                                <span className="text-xs text-slate-400 font-medium">{time}</span>
                               </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </ScrollArea>
+                          
+                          {/* Right side: Quantity, Price, Total */}
+                          <div className="text-right">
+                            <div className="text-sm text-white font-medium">
+                              {formatWeight(transaction.quantity)}
+                            </div>
+                            <div className="text-xs text-slate-400 mt-0.5">
+                              {formatCurrency(transaction.price)}/kg
+                            </div>
+                            <div className={`text-sm font-semibold mt-1 ${
+                              transaction.type === 'compra' ? 'text-emerald-400' : 'text-rose-400'
+                            }`}>
+                              {formatCurrency(transaction.total)}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             ) : (
               <div className="text-center py-8 text-slate-500">
                 Nenhuma transação registrada para este material.
