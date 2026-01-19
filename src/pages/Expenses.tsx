@@ -11,7 +11,7 @@ import { MetricCard } from '@/components/MetricCard';
 
 const Expenses = () => {
   const [searchParams] = useSearchParams();
-  const [selectedPeriod, setSelectedPeriod] = useState<FilterPeriod>('monthly');
+  const [selectedPeriod, setSelectedPeriod] = useState<FilterPeriod>('last30');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +45,7 @@ const Expenses = () => {
         const now = new Date();
         let filterStartDate: Date;
         let filterEndDate: Date = new Date(now);
+        filterEndDate.setHours(23, 59, 59, 999);
 
         if (selectedPeriod === 'custom' && startDate && endDate) {
           filterStartDate = new Date(startDate);
@@ -55,22 +56,33 @@ const Expenses = () => {
             case 'daily':
               filterStartDate = new Date(now);
               filterStartDate.setHours(0, 0, 0, 0);
+              filterEndDate = new Date(now);
+              filterEndDate.setHours(23, 59, 59, 999);
               break;
-            case 'weekly':
+            case 'last30':
               filterStartDate = new Date(now);
-              filterStartDate.setDate(now.getDate() - 7);
+              filterStartDate.setDate(now.getDate() - 30);
+              filterStartDate.setHours(0, 0, 0, 0);
               break;
-            case 'monthly':
+            case 'last60':
               filterStartDate = new Date(now);
-              filterStartDate.setMonth(now.getMonth() - 1);
+              filterStartDate.setDate(now.getDate() - 60);
+              filterStartDate.setHours(0, 0, 0, 0);
               break;
-            case 'yearly':
+            case 'last90':
               filterStartDate = new Date(now);
-              filterStartDate.setFullYear(now.getFullYear() - 1);
+              filterStartDate.setDate(now.getDate() - 90);
+              filterStartDate.setHours(0, 0, 0, 0);
+              break;
+            case 'last365':
+              filterStartDate = new Date(now);
+              filterStartDate.setDate(now.getDate() - 365);
+              filterStartDate.setHours(0, 0, 0, 0);
               break;
             default:
               filterStartDate = new Date(now);
-              filterStartDate.setMonth(now.getMonth() - 1);
+              filterStartDate.setDate(now.getDate() - 30);
+              filterStartDate.setHours(0, 0, 0, 0);
           }
         }
 
@@ -139,7 +151,7 @@ const Expenses = () => {
   const totalExpenses = expensesData.reduce((sum, expense) => sum + expense.amount, 0);
 
   const clearFilters = () => {
-    setSelectedPeriod('monthly');
+    setSelectedPeriod('last30');
     setStartDate('');
     setEndDate('');
   };

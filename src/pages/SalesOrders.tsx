@@ -32,7 +32,7 @@ const SalesOrders = () => {
   const [categories, setCategories] = useState<MaterialCategory[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const [selectedPeriod, setSelectedPeriod] = useState<FilterPeriod>('monthly');
+  const [selectedPeriod, setSelectedPeriod] = useState<FilterPeriod>('last30');
   const [filterStartDate, setFilterStartDate] = useState(startDate);
   const [filterEndDate, setFilterEndDate] = useState(endDate);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -72,6 +72,7 @@ const SalesOrders = () => {
     const now = new Date();
     let filterStart: Date;
     let filterEnd: Date = new Date(now);
+    filterEnd.setHours(23, 59, 59, 999);
 
     if (selectedPeriod === 'custom' && filterStartDate && filterEndDate) {
       filterStart = new Date(filterStartDate);
@@ -82,22 +83,33 @@ const SalesOrders = () => {
         case 'daily':
           filterStart = new Date(now);
           filterStart.setHours(0, 0, 0, 0);
+          filterEnd = new Date(now);
+          filterEnd.setHours(23, 59, 59, 999);
           break;
-        case 'weekly':
+        case 'last30':
           filterStart = new Date(now);
-          filterStart.setDate(now.getDate() - 7);
+          filterStart.setDate(now.getDate() - 30);
+          filterStart.setHours(0, 0, 0, 0);
           break;
-        case 'monthly':
+        case 'last60':
           filterStart = new Date(now);
-          filterStart.setMonth(now.getMonth() - 1);
+          filterStart.setDate(now.getDate() - 60);
+          filterStart.setHours(0, 0, 0, 0);
           break;
-        case 'yearly':
+        case 'last90':
           filterStart = new Date(now);
-          filterStart.setFullYear(now.getFullYear() - 1);
+          filterStart.setDate(now.getDate() - 90);
+          filterStart.setHours(0, 0, 0, 0);
+          break;
+        case 'last365':
+          filterStart = new Date(now);
+          filterStart.setDate(now.getDate() - 365);
+          filterStart.setHours(0, 0, 0, 0);
           break;
         default:
           filterStart = new Date(now);
-          filterStart.setMonth(now.getMonth() - 1);
+          filterStart.setDate(now.getDate() - 30);
+          filterStart.setHours(0, 0, 0, 0);
       }
     }
 
@@ -193,7 +205,7 @@ const SalesOrders = () => {
   const totalProfit = salesData.salesItems.reduce((sum, item) => sum + item.profit, 0);
 
   const clearFilters = () => {
-    setSelectedPeriod('monthly');
+    setSelectedPeriod('last30');
     setFilterStartDate('');
     setFilterEndDate('');
     setSelectedCategory('all');

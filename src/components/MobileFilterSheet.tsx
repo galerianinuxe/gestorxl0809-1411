@@ -24,9 +24,10 @@ interface MobileFilterSheetProps {
 
 const periodOptions: { value: FilterPeriod; label: string }[] = [
   { value: 'daily', label: 'Hoje' },
-  { value: 'weekly', label: 'Semana' },
-  { value: 'monthly', label: 'Mês' },
-  { value: 'yearly', label: 'Ano' },
+  { value: 'last30', label: '30 dias' },
+  { value: 'last60', label: '60 dias' },
+  { value: 'last90', label: '90 dias' },
+  { value: 'last365', label: '365 dias' },
   { value: 'custom', label: 'Personalizado' },
 ];
 

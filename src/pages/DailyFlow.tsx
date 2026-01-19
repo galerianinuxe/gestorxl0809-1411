@@ -120,25 +120,34 @@ const DailyFlow = () => {
         case 'daily':
           filterStartDate = new Date(now);
           filterStartDate.setHours(0, 0, 0, 0);
+          filterEndDate = new Date(now);
+          filterEndDate.setHours(23, 59, 59, 999);
           break;
-        case 'weekly':
+        case 'last30':
           filterStartDate = new Date(now);
-          filterStartDate.setDate(now.getDate() - 7);
+          filterStartDate.setDate(now.getDate() - 30);
           filterStartDate.setHours(0, 0, 0, 0);
           break;
-        case 'monthly':
+        case 'last60':
           filterStartDate = new Date(now);
-          filterStartDate.setMonth(now.getMonth() - 1);
+          filterStartDate.setDate(now.getDate() - 60);
           filterStartDate.setHours(0, 0, 0, 0);
           break;
-        case 'yearly':
+        case 'last90':
           filterStartDate = new Date(now);
-          filterStartDate.setFullYear(now.getFullYear() - 1);
+          filterStartDate.setDate(now.getDate() - 90);
+          filterStartDate.setHours(0, 0, 0, 0);
+          break;
+        case 'last365':
+          filterStartDate = new Date(now);
+          filterStartDate.setDate(now.getDate() - 365);
           filterStartDate.setHours(0, 0, 0, 0);
           break;
         default:
           filterStartDate = new Date(now);
           filterStartDate.setHours(0, 0, 0, 0);
+          filterEndDate = new Date(now);
+          filterEndDate.setHours(23, 59, 59, 999);
       }
     }
 
@@ -416,7 +425,7 @@ const DailyFlow = () => {
                             onClick={() => confirmDelete(item.id)}
                             variant="outline"
                             size="sm"
-                            className="bg-rose-700 border-rose-600 text-white hover:bg-rose-600"
+                            className="bg-rose-900/20 border-rose-600 text-rose-400 hover:bg-rose-900/40 text-xs"
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
@@ -432,61 +441,70 @@ const DailyFlow = () => {
                     <TableHeader>
                       <TableRow className="border-slate-600">
                         <TableHead className="text-slate-300 text-sm p-2">Operador</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Abertura</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Fechamento</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Compras</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Vendas</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Despesas</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Diferença</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Ações</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2">Data</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Inicial</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Compras</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Vendas</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Despesas</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Esperado</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Final</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Diferença</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-center">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {paginatedData.map((item) => (
-                        <TableRow key={item.id} className="border-slate-600">
+                        <TableRow key={item.id} className="border-slate-600 hover:bg-slate-600/30">
                           <TableCell className="text-slate-300 text-sm p-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
+                              <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
                                 <span className="text-white font-bold text-xs">
                                   {item.userName.charAt(0).toUpperCase()}
                                 </span>
                               </div>
-                              <span className="truncate max-w-[100px]">{item.userName}</span>
+                              <span className="truncate max-w-[80px]">{item.userName}</span>
                             </div>
                           </TableCell>
                           <TableCell className="text-slate-300 text-sm p-2">
                             <div>{formatDate(item.openingDate)}</div>
                             <div className="text-xs text-slate-500">{formatTime(item.openingDate)}</div>
                           </TableCell>
-                          <TableCell className="text-slate-300 text-sm p-2">
-                            {item.closingDate ? (
-                              <>
-                                <div>{formatDate(item.closingDate)}</div>
-                                <div className="text-xs text-slate-500">{formatTime(item.closingDate)}</div>
-                              </>
-                            ) : '-'}
+                          <TableCell className="text-slate-300 text-sm p-2 text-right">
+                            {formatCurrency(item.openingAmount)}
                           </TableCell>
-                          <TableCell className="text-slate-300 text-sm p-2">{formatCurrency(item.totalPurchases)}</TableCell>
-                          <TableCell className="text-slate-300 text-sm p-2">{formatCurrency(item.totalSales)}</TableCell>
-                          <TableCell className="text-slate-300 text-sm p-2">{formatCurrency(item.totalExpenses)}</TableCell>
-                          <TableCell className={`text-sm p-2 font-semibold ${item.difference >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          <TableCell className="text-blue-400 text-sm p-2 text-right">
+                            {formatCurrency(item.totalPurchases)}
+                          </TableCell>
+                          <TableCell className="text-emerald-400 text-sm p-2 text-right">
+                            {formatCurrency(item.totalSales)}
+                          </TableCell>
+                          <TableCell className="text-rose-400 text-sm p-2 text-right">
+                            {formatCurrency(item.totalExpenses)}
+                          </TableCell>
+                          <TableCell className="text-slate-300 text-sm p-2 text-right">
+                            {formatCurrency(item.expectedAmount)}
+                          </TableCell>
+                          <TableCell className="text-white font-semibold text-sm p-2 text-right">
+                            {formatCurrency(item.finalAmount)}
+                          </TableCell>
+                          <TableCell className={`font-semibold text-sm p-2 text-right ${item.difference >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                             {formatCurrency(item.difference)}
                           </TableCell>
                           <TableCell className="p-2">
-                            <div className="flex gap-1">
+                            <div className="flex items-center justify-center gap-1">
                               <Button
-                                onClick={() => printCashClosingReceipt(item)}
-                                variant="outline"
+                                variant="ghost"
                                 size="sm"
-                                className="bg-emerald-700 border-emerald-600 text-white hover:bg-emerald-600 h-8 w-8 p-0"
+                                onClick={() => printCashClosingReceipt(item)}
+                                className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-400"
                               >
                                 <Printer className="h-4 w-4" />
                               </Button>
                               <Button
-                                onClick={() => confirmDelete(item.id)}
-                                variant="outline"
+                                variant="ghost"
                                 size="sm"
-                                className="bg-rose-700 border-rose-600 text-white hover:bg-rose-600 h-8 w-8 p-0"
+                                onClick={() => confirmDelete(item.id)}
+                                className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -509,6 +527,7 @@ const DailyFlow = () => {
                             className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                           />
                         </PaginationItem>
+                        
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                           let page;
                           if (totalPages <= 5) {
@@ -532,6 +551,7 @@ const DailyFlow = () => {
                             </PaginationItem>
                           );
                         })}
+                        
                         <PaginationItem>
                           <PaginationNext 
                             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
@@ -545,23 +565,24 @@ const DailyFlow = () => {
               </>
             ) : (
               <div className="text-center py-6 text-slate-400">
-                Nenhum fechamento encontrado no período selecionado.
+                Nenhum fechamento de caixa encontrado no período selecionado.
               </div>
             )}
           </CardContent>
         </Card>
-
-        <PasswordPromptModal
-          open={showPasswordModal}
-          onOpenChange={(open) => {
-            setShowPasswordModal(open);
-            if (!open) setItemToDelete(null);
-          }}
-          onAuthenticated={handleDeleteCashRegister}
-          title="Confirmar Exclusão"
-          description="Digite sua senha para confirmar a exclusão."
-        />
       </main>
+
+      {/* Modal de senha para exclusão */}
+      <PasswordPromptModal
+        open={showPasswordModal}
+        onClose={() => {
+          setShowPasswordModal(false);
+          setItemToDelete(null);
+        }}
+        onAuthenticated={handleDeleteCashRegister}
+        title="Excluir Fechamento"
+        description="Digite a senha para confirmar a exclusão deste fechamento de caixa."
+      />
     </div>
   );
 };

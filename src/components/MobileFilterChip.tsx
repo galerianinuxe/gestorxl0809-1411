@@ -15,9 +15,10 @@ interface MobileFilterChipProps {
 
 const periodLabels: Record<FilterPeriod, string> = {
   daily: 'Hoje',
-  weekly: 'Semana',
-  monthly: 'Mês',
-  yearly: 'Ano',
+  last30: '30 dias',
+  last60: '60 dias',
+  last90: '90 dias',
+  last365: '365 dias',
   custom: 'Personalizado',
   all: 'Todos',
 };

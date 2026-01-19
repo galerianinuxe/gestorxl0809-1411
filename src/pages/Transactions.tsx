@@ -139,6 +139,7 @@ const Transactions = () => {
     const now = new Date();
     let filterStart: Date;
     let filterEnd: Date = new Date(now);
+    filterEnd.setHours(23, 59, 59, 999);
 
     if (selectedPeriod === 'custom' && startDate && endDate) {
       filterStart = new Date(startDate + 'T00:00:00');
@@ -151,28 +152,25 @@ const Transactions = () => {
           filterEnd = new Date(now);
           filterEnd.setHours(23, 59, 59, 999);
           break;
-        case 'weekly':
-          const today = new Date(now);
-          const dayOfWeek = today.getDay();
-          const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-          filterStart = new Date(today);
-          filterStart.setDate(today.getDate() + mondayOffset);
+        case 'last30':
+          filterStart = new Date(now);
+          filterStart.setDate(now.getDate() - 30);
           filterStart.setHours(0, 0, 0, 0);
-          filterEnd = new Date(filterStart);
-          filterEnd.setDate(filterStart.getDate() + 6);
-          filterEnd.setHours(23, 59, 59, 999);
           break;
-        case 'monthly':
-          filterStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        case 'last60':
+          filterStart = new Date(now);
+          filterStart.setDate(now.getDate() - 60);
           filterStart.setHours(0, 0, 0, 0);
-          filterEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-          filterEnd.setHours(23, 59, 59, 999);
           break;
-        case 'yearly':
-          filterStart = new Date(now.getFullYear(), 0, 1);
+        case 'last90':
+          filterStart = new Date(now);
+          filterStart.setDate(now.getDate() - 90);
           filterStart.setHours(0, 0, 0, 0);
-          filterEnd = new Date(now.getFullYear(), 11, 31);
-          filterEnd.setHours(23, 59, 59, 999);
+          break;
+        case 'last365':
+          filterStart = new Date(now);
+          filterStart.setDate(now.getDate() - 365);
+          filterStart.setHours(0, 0, 0, 0);
           break;
         default:
           filterStart = new Date(now);
@@ -435,37 +433,56 @@ const Transactions = () => {
         {/* Lista de Transações */}
         <Card className="bg-slate-700 border-slate-600">
           <CardHeader className="p-3">
-            <CardTitle className="text-white text-base md:text-lg">
-              Lista ({currentPage}/{totalPages || 1})
-            </CardTitle>
+            <CardTitle className="text-white text-base md:text-lg">Histórico de Transações</CardTitle>
           </CardHeader>
           <CardContent className="p-2 md:p-3">
-            {paginatedTransactions.length > 0 ? (
+            {filteredTransactions.length > 0 ? (
               <>
                 {/* Mobile View */}
                 <div className="md:hidden space-y-2">
-                  {paginatedTransactions.map((transaction) => {
-                    const payment = orderPayments[transaction.id];
-                    return (
-                      <Card 
-                        key={transaction.id} 
-                        className="bg-slate-800 border-slate-600 cursor-pointer"
-                        onClick={() => handleTransactionClick(transaction)}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex justify-between items-start mb-1">
-                            <div className="text-white font-medium">{formatCurrency(transaction.total)}</div>
-                            <div className={`text-xs px-2 py-1 rounded ${transaction.type === 'compra' ? 'bg-blue-600/20 text-blue-300' : 'bg-emerald-600/20 text-emerald-300'}`}>
-                              {transaction.type === 'compra' ? 'Compra' : 'Venda'}
-                            </div>
+                  {paginatedTransactions.map((transaction) => (
+                    <Card 
+                      key={transaction.id} 
+                      className="bg-slate-800 border-slate-600 cursor-pointer"
+                      onClick={() => handleTransactionClick(transaction)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`font-semibold ${getTypeColor(transaction.type)}`}>
+                            {transaction.type === 'venda' ? 'Venda' : 'Compra'}
+                          </span>
+                          <span className="text-white font-bold">{formatCurrency(transaction.total)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm text-slate-400">
+                          <span>{formatDate(transaction.timestamp)} {formatTime(transaction.timestamp)}</span>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReprintClick(transaction);
+                              }}
+                              className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-400"
+                            >
+                              <Printer className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClick(transaction);
+                              }}
+                              className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <div className="text-xs text-slate-400">
-                            {formatDate(transaction.timestamp)} {formatTime(transaction.timestamp)} • {transaction.items.length} item(s)
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
 
                 {/* Desktop View */}
@@ -475,75 +492,71 @@ const Transactions = () => {
                       <TableRow className="border-slate-600">
                         <TableHead className="text-slate-300 text-sm p-2">Data/Hora</TableHead>
                         <TableHead className="text-slate-300 text-sm p-2">Tipo</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">ID</TableHead>
                         <TableHead className="text-slate-300 text-sm p-2">Itens</TableHead>
                         <TableHead className="text-slate-300 text-sm p-2">Pagamento</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Valor</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Ações</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-right">Total</TableHead>
+                        <TableHead className="text-slate-300 text-sm p-2 text-center">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {paginatedTransactions.map((transaction) => {
-                        const payment = orderPayments[transaction.id];
-                        return (
-                          <TableRow key={transaction.id} className="border-slate-600 hover:bg-slate-600/30">
-                            <TableCell className="text-slate-300 text-sm p-2">
-                              <div>{formatDate(transaction.timestamp)}</div>
-                              <div className="text-xs text-slate-500">{formatTime(transaction.timestamp)}</div>
-                            </TableCell>
-                            <TableCell className={`text-sm p-2 font-medium ${getTypeColor(transaction.type)}`}>
-                              {transaction.type === 'compra' ? 'Compra' : 'Venda'}
-                            </TableCell>
-                            <TableCell className="text-slate-400 font-mono text-xs p-2">
-                              {transaction.id.substring(0, 8)}
-                            </TableCell>
-                            <TableCell className="text-slate-300 text-sm p-2">
-                              {transaction.items.length}
-                            </TableCell>
-                            <TableCell className="text-slate-300 text-sm p-2">
-                              <div className="flex items-center gap-1">
-                                {getPaymentMethodIcon(payment?.payment_method || 'dinheiro')}
-                                <span className="text-xs">{getPaymentMethodText(payment?.payment_method || 'dinheiro')}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-white font-semibold text-sm p-2">
-                              {formatCurrency(transaction.total)}
-                            </TableCell>
-                            <TableCell className="p-2">
-                              <div className="flex gap-1">
-                                <Button
-                                  onClick={() => handleTransactionClick(transaction)}
-                                  variant="outline"
-                                  size="sm"
-                                  className="bg-blue-700 border-blue-600 text-white hover:bg-blue-600 h-8 text-xs"
-                                >
-                                  Ver
-                                </Button>
-                                <Button
-                                  onClick={() => handleReprintClick(transaction)}
-                                  variant="outline"
-                                  size="sm"
-                                  className="bg-emerald-700 border-emerald-600 text-white hover:bg-emerald-600 h-8 w-8 p-0"
-                                >
-                                  <Printer className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  onClick={() => handleDeleteClick(transaction)}
-                                  variant="outline"
-                                  size="sm"
-                                  className="bg-rose-700 border-rose-600 text-white hover:bg-rose-600 h-8 w-8 p-0"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {paginatedTransactions.map((transaction) => (
+                        <TableRow 
+                          key={transaction.id} 
+                          className="border-slate-600 hover:bg-slate-600/30 cursor-pointer"
+                          onClick={() => handleTransactionClick(transaction)}
+                        >
+                          <TableCell className="text-slate-300 text-sm p-2">
+                            <div>{formatDate(transaction.timestamp)}</div>
+                            <div className="text-xs text-slate-500">{formatTime(transaction.timestamp)}</div>
+                          </TableCell>
+                          <TableCell className={`font-semibold text-sm p-2 ${getTypeColor(transaction.type)}`}>
+                            {transaction.type === 'venda' ? 'Venda' : 'Compra'}
+                          </TableCell>
+                          <TableCell className="text-slate-300 text-sm p-2">
+                            {transaction.items.length} item(s)
+                          </TableCell>
+                          <TableCell className="text-slate-300 text-sm p-2">
+                            <div className="flex items-center gap-1">
+                              {getPaymentMethodIcon(orderPayments[transaction.id]?.payment_method || 'dinheiro')}
+                              <span className="text-xs">{getPaymentMethodText(orderPayments[transaction.id]?.payment_method || 'dinheiro')}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-white font-semibold text-sm p-2 text-right">
+                            {formatCurrency(transaction.total)}
+                          </TableCell>
+                          <TableCell className="p-2">
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleReprintClick(transaction);
+                                }}
+                                className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-400"
+                              >
+                                <Printer className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(transaction);
+                                }}
+                                className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </div>
 
+                {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="mt-4 flex justify-center">
                     <Pagination>
@@ -554,6 +567,7 @@ const Transactions = () => {
                             className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                           />
                         </PaginationItem>
+                        
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                           let page;
                           if (totalPages <= 5) {
@@ -577,6 +591,7 @@ const Transactions = () => {
                             </PaginationItem>
                           );
                         })}
+                        
                         <PaginationItem>
                           <PaginationNext 
                             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
@@ -590,56 +605,61 @@ const Transactions = () => {
               </>
             ) : (
               <div className="text-center py-6 text-slate-400">
-                Nenhuma transação encontrada no período.
+                Nenhuma transação encontrada no período selecionado.
               </div>
             )}
           </CardContent>
         </Card>
-
-        <PasswordPromptModal
-          open={showPasswordModal}
-          onOpenChange={setShowPasswordModal}
-          onAuthenticated={handlePasswordAuthenticated}
-        />
-
-        <TransactionDetailsModal
-          isOpen={showTransactionDetails}
-          onClose={() => setShowTransactionDetails(false)}
-          transaction={selectedTransaction}
-          onReprint={handleReprint}
-          onDelete={handleDeleteClick}
-          orderPayment={selectedTransaction ? orderPayments[selectedTransaction.id] : null}
-        />
-
-        <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-          <DialogContent className="bg-slate-800 border-slate-700 text-white">
-            <DialogHeader>
-              <DialogTitle className="text-rose-400 flex items-center gap-2">
-                <Trash2 className="h-5 w-5" />
-                Confirmar Exclusão
-              </DialogTitle>
-              <DialogDescription className="text-slate-300">
-                Tem certeza? Esta ação não pode ser desfeita.
-              </DialogDescription>
-            </DialogHeader>
-            {orderToDelete && (
-              <div className="text-sm space-y-1">
-                <div><strong>ID:</strong> {orderToDelete.id.substring(0, 8)}</div>
-                <div><strong>Tipo:</strong> {orderToDelete.type === 'compra' ? 'Compra' : 'Venda'}</div>
-                <div><strong>Valor:</strong> {formatCurrency(orderToDelete.total)}</div>
-              </div>
-            )}
-            <DialogFooter className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600">
-                Cancelar
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteOrder} disabled={isDeleting} className="bg-rose-600 hover:bg-rose-700">
-                {isDeleting ? 'Excluindo...' : 'Excluir'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </main>
+
+      {/* Modals */}
+      <PasswordPromptModal
+        open={showPasswordModal}
+        onClose={() => {
+          setShowPasswordModal(false);
+          setOrderToReprint(null);
+        }}
+        onAuthenticated={handlePasswordAuthenticated}
+        title="Reimprimir Comprovante"
+        description="Digite a senha para reimprimir este comprovante."
+      />
+
+      <TransactionDetailsModal
+        open={showTransactionDetails}
+        onClose={() => {
+          setShowTransactionDetails(false);
+          setSelectedTransaction(null);
+        }}
+        transaction={selectedTransaction}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent className="bg-slate-800 border-slate-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-rose-400">Excluir Transação</DialogTitle>
+            <DialogDescription className="text-slate-300">
+              Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteModal(false)}
+              className="border-slate-600 text-slate-300"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleDeleteOrder}
+              disabled={isDeleting}
+              className="bg-rose-600 hover:bg-rose-700"
+            >
+              {isDeleting ? 'Excluindo...' : 'Excluir'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -15,7 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileFilterChip } from "./MobileFilterChip";
 import { MobileFilterSheet } from "./MobileFilterSheet";
 
-export type FilterPeriod = "daily" | "weekly" | "monthly" | "yearly" | "custom" | "all";
+export type FilterPeriod = "daily" | "last30" | "last60" | "last90" | "last365" | "custom" | "all";
 
 interface StandardFilterProps {
   selectedPeriod: FilterPeriod;
@@ -93,9 +93,10 @@ export function StandardFilter({
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-600">
                   <SelectItem value="daily" className="text-white">Hoje</SelectItem>
-                  <SelectItem value="weekly" className="text-white">Última Semana</SelectItem>
-                  <SelectItem value="monthly" className="text-white">Último Mês</SelectItem>
-                  <SelectItem value="yearly" className="text-white">Último Ano</SelectItem>
+                  <SelectItem value="last30" className="text-white">Últimos 30 dias</SelectItem>
+                  <SelectItem value="last60" className="text-white">Últimos 60 dias</SelectItem>
+                  <SelectItem value="last90" className="text-white">Últimos 90 dias</SelectItem>
+                  <SelectItem value="last365" className="text-white">Últimos 365 dias</SelectItem>
                   <SelectItem value="custom" className="text-white">Personalizado</SelectItem>
                   {showAllOption && <SelectItem value="all" className="text-white">Todos</SelectItem>}
                 </SelectContent>

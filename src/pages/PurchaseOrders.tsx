@@ -28,7 +28,7 @@ const PurchaseOrders = () => {
   const [categories, setCategories] = useState<MaterialCategory[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const [selectedPeriod, setSelectedPeriod] = useState<FilterPeriod>('monthly');
+  const [selectedPeriod, setSelectedPeriod] = useState<FilterPeriod>('last30');
   const [filterStartDate, setFilterStartDate] = useState(startDate);
   const [filterEndDate, setFilterEndDate] = useState(endDate);
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
@@ -76,6 +76,7 @@ const PurchaseOrders = () => {
     const now = new Date();
     let filterStart: Date;
     let filterEnd: Date = new Date(now);
+    filterEnd.setHours(23, 59, 59, 999);
 
     if (selectedPeriod === 'custom' && filterStartDate && filterEndDate) {
       filterStart = new Date(filterStartDate);
@@ -86,22 +87,33 @@ const PurchaseOrders = () => {
         case 'daily':
           filterStart = new Date(now);
           filterStart.setHours(0, 0, 0, 0);
+          filterEnd = new Date(now);
+          filterEnd.setHours(23, 59, 59, 999);
           break;
-        case 'weekly':
+        case 'last30':
           filterStart = new Date(now);
-          filterStart.setDate(now.getDate() - 7);
+          filterStart.setDate(now.getDate() - 30);
+          filterStart.setHours(0, 0, 0, 0);
           break;
-        case 'monthly':
+        case 'last60':
           filterStart = new Date(now);
-          filterStart.setMonth(now.getMonth() - 1);
+          filterStart.setDate(now.getDate() - 60);
+          filterStart.setHours(0, 0, 0, 0);
           break;
-        case 'yearly':
+        case 'last90':
           filterStart = new Date(now);
-          filterStart.setFullYear(now.getFullYear() - 1);
+          filterStart.setDate(now.getDate() - 90);
+          filterStart.setHours(0, 0, 0, 0);
+          break;
+        case 'last365':
+          filterStart = new Date(now);
+          filterStart.setDate(now.getDate() - 365);
+          filterStart.setHours(0, 0, 0, 0);
           break;
         default:
           filterStart = new Date(now);
-          filterStart.setMonth(now.getMonth() - 1);
+          filterStart.setDate(now.getDate() - 30);
+          filterStart.setHours(0, 0, 0, 0);
       }
     }
 
@@ -173,7 +185,7 @@ const PurchaseOrders = () => {
   }, [orders]);
 
   const clearFilters = () => {
-    setSelectedPeriod('monthly');
+    setSelectedPeriod('last30');
     setFilterStartDate('');
     setFilterEndDate('');
     setSelectedMaterials([]);
@@ -407,13 +419,13 @@ const PurchaseOrders = () => {
           <MetricCard
             icon={ShoppingCart}
             iconColor="text-emerald-500"
-            label="Pedidos"
+            label="Compras"
             value={purchaseOrders.length}
           />
           <MetricCard
             icon={DollarSign}
             iconColor="text-emerald-500"
-            label="Valor Total"
+            label="Total"
             value={formatCurrency(totalAmount)}
           />
           <MetricCard
@@ -424,143 +436,113 @@ const PurchaseOrders = () => {
           />
         </div>
 
-        {/* Lista de Pedidos */}
+        {/* Lista de Compras */}
         <Card className="bg-slate-700 border-slate-600">
           <CardHeader className="p-3">
-            <CardTitle className="text-white text-base md:text-lg">Lista de Compras</CardTitle>
+            <CardTitle className="text-white text-base md:text-lg">Materiais Comprados</CardTitle>
           </CardHeader>
           <CardContent className="p-2 md:p-3">
-            {paginatedOrders.length > 0 ? (
-              <>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-slate-600">
-                        <TableHead className="text-slate-300 text-sm p-2">Data</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2 hidden sm:table-cell">ID</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Materiais</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2 hidden md:table-cell">Categoria</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2 hidden sm:table-cell">Peso</TableHead>
-                        <TableHead className="text-slate-300 text-sm p-2">Valor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedOrders.map((order) => {
-                        // Get unique categories for this order
-                        const orderCategories = order.items
-                          .map(item => getCategoryByMaterialId(item.materialId))
-                          .filter((cat, index, self) => cat && self.findIndex(c => c?.id === cat?.id) === index);
-                        
-                        return (
-                          <TableRow key={order.id} className="border-slate-600 hover:bg-slate-600/30">
-                            <TableCell className="text-slate-300 text-sm p-2">
-                              {formatDate(order.timestamp)}
-                            </TableCell>
-                            <TableCell className="text-slate-400 font-mono text-xs p-2 hidden sm:table-cell">
-                              {order.id.substring(0, 8)}
-                            </TableCell>
-                            <TableCell className="text-slate-300 text-sm p-2 max-w-[100px] truncate">
-                              {order.items.map(item => item.materialName).join(', ')}
-                            </TableCell>
-                            <TableCell className="p-2 hidden md:table-cell">
-                              <div className="flex flex-wrap gap-1">
-                                {orderCategories.length > 0 ? (
-                                  orderCategories.slice(0, 2).map(cat => (
-                                    <Badge 
-                                      key={cat!.id} 
-                                      variant="outline"
-                                      className="text-xs border-0"
-                                      style={{ 
-                                        backgroundColor: `${cat!.hex_color || cat!.color || '#6b7280'}20`,
-                                        color: cat!.hex_color || cat!.color || '#9ca3af'
-                                      }}
-                                    >
-                                      {cat!.name}
-                                    </Badge>
-                                  ))
-                                ) : (
-                                  <span className="text-slate-500 text-xs">-</span>
-                                )}
-                                {orderCategories.length > 2 && (
-                                  <span className="text-slate-400 text-xs">+{orderCategories.length - 2}</span>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-slate-300 text-sm p-2 hidden sm:table-cell">
-                              {formatWeight(order.items.reduce((sum, item) => sum + item.quantity, 0))}
-                            </TableCell>
-                            <TableCell className="text-white font-semibold text-sm p-2">
-                              {formatCurrency(order.total)}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-                
-                {/* Paginação */}
-                {totalPages > 1 && (
-                  <div className="mt-4 flex justify-center">
-                    <Pagination>
-                      <PaginationContent>
-                        <PaginationItem>
-                          <PaginationPrevious 
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              if (currentPage > 1) setCurrentPage(currentPage - 1);
-                            }}
-                            className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                          />
-                        </PaginationItem>
-                        
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                          let page;
-                          if (totalPages <= 5) {
-                            page = i + 1;
-                          } else if (currentPage <= 3) {
-                            page = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            page = totalPages - 4 + i;
-                          } else {
-                            page = currentPage - 2 + i;
-                          }
-                          return (
-                            <PaginationItem key={page}>
-                              <PaginationLink 
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setCurrentPage(page);
+            {purchaseOrders.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-slate-600">
+                      <TableHead className="text-slate-300 text-sm p-2">Data</TableHead>
+                      <TableHead className="text-slate-300 text-sm p-2">Materiais</TableHead>
+                      <TableHead className="text-slate-300 text-sm p-2 hidden lg:table-cell">Categoria</TableHead>
+                      <TableHead className="text-slate-300 text-sm p-2 hidden sm:table-cell">Peso</TableHead>
+                      <TableHead className="text-slate-300 text-sm p-2">Valor</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedOrders.map((order) => {
+                      const firstCategory = getCategoryByMaterialId(order.items[0]?.materialId);
+                      return (
+                        <TableRow key={order.id} className="border-slate-600 hover:bg-slate-600/30">
+                          <TableCell className="text-slate-300 text-sm p-2">
+                            {formatDate(order.timestamp)}
+                          </TableCell>
+                          <TableCell className="text-slate-300 text-sm p-2 max-w-[150px] truncate">
+                            {order.items.map(item => item.materialName).join(', ')}
+                          </TableCell>
+                          <TableCell className="p-2 hidden lg:table-cell">
+                            {firstCategory ? (
+                              <Badge 
+                                variant="outline"
+                                className="text-xs border-0"
+                                style={{ 
+                                  backgroundColor: `${firstCategory.hex_color || firstCategory.color || '#6b7280'}20`,
+                                  color: firstCategory.hex_color || firstCategory.color || '#9ca3af'
                                 }}
-                                isActive={currentPage === page}
                               >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
-                        
-                        <PaginationItem>
-                          <PaginationNext 
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                            }}
-                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
-                  </div>
-                )}
-              </>
+                                {firstCategory.name}
+                              </Badge>
+                            ) : (
+                              <span className="text-slate-500 text-xs">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-slate-300 text-sm p-2 hidden sm:table-cell">
+                            {formatWeight(order.items.reduce((sum, item) => sum + item.quantity, 0))}
+                          </TableCell>
+                          <TableCell className="text-white font-semibold text-sm p-2">
+                            {formatCurrency(order.total)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
-              <div className="text-center py-8 text-slate-400">
-                <ShoppingCart className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Nenhuma compra encontrada no período selecionado.</p>
+              <div className="text-center py-6 text-slate-400">
+                Nenhuma compra encontrada no período selecionado.
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-4 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                    
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let page;
+                      if (totalPages <= 5) {
+                        page = i + 1;
+                      } else if (currentPage <= 3) {
+                        page = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        page = totalPages - 4 + i;
+                      } else {
+                        page = currentPage - 2 + i;
+                      }
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
             )}
           </CardContent>
