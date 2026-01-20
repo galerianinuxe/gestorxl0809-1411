@@ -85,10 +85,9 @@ const SalesOrders = () => {
     filterEnd.setHours(23, 59, 59, 999);
 
     if (selectedPeriod === 'custom' && filterStartDate && filterEndDate) {
-      filterStart = new Date(filterStartDate);
-      filterStart.setHours(0, 0, 0, 0);
-      filterEnd = new Date(filterEndDate);
-      filterEnd.setHours(23, 59, 59, 999);
+      // FIX: Usar 'T00:00:00' para forçar parsing como horário local (evita bug de timezone)
+      filterStart = new Date(filterStartDate + 'T00:00:00');
+      filterEnd = new Date(filterEndDate + 'T23:59:59');
     } else {
       switch (selectedPeriod) {
         case 'daily':
