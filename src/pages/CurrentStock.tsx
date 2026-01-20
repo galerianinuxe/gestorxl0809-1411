@@ -121,6 +121,15 @@ const CurrentStock = () => {
             };
           }
 
+          // Registrar transação SEMPRE (independente de filtros)
+          materialStocks[item.materialName].transactions.push({
+            date: order.timestamp,
+            type: order.type,
+            quantity: item.quantity,
+            price: item.price,
+            total: item.total
+          });
+
           if (order.type === 'compra') {
             materialStocks[item.materialName].currentStock += item.quantity;
             materialStocks[item.materialName].totalPurchases += item.total;
