@@ -87,7 +87,7 @@ const SalesOrders = () => {
     if (selectedPeriod === 'custom' && filterStartDate && filterEndDate) {
       // FIX: Usar 'T00:00:00' para forçar parsing como horário local (evita bug de timezone)
       filterStart = new Date(filterStartDate + 'T00:00:00');
-      filterEnd = new Date(filterEndDate + 'T23:59:59');
+      filterEnd = new Date(filterEndDate + 'T23:59:59.999');
     } else {
       switch (selectedPeriod) {
         case 'daily':
@@ -135,6 +135,7 @@ const SalesOrders = () => {
       return order.type === 'venda' && 
              order.status === 'completed' &&
              order.items && order.items.length > 0 &&
+             !order.cancelled &&
              orderDate >= filterStart && 
              orderDate <= filterEnd;
     });
