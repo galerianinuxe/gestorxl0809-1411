@@ -16,10 +16,11 @@ export const calculatePurchasePaymentBreakdown = async (
 ): Promise<PaymentBreakdown> => {
   const orders = await getOrders();
   
-  // Filtrar apenas pedidos de compra completados neste caixa
+  // Filtrar apenas pedidos de compra completados neste caixa (excluindo cancelados)
   const purchaseOrders = orders.filter(order => 
     order.type === 'compra' && 
     order.status === 'completed' &&
+    !order.cancelled &&
     order.timestamp >= cashRegister.openingTimestamp &&
     (!cashRegister.closingTimestamp || order.timestamp <= cashRegister.closingTimestamp)
   );
@@ -99,10 +100,11 @@ export const calculateSalesPaymentBreakdown = async (
 ): Promise<PaymentBreakdown> => {
   const orders = await getOrders();
   
-  // Filtrar apenas pedidos de venda completados neste caixa
+  // Filtrar apenas pedidos de venda completados neste caixa (excluindo cancelados)
   const salesOrders = orders.filter(order => 
     order.type === 'venda' && 
     order.status === 'completed' &&
+    !order.cancelled &&
     order.timestamp >= cashRegister.openingTimestamp &&
     (!cashRegister.closingTimestamp || order.timestamp <= cashRegister.closingTimestamp)
   );
@@ -191,10 +193,11 @@ export const calculatePurchaseWeight = async (
 ): Promise<number> => {
   const orders = await getOrders();
   
-  // Filtrar apenas pedidos de compra completados neste caixa
+  // Filtrar apenas pedidos de compra completados neste caixa (excluindo cancelados)
   const purchaseOrders = orders.filter(order => 
     order.type === 'compra' && 
     order.status === 'completed' &&
+    !order.cancelled &&
     order.timestamp >= cashRegister.openingTimestamp &&
     (!cashRegister.closingTimestamp || order.timestamp <= cashRegister.closingTimestamp)
   );
@@ -222,10 +225,11 @@ export const calculateSalesWeight = async (
 ): Promise<number> => {
   const orders = await getOrders();
   
-  // Filtrar apenas pedidos de venda completados neste caixa
+  // Filtrar apenas pedidos de venda completados neste caixa (excluindo cancelados)
   const salesOrders = orders.filter(order => 
     order.type === 'venda' && 
     order.status === 'completed' &&
+    !order.cancelled &&
     order.timestamp >= cashRegister.openingTimestamp &&
     (!cashRegister.closingTimestamp || order.timestamp <= cashRegister.closingTimestamp)
   );
@@ -253,10 +257,11 @@ export const calculateSalesTransactionsCount = async (
 ): Promise<number> => {
   const orders = await getOrders();
   
-  // Filtrar apenas pedidos de venda completados neste caixa
+  // Filtrar apenas pedidos de venda completados neste caixa (excluindo cancelados)
   const salesOrders = orders.filter(order => 
     order.type === 'venda' && 
     order.status === 'completed' &&
+    !order.cancelled &&
     order.timestamp >= cashRegister.openingTimestamp &&
     (!cashRegister.closingTimestamp || order.timestamp <= cashRegister.closingTimestamp)
   );

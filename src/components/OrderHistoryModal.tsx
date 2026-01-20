@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, Clock, Package, DollarSign, Eye, Calendar, Trash2, AlertTriangle, X, Filter, ChevronDown, Printer } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Package, DollarSign, Eye, Calendar, XCircle, AlertTriangle, X, Filter, ChevronDown, Printer } from "lucide-react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 import { Order, Customer } from '../types/pdv';
@@ -17,9 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { createLogger } from '@/utils/logger';
 import PasswordPromptModal from '@/components/PasswordPromptModal';
 import TransactionDetailsModal from '@/components/TransactionDetailsModal';
+import CancellationModal, { CancellationData } from '@/components/CancellationModal';
 import { cleanMaterialName } from '@/utils/materialNameCleaner';
 import { useReceiptFormatSettings } from '@/hooks/useReceiptFormatSettings';
-import { getCustomerById } from '@/utils/supabaseStorage';
+import { getCustomerById, getActiveCashRegister } from '@/utils/supabaseStorage';
 const logger = createLogger('[OrderHistory]');
 interface OrderHistoryModalProps {
   isOpen: boolean;
@@ -50,8 +51,8 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
-  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
-  const [showDeleteSingleConfirm, setShowDeleteSingleConfirm] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<Order | null>(null);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
   const [settings, setSettings] = useState<{
     logo: string | null;
     whatsapp1: string;
@@ -318,47 +319,82 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
     }
   };
 
-  // Função para iniciar exclusão de pedido individual
-  const handleDeleteClick = (order: Order) => {
-    setOrderToDelete(order);
-    setShowDeleteSingleConfirm(true);
+  // Função para iniciar cancelamento de pedido individual
+  const handleCancelClick = (order: Order) => {
+    setOrderToCancel(order);
+    setShowCancellationModal(true);
   };
 
-  // Função para excluir pedido individual
-  const handleDeleteSingleOrder = async () => {
-    if (!orderToDelete || !user?.id) return;
+  // Função para cancelar pedido individual (cancelamento lógico)
+  const handleCancelOrder = async (cancellationData: CancellationData) => {
+    if (!orderToCancel || !user?.id) return;
     setDeleting(true);
     try {
-      // Excluir itens do pedido
-      await supabase.from('order_items').delete().eq('order_id', orderToDelete.id);
+      // 1. Marcar o pedido como cancelado (cancelamento lógico)
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          cancelled: true,
+          cancelled_at: new Date().toISOString(),
+          cancelled_by: user.id,
+          cancellation_reason: cancellationData.reason
+        })
+        .eq('id', orderToCancel.id)
+        .eq('user_id', user.id);
 
-      // Excluir pagamentos relacionados
-      await supabase.from('order_payments').delete().eq('order_id', orderToDelete.id).eq('user_id', user.id);
+      if (updateError) throw updateError;
 
-      // Excluir transações de caixa relacionadas
-      await supabase.from('cash_transactions').delete().eq('order_id', orderToDelete.id).eq('user_id', user.id);
+      // 2. Se houve devolução de dinheiro, registrar transação de estorno no caixa
+      if (cancellationData.hasRefund && cancellationData.refundAmount > 0) {
+        const activeCashRegister = await getActiveCashRegister();
+        
+        if (activeCashRegister && activeCashRegister.status === 'open') {
+          const { error: refundError } = await supabase
+            .from('cash_transactions')
+            .insert({
+              user_id: user.id,
+              cash_register_id: activeCashRegister.id,
+              type: 'refund',
+              amount: cancellationData.refundAmount,
+              description: `Estorno - ${cancellationData.reason}`,
+              order_id: orderToCancel.id
+            });
 
-      // Excluir o pedido
-      const {
-        error
-      } = await supabase.from('orders').delete().eq('id', orderToDelete.id).eq('user_id', user.id);
-      if (error) throw error;
+          if (refundError) {
+            logger.error('Erro ao registrar estorno:', refundError);
+          }
+
+          // Atualizar valor do caixa
+          const adjustment = orderToCancel.type === 'venda' 
+            ? -cancellationData.refundAmount 
+            : cancellationData.refundAmount;
+          
+          await supabase
+            .from('cash_registers')
+            .update({ 
+              current_amount: activeCashRegister.currentAmount + adjustment 
+            })
+            .eq('id', activeCashRegister.id)
+            .eq('user_id', user.id);
+        }
+      }
+
       toast({
-        title: "Pedido excluído",
-        description: `Pedido ${orderToDelete.id.substring(0, 8)} foi excluído.`
+        title: "Transação cancelada",
+        description: `${orderToCancel.type === 'venda' ? 'Venda' : 'Compra'} cancelada com sucesso.`
       });
 
       // Fechar modais e recarregar dados
       setShowDetailsModal(false);
       setSelectedOrderForDetails(null);
-      setShowDeleteSingleConfirm(false);
-      setOrderToDelete(null);
+      setShowCancellationModal(false);
+      setOrderToCancel(null);
       await loadOrderHistory();
     } catch (error) {
-      logger.error('Erro ao excluir pedido:', error);
+      logger.error('Erro ao cancelar pedido:', error);
       toast({
         title: "Erro",
-        description: "Erro ao excluir pedido.",
+        description: "Erro ao cancelar pedido.",
         variant: "destructive"
       });
     } finally {
@@ -684,7 +720,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                       Em aberto: {openOrdersStats.totalOpen} {openOrdersStats.emptyOpen > 0 && `(${openOrdersStats.emptyOpen} vazios)`}
                     </span>
                     {openOrdersStats.emptyOpen > 0 && <button onClick={() => setShowDeleteEmptyConfirm(true)} disabled={deleting} className="flex items-center gap-1 bg-amber-600/20 border border-amber-500/30 text-amber-400 px-2 py-1 rounded text-[10px] font-medium">
-                        <Trash2 className="w-2.5 h-2.5" />
+                        <XCircle className="w-2.5 h-2.5" />
                         Excluir Vazios ({openOrdersStats.emptyOpen})
                       </button>}
                     <button onClick={() => setShowDeleteAllOpenConfirm(true)} disabled={deleting} className="flex items-center gap-1 bg-red-600/20 border border-red-500/30 text-red-400 px-2 py-1 rounded text-[10px] font-medium">
@@ -754,7 +790,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                     {openOrdersStats.emptyOpen > 0 && ` (${openOrdersStats.emptyOpen} vazios)`}
                   </div>
                   {openOrdersStats.emptyOpen > 0 && <Button onClick={() => setShowDeleteEmptyConfirm(true)} disabled={deleting} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white">
-                      <Trash2 className="h-4 w-4 mr-1" />
+                      <XCircle className="h-4 w-4 mr-1" />
                       Excluir Vazios ({openOrdersStats.emptyOpen})
                     </Button>}
                   <Button onClick={() => setShowDeleteAllOpenConfirm(true)} disabled={deleting} size="sm" className="bg-red-600 hover:bg-red-700 text-white">
@@ -884,7 +920,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
         <AlertDialogContent className="bg-slate-800 border-slate-700 max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-lg text-white flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-amber-500" />
+              <XCircle className="h-5 w-5 text-amber-500" />
               Excluir Pedidos Vazios
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-300 text-sm">
@@ -948,35 +984,19 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
       <TransactionDetailsModal isOpen={showDetailsModal} onClose={() => {
       setShowDetailsModal(false);
       setSelectedOrderForDetails(null);
-    }} transaction={selectedOrderForDetails} onReprint={handleReprintOrder} onDelete={handleDeleteClick} />
+    }} transaction={selectedOrderForDetails} onReprint={handleReprintOrder} onDelete={handleCancelClick} />
 
-      {/* Modal de Confirmação - Excluir Pedido Individual */}
-      <AlertDialog open={showDeleteSingleConfirm} onOpenChange={setShowDeleteSingleConfirm}>
-        <AlertDialogContent className="bg-slate-800 border-slate-700 max-w-[90vw] sm:max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-rose-400 flex items-center gap-2">
-              <Trash2 className="h-5 w-5" />
-              Confirmar Exclusão
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-300">
-              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          {orderToDelete && <div className="text-sm text-slate-300 space-y-1">
-              <div><strong>ID:</strong> {orderToDelete.id.substring(0, 8)}</div>
-              <div><strong>Tipo:</strong> {orderToDelete.type === 'compra' ? 'Compra' : 'Venda'}</div>
-              <div><strong>Valor:</strong> R$ {orderToDelete.total.toFixed(2)}</div>
-            </div>}
-          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel onClick={() => setShowDeleteSingleConfirm(false)} className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteSingleOrder} disabled={deleting} className="bg-rose-600 hover:bg-rose-700 text-white">
-              {deleting ? 'Excluindo...' : 'Excluir'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Modal de Cancelamento */}
+      <CancellationModal
+        isOpen={showCancellationModal}
+        onClose={() => {
+          setShowCancellationModal(false);
+          setOrderToCancel(null);
+        }}
+        onConfirm={handleCancelOrder}
+        order={orderToCancel}
+        isLoading={deleting}
+      />
     </Dialog>;
 };
 

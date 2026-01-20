@@ -12,6 +12,11 @@ export interface Order {
   timestamp: number;
   status: 'open' | 'completed';
   type: 'compra' | 'venda';
+  cancelled?: boolean;
+  cancelled_at?: string;
+  cancelled_by?: string;
+  cancellation_reason?: string;
+  refund_amount?: number;
 }
 
 export interface OrderItem {
@@ -68,7 +73,7 @@ export interface CashRegister {
 
 export interface CashTransaction {
   id: string;
-  type: 'opening' | 'closing' | 'sale' | 'purchase' | 'addition' | 'expense';
+  type: 'opening' | 'closing' | 'sale' | 'purchase' | 'addition' | 'expense' | 'refund';
   amount: number;
   timestamp: number;
   description: string;

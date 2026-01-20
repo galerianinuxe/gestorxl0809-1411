@@ -6,9 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { ArrowLeft, FileText, ShoppingCart, DollarSign, Printer, CreditCard, Banknote, RefreshCw, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, ShoppingCart, DollarSign, Printer, CreditCard, Banknote, RefreshCw, XCircle } from 'lucide-react';
 import ContextualHelpButton from '@/components/ContextualHelpButton';
-import { getOrders, getCustomerById } from '@/utils/supabaseStorage';
+import { getOrders, getCustomerById, getActiveCashRegister } from '@/utils/supabaseStorage';
 import { Order } from '@/types/pdv';
 import { useAuth } from '@/hooks/useAuth';
 import { useReceiptFormatSettings } from '@/hooks/useReceiptFormatSettings';
@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getRandomMotivationalQuote } from '@/utils/motivationalQuotes';
 import PasswordPromptModal from '@/components/PasswordPromptModal';
 import TransactionDetailsModal from '@/components/TransactionDetailsModal';
+import CancellationModal, { CancellationData } from '@/components/CancellationModal';
 import { toast } from '@/hooks/use-toast';
 import { StandardFilter, FilterPeriod } from '@/components/StandardFilter';
 import { MetricCard } from '@/components/MetricCard';
@@ -51,9 +52,9 @@ const Transactions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<Order | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
   
   const { user } = useAuth();
 
@@ -258,26 +259,77 @@ const Transactions = () => {
     setShowTransactionDetails(true);
   };
 
-  const handleDeleteClick = (order: Order) => {
-    setOrderToDelete(order);
-    setShowDeleteModal(true);
+  const handleCancelClick = (order: Order) => {
+    setOrderToCancel(order);
+    setShowCancellationModal(true);
   };
 
-  const handleDeleteOrder = async () => {
-    if (!orderToDelete || !user?.id) return;
-    setIsDeleting(true);
+  const handleCancelOrder = async (cancellationData: CancellationData) => {
+    if (!orderToCancel || !user?.id) return;
+    setIsCancelling(true);
     try {
-      await supabase.from('orders').delete().eq('id', orderToDelete.id).eq('user_id', user.id);
-      await supabase.from('order_payments').delete().eq('order_id', orderToDelete.id).eq('user_id', user.id);
-      await supabase.from('cash_transactions').delete().eq('order_id', orderToDelete.id).eq('user_id', user.id);
-      toast({ title: "Pedido excluído", description: `Pedido ${orderToDelete.id.substring(0, 8)} foi excluído.` });
+      // 1. Marcar o pedido como cancelado (cancelamento lógico)
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          cancelled: true,
+          cancelled_at: new Date().toISOString(),
+          cancelled_by: user.id,
+          cancellation_reason: cancellationData.reason
+        })
+        .eq('id', orderToCancel.id)
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      // 2. Se houve devolução de dinheiro, registrar transação de estorno no caixa
+      if (cancellationData.hasRefund && cancellationData.refundAmount > 0) {
+        const activeCashRegister = await getActiveCashRegister();
+        
+        if (activeCashRegister && activeCashRegister.status === 'open') {
+          const { error: refundError } = await supabase
+            .from('cash_transactions')
+            .insert({
+              user_id: user.id,
+              cash_register_id: activeCashRegister.id,
+              type: 'refund',
+              amount: cancellationData.refundAmount,
+              description: `Estorno - ${cancellationData.reason}`,
+              order_id: orderToCancel.id
+            });
+
+          if (refundError) {
+            console.error('Erro ao registrar estorno:', refundError);
+          }
+
+          // Atualizar valor do caixa (subtrair o estorno para vendas, adicionar para compras)
+          const adjustment = orderToCancel.type === 'venda' 
+            ? -cancellationData.refundAmount 
+            : cancellationData.refundAmount;
+          
+          await supabase
+            .from('cash_registers')
+            .update({ 
+              current_amount: activeCashRegister.currentAmount + adjustment 
+            })
+            .eq('id', activeCashRegister.id)
+            .eq('user_id', user.id);
+        }
+      }
+
+      toast({ 
+        title: "Transação cancelada", 
+        description: `${orderToCancel.type === 'venda' ? 'Venda' : 'Compra'} cancelada com sucesso.${cancellationData.hasRefund ? ` Estorno de R$ ${cancellationData.refundAmount.toFixed(2)} registrado.` : ''}` 
+      });
+      
       loadData();
-      setShowDeleteModal(false);
-      setOrderToDelete(null);
+      setShowCancellationModal(false);
+      setOrderToCancel(null);
     } catch (error) {
-      toast({ title: "Erro", description: "Erro ao excluir pedido.", variant: "destructive" });
+      console.error('Erro ao cancelar pedido:', error);
+      toast({ title: "Erro", description: "Erro ao cancelar transação.", variant: "destructive" });
     } finally {
-      setIsDeleting(false);
+      setIsCancelling(false);
     }
   };
 
@@ -472,11 +524,11 @@ const Transactions = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleDeleteClick(transaction);
+                                handleCancelClick(transaction);
                               }}
                               className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <XCircle className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
@@ -542,11 +594,11 @@ const Transactions = () => {
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteClick(transaction);
+                                  handleCancelClick(transaction);
                                 }}
                                 className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <XCircle className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -637,33 +689,17 @@ const Transactions = () => {
         transaction={selectedTransaction}
       />
 
-      {/* Delete Confirmation Modal */}
-      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-        <DialogContent className="bg-slate-800 border-slate-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-rose-400">Excluir Transação</DialogTitle>
-            <DialogDescription className="text-slate-300">
-              Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteModal(false)}
-              className="border-slate-600 text-slate-300"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleDeleteOrder}
-              disabled={isDeleting}
-              className="bg-rose-600 hover:bg-rose-700"
-            >
-              {isDeleting ? 'Excluindo...' : 'Excluir'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Cancellation Modal */}
+      <CancellationModal
+        isOpen={showCancellationModal}
+        onClose={() => {
+          setShowCancellationModal(false);
+          setOrderToCancel(null);
+        }}
+        onConfirm={handleCancelOrder}
+        order={orderToCancel}
+        isLoading={isCancelling}
+      />
     </div>
   );
 };
