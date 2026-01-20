@@ -179,7 +179,11 @@ export const getOrders = async (): Promise<Order[]> => {
           tara: Number(item.tara || 0)
         };
       }) || [],
-      timestamp: new Date(order.created_at).getTime()
+      timestamp: new Date(order.created_at).getTime(),
+      cancelled: order.cancelled || false,
+      cancelled_at: order.cancelled_at,
+      cancelled_by: order.cancelled_by,
+      cancellation_reason: order.cancellation_reason
     };
   }) || [];
 };
