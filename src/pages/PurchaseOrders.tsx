@@ -70,7 +70,9 @@ const PurchaseOrders = () => {
 
   const purchaseOrders = useMemo(() => {
     let filteredOrders = orders.filter(order => 
-      order.type === 'compra' && order.status === 'completed'
+      order.type === 'compra' && 
+      order.status === 'completed' &&
+      order.items && order.items.length > 0  // Ignorar ordens sem items
     );
 
     const now = new Date();
@@ -494,8 +496,12 @@ const PurchaseOrders = () => {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-6 text-slate-400">
-                Nenhuma compra encontrada no período selecionado.
+              <div className="text-center py-8">
+                <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-slate-500" />
+                <h3 className="text-white font-semibold mb-1">Nenhuma compra encontrada</h3>
+                <p className="text-slate-400 text-sm">
+                  As compras registradas no PDV aparecerão aqui.
+                </p>
               </div>
             )}
 

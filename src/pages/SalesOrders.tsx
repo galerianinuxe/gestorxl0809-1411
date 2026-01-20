@@ -380,8 +380,12 @@ const SalesOrders = () => {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-6 text-slate-400">
-                Nenhuma venda encontrada no período selecionado.
+              <div className="text-center py-8">
+                <DollarSign className="h-12 w-12 mx-auto mb-3 text-slate-500" />
+                <h3 className="text-white font-semibold mb-1">Nenhuma venda encontrada</h3>
+                <p className="text-slate-400 text-sm">
+                  As vendas registradas no PDV aparecerão aqui.
+                </p>
               </div>
             )}
             
