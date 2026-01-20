@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, DollarSign, Scale, FileText, TrendingUp, Tag } from 'lucide-react';
+import { ArrowLeft, DollarSign, Scale, FileText, TrendingUp, Tag, Package, Filter } from 'lucide-react';
 import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { getOrders, getMaterials, getMaterialCategories } from '@/utils/supabaseStorage';
 import { Order, MaterialCategory } from '@/types/pdv';
@@ -39,6 +39,21 @@ const SalesOrders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 30;
 
+  interface SaleItem {
+    orderId: string;
+    orderDate: number;
+    materialId: string;
+    materialName: string;
+    categoryId: string | null;
+    categoryName: string | null;
+    categoryColor: string | null;
+    weight: number;
+    salePrice: number;
+    purchasePrice: number;
+    saleTotal: number;
+    profit: number;
+  }
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -61,14 +76,9 @@ const SalesOrders = () => {
     loadData();
   }, [startDate, endDate]);
 
-  // Helper to get category by material ID
-  const getCategoryByMaterialId = (materialId: string) => {
-    const material = materials.find(m => m.id === materialId);
-    if (!material?.category_id) return null;
-    return categories.find(c => c.id === material.category_id);
-  };
 
-  const salesData = useMemo(() => {
+  // Calculate date range based on selected period
+  const dateRange = useMemo(() => {
     const now = new Date();
     let filterStart: Date;
     let filterEnd: Date = new Date(now);
@@ -76,6 +86,7 @@ const SalesOrders = () => {
 
     if (selectedPeriod === 'custom' && filterStartDate && filterEndDate) {
       filterStart = new Date(filterStartDate);
+      filterStart.setHours(0, 0, 0, 0);
       filterEnd = new Date(filterEndDate);
       filterEnd.setHours(23, 59, 59, 999);
     } else {
@@ -113,55 +124,41 @@ const SalesOrders = () => {
       }
     }
 
-    let salesOrders = orders.filter(order => {
+    return { filterStart, filterEnd };
+  }, [selectedPeriod, filterStartDate, filterEndDate]);
+
+  // All items in the period (for general totals - not affected by category filter)
+  const allPeriodItems = useMemo(() => {
+    const { filterStart, filterEnd } = dateRange;
+
+    const salesOrders = orders.filter(order => {
       const orderDate = new Date(order.timestamp);
       return order.type === 'venda' && 
              order.status === 'completed' &&
-             order.items && order.items.length > 0 &&  // Ignorar ordens sem items
+             order.items && order.items.length > 0 &&
              orderDate >= filterStart && 
              orderDate <= filterEnd;
     });
 
-    // Filter by category if selected
-    if (selectedCategory !== 'all') {
-      salesOrders = salesOrders.filter(order =>
-        order.items.some(item => {
-          const material = materials.find(m => m.id === item.materialId);
-          return material?.category_id === selectedCategory;
-        })
-      );
-    }
-
-    const salesItems: Array<{
-      orderId: string;
-      date: number;
-      materialId: string;
-      materialName: string;
-      quantity: number;
-      salePrice: number;
-      purchasePrice: number;
-      saleTotal: number;
-      profit: number;
-    }> = [];
-
+    const items: SaleItem[] = [];
     salesOrders.forEach(order => {
       order.items.forEach(item => {
-        // Skip if category filter active and item doesn't match
-        if (selectedCategory !== 'all') {
-          const material = materials.find(m => m.id === item.materialId);
-          if (material?.category_id !== selectedCategory) return;
-        }
-
         const material = materials.find(m => m.id === item.materialId);
+        const category = material?.category_id 
+          ? categories.find(c => c.id === material.category_id) 
+          : null;
         const purchasePrice = material?.price || 0;
         const profit = item.total - (purchasePrice * item.quantity);
         
-        salesItems.push({
+        items.push({
           orderId: order.id,
-          date: order.timestamp,
+          orderDate: order.timestamp,
           materialId: item.materialId,
           materialName: item.materialName,
-          quantity: item.quantity,
+          categoryId: category?.id || null,
+          categoryName: category?.name || null,
+          categoryColor: category?.hex_color || category?.color || null,
+          weight: item.quantity,
           salePrice: item.price,
           purchasePrice,
           saleTotal: item.total,
@@ -170,17 +167,40 @@ const SalesOrders = () => {
       });
     });
 
-    return {
-      salesItems: salesItems.sort((a, b) => b.date - a.date),
-      salesOrders: salesOrders,
-      salesOrdersCount: salesOrders.length
-    };
-  }, [orders, materials, filterStartDate, filterEndDate, selectedPeriod, selectedCategory]);
+    return items.sort((a, b) => b.orderDate - a.orderDate);
+  }, [orders, materials, categories, dateRange]);
 
-  const totalPages = Math.ceil(salesData.salesItems.length / itemsPerPage);
+  // Items filtered by category
+  const filteredItems = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return allPeriodItems;
+    }
+    return allPeriodItems.filter(item => item.categoryId === selectedCategory);
+  }, [allPeriodItems, selectedCategory]);
+
+  // GENERAL PERIOD TOTALS (not affected by category filter)
+  const periodTotals = useMemo(() => ({
+    orderCount: new Set(allPeriodItems.map(item => item.orderId)).size,
+    totalWeight: allPeriodItems.reduce((sum, item) => sum + item.weight, 0),
+    totalAmount: allPeriodItems.reduce((sum, item) => sum + item.saleTotal, 0),
+    totalProfit: allPeriodItems.reduce((sum, item) => sum + item.profit, 0)
+  }), [allPeriodItems]);
+
+  // FILTERED TOTALS (only when category filter is active)
+  const filteredTotals = useMemo(() => ({
+    itemCount: filteredItems.length,
+    orderCount: new Set(filteredItems.map(item => item.orderId)).size,
+    totalWeight: filteredItems.reduce((sum, item) => sum + item.weight, 0),
+    totalAmount: filteredItems.reduce((sum, item) => sum + item.saleTotal, 0),
+    totalProfit: filteredItems.reduce((sum, item) => sum + item.profit, 0)
+  }), [filteredItems]);
+
+  const hasFilter = selectedCategory !== 'all';
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedSalesData = salesData.salesItems.slice(startIndex, endIndex);
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -193,17 +213,17 @@ const SalesOrders = () => {
     }).format(value);
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('pt-BR');
+  const formatDateTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return {
+      date: date.toLocaleDateString('pt-BR'),
+      time: date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    };
   };
 
   const formatWeight = (value: number) => {
     return `${value.toFixed(2)} kg`;
   };
-
-  const totalSales = salesData.salesItems.reduce((sum, item) => sum + item.saleTotal, 0);
-  const totalWeight = salesData.salesItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalProfit = salesData.salesItems.reduce((sum, item) => sum + item.profit, 0);
 
   const clearFilters = () => {
     setSelectedPeriod('last30');
@@ -282,33 +302,72 @@ const SalesOrders = () => {
           }
         />
 
-        {/* Resumo - Cards Compactos */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
-          <MetricCard
-            icon={DollarSign}
-            iconColor="text-emerald-500"
-            label="Total Vendas"
-            value={formatCurrency(totalSales)}
-          />
-          <MetricCard
-            icon={Scale}
-            iconColor="text-emerald-500"
-            label="Peso Vendido"
-            value={formatWeight(totalWeight)}
-          />
-          <MetricCard
-            icon={FileText}
-            iconColor="text-emerald-500"
-            label="Transações"
-            value={salesData.salesOrdersCount}
-          />
-          <MetricCard
-            icon={TrendingUp}
-            iconColor={totalProfit >= 0 ? "text-emerald-500" : "text-rose-500"}
-            label="Lucro Total"
-            value={formatCurrency(totalProfit)}
-          />
+        {/* Totais do Período (sempre visíveis) */}
+        <div className="mb-3">
+          <p className="text-slate-400 text-xs mb-2">Totais do Período</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+            <MetricCard
+              icon={DollarSign}
+              iconColor="text-emerald-500"
+              label="Total Vendas"
+              value={formatCurrency(periodTotals.totalAmount)}
+            />
+            <MetricCard
+              icon={Scale}
+              iconColor="text-emerald-500"
+              label="Peso Vendido"
+              value={formatWeight(periodTotals.totalWeight)}
+            />
+            <MetricCard
+              icon={FileText}
+              iconColor="text-emerald-500"
+              label="Transações"
+              value={periodTotals.orderCount}
+            />
+            <MetricCard
+              icon={TrendingUp}
+              iconColor={periodTotals.totalProfit >= 0 ? "text-emerald-500" : "text-rose-500"}
+              label="Lucro Total"
+              value={formatCurrency(periodTotals.totalProfit)}
+            />
+          </div>
         </div>
+
+        {/* Totais Filtrados (somente quando filtro ativo) */}
+        {hasFilter && (
+          <div className="mb-3">
+            <p className="text-amber-400 text-xs mb-2 flex items-center gap-1">
+              <Filter className="h-3 w-3" />
+              Totais Filtrados: {categories.find(c => c.id === selectedCategory)?.name}
+            </p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              <MetricCard
+                icon={Package}
+                iconColor="text-amber-500"
+                label="Itens"
+                value={filteredTotals.itemCount}
+              />
+              <MetricCard
+                icon={FileText}
+                iconColor="text-amber-500"
+                label="Pedidos"
+                value={filteredTotals.orderCount}
+              />
+              <MetricCard
+                icon={Scale}
+                iconColor="text-amber-500"
+                label="Peso"
+                value={formatWeight(filteredTotals.totalWeight)}
+              />
+              <MetricCard
+                icon={TrendingUp}
+                iconColor={filteredTotals.totalProfit >= 0 ? "text-amber-500" : "text-rose-500"}
+                label="Lucro"
+                value={formatCurrency(filteredTotals.totalProfit)}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Lista de Vendas */}
         <Card className="bg-slate-700 border-slate-600">
@@ -316,12 +375,13 @@ const SalesOrders = () => {
             <CardTitle className="text-white text-base md:text-lg">Itens Vendidos</CardTitle>
           </CardHeader>
           <CardContent className="p-2 md:p-3">
-            {salesData.salesItems.length > 0 ? (
+            {filteredItems.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-slate-600">
-                      <TableHead className="text-slate-300 text-sm p-2">Data</TableHead>
+                      <TableHead className="text-slate-300 text-sm p-2">Data/Hora</TableHead>
+                      <TableHead className="text-slate-300 text-sm p-2">Pedido</TableHead>
                       <TableHead className="text-slate-300 text-sm p-2">Material</TableHead>
                       <TableHead className="text-slate-300 text-sm p-2 hidden lg:table-cell">Categoria</TableHead>
                       <TableHead className="text-slate-300 text-sm p-2 hidden sm:table-cell">Peso</TableHead>
@@ -332,34 +392,38 @@ const SalesOrders = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedSalesData.map((item, index) => {
-                      const category = getCategoryByMaterialId(item.materialId);
+                    {paginatedItems.map((item, index) => {
+                      const dt = formatDateTime(item.orderDate);
                       return (
                         <TableRow key={`${item.orderId}-${index}`} className="border-slate-600 hover:bg-slate-600/30">
                           <TableCell className="text-slate-300 text-sm p-2">
-                            {formatDate(item.date)}
+                            <div>{dt.date}</div>
+                            <div className="text-xs text-slate-500">{dt.time}</div>
+                          </TableCell>
+                          <TableCell className="text-slate-400 text-xs p-2 font-mono">
+                            #{item.orderId.substring(0, 8)}
                           </TableCell>
                           <TableCell className="text-slate-300 text-sm p-2 max-w-[100px] truncate">
                             {item.materialName}
                           </TableCell>
                           <TableCell className="p-2 hidden lg:table-cell">
-                            {category ? (
+                            {item.categoryName ? (
                               <Badge 
                                 variant="outline"
                                 className="text-xs border-0"
                                 style={{ 
-                                  backgroundColor: `${category.hex_color || category.color || '#6b7280'}20`,
-                                  color: category.hex_color || category.color || '#9ca3af'
+                                  backgroundColor: `${item.categoryColor || '#6b7280'}20`,
+                                  color: item.categoryColor || '#9ca3af'
                                 }}
                               >
-                                {category.name}
+                                {item.categoryName}
                               </Badge>
                             ) : (
                               <span className="text-slate-500 text-xs">-</span>
                             )}
                           </TableCell>
                           <TableCell className="text-slate-300 text-sm p-2 hidden sm:table-cell">
-                            {formatWeight(item.quantity)}
+                            {formatWeight(item.weight)}
                           </TableCell>
                           <TableCell className="text-slate-300 text-sm p-2 hidden md:table-cell">
                             {formatCurrency(item.purchasePrice)}
@@ -390,7 +454,7 @@ const SalesOrders = () => {
             )}
             
             {/* Paginação */}
-            {salesData.salesItems.length > itemsPerPage && (
+            {filteredItems.length > itemsPerPage && (
               <div className="mt-4 flex justify-center">
                 <Pagination>
                   <PaginationContent>
