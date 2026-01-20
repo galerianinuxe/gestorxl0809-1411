@@ -36,34 +36,38 @@ function getDefaultPermissions(role: string): string[] {
   switch (role) {
     case 'gerente':
       return [
-        'view_dashboard', 'view_orders', 'create_orders', 'edit_orders', 'delete_orders',
-        'view_materials', 'create_materials', 'edit_materials',
-        'view_clients', 'create_clients', 'edit_clients',
-        'view_cash_register', 'manage_cash_register',
-        'view_reports', 'export_reports',
-        'manage_employees'
+        'pdv_view', 'pdv_create_order', 'pdv_complete_order',
+        'materials_view', 'materials_edit',
+        'stock_view',
+        'transactions_view', 'expenses_view', 'expenses_create',
+        'cash_register_open', 'cash_register_close',
+        'reports_view',
+        'clients_view', 'clients_edit',
+        'settings_view'
       ];
     case 'supervisor':
       return [
-        'view_dashboard', 'view_orders', 'create_orders', 'edit_orders',
-        'view_materials', 'edit_materials',
-        'view_clients', 'create_clients', 'edit_clients',
-        'view_cash_register', 'manage_cash_register',
-        'view_reports'
+        'pdv_view', 'pdv_create_order', 'pdv_complete_order',
+        'materials_view', 'materials_edit',
+        'stock_view',
+        'transactions_view', 'expenses_view',
+        'cash_register_open', 'cash_register_close',
+        'reports_view',
+        'clients_view', 'clients_edit'
       ];
     case 'caixa':
       return [
-        'view_dashboard', 'view_orders', 'create_orders',
-        'view_materials',
-        'view_clients',
-        'view_cash_register', 'manage_cash_register'
+        'pdv_view', 'pdv_create_order', 'pdv_complete_order',
+        'materials_view',
+        'cash_register_open', 'cash_register_close',
+        'clients_view'
       ];
     case 'operador':
     default:
       return [
-        'view_dashboard', 'view_orders', 'create_orders',
-        'view_materials',
-        'view_clients'
+        'pdv_view', 'pdv_create_order',
+        'materials_view',
+        'clients_view'
       ];
   }
 }

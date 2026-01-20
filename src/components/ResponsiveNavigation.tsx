@@ -5,6 +5,7 @@ import {
   Menu,
   X,
   LogIn,
+  LogOut,
   Zap,
   ChevronRight,
   Home,
@@ -12,10 +13,12 @@ import {
   PlayCircle,
   Newspaper,
   Phone,
-  HelpCircle
+  HelpCircle,
+  LayoutDashboard
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SystemLogo from './SystemLogo';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ResponsiveNavigationProps {
   logoUrl?: string;
@@ -29,6 +32,7 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
 const navigationItems = [
     { title: "Início", href: "/landing", icon: Home },
@@ -120,26 +124,48 @@ const navigationItems = [
             })}
           </div>
 
-          {/* Right Actions - Estilo harmonizado com menu */}
+          {/* Right Actions */}
           <div className="flex items-center gap-2">
-            {/* Entrar - Estilo texto como menu, com destaque leve */}
-            <button
-              onClick={() => navigate('/login')}
-              className="relative px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300 group flex items-center gap-1.5"
-            >
-              <LogIn className="h-4 w-4" />
-              Entrar
-              <span className="absolute bottom-0 left-0 h-0.5 bg-gray-500 w-0 group-hover:w-full transition-all duration-300" />
-            </button>
-            
-            {/* Teste Grátis - Borda verde com destaque */}
-            <button
-              onClick={() => navigate('/register')}
-              className="relative px-4 py-2 text-sm font-semibold text-white border border-green-500 rounded-md hover:bg-green-600 hover:border-green-600 transition-all duration-300 flex items-center gap-1.5"
-            >
-              <Zap className="h-4 w-4" />
-              Teste Grátis
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="relative px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300 group flex items-center gap-1.5"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                  <span className="absolute bottom-0 left-0 h-0.5 bg-emerald-500 w-0 group-hover:w-full transition-all duration-300" />
+                </button>
+                
+                <button
+                  onClick={async () => { await signOut(); navigate('/'); }}
+                  className="relative px-3 py-2 text-sm font-medium text-gray-300 hover:text-red-400 transition-all duration-300 group flex items-center gap-1.5"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
+                  <span className="absolute bottom-0 left-0 h-0.5 bg-red-500 w-0 group-hover:w-full transition-all duration-300" />
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="relative px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300 group flex items-center gap-1.5"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Entrar
+                  <span className="absolute bottom-0 left-0 h-0.5 bg-gray-500 w-0 group-hover:w-full transition-all duration-300" />
+                </button>
+                
+                <button
+                  onClick={() => navigate('/register')}
+                  className="relative px-4 py-2 text-sm font-semibold text-white border border-emerald-500 rounded-md hover:bg-emerald-600 hover:border-emerald-600 transition-all duration-300 flex items-center gap-1.5"
+                >
+                  <Zap className="h-4 w-4" />
+                  Teste Grátis
+                </button>
+              </>
+            )}
           </div>
         </nav>
 
@@ -173,13 +199,23 @@ const navigationItems = [
               <div className="flex flex-col h-[calc(100%-65px)]">
                 {/* Primary CTA */}
                 <div className="p-4 border-b border-gray-800">
-                  <Button
-                    onClick={() => navigate('/register')}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold h-12"
-                  >
-                    <Zap className="mr-2 h-4 w-4" />
-                    Teste Grátis 7 Dias
-                  </Button>
+                  {user ? (
+                    <Button
+                      onClick={() => { navigate('/dashboard'); setIsOpen(false); }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-12"
+                    >
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Ir para Dashboard
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => navigate('/register')}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-12"
+                    >
+                      <Zap className="mr-2 h-4 w-4" />
+                      Teste Grátis 7 Dias
+                    </Button>
+                  )}
                 </div>
 
                 {/* Navigation Links */}
@@ -212,14 +248,25 @@ const navigationItems = [
 
                 {/* Footer Actions */}
                 <div className="p-4 border-t border-gray-800 mt-auto">
-                  <Button
-                    onClick={() => navigate('/login')}
-                    variant="outline"
-                    className="w-full bg-transparent border-gray-700 text-gray-200 hover:bg-gray-800 hover:text-white h-11"
-                  >
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Já tenho conta
-                  </Button>
+                  {user ? (
+                    <Button
+                      onClick={async () => { await signOut(); setIsOpen(false); navigate('/'); }}
+                      variant="outline"
+                      className="w-full bg-transparent border-red-700 text-red-400 hover:bg-red-900/20 hover:text-red-300 h-11"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sair da conta
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => navigate('/login')}
+                      variant="outline"
+                      className="w-full bg-transparent border-gray-700 text-gray-200 hover:bg-gray-800 hover:text-white h-11"
+                    >
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Já tenho conta
+                    </Button>
+                  )}
                 </div>
               </div>
             </SheetContent>
