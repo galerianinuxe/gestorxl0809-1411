@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Printer, Trash2 } from 'lucide-react';
+import { FileText, Printer, Trash2, XCircle, AlertTriangle } from 'lucide-react';
 import { Order } from '@/types/pdv';
 
 interface TransactionDetailsModalProps {
@@ -41,6 +41,10 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     return new Date(timestamp).toLocaleTimeString('pt-BR');
   };
 
+  const formatDateTime = (isoString: string) => {
+    return new Date(isoString).toLocaleString('pt-BR');
+  };
+
   const getPaymentMethodText = (paymentMethod: string) => {
     switch (paymentMethod) {
       case 'pix':
@@ -71,10 +75,37 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
           <DialogTitle className="text-white flex items-center gap-2">
             <FileText className="h-5 w-5" />
             Detalhes da Transação
+            {transaction.cancelled && (
+              <Badge variant="destructive" className="ml-2">CANCELADO</Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Cancellation Info */}
+          {transaction.cancelled && (
+            <Card className="bg-red-900/30 border-red-600">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                  <span className="font-medium text-red-400">Transação Cancelada</span>
+                </div>
+                <div className="text-sm space-y-1">
+                  <div className="text-gray-300">
+                    <span className="text-gray-400">Motivo: </span>
+                    {transaction.cancellation_reason || 'Não informado'}
+                  </div>
+                  {transaction.cancelled_at && (
+                    <div className="text-gray-300">
+                      <span className="text-gray-400">Data do cancelamento: </span>
+                      {formatDateTime(transaction.cancelled_at)}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Transaction Header */}
           <Card className="bg-gray-700 border-gray-600">
             <CardContent className="p-4">
@@ -84,10 +115,10 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   <div className="font-mono text-sm text-white">{transaction.id.substring(0, 8)}</div>
                 </div>
                 <Badge 
-                  variant={getTypeBadgeVariant(transaction.type)}
+                  variant={transaction.cancelled ? 'destructive' : getTypeBadgeVariant(transaction.type)}
                   className="text-xs"
                 >
-                  {getTypeText(transaction.type)}
+                  {transaction.cancelled ? 'Cancelado' : getTypeText(transaction.type)}
                 </Badge>
               </div>
               
@@ -112,10 +143,10 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 {transaction.items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center text-sm">
                     <div className="flex-1">
-                      <div className="text-white">{item.materialName}</div>
+                      <div className={transaction.cancelled ? 'text-gray-400' : 'text-white'}>{item.materialName}</div>
                       <div className="text-gray-400">{item.quantity.toFixed(2)} kg × {formatCurrency(item.price)}</div>
                     </div>
-                    <div className="text-white font-medium">
+                    <div className={`font-medium ${transaction.cancelled ? 'text-gray-400 line-through' : 'text-white'}`}>
                       {formatCurrency(item.total)}
                     </div>
                   </div>
@@ -142,7 +173,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Valor Total:</span>
-                  <span className="text-white font-medium text-lg">
+                  <span className={`font-medium text-lg ${transaction.cancelled ? 'text-gray-400 line-through' : 'text-white'}`}>
                     {formatCurrency(transaction.total)}
                   </span>
                 </div>
@@ -160,14 +191,16 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               Reimprimir
             </Button>
             
-            <Button
-              onClick={() => transaction && onDelete?.(transaction)}
-              variant="destructive"
-              className="w-full"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Excluir
-            </Button>
+            {!transaction.cancelled && (
+              <Button
+                onClick={() => transaction && onDelete?.(transaction)}
+                variant="destructive"
+                className="w-full"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Cancelar Transação
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, FileText, ShoppingCart, DollarSign, Printer, CreditCard, Banknote, RefreshCw, XCircle } from 'lucide-react';
 import ContextualHelpButton from '@/components/ContextualHelpButton';
 import { getOrders, getCustomerById, getActiveCashRegister } from '@/utils/supabaseStorage';
@@ -239,9 +240,10 @@ const Transactions = () => {
     }
   };
 
-  const totalTransactions = filteredTransactions.length;
-  const totalSales = filteredTransactions.filter(t => t.type === 'venda').reduce((sum, t) => sum + t.total, 0);
-  const totalPurchases = filteredTransactions.filter(t => t.type === 'compra').reduce((sum, t) => sum + t.total, 0);
+  const totalTransactions = filteredTransactions.filter(t => !t.cancelled).length;
+  const cancelledTransactions = filteredTransactions.filter(t => t.cancelled).length;
+  const totalSales = filteredTransactions.filter(t => t.type === 'venda' && !t.cancelled).reduce((sum, t) => sum + t.total, 0);
+  const totalPurchases = filteredTransactions.filter(t => t.type === 'compra' && !t.cancelled).reduce((sum, t) => sum + t.total, 0);
 
   const handleReprintClick = (order: Order) => {
     setOrderToReprint(order);
@@ -495,15 +497,22 @@ const Transactions = () => {
                   {paginatedTransactions.map((transaction) => (
                     <Card 
                       key={transaction.id} 
-                      className="bg-slate-800 border-slate-600 cursor-pointer"
+                      className={`bg-slate-800 cursor-pointer ${transaction.cancelled ? 'border-red-600/50 opacity-60' : 'border-slate-600'}`}
                       onClick={() => handleTransactionClick(transaction)}
                     >
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`font-semibold ${getTypeColor(transaction.type)}`}>
-                            {transaction.type === 'venda' ? 'Venda' : 'Compra'}
+                          <div className="flex items-center gap-2">
+                            <span className={`font-semibold ${transaction.cancelled ? 'line-through text-slate-400' : getTypeColor(transaction.type)}`}>
+                              {transaction.type === 'venda' ? 'Venda' : 'Compra'}
+                            </span>
+                            {transaction.cancelled && (
+                              <Badge variant="destructive" className="text-xs">CANCELADO</Badge>
+                            )}
+                          </div>
+                          <span className={`font-bold ${transaction.cancelled ? 'text-slate-400 line-through' : 'text-white'}`}>
+                            {formatCurrency(transaction.total)}
                           </span>
-                          <span className="text-white font-bold">{formatCurrency(transaction.total)}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm text-slate-400">
                           <span>{formatDate(transaction.timestamp)} {formatTime(transaction.timestamp)}</span>
@@ -519,17 +528,19 @@ const Transactions = () => {
                             >
                               <Printer className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCancelClick(transaction);
-                              }}
-                              className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
+                            {!transaction.cancelled && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCancelClick(transaction);
+                                }}
+                                className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -554,15 +565,22 @@ const Transactions = () => {
                       {paginatedTransactions.map((transaction) => (
                         <TableRow 
                           key={transaction.id} 
-                          className="border-slate-600 hover:bg-slate-600/30 cursor-pointer"
+                          className={`border-slate-600 hover:bg-slate-600/30 cursor-pointer ${transaction.cancelled ? 'opacity-60' : ''}`}
                           onClick={() => handleTransactionClick(transaction)}
                         >
                           <TableCell className="text-slate-300 text-sm p-2">
                             <div>{formatDate(transaction.timestamp)}</div>
                             <div className="text-xs text-slate-500">{formatTime(transaction.timestamp)}</div>
                           </TableCell>
-                          <TableCell className={`font-semibold text-sm p-2 ${getTypeColor(transaction.type)}`}>
-                            {transaction.type === 'venda' ? 'Venda' : 'Compra'}
+                          <TableCell className="text-sm p-2">
+                            <div className="flex items-center gap-2">
+                              <span className={`font-semibold ${transaction.cancelled ? 'line-through text-slate-400' : getTypeColor(transaction.type)}`}>
+                                {transaction.type === 'venda' ? 'Venda' : 'Compra'}
+                              </span>
+                              {transaction.cancelled && (
+                                <Badge variant="destructive" className="text-xs">CANCELADO</Badge>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="text-slate-300 text-sm p-2">
                             {transaction.items.length} item(s)
@@ -573,7 +591,7 @@ const Transactions = () => {
                               <span className="text-xs">{getPaymentMethodText(orderPayments[transaction.id]?.payment_method || 'dinheiro')}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="text-white font-semibold text-sm p-2 text-right">
+                          <TableCell className={`font-semibold text-sm p-2 text-right ${transaction.cancelled ? 'text-slate-400 line-through' : 'text-white'}`}>
                             {formatCurrency(transaction.total)}
                           </TableCell>
                           <TableCell className="p-2">
@@ -589,17 +607,19 @@ const Transactions = () => {
                               >
                                 <Printer className="h-4 w-4" />
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCancelClick(transaction);
-                                }}
-                                className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </Button>
+                              {!transaction.cancelled && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCancelClick(transaction);
+                                  }}
+                                  className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400"
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
