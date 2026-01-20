@@ -117,6 +117,7 @@ const SalesOrders = () => {
       const orderDate = new Date(order.timestamp);
       return order.type === 'venda' && 
              order.status === 'completed' &&
+             order.items && order.items.length > 0 &&  // Ignorar ordens sem items
              orderDate >= filterStart && 
              orderDate <= filterEnd;
     });
