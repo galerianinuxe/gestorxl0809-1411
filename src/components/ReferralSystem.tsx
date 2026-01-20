@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Copy, Users, Gift, TrendingUp, Calendar, Key, RefreshCw, Info, Award, RotateCcw } from 'lucide-react';
+import { Copy, Users, Gift, TrendingUp, Calendar, Key, Info, Award, RotateCcw, Calculator } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -302,59 +302,98 @@ const ReferralSystem: React.FC = () => {
         </Card>
       </div>
 
-      {/* Tabela de Bônus - Dinâmica */}
-      <Card className="bg-emerald-900/20 border-emerald-700/50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <h4 className="text-emerald-200 font-medium mb-3">Tabela de Bônus por Plano</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+      {/* Tabela de Cálculos de Bônus e Comissões */}
+      <Card className="bg-slate-800/90 border-slate-700">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white flex items-center gap-2 text-lg">
+            <Calculator className="h-5 w-5 text-purple-400" />
+            Tabela de Cálculos de Bônus e Comissões
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-600">
+                  <th className="text-left py-3 px-2 text-slate-400 font-medium">Plano do Indicado</th>
+                  <th className="text-center py-3 px-2 text-emerald-400 font-medium">1ª Ativação</th>
+                  <th className="text-center py-3 px-2 text-slate-400 font-medium">% Renovação</th>
+                  <th className="text-center py-3 px-2 text-cyan-400 font-medium">Renovação</th>
+                </tr>
+              </thead>
+              <tbody>
                 {referralSettings.length > 0 ? (
-                  <>
-                    {referralSettings.map((setting) => (
-                      <div key={setting.plan_type} className="bg-slate-800/50 rounded p-2 text-center">
-                        <p className="text-slate-400">{setting.plan_label}</p>
-                        <p className="text-emerald-300 font-bold">+{setting.bonus_days} dias</p>
-                      </div>
-                    ))}
-                    <div className="bg-cyan-900/30 rounded p-2 text-center col-span-2 sm:col-span-4">
-                      <p className="text-cyan-400">
-                        Renovação = {referralSettings[0]?.renewal_percentage || 50}% do bônus
-                      </p>
-                    </div>
-                  </>
+                  referralSettings.map((setting) => (
+                    <tr key={setting.plan_type} className="border-b border-slate-700/50 hover:bg-slate-700/30">
+                      <td className="py-3 px-2 text-white font-medium">{setting.plan_label}</td>
+                      <td className="py-3 px-2 text-center">
+                        <span className="text-emerald-300 font-bold">+{setting.bonus_days} dias</span>
+                      </td>
+                      <td className="py-3 px-2 text-center text-slate-400">{setting.renewal_percentage}%</td>
+                      <td className="py-3 px-2 text-center">
+                        <span className="text-cyan-300 font-bold">
+                          +{Math.ceil(setting.bonus_days * setting.renewal_percentage / 100)} dias
+                        </span>
+                      </td>
+                    </tr>
+                  ))
                 ) : (
                   <>
-                    <div className="bg-slate-800/50 rounded p-2 text-center">
-                      <p className="text-slate-400">Trial</p>
-                      <p className="text-emerald-300 font-bold">+3 dias</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-2 text-center">
-                      <p className="text-slate-400">Mensal</p>
-                      <p className="text-emerald-300 font-bold">+7 dias</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-2 text-center">
-                      <p className="text-slate-400">Trimestral</p>
-                      <p className="text-emerald-300 font-bold">+15 dias</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-2 text-center">
-                      <p className="text-slate-400">Semestral</p>
-                      <p className="text-emerald-300 font-bold">+30 dias</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-2 text-center">
-                      <p className="text-slate-400">Anual</p>
-                      <p className="text-emerald-300 font-bold">+45 dias</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-2 text-center">
-                      <p className="text-slate-400">Trienal</p>
-                      <p className="text-emerald-300 font-bold">+90 dias</p>
-                    </div>
-                    <div className="bg-cyan-900/30 rounded p-2 text-center col-span-2">
-                      <p className="text-cyan-400">Renovação = 50% do bônus</p>
-                    </div>
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-3 px-2 text-white font-medium">Trial</td>
+                      <td className="py-3 px-2 text-center text-emerald-300 font-bold">+3 dias</td>
+                      <td className="py-3 px-2 text-center text-slate-400">50%</td>
+                      <td className="py-3 px-2 text-center text-cyan-300 font-bold">+2 dias</td>
+                    </tr>
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-3 px-2 text-white font-medium">Promocional</td>
+                      <td className="py-3 px-2 text-center text-emerald-300 font-bold">+5 dias</td>
+                      <td className="py-3 px-2 text-center text-slate-400">50%</td>
+                      <td className="py-3 px-2 text-center text-cyan-300 font-bold">+3 dias</td>
+                    </tr>
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-3 px-2 text-white font-medium">Mensal</td>
+                      <td className="py-3 px-2 text-center text-emerald-300 font-bold">+7 dias</td>
+                      <td className="py-3 px-2 text-center text-slate-400">50%</td>
+                      <td className="py-3 px-2 text-center text-cyan-300 font-bold">+4 dias</td>
+                    </tr>
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-3 px-2 text-white font-medium">Trimestral</td>
+                      <td className="py-3 px-2 text-center text-emerald-300 font-bold">+15 dias</td>
+                      <td className="py-3 px-2 text-center text-slate-400">50%</td>
+                      <td className="py-3 px-2 text-center text-cyan-300 font-bold">+8 dias</td>
+                    </tr>
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-3 px-2 text-white font-medium">Semestral</td>
+                      <td className="py-3 px-2 text-center text-emerald-300 font-bold">+30 dias</td>
+                      <td className="py-3 px-2 text-center text-slate-400">50%</td>
+                      <td className="py-3 px-2 text-center text-cyan-300 font-bold">+15 dias</td>
+                    </tr>
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-3 px-2 text-white font-medium">Anual</td>
+                      <td className="py-3 px-2 text-center text-emerald-300 font-bold">+45 dias</td>
+                      <td className="py-3 px-2 text-center text-slate-400">50%</td>
+                      <td className="py-3 px-2 text-center text-cyan-300 font-bold">+23 dias</td>
+                    </tr>
+                    <tr className="border-b border-slate-700/50">
+                      <td className="py-3 px-2 text-white font-medium">Trienal</td>
+                      <td className="py-3 px-2 text-center text-emerald-300 font-bold">+90 dias</td>
+                      <td className="py-3 px-2 text-center text-slate-400">50%</td>
+                      <td className="py-3 px-2 text-center text-cyan-300 font-bold">+45 dias</td>
+                    </tr>
                   </>
                 )}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Legenda explicativa */}
+          <div className="mt-4 p-3 bg-emerald-900/20 border border-emerald-700/50 rounded-lg">
+            <div className="flex items-start gap-2">
+              <Info className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+              <div className="text-xs text-emerald-200 space-y-1">
+                <p><strong>1ª Ativação:</strong> Dias ganhos quando seu indicado ativa o primeiro plano pago.</p>
+                <p><strong>Renovação:</strong> Dias ganhos a cada renovação do plano pelo indicado ({referralSettings[0]?.renewal_percentage || 50}% do bônus inicial).</p>
               </div>
             </div>
           </div>
