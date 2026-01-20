@@ -46,7 +46,7 @@ const Expenses = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const itemsPerPage = 20;
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   useEffect(() => {
     const urlStartDate = searchParams.get('startDate');
@@ -207,7 +207,7 @@ const Expenses = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedPeriod, startDate, endDate, selectedCategory]);
+  }, [selectedPeriod, startDate, endDate, selectedCategory, itemsPerPage]);
 
   const clearFilters = () => {
     setSelectedPeriod('last30');
@@ -245,23 +245,39 @@ const Expenses = () => {
           onEndDateChange={setEndDate}
           onClear={clearFilters}
           extraFilters={
-            <div className="grid grid-cols-1 gap-2">
-              <Label className="text-slate-300 text-sm">Categoria</Label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                  <SelectValue placeholder="Todas as categorias" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-700 border-slate-600">
-                  <SelectItem value="all" className="text-white hover:bg-slate-600">
-                    Todas as categorias
-                  </SelectItem>
-                  {uniqueCategories.map(cat => (
-                    <SelectItem key={cat} value={cat} className="text-white hover:bg-slate-600">
-                      {cat}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-2">
+                <Label className="text-slate-300 text-sm">Categoria</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                    <SelectValue placeholder="Todas as categorias" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-700 border-slate-600">
+                    <SelectItem value="all" className="text-white hover:bg-slate-600">
+                      Todas as categorias
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {uniqueCategories.map(cat => (
+                      <SelectItem key={cat} value={cat} className="text-white hover:bg-slate-600">
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                <Label className="text-slate-300 text-sm">Por Página</Label>
+                <Select value={itemsPerPage.toString()} onValueChange={(v) => setItemsPerPage(Number(v))}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-700 border-slate-600">
+                    <SelectItem value="20" className="text-white hover:bg-slate-600">20</SelectItem>
+                    <SelectItem value="50" className="text-white hover:bg-slate-600">50</SelectItem>
+                    <SelectItem value="100" className="text-white hover:bg-slate-600">100</SelectItem>
+                    <SelectItem value="200" className="text-white hover:bg-slate-600">200</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           }
         />
@@ -374,48 +390,53 @@ const Expenses = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-4 flex justify-center">
-                    <Pagination>
-                      <PaginationContent>
-                        <PaginationItem>
-                          <PaginationPrevious 
-                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                          />
-                        </PaginationItem>
-                        
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                          let page;
-                          if (totalPages <= 5) {
-                            page = i + 1;
-                          } else if (currentPage <= 3) {
-                            page = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            page = totalPages - 4 + i;
-                          } else {
-                            page = currentPage - 2 + i;
-                          }
-                          return (
-                            <PaginationItem key={page}>
-                              <PaginationLink
-                                onClick={() => setCurrentPage(page)}
-                                isActive={currentPage === page}
-                                className="cursor-pointer"
-                              >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
-                        
-                        <PaginationItem>
-                          <PaginationNext 
-                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
+                  <div className="mt-4">
+                    <div className="text-sm text-slate-400 text-center mb-3">
+                      Exibindo {startIndex + 1} a {Math.min(endIndex, filteredExpenses.length)} de {filteredExpenses.length} despesas
+                    </div>
+                    <div className="flex justify-center">
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious 
+                              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
+                          </PaginationItem>
+                          
+                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                            let page;
+                            if (totalPages <= 5) {
+                              page = i + 1;
+                            } else if (currentPage <= 3) {
+                              page = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              page = totalPages - 4 + i;
+                            } else {
+                              page = currentPage - 2 + i;
+                            }
+                            return (
+                              <PaginationItem key={page}>
+                                <PaginationLink
+                                  onClick={() => setCurrentPage(page)}
+                                  isActive={currentPage === page}
+                                  className="cursor-pointer"
+                                >
+                                  {page}
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+                          })}
+                          
+                          <PaginationItem>
+                            <PaginationNext 
+                              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
                   </div>
                 )}
               </>
