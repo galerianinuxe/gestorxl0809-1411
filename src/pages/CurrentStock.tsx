@@ -152,9 +152,8 @@ const CurrentStock = () => {
     periodEnd.setHours(23, 59, 59, 999);
 
     if (selectedPeriod === 'custom' && filterStartDate && filterEndDate) {
-      periodStart = new Date(filterStartDate);
-      periodEnd = new Date(filterEndDate);
-      periodEnd.setHours(23, 59, 59, 999);
+      periodStart = new Date(filterStartDate + 'T00:00:00');
+      periodEnd = new Date(filterEndDate + 'T23:59:59.999');
     } else if (selectedPeriod && selectedPeriod !== 'all') {
       switch (selectedPeriod) {
         case 'daily':
